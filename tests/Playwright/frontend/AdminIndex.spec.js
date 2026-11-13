@@ -12,8 +12,8 @@ import {
 
 test.use({ authenticated: true });
 
-test.beforeEach(async ({ currentUser }) => {
-  currentUser.data.permissions = ["admin.view"];
+test.beforeEach(async ({ currentUserResponse }) => {
+  currentUserResponse.data.permissions = ["admin.view"];
 });
 
 test("visit with user that is not logged in", async ({ page }) => {
@@ -22,9 +22,9 @@ test("visit with user that is not logged in", async ({ page }) => {
 
 test("visit without permission to view admin pages", async ({
   page,
-  currentUser,
+  currentUserResponse,
 }) => {
-  currentUser.data.permissions = [];
+  currentUserResponse.data.permissions = [];
 
   await page.goto("/admin");
 
@@ -38,9 +38,9 @@ test("visit without permission to view admin pages", async ({
 
 test("check admin index with all permissions", async ({
   page,
-  currentUser,
+  currentUserResponse,
 }) => {
-  currentUser.data.permissions = [
+  currentUserResponse.data.permissions = [
     "admin.view",
     "settings.viewAny",
     "roles.viewAny",
@@ -129,8 +129,8 @@ test("only room types are shown with the admin view permission", async ({
   }
 });
 
-test("open admin settings", async ({ page, currentUser }) => {
-  currentUser.data.permissions = ["admin.view", "settings.viewAny"];
+test("open admin settings", async ({ page, currentUserResponse }) => {
+  currentUserResponse.data.permissions = ["admin.view", "settings.viewAny"];
   await interceptAdminSettingsRequest(page);
 
   await page.goto("/admin");
@@ -167,8 +167,8 @@ test("open admin settings", async ({ page, currentUser }) => {
   await expect(page).toHaveURL(/\/admin\/settings/);
 });
 
-test("open admin users", async ({ page, currentUser }) => {
-  currentUser.data.permissions = [
+test("open admin users", async ({ page, currentUserResponse }) => {
+  currentUserResponse.data.permissions = [
     "admin.view",
     "users.viewAny",
     "roles.viewAny",
@@ -208,8 +208,8 @@ test("open admin users", async ({ page, currentUser }) => {
   await expect(page).toHaveURL(/\/admin\/users/);
 });
 
-test("open admin roles", async ({ page, currentUser }) => {
-  currentUser.data.permissions = ["admin.view", "roles.viewAny"];
+test("open admin roles", async ({ page, currentUserResponse }) => {
+  currentUserResponse.data.permissions = ["admin.view", "roles.viewAny"];
   await interceptAdminRolesIndexRequests(page);
 
   await page.goto("/admin");
@@ -272,8 +272,8 @@ test("open admin room types", async ({ page }) => {
   await expect(page).toHaveURL(/\/admin\/room_types/);
 });
 
-test("open admin servers", async ({ page, currentUser }) => {
-  currentUser.data.permissions = ["admin.view", "servers.viewAny"];
+test("open admin servers", async ({ page, currentUserResponse }) => {
+  currentUserResponse.data.permissions = ["admin.view", "servers.viewAny"];
   await interceptAdminServersIndexRequests(page);
 
   await page.goto("/admin");
@@ -304,8 +304,8 @@ test("open admin servers", async ({ page, currentUser }) => {
   await expect(page).toHaveURL(/\/admin\/servers/);
 });
 
-test("open admin server pools", async ({ page, currentUser }) => {
-  currentUser.data.permissions = ["admin.view", "serverPools.viewAny"];
+test("open admin server pools", async ({ page, currentUserResponse }) => {
+  currentUserResponse.data.permissions = ["admin.view", "serverPools.viewAny"];
   await interceptAdminServerPoolsIndexRequests(page);
 
   await page.goto("/admin");
@@ -338,9 +338,13 @@ test("open admin server pools", async ({ page, currentUser }) => {
   await expect(page).toHaveURL(/\/admin\/server_pools/);
 });
 
-test("open admin streaming", async ({ page, config, currentUser }) => {
-  config.data.streaming.enabled = true;
-  currentUser.data.permissions = ["admin.view", "streaming.viewAny"];
+test("open admin streaming", async ({
+  page,
+  configResponse,
+  currentUserResponse,
+}) => {
+  configResponse.data.streaming.enabled = true;
+  currentUserResponse.data.permissions = ["admin.view", "streaming.viewAny"];
   await interceptAdminStreamingIndexRequests(page);
 
   await page.goto("/admin");

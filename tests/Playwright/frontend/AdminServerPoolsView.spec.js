@@ -1,17 +1,25 @@
-import { test } from "../support/fixtures/adminServerPools.js";
+import { mergeTests } from "@playwright/test";
+import { test as serverPoolControllerTest } from "../support/fixtures/serverPoolController.js";
+import { test as serverControllerTest } from "../support/fixtures/serverController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
 } from "../support/general.js";
 import { expectAdminBreadcrumbs } from "../support/admin.js";
-import { mockMethod } from "../support/utils.js";
+import {
+  mockApiRequest,
+  serverError,
+  modelNotFound,
+} from "../support/utils.js";
+
+const test = mergeTests(serverPoolControllerTest, serverControllerTest);
 
 test.use({ authenticated: true });
 
 test.describe("Admin server pools view", () => {
-  test.beforeEach(async ({ currentUser }) => {
-    currentUser.data.permissions = [
+  test.beforeEach(async ({ currentUserResponse }) => {
+    currentUserResponse.data.permissions = [
       "admin.view",
       "serverPools.viewAny",
       "serverPools.view",
@@ -24,9 +32,12 @@ test.describe("Admin server pools view", () => {
 
   test("visit with user without permission to view server pools", async ({
     page,
-    currentUser,
+    currentUserResponse,
   }) => {
-    currentUser.data.permissions = ["admin.view", "serverPools.viewAny"];
+    currentUserResponse.data.permissions = [
+      "admin.view",
+      "serverPools.viewAny",
+    ];
 
     await page.goto("/admin/server_pools/1");
 
@@ -39,13 +50,13 @@ test.describe("Admin server pools view", () => {
 
   test("loading state hides the buttons and shows the overlay", async ({
     page,
-    serverPool,
+    serverPoolResponse,
   }) => {
-    const serverPoolRequest = await mockMethod(
+    const getServerPoolApiMock = await mockApiRequest(
       page,
       "GET",
-      "**/api/v1/serverPools/1",
-      { json: serverPool, hold: true },
+      "serverPools/1",
+      { json: serverPoolResponse, hold: true },
     );
     await page.goto("/admin/server_pools/1");
 
@@ -59,7 +70,7 @@ test.describe("Admin server pools view", () => {
       ).toHaveCount(0);
     }
 
-    serverPoolRequest.release();
+    getServerPoolApiMock.release();
 
     await expect(page.getByTestId("name-field")).toBeVisible();
     await expect(page.getByTestId("overlay")).toHaveCount(0);
@@ -125,9 +136,9 @@ test.describe("Admin server pools view", () => {
 
   test("shows only the edit button with update permission", async ({
     page,
-    currentUser,
+    currentUserResponse,
   }) => {
-    currentUser.data.permissions = [
+    currentUserResponse.data.permissions = [
       "admin.view",
       "servers.viewAny",
       "serverPools.viewAny",
@@ -154,9 +165,9 @@ test.describe("Admin server pools view", () => {
 
   test("shows edit and delete buttons with delete permission", async ({
     page,
-    currentUser,
+    currentUserResponse,
   }) => {
-    currentUser.data.permissions = [
+    currentUserResponse.data.permissions = [
       "admin.view",
       "servers.viewAny",
       "serverPools.viewAny",
@@ -188,12 +199,9 @@ test.describe("Admin server pools view", () => {
   test.describe("open view errors", () => {
     test("server error shows overlay and can be retried", async ({
       page,
-      serverPool,
+      serverPoolResponse,
     }) => {
-      await mockMethod(page, "GET", "**/api/v1/serverPools/1", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "GET", "serverPools/1", serverError());
 
       await page.goto("/admin/server_pools/1");
 
@@ -203,8 +211,8 @@ test.describe("Admin server pools view", () => {
         'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
 
-      await mockMethod(page, "GET", "**/api/v1/serverPools/1", {
-        json: serverPool,
+      await mockApiRequest(page, "GET", "serverPools/1", {
+        json: serverPoolResponse,
       });
       const retryButton = page.getByTestId("loading-retry-button");
       await expect(retryButton).toBeVisible();
@@ -217,10 +225,12 @@ test.describe("Admin server pools view", () => {
     });
 
     test("404 redirects to the server pools index", async ({ page }) => {
-      await mockMethod(page, "GET", "**/api/v1/serverPools/1", {
-        status: 404,
-        json: { message: "model_not_found", model: "server_pool", ids: [1] },
-      });
+      await mockApiRequest(
+        page,
+        "GET",
+        "serverPools/1",
+        modelNotFound("server_pool", [1]),
+      );
 
       const serverPoolsRequest = page.waitForRequest(
         /\/api\/v1\/serverPools\?/,
@@ -236,7 +246,7 @@ test.describe("Admin server pools view", () => {
     });
 
     test("401 redirects to the login page", async ({ page }) => {
-      await mockMethod(page, "GET", "**/api/v1/serverPools/1", {
+      await mockApiRequest(page, "GET", "serverPools/1", {
         status: 401,
       });
 

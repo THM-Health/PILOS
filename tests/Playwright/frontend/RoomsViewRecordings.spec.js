@@ -1,11 +1,18 @@
+import { mergeTests } from "@playwright/test";
+import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
+import { test as roomControllerTest } from "../support/fixtures/roomController.js";
+import { test as recordingControllerTest } from "../support/fixtures/recordingController.js";
+import { test as postMessageToAppTest } from "../support/fixtures/postMessageToApp.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { test } from "../support/fixtures/roomsFilesRecordings.js";
 import {
-  holdRequest,
   expectActivePage,
-  queryOf,
-  mockMethod,
+  getRequestQuery,
   readFixture,
+  unauthorized,
+  forbidden,
+  errorResponse,
+  serverError,
+  modelNotFound,
 } from "../support/utils.js";
 import { interceptRoomIndexRequests } from "../support/mocks.js";
 import {
@@ -13,6 +20,13 @@ import {
   selectFilter,
   selectSortType,
 } from "../support/room.js";
+
+const test = mergeTests(
+  roomControllerTest,
+  recordingControllerTest,
+  postMessageToAppTest,
+  participantNameCheckTest,
+);
 
 test.use({ authenticated: true });
 
@@ -22,12 +36,15 @@ test.describe("Rooms view recordings", () => {
   });
 
   test.describe("load recordings", () => {
-    test("shows the loading state", async ({ page, roomRecordings }) => {
-      const release = await holdRequest(
-        page,
-        "**/api/v1/rooms/abc-def-123/recordings*",
-        { json: roomRecordings },
-      );
+    test("shows the loading state", async ({
+      page,
+      roomRecordingsResponse,
+      getRoomRecordingsApiMock,
+    }) => {
+      getRoomRecordingsApiMock.respondWith({
+        json: roomRecordingsResponse,
+        hold: true,
+      });
 
       await page.goto("/rooms/abc-def-123");
       await page.locator("#tab-recordings").click();
@@ -52,7 +69,7 @@ test.describe("Rooms view recordings", () => {
         page.getByTestId("room-recordings-reload-button"),
       ).toBeDisabled();
 
-      release();
+      getRoomRecordingsApiMock.release();
 
       await expect(page.getByTestId("overlay")).toBeHidden();
       await expect(search.locator("input")).toBeEnabled();
@@ -103,7 +120,7 @@ test.describe("Rooms view recordings", () => {
       test(`shows ${recording.description}`, async ({
         page,
         baseURL,
-        roomRecordings,
+        roomRecordingsResponse,
       }) => {
         await page.goto("/rooms/abc-def-123#tab=recordings");
 
@@ -152,7 +169,9 @@ test.describe("Rooms view recordings", () => {
         );
         await expect(download).toHaveAttribute(
           "href",
-          baseURL + "/download/recording/" + roomRecordings.data[index].id,
+          baseURL +
+            "/download/recording/" +
+            roomRecordingsResponse.data[index].id,
         );
         await expect(download).toHaveAttribute("target", "_blank");
       });
@@ -181,13 +200,13 @@ test.describe("Rooms view recordings", () => {
 
       test("disables the buttons and shows the overlay while reloading", async ({
         page,
-        roomRecordings,
+        roomRecordingsResponse,
+        getRoomRecordingsApiMock,
       }) => {
-        const release = await holdRequest(
-          page,
-          "**/api/v1/rooms/abc-def-123/recordings*",
-          { json: roomRecordings },
-        );
+        getRoomRecordingsApiMock.respondWith({
+          json: roomRecordingsResponse,
+          hold: true,
+        });
 
         await page.getByTestId("room-recordings-reload-button").click();
 
@@ -207,25 +226,25 @@ test.describe("Rooms view recordings", () => {
           item.locator('button[data-test="room-recordings-delete-button"]'),
         ).toBeDisabled();
 
-        release();
+        getRoomRecordingsApiMock.release();
         await expect(page.getByTestId("overlay")).toBeHidden();
       });
 
       test("enables the buttons after reloading", async ({
         page,
         baseURL,
-        roomRecordings,
+        roomRecordingsResponse,
+        getRoomRecordingsApiMock,
       }) => {
-        const release = await holdRequest(
-          page,
-          "**/api/v1/rooms/abc-def-123/recordings*",
-          { json: roomRecordings },
-        );
+        getRoomRecordingsApiMock.respondWith({
+          json: roomRecordingsResponse,
+          hold: true,
+        });
 
         await page.getByTestId("room-recordings-reload-button").click();
         await expect(page.getByTestId("overlay")).toBeVisible();
 
-        release();
+        getRoomRecordingsApiMock.release();
         await expect(page.getByTestId("overlay")).toBeHidden();
 
         const item = page.getByTestId("room-recording-item").first();
@@ -237,7 +256,7 @@ test.describe("Rooms view recordings", () => {
         );
         await expect(download).toHaveAttribute(
           "href",
-          baseURL + "/download/recording/" + roomRecordings.data[0].id,
+          baseURL + "/download/recording/" + roomRecordingsResponse.data[0].id,
         );
         await expect(download).toHaveAttribute("target", "_blank");
         await expect(
@@ -251,9 +270,9 @@ test.describe("Rooms view recordings", () => {
   });
 
   test.describe("access code", () => {
-    test.beforeEach(async ({ page, room }) => {
-      room.data.owner = { id: 2, name: "Max Doe" };
-      await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/auth", {
+    test.beforeEach(async ({ roomResponse, postRoomAuthApiMock }) => {
+      roomResponse.data.owner = { id: 2, name: "Max Doe" };
+      postRoomAuthApiMock.respondWith({
         status: 201,
         json: { data: { id: "roomAuthToken", type: 0 } },
       });
@@ -261,12 +280,12 @@ test.describe("Rooms view recordings", () => {
 
     test("loads the recordings with the room auth token", async ({
       page,
-      roomRecordings,
+      roomRecordingsResponse,
     }) => {
-      roomRecordings.data = roomRecordings.data.slice(0, 1);
-      roomRecordings.meta.to = 1;
-      roomRecordings.meta.total = 1;
-      roomRecordings.meta.total_no_filter = 1;
+      roomRecordingsResponse.data = roomRecordingsResponse.data.slice(0, 1);
+      roomRecordingsResponse.meta.to = 1;
+      roomRecordingsResponse.meta.total = 1;
+      roomRecordingsResponse.meta.total_no_filter = 1;
 
       const authRequest = page.waitForRequest(
         "**/api/v1/rooms/abc-def-123/auth",
@@ -278,7 +297,7 @@ test.describe("Rooms view recordings", () => {
       await page.goto("/rooms/abc-def-123#accessCode=123456789&tab=recordings");
 
       await authRequest;
-      expect(queryOf(await recordingsRequest)).toMatchObject({
+      expect(getRequestQuery(await recordingsRequest)).toMatchObject({
         room_auth_token: "roomAuthToken",
         room_auth_token_type: "0",
       });
@@ -322,21 +341,19 @@ test.describe("Rooms view recordings", () => {
 
     test("resets the room auth token and shows an error on an invalid token", async ({
       page,
-      room,
+      roomResponse,
+      getRoomRecordingsApiMock,
     }) => {
       // The room is only authenticated with the token, it gets reloaded without it after the error
       await page.route(
         (url) => url.pathname === "/api/v1/rooms/abc-def-123",
         (route) => {
-          room.data.authenticated =
-            queryOf(route.request()).room_auth_token !== undefined;
-          return route.fulfill({ json: room });
+          roomResponse.data.authenticated =
+            getRequestQuery(route.request()).room_auth_token !== undefined;
+          return route.fulfill({ json: roomResponse });
         },
       );
-      await mockMethod(page, "GET", "**/api/v1/rooms/abc-def-123/recordings*", {
-        status: 401,
-        json: { message: "invalid_auth_token" },
-      });
+      getRoomRecordingsApiMock.respondWith(unauthorized("invalid_auth_token"));
 
       const recordingsRequest = page.waitForRequest(
         "**/api/v1/rooms/abc-def-123/recordings*",
@@ -344,17 +361,17 @@ test.describe("Rooms view recordings", () => {
       const roomReloadRequest = page.waitForRequest(
         (request) =>
           new URL(request.url()).pathname === "/api/v1/rooms/abc-def-123" &&
-          queryOf(request).room_auth_token === undefined,
+          getRequestQuery(request).room_auth_token === undefined,
       );
 
       await page.goto("/rooms/abc-def-123#accessCode=123456789&tab=recordings");
 
-      expect(queryOf(await recordingsRequest)).toMatchObject({
+      expect(getRequestQuery(await recordingsRequest)).toMatchObject({
         room_auth_token: "roomAuthToken",
         room_auth_token_type: "0",
       });
 
-      const reloadQuery = queryOf(await roomReloadRequest);
+      const reloadQuery = getRequestQuery(await roomReloadRequest);
       expect(reloadQuery.room_auth_token).toBeUndefined();
       expect(reloadQuery.room_auth_token_type).toBeUndefined();
 
@@ -366,21 +383,19 @@ test.describe("Rooms view recordings", () => {
 
     test("resets the room auth token and shows an error if a code is required", async ({
       page,
-      room,
+      roomResponse,
+      getRoomRecordingsApiMock,
     }) => {
       // First the room is authenticated, after the error the reloaded room is not
       let roomRequests = 0;
       await page.route(
         (url) => url.pathname === "/api/v1/rooms/abc-def-123",
         (route) => {
-          room.data.authenticated = roomRequests++ === 0;
-          return route.fulfill({ json: room });
+          roomResponse.data.authenticated = roomRequests++ === 0;
+          return route.fulfill({ json: roomResponse });
         },
       );
-      await mockMethod(page, "GET", "**/api/v1/rooms/abc-def-123/recordings*", {
-        status: 403,
-        json: { message: "require_code" },
-      });
+      getRoomRecordingsApiMock.respondWith(forbidden("require_code"));
 
       const recordingsRequest = page.waitForRequest(
         "**/api/v1/rooms/abc-def-123/recordings*",
@@ -393,11 +408,11 @@ test.describe("Rooms view recordings", () => {
 
       await page.goto("/rooms/abc-def-123#tab=recordings");
 
-      const recordingsQuery = queryOf(await recordingsRequest);
+      const recordingsQuery = getRequestQuery(await recordingsRequest);
       expect(recordingsQuery.room_auth_token).toBeUndefined();
       expect(recordingsQuery.room_auth_token_type).toBeUndefined();
 
-      const reloadQuery = queryOf(await roomReloadRequest);
+      const reloadQuery = getRequestQuery(await roomReloadRequest);
       expect(reloadQuery.room_auth_token).toBeUndefined();
       expect(reloadQuery.room_auth_token_type).toBeUndefined();
 
@@ -413,23 +428,24 @@ test.describe("Rooms view recordings", () => {
   test.describe("personalized link", () => {
     test.use({ authenticated: false });
 
-    test.beforeEach(async ({ room }) => {
-      room.data.username = "Max Doe";
-      room.data.current_user = null;
+    test.beforeEach(async ({ roomResponse }) => {
+      roomResponse.data.username = "Max Doe";
+      roomResponse.data.current_user = null;
     });
 
     test("loads the recordings with the room auth token", async ({
       page,
-      roomRecordings,
+      roomRecordingsResponse,
+      postRoomAuthApiMock,
     }) => {
-      await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/auth", {
+      postRoomAuthApiMock.respondWith({
         status: 201,
         json: { data: { id: "roomAuthToken", type: 1 } },
       });
-      roomRecordings.data = roomRecordings.data.slice(0, 1);
-      roomRecordings.meta.to = 1;
-      roomRecordings.meta.total = 1;
-      roomRecordings.meta.total_no_filter = 1;
+      roomRecordingsResponse.data = roomRecordingsResponse.data.slice(0, 1);
+      roomRecordingsResponse.meta.to = 1;
+      roomRecordingsResponse.meta.total = 1;
+      roomRecordingsResponse.meta.total_no_filter = 1;
 
       const recordingsRequest = page.waitForRequest(
         "**/api/v1/rooms/abc-def-123/recordings*",
@@ -439,7 +455,7 @@ test.describe("Rooms view recordings", () => {
         "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR&tab=recordings",
       );
 
-      expect(queryOf(await recordingsRequest)).toMatchObject({
+      expect(getRequestQuery(await recordingsRequest)).toMatchObject({
         room_auth_token: "roomAuthToken",
         room_auth_token_type: "1",
       });
@@ -485,6 +501,7 @@ test.describe("Rooms view recordings", () => {
 
     test("shows an error and redirects if the personalized link is invalid", async ({
       page,
+      getRoomRecordingsApiMock,
     }) => {
       // The first authentication is valid, the authentication after the recordings error is not
       let authRequests = 0;
@@ -494,15 +511,9 @@ test.describe("Rooms view recordings", () => {
               status: 201,
               json: { data: { id: "roomAuthToken", type: 1 } },
             })
-          : route.fulfill({
-              status: 401,
-              json: { message: "invalid_personalized_link" },
-            }),
+          : route.fulfill(unauthorized("invalid_personalized_link")),
       );
-      await mockMethod(page, "GET", "**/api/v1/rooms/abc-def-123/recordings*", {
-        status: 401,
-        json: { message: "invalid_auth_token" },
-      });
+      getRoomRecordingsApiMock.respondWith(unauthorized("invalid_auth_token"));
 
       await page.goto(
         "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR&tab=recordings",
@@ -527,15 +538,14 @@ test.describe("Rooms view recordings", () => {
 
     test("shows an error and redirects to the home page if only guests are allowed", async ({
       page,
+      postRoomAuthApiMock,
+      getRoomRecordingsApiMock,
     }) => {
-      await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/auth", {
+      postRoomAuthApiMock.respondWith({
         status: 201,
         json: { data: { id: "roomAuthToken", type: 1 } },
       });
-      await mockMethod(page, "GET", "**/api/v1/rooms/abc-def-123/recordings*", {
-        status: 420,
-        json: { message: "guests_only" },
-      });
+      getRoomRecordingsApiMock.respondWith(errorResponse(420, "guests_only"));
 
       await page.goto(
         "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR&tab=recordings",
@@ -550,11 +560,9 @@ test.describe("Rooms view recordings", () => {
   test.describe("load errors", () => {
     test("shows the overlay and the error on a server error", async ({
       page,
+      getRoomRecordingsApiMock,
     }) => {
-      await mockMethod(page, "GET", "**/api/v1/rooms/abc-def-123/recordings*", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      getRoomRecordingsApiMock.respondWith(serverError());
 
       await page.goto("/rooms/abc-def-123#tab=recordings");
 
@@ -588,11 +596,11 @@ test.describe("Rooms view recordings", () => {
 
     test("reloads the recordings after a server error", async ({
       page,
-      roomRecordings,
+      roomRecordingsResponse,
     }) => {
       await page.route(
         "**/api/v1/rooms/abc-def-123/recordings*",
-        (route) => route.fulfill({ status: 500, json: { message: "Test" } }),
+        (route) => route.fulfill(serverError()),
         { times: 1 },
       );
 
@@ -603,10 +611,10 @@ test.describe("Rooms view recordings", () => {
       ]);
 
       // The reload is answered with the first of three pages
-      roomRecordings.meta.per_page = 1;
-      roomRecordings.meta.last_page = 3;
-      roomRecordings.meta.total = 3;
-      roomRecordings.meta.total_no_filter = 3;
+      roomRecordingsResponse.meta.per_page = 1;
+      roomRecordingsResponse.meta.last_page = 3;
+      roomRecordingsResponse.meta.total = 3;
+      roomRecordingsResponse.meta.total_no_filter = 3;
 
       const retryButton = page.getByTestId("loading-retry-button");
       await expect(retryButton).toContainText("app.reload");
@@ -622,17 +630,17 @@ test.describe("Rooms view recordings", () => {
     });
 
     test.describe("on changing the page", () => {
-      test.beforeEach(async ({ page, roomRecordings }) => {
-        roomRecordings.meta.per_page = 1;
-        roomRecordings.meta.last_page = 3;
-        roomRecordings.meta.total = 3;
-        roomRecordings.meta.total_no_filter = 3;
+      test.beforeEach(async ({ page, roomRecordingsResponse }) => {
+        roomRecordingsResponse.meta.per_page = 1;
+        roomRecordingsResponse.meta.last_page = 3;
+        roomRecordingsResponse.meta.total = 3;
+        roomRecordingsResponse.meta.total_no_filter = 3;
         await page.goto("/rooms/abc-def-123#tab=recordings");
         await expect(page.getByTestId("room-recording-item")).toHaveCount(1);
 
         await page.route(
           "**/api/v1/rooms/abc-def-123/recordings*",
-          (route) => route.fulfill({ status: 500, json: { message: "Test" } }),
+          (route) => route.fulfill(serverError()),
           { times: 1 },
         );
         await page.getByTestId("paginator-next-button").nth(1).click();
@@ -675,7 +683,9 @@ test.describe("Rooms view recordings", () => {
         await expect(page.getByTestId("overlay")).toBeVisible();
         await page.getByTestId("loading-retry-button").click();
 
-        expect(queryOf(await recordingsRequest)).toMatchObject({ page: "1" });
+        expect(getRequestQuery(await recordingsRequest)).toMatchObject({
+          page: "1",
+        });
 
         await expect(page.getByTestId("room-recording-item")).toHaveCount(1);
         await expect(
@@ -690,16 +700,12 @@ test.describe("Rooms view recordings", () => {
 
     test("redirects to the room index page if the room is not found", async ({
       page,
+      getRoomRecordingsApiMock,
     }) => {
       await interceptRoomIndexRequests(page);
-      await mockMethod(page, "GET", "**/api/v1/rooms/abc-def-123/recordings*", {
-        status: 404,
-        json: {
-          message: "model_not_found",
-          model: "room",
-          ids: ["abc-def-123"],
-        },
-      });
+      getRoomRecordingsApiMock.respondWith(
+        modelNotFound("room", ["abc-def-123"]),
+      );
 
       await page.goto("/rooms/abc-def-123#tab=recordings");
 
@@ -715,21 +721,12 @@ test.describe("Rooms view recordings", () => {
 
       test("redirects to the 404 page if the room is not found", async ({
         page,
-        room,
+        roomResponse,
+        getRoomRecordingsApiMock,
       }) => {
-        room.data.current_user = null;
-        await mockMethod(
-          page,
-          "GET",
-          "**/api/v1/rooms/abc-def-123/recordings*",
-          {
-            status: 404,
-            json: {
-              message: "model_not_found",
-              model: "room",
-              ids: ["abc-def-123"],
-            },
-          },
+        roomResponse.data.current_user = null;
+        getRoomRecordingsApiMock.respondWith(
+          modelNotFound("room", ["abc-def-123"]),
         );
 
         await page.goto("/rooms/abc-def-123#tab=recordings");
@@ -745,12 +742,12 @@ test.describe("Rooms view recordings", () => {
 
   test("resets the page if the requested page is out of range", async ({
     page,
-    roomRecordings,
+    roomRecordingsResponse,
   }) => {
-    roomRecordings.meta.per_page = 1;
-    roomRecordings.meta.last_page = 2;
-    roomRecordings.meta.total = 2;
-    roomRecordings.meta.total_no_filter = 2;
+    roomRecordingsResponse.meta.per_page = 1;
+    roomRecordingsResponse.meta.last_page = 2;
+    roomRecordingsResponse.meta.total = 2;
+    roomRecordingsResponse.meta.total_no_filter = 2;
 
     await page.goto("/rooms/abc-def-123#tab=recordings");
     await expect(page.getByTestId("room-recording-item")).toHaveCount(1);
@@ -758,7 +755,7 @@ test.describe("Rooms view recordings", () => {
     // The second page is empty, the following request (first page) returns the recordings
     const requests = [];
     await page.route("**/api/v1/rooms/abc-def-123/recordings*", (route) => {
-      requests.push(queryOf(route.request()));
+      requests.push(getRequestQuery(route.request()));
       const recordings = readFixture("roomRecordings.json");
       if (requests.length === 1) {
         recordings.data = [];
@@ -789,8 +786,8 @@ test.describe("Rooms view recordings", () => {
   });
 
   test.describe("permissions", () => {
-    test.beforeEach(async ({ config }) => {
-      config.data.recording.recording_retention_period = 365;
+    test.beforeEach(async ({ configResponse }) => {
+      configResponse.data.recording.recording_retention_period = 365;
     });
 
     test.describe("as guest", () => {
@@ -798,14 +795,14 @@ test.describe("Rooms view recordings", () => {
 
       test("shows only the view button", async ({
         page,
-        room,
-        roomRecordings,
+        roomResponse,
+        roomRecordingsResponse,
       }) => {
-        room.data.current_user = null;
-        roomRecordings.data = roomRecordings.data.slice(0, 1);
-        roomRecordings.meta.to = 1;
-        roomRecordings.meta.total = 1;
-        roomRecordings.meta.total_no_filter = 1;
+        roomResponse.data.current_user = null;
+        roomRecordingsResponse.data = roomRecordingsResponse.data.slice(0, 1);
+        roomRecordingsResponse.meta.to = 1;
+        roomRecordingsResponse.meta.total = 1;
+        roomRecordingsResponse.meta.total_no_filter = 1;
 
         await page.goto("/rooms/abc-def-123#tab=recordings");
 
@@ -848,10 +845,10 @@ test.describe("Rooms view recordings", () => {
     });
 
     test.describe("with rooms.viewAll permission", () => {
-      test.beforeEach(async ({ page, room, currentUser }) => {
-        currentUser.data.permissions = ["rooms.viewAll"];
-        room.data.owner = { id: 2, name: "Max Doe" };
-        room.data.current_user.permissions = ["rooms.viewAll"];
+      test.beforeEach(async ({ page, roomResponse, currentUserResponse }) => {
+        currentUserResponse.data.permissions = ["rooms.viewAll"];
+        roomResponse.data.owner = { id: 2, name: "Max Doe" };
+        roomResponse.data.current_user.permissions = ["rooms.viewAll"];
 
         await page.goto("/rooms/abc-def-123#tab=recordings");
         await expect(page.getByTestId("room-recording-item")).toHaveCount(4);
@@ -925,10 +922,10 @@ test.describe("Rooms view recordings", () => {
     });
 
     test.describe("as co-owner", () => {
-      test.beforeEach(async ({ page, room }) => {
-        room.data.owner = { id: 2, name: "Max Doe" };
-        room.data.is_member = true;
-        room.data.is_co_owner = true;
+      test.beforeEach(async ({ page, roomResponse }) => {
+        roomResponse.data.owner = { id: 2, name: "Max Doe" };
+        roomResponse.data.is_member = true;
+        roomResponse.data.is_co_owner = true;
 
         await page.goto("/rooms/abc-def-123#tab=recordings");
         await expect(page.getByTestId("room-recording-item")).toHaveCount(4);
@@ -1024,10 +1021,16 @@ test.describe("Rooms view recordings", () => {
     });
 
     test.describe("with rooms.manage permission", () => {
-      test.beforeEach(async ({ page, room, currentUser }) => {
-        currentUser.data.permissions = ["rooms.viewAll", "rooms.manage"];
-        room.data.owner = { id: 2, name: "Max Doe" };
-        room.data.current_user.permissions = ["rooms.viewAll", "rooms.manage"];
+      test.beforeEach(async ({ page, roomResponse, currentUserResponse }) => {
+        currentUserResponse.data.permissions = [
+          "rooms.viewAll",
+          "rooms.manage",
+        ];
+        roomResponse.data.owner = { id: 2, name: "Max Doe" };
+        roomResponse.data.current_user.permissions = [
+          "rooms.viewAll",
+          "rooms.manage",
+        ];
 
         await page.goto("/rooms/abc-def-123#tab=recordings");
         await expect(page.getByTestId("room-recording-item")).toHaveCount(4);
@@ -1131,22 +1134,22 @@ test.describe("Rooms view recordings", () => {
 
       await page.goto("/rooms/abc-def-123#tab=recordings");
 
-      const query = queryOf(await recordingsRequest);
+      const query = getRequestQuery(await recordingsRequest);
       expect(query.query).toBeUndefined();
       expect(query).toMatchObject({ page: "1" });
     });
 
     test("shows a message if no recordings match the search query", async ({
       page,
-      roomRecordings,
+      roomRecordingsResponse,
     }) => {
       await page.goto("/rooms/abc-def-123#tab=recordings");
       await expect(page.getByTestId("room-recording-item")).toHaveCount(4);
 
-      roomRecordings.data = [];
-      roomRecordings.meta.from = null;
-      roomRecordings.meta.to = null;
-      roomRecordings.meta.total = 0;
+      roomRecordingsResponse.data = [];
+      roomRecordingsResponse.meta.from = null;
+      roomRecordingsResponse.meta.to = null;
+      roomRecordingsResponse.meta.total = 0;
       const recordingsRequest = page.waitForRequest(
         "**/api/v1/rooms/abc-def-123/recordings*",
       );
@@ -1160,7 +1163,7 @@ test.describe("Rooms view recordings", () => {
         .locator("button")
         .click();
 
-      expect(queryOf(await recordingsRequest)).toMatchObject({
+      expect(getRequestQuery(await recordingsRequest)).toMatchObject({
         query: "Test",
         page: "1",
       });
@@ -1171,16 +1174,16 @@ test.describe("Rooms view recordings", () => {
 
     test("shows a message if there are no recordings in the room", async ({
       page,
-      roomRecordings,
+      roomRecordingsResponse,
     }) => {
       await page.goto("/rooms/abc-def-123#tab=recordings");
       await expect(page.getByTestId("room-recording-item")).toHaveCount(4);
 
-      roomRecordings.data = [];
-      roomRecordings.meta.from = null;
-      roomRecordings.meta.to = null;
-      roomRecordings.meta.total = 0;
-      roomRecordings.meta.total_no_filter = 0;
+      roomRecordingsResponse.data = [];
+      roomRecordingsResponse.meta.from = null;
+      roomRecordingsResponse.meta.to = null;
+      roomRecordingsResponse.meta.total = 0;
+      roomRecordingsResponse.meta.total_no_filter = 0;
       const recordingsRequest = page.waitForRequest(
         "**/api/v1/rooms/abc-def-123/recordings*",
       );
@@ -1194,7 +1197,7 @@ test.describe("Rooms view recordings", () => {
         .locator("input")
         .press("Enter");
 
-      expect(queryOf(await recordingsRequest)).toMatchObject({
+      expect(getRequestQuery(await recordingsRequest)).toMatchObject({
         query: "Test2",
         page: "1",
       });
@@ -1204,14 +1207,14 @@ test.describe("Rooms view recordings", () => {
     });
 
     test.describe("with multiple pages", () => {
-      test.beforeEach(async ({ page, roomRecordings }) => {
+      test.beforeEach(async ({ page, roomRecordingsResponse }) => {
         await page.goto("/rooms/abc-def-123#tab=recordings");
         await expect(page.getByTestId("room-recording-item")).toHaveCount(4);
 
-        roomRecordings.meta.per_page = 1;
-        roomRecordings.meta.last_page = 2;
-        roomRecordings.meta.total = 2;
-        roomRecordings.meta.total_no_filter = 2;
+        roomRecordingsResponse.meta.per_page = 1;
+        roomRecordingsResponse.meta.last_page = 2;
+        roomRecordingsResponse.meta.total = 2;
+        roomRecordingsResponse.meta.total_no_filter = 2;
         const recordingsRequest = page.waitForRequest(
           "**/api/v1/rooms/abc-def-123/recordings*",
         );
@@ -1225,7 +1228,7 @@ test.describe("Rooms view recordings", () => {
           .locator("button")
           .click();
 
-        expect(queryOf(await recordingsRequest)).toMatchObject({
+        expect(getRequestQuery(await recordingsRequest)).toMatchObject({
           query: "Recording",
           page: "1",
         });
@@ -1250,7 +1253,7 @@ test.describe("Rooms view recordings", () => {
 
         await page.getByTestId("paginator-next-button").nth(1).click();
 
-        expect(queryOf(await recordingsRequest)).toMatchObject({
+        expect(getRequestQuery(await recordingsRequest)).toMatchObject({
           query: "Recording",
           page: "2",
         });
@@ -1287,7 +1290,7 @@ test.describe("Rooms view recordings", () => {
           .locator("button")
           .click();
 
-        expect(queryOf(await recordingsRequest)).toMatchObject({
+        expect(getRequestQuery(await recordingsRequest)).toMatchObject({
           query: "Record",
           page: "1",
         });
@@ -1305,7 +1308,7 @@ test.describe("Rooms view recordings", () => {
 
       await page.goto("/rooms/abc-def-123#tab=recordings");
 
-      const query = queryOf(await recordingsRequest);
+      const query = getRequestQuery(await recordingsRequest);
       expect(query.filter).toBeUndefined();
       expect(query).toMatchObject({ page: "1" });
     });
@@ -1343,19 +1346,19 @@ test.describe("Rooms view recordings", () => {
 
       test("shows a message if no recordings match the filter", async ({
         page,
-        roomRecordings,
+        roomRecordingsResponse,
       }) => {
-        roomRecordings.data = [];
-        roomRecordings.meta.from = null;
-        roomRecordings.meta.to = null;
-        roomRecordings.meta.total = 0;
+        roomRecordingsResponse.data = [];
+        roomRecordingsResponse.meta.from = null;
+        roomRecordingsResponse.meta.to = null;
+        roomRecordingsResponse.meta.total = 0;
         const recordingsRequest = page.waitForRequest(
           "**/api/v1/rooms/abc-def-123/recordings*",
         );
 
         await selectFilter(page, 1);
 
-        expect(queryOf(await recordingsRequest)).toMatchObject({
+        expect(getRequestQuery(await recordingsRequest)).toMatchObject({
           filter: "everyone_access",
           page: "1",
         });
@@ -1369,20 +1372,20 @@ test.describe("Rooms view recordings", () => {
 
       test("shows a message if there are no recordings in the room", async ({
         page,
-        roomRecordings,
+        roomRecordingsResponse,
       }) => {
-        roomRecordings.data = [];
-        roomRecordings.meta.from = null;
-        roomRecordings.meta.to = null;
-        roomRecordings.meta.total = 0;
-        roomRecordings.meta.total_no_filter = 0;
+        roomRecordingsResponse.data = [];
+        roomRecordingsResponse.meta.from = null;
+        roomRecordingsResponse.meta.to = null;
+        roomRecordingsResponse.meta.total = 0;
+        roomRecordingsResponse.meta.total_no_filter = 0;
         const recordingsRequest = page.waitForRequest(
           "**/api/v1/rooms/abc-def-123/recordings*",
         );
 
         await selectFilter(page, 2);
 
-        expect(queryOf(await recordingsRequest)).toMatchObject({
+        expect(getRequestQuery(await recordingsRequest)).toMatchObject({
           filter: "participant_access",
           page: "1",
         });
@@ -1395,18 +1398,18 @@ test.describe("Rooms view recordings", () => {
       });
 
       test.describe("with multiple pages", () => {
-        test.beforeEach(async ({ page, roomRecordings }) => {
-          roomRecordings.meta.per_page = 1;
-          roomRecordings.meta.last_page = 2;
-          roomRecordings.meta.total = 2;
-          roomRecordings.meta.total_no_filter = 2;
+        test.beforeEach(async ({ page, roomRecordingsResponse }) => {
+          roomRecordingsResponse.meta.per_page = 1;
+          roomRecordingsResponse.meta.last_page = 2;
+          roomRecordingsResponse.meta.total = 2;
+          roomRecordingsResponse.meta.total_no_filter = 2;
           const recordingsRequest = page.waitForRequest(
             "**/api/v1/rooms/abc-def-123/recordings*",
           );
 
           await selectFilter(page, 3);
 
-          expect(queryOf(await recordingsRequest)).toMatchObject({
+          expect(getRequestQuery(await recordingsRequest)).toMatchObject({
             filter: "moderator_access",
             page: "1",
           });
@@ -1431,7 +1434,7 @@ test.describe("Rooms view recordings", () => {
 
           await page.getByTestId("paginator-next-button").nth(1).click();
 
-          expect(queryOf(await recordingsRequest)).toMatchObject({
+          expect(getRequestQuery(await recordingsRequest)).toMatchObject({
             filter: "moderator_access",
             page: "2",
           });
@@ -1459,7 +1462,7 @@ test.describe("Rooms view recordings", () => {
 
           await selectFilter(page, 4);
 
-          expect(queryOf(await recordingsRequest)).toMatchObject({
+          expect(getRequestQuery(await recordingsRequest)).toMatchObject({
             filter: "owner_access",
             page: "1",
           });
@@ -1480,7 +1483,7 @@ test.describe("Rooms view recordings", () => {
 
           await selectFilter(page, 0);
 
-          const query = queryOf(await recordingsRequest);
+          const query = getRequestQuery(await recordingsRequest);
           expect(query.filter).toBeUndefined();
           expect(query).toMatchObject({ page: "1" });
 
@@ -1501,7 +1504,7 @@ test.describe("Rooms view recordings", () => {
 
       await page.goto("/rooms/abc-def-123#tab=recordings");
 
-      expect(queryOf(await recordingsRequest)).toMatchObject({
+      expect(getRequestQuery(await recordingsRequest)).toMatchObject({
         sort_by: "start",
         sort_direction: "desc",
         page: "1",
@@ -1533,21 +1536,21 @@ test.describe("Rooms view recordings", () => {
     });
 
     test.describe("after changing the sorting type", () => {
-      test.beforeEach(async ({ page, roomRecordings }) => {
+      test.beforeEach(async ({ page, roomRecordingsResponse }) => {
         await page.goto("/rooms/abc-def-123#tab=recordings");
         await expect(page.getByTestId("room-recording-item")).toHaveCount(4);
 
-        roomRecordings.meta.per_page = 1;
-        roomRecordings.meta.last_page = 4;
-        roomRecordings.meta.total = 4;
-        roomRecordings.meta.total_no_filter = 4;
+        roomRecordingsResponse.meta.per_page = 1;
+        roomRecordingsResponse.meta.last_page = 4;
+        roomRecordingsResponse.meta.total = 4;
+        roomRecordingsResponse.meta.total_no_filter = 4;
         const recordingsRequest = page.waitForRequest(
           "**/api/v1/rooms/abc-def-123/recordings*",
         );
 
         await selectSortType(page, 0);
 
-        expect(queryOf(await recordingsRequest)).toMatchObject({
+        expect(getRequestQuery(await recordingsRequest)).toMatchObject({
           sort_by: "description",
           sort_direction: "desc",
           page: "1",
@@ -1576,7 +1579,7 @@ test.describe("Rooms view recordings", () => {
 
         await page.getByTestId("paginator-next-button").nth(1).click();
 
-        expect(queryOf(await recordingsRequest)).toMatchObject({
+        expect(getRequestQuery(await recordingsRequest)).toMatchObject({
           sort_by: "description",
           sort_direction: "desc",
           page: "2",
@@ -1610,7 +1613,7 @@ test.describe("Rooms view recordings", () => {
           .locator("button")
           .click();
 
-        expect(queryOf(await recordingsRequest)).toMatchObject({
+        expect(getRequestQuery(await recordingsRequest)).toMatchObject({
           sort_by: "description",
           sort_direction: "asc",
           page: "1",
@@ -1638,7 +1641,7 @@ test.describe("Rooms view recordings", () => {
 
         await page.getByTestId("paginator-next-button").nth(1).click();
 
-        expect(queryOf(await recordingsRequest)).toMatchObject({
+        expect(getRequestQuery(await recordingsRequest)).toMatchObject({
           sort_by: "description",
           sort_direction: "asc",
           page: "2",
@@ -1668,7 +1671,7 @@ test.describe("Rooms view recordings", () => {
 
         await selectSortType(page, 1);
 
-        expect(queryOf(await recordingsRequest)).toMatchObject({
+        expect(getRequestQuery(await recordingsRequest)).toMatchObject({
           sort_by: "start",
           sort_direction: "asc",
           page: "1",

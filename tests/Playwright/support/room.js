@@ -1,5 +1,5 @@
 import { expect, expectToastAndClose } from "./test.js";
-import { queryOf, readFixture } from "./utils.js";
+import { getRequestQuery, readFixture, forbidden } from "./utils.js";
 
 const ROOM_URL = "**/api/v1/rooms/abc-def-123";
 const ROOM_FILES_URL = "**/api/v1/rooms/abc-def-123/files*";
@@ -43,7 +43,7 @@ export async function selectSortType(page, index) {
  * @param {string} [type="0"]
  */
 export function expectAuthToken(request, type = "0") {
-  expect(queryOf(request)).toMatchObject({
+  expect(getRequestQuery(request)).toMatchObject({
     room_auth_token: "roomAuthToken",
     room_auth_token_type: type,
   });
@@ -54,8 +54,8 @@ export function expectAuthToken(request, type = "0") {
  * @param {import("@playwright/test").Request} request
  */
 export function expectNoAuthToken(request) {
-  expect(queryOf(request)).not.toHaveProperty("room_auth_token");
-  expect(queryOf(request)).not.toHaveProperty("room_auth_token_type");
+  expect(getRequestQuery(request)).not.toHaveProperty("room_auth_token");
+  expect(getRequestQuery(request)).not.toHaveProperty("room_auth_token_type");
 }
 
 /**
@@ -385,10 +385,12 @@ export async function checkRoomAuthErrorsLoadingTab(
 
   room = await mockRoom(page);
 
-  held = await holdRequest(page, requestMethod, requestUrl, {
-    status: 403,
-    json: { message: "This action is unauthorized." },
-  });
+  held = await holdRequest(
+    page,
+    requestMethod,
+    requestUrl,
+    forbidden("This action is unauthorized."),
+  );
 
   await page.reload();
   await expectRequestsAfter(room);
@@ -554,10 +556,12 @@ export async function checkRoomAuthErrors(
     withDescription(data);
   });
 
-  request = await mockRequest(page, requestMethod, requestUrl, {
-    status: 403,
-    json: { message: "This action is unauthorized." },
-  });
+  request = await mockRequest(
+    page,
+    requestMethod,
+    requestUrl,
+    forbidden("This action is unauthorized."),
+  );
 
   const filesBefore = roomFiles.count;
   const recordingsBefore = roomRecordings?.count ?? 0;
@@ -599,14 +603,13 @@ export async function checkRoomAuthErrors(
 }
 
 /**
- * Remember a guest name that passes the participant name check.
+ * Remember a guest name. It passes the participant name check as long as `postParticipantNameCheckApiMock` has its
+ * default response (204).
  * The name is seeded once before the first page load, so the app can still change or remove it afterwards.
  * @param {import("@playwright/test").Page} page
  * @param {string} name
  */
 export async function setValidRememberedParticipantName(page, name) {
-  await mockRequest(page, "POST", PARTICIPANT_NAME_CHECK_URL, { status: 204 });
-
   await page.addInitScript((name) => {
     if (!window.localStorage.getItem("pw_guest_name_seeded")) {
       window.localStorage.setItem("pw_guest_name_seeded", "1");

@@ -1,13 +1,17 @@
+import { test } from "../support/fixtures/serverController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { test } from "../support/fixtures/adminServers.js";
 import { expectLoginRedirect } from "../support/general.js";
-import { mockMethod, nthRequest } from "../support/utils.js";
+import {
+  mockApiRequest,
+  serverError,
+  modelNotFound,
+} from "../support/utils.js";
 
 test.describe("Admin servers view server actions", () => {
   test.use({ authenticated: true });
 
-  test.beforeEach(({ currentUser }) => {
-    currentUser.data.permissions = [
+  test.beforeEach(({ currentUserResponse }) => {
+    currentUserResponse.data.permissions = [
       "admin.view",
       "servers.viewAny",
       "servers.view",
@@ -18,8 +22,8 @@ test.describe("Admin servers view server actions", () => {
   });
 
   test.describe("delete", () => {
-    test.beforeEach(async ({ page, server }) => {
-      server.data.status = -1;
+    test.beforeEach(async ({ page, serverResponse }) => {
+      serverResponse.data.status = -1;
 
       await page.goto("/admin/servers/1");
       await expect(page.getByTestId("servers-delete-button")).toBeVisible();
@@ -39,19 +43,22 @@ test.describe("Admin servers view server actions", () => {
 
     test("delete the server and redirect to the index", async ({
       page,
-      servers,
+      serversResponse,
     }) => {
-      const deleteRequest = await mockMethod(
+      const deleteServerApiMock = await mockApiRequest(
         page,
         "DELETE",
-        "**/api/v1/servers/1",
-        { status: 204, hold: true },
+        "servers/1",
+        {
+          status: 204,
+          hold: true,
+        },
       );
 
-      servers.data = servers.data.slice(1, 4);
-      servers.meta.to = 3;
-      servers.meta.total = 3;
-      servers.meta.total_no_filter = 3;
+      serversResponse.data = serversResponse.data.slice(1, 4);
+      serversResponse.meta.to = 3;
+      serversResponse.meta.total = 3;
+      serversResponse.meta.total_no_filter = 3;
 
       const dialog = page.getByTestId("servers-delete-dialog");
       await expect(dialog).toBeVisible();
@@ -67,8 +74,8 @@ test.describe("Admin servers view server actions", () => {
       await expect(page.getByTestId("dialog-cancel-button")).toBeDisabled();
       await expect(page.getByTestId("dialog-continue-button")).toBeDisabled();
 
-      deleteRequest.release();
-      await nthRequest(deleteRequest);
+      deleteServerApiMock.release();
+      await deleteServerApiMock.waitForRequest();
 
       // Check that redirect worked and the server was deleted
       await expect(page).toHaveURL(/\/admin\/servers$/);
@@ -77,15 +84,15 @@ test.describe("Admin servers view server actions", () => {
     });
 
     test("server error (500) keeps the dialog open", async ({ page }) => {
-      const deleteRequest = await mockMethod(
+      const deleteServerApiMock = await mockApiRequest(
         page,
         "DELETE",
-        "**/api/v1/servers/1",
-        { status: 500, json: { message: "Test" } },
+        "servers/1",
+        serverError(),
       );
 
       await page.getByTestId("dialog-continue-button").click();
-      await nthRequest(deleteRequest);
+      await deleteServerApiMock.waitForRequest();
 
       await expect(page.getByTestId("servers-delete-dialog")).toBeVisible();
       await expectToastAndClose(page, [
@@ -95,18 +102,15 @@ test.describe("Admin servers view server actions", () => {
     });
 
     test("server not found (404) redirects to the index", async ({ page }) => {
-      const deleteRequest = await mockMethod(
+      const deleteServerApiMock = await mockApiRequest(
         page,
         "DELETE",
-        "**/api/v1/servers/1",
-        {
-          status: 404,
-          json: { message: "model_not_found", model: "server", ids: [1] },
-        },
+        "servers/1",
+        modelNotFound("server", [1]),
       );
 
       await page.getByTestId("dialog-continue-button").click();
-      await nthRequest(deleteRequest);
+      await deleteServerApiMock.waitForRequest();
 
       await expect(page).toHaveURL(/\/admin\/servers$/);
       await expect(page.getByTestId("server-item").first()).toBeVisible();
@@ -117,15 +121,17 @@ test.describe("Admin servers view server actions", () => {
     });
 
     test("unauthenticated (401) redirects to the login", async ({ page }) => {
-      const deleteRequest = await mockMethod(
+      const deleteServerApiMock = await mockApiRequest(
         page,
         "DELETE",
-        "**/api/v1/servers/1",
-        { status: 401 },
+        "servers/1",
+        {
+          status: 401,
+        },
       );
 
       await page.getByTestId("dialog-continue-button").click();
-      await nthRequest(deleteRequest);
+      await deleteServerApiMock.waitForRequest();
 
       await expectLoginRedirect(page, "/admin/servers/1");
     });
@@ -142,11 +148,14 @@ test.describe("Admin servers view server actions", () => {
     });
 
     test("offline (connection failed)", async ({ page, serverForm }) => {
-      const checkRequest = await mockMethod(
+      const postServersCheckApiMock = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/servers/check",
-        { json: { connection_ok: false, secret_ok: false }, hold: true },
+        "servers/check",
+        {
+          json: { connection_ok: false, secret_ok: false },
+          hold: true,
+        },
       );
 
       const button = serverForm.testConnectionButton;
@@ -158,8 +167,8 @@ test.describe("Admin servers view server actions", () => {
       // Check loading
       await expect(button).toBeDisabled();
 
-      checkRequest.release();
-      const request = await nthRequest(checkRequest);
+      postServersCheckApiMock.release();
+      const request = await postServersCheckApiMock.waitForRequest();
       expect(request.postDataJSON()).toEqual({
         base_url: "https://localhost/bigbluebutton",
         secret: "123456789",
@@ -176,16 +185,18 @@ test.describe("Admin servers view server actions", () => {
     });
 
     test("offline (wrong secret)", async ({ page, serverForm }) => {
-      const checkRequest = await mockMethod(
+      const postServersCheckApiMock = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/servers/check",
-        { json: { connection_ok: true, secret_ok: false } },
+        "servers/check",
+        {
+          json: { connection_ok: true, secret_ok: false },
+        },
       );
 
       await serverForm.testConnectionButton.click();
 
-      const request = await nthRequest(checkRequest);
+      const request = await postServersCheckApiMock.waitForRequest();
       expect(request.postDataJSON()).toEqual({
         base_url: "https://localhost/bigbluebutton",
         secret: "123456789",
@@ -201,7 +212,7 @@ test.describe("Admin servers view server actions", () => {
     });
 
     test("online after a failed check", async ({ page, serverForm }) => {
-      await mockMethod(page, "POST", "**/api/v1/servers/check", {
+      await mockApiRequest(page, "POST", "servers/check", {
         json: { connection_ok: false, secret_ok: false },
       });
       await serverForm.testConnectionButton.click();
@@ -209,15 +220,17 @@ test.describe("Admin servers view server actions", () => {
         "admin.servers.offline",
       );
 
-      const checkRequest = await mockMethod(
+      const postServersCheckApiMock = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/servers/check",
-        { json: { connection_ok: true, secret_ok: true } },
+        "servers/check",
+        {
+          json: { connection_ok: true, secret_ok: true },
+        },
       );
       await serverForm.testConnectionButton.click();
 
-      const request = await nthRequest(checkRequest);
+      const request = await postServersCheckApiMock.waitForRequest();
       expect(request.postDataJSON()).toEqual({
         base_url: "https://localhost/bigbluebutton",
         secret: "123456789",
@@ -236,15 +249,15 @@ test.describe("Admin servers view server actions", () => {
       page,
       serverForm,
     }) => {
-      const checkRequest = await mockMethod(
+      const postServersCheckApiMock = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/servers/check",
-        { status: 500, json: { message: "Test" } },
+        "servers/check",
+        serverError(),
       );
 
       await serverForm.testConnectionButton.click();
-      await nthRequest(checkRequest);
+      await postServersCheckApiMock.waitForRequest();
 
       await expect(serverForm.connectionStatus).toHaveValue(
         "admin.servers.unknown",
@@ -260,15 +273,17 @@ test.describe("Admin servers view server actions", () => {
       page,
       serverForm,
     }) => {
-      const checkRequest = await mockMethod(
+      const postServersCheckApiMock = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/servers/check",
-        { status: 401 },
+        "servers/check",
+        {
+          status: 401,
+        },
       );
 
       await serverForm.testConnectionButton.click();
-      await nthRequest(checkRequest);
+      await postServersCheckApiMock.waitForRequest();
 
       await expectLoginRedirect(page, "/admin/servers/1");
     });
@@ -280,15 +295,19 @@ test.describe("Admin servers view server actions", () => {
       await expect(page.getByTestId("servers-panic-button")).toBeVisible();
     });
 
-    test("panic disables the server", async ({ page, server, serverForm }) => {
-      const panicRequest = await mockMethod(
+    test("panic disables the server", async ({
+      page,
+      serverResponse,
+      serverForm,
+    }) => {
+      const postServerPanicApiMock = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/servers/1/panic",
+        "servers/1/panic",
         { json: { total: 5, success: 3 }, hold: true },
       );
 
-      Object.assign(server.data, {
+      Object.assign(serverResponse.data, {
         status: -1,
         connection_status: null,
         participant_count: null,
@@ -306,8 +325,8 @@ test.describe("Admin servers view server actions", () => {
       // Check loading
       await expect(button).toBeDisabled();
 
-      panicRequest.release();
-      await nthRequest(panicRequest);
+      postServerPanicApiMock.release();
+      await postServerPanicApiMock.waitForRequest();
 
       await expectToastAndClose(page, [
         'admin.servers.flash.panic.description_meetings_total_{"count":5,"n":5} admin.servers.flash.panic.description_meetings_successful_{"count":3,"n":3}',
@@ -337,15 +356,15 @@ test.describe("Admin servers view server actions", () => {
     });
 
     test("server error (500)", async ({ page }) => {
-      const panicRequest = await mockMethod(
+      const postServerPanicApiMock = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/servers/1/panic",
-        { status: 500, json: { message: "Test" } },
+        "servers/1/panic",
+        serverError(),
       );
 
       await page.getByTestId("servers-panic-button").click();
-      await nthRequest(panicRequest);
+      await postServerPanicApiMock.waitForRequest();
 
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
@@ -354,32 +373,29 @@ test.describe("Admin servers view server actions", () => {
     });
 
     test("unauthenticated (401) redirects to the login", async ({ page }) => {
-      const panicRequest = await mockMethod(
+      const postServerPanicApiMock = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/servers/1/panic",
+        "servers/1/panic",
         { status: 401 },
       );
 
       await page.getByTestId("servers-panic-button").click();
-      await nthRequest(panicRequest);
+      await postServerPanicApiMock.waitForRequest();
 
       await expectLoginRedirect(page, "/admin/servers/1");
     });
 
     test("server not found (404) redirects to the index", async ({ page }) => {
-      const panicRequest = await mockMethod(
+      const postServerPanicApiMock = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/servers/1/panic",
-        {
-          status: 404,
-          json: { message: "model_not_found", model: "server", ids: [1] },
-        },
+        "servers/1/panic",
+        modelNotFound("server", [1]),
       );
 
       await page.getByTestId("servers-panic-button").click();
-      await nthRequest(panicRequest);
+      await postServerPanicApiMock.waitForRequest();
 
       await expect(page).toHaveURL(/\/admin\/servers$/);
       await expect(page.getByTestId("server-item").first()).toBeVisible();

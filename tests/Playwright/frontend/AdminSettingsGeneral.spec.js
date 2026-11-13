@@ -1,20 +1,21 @@
-import {
-  test,
-  expect,
-  expectToastAndClose,
-} from "../support/fixtures/adminSettingsOtherSettings.js";
+import { mergeTests } from "@playwright/test";
+import { test as settingsControllerTest } from "../support/fixtures/settingsController.js";
+import { test as timezonesTest } from "../support/fixtures/timezones.js";
+import { expect, expectToastAndClose } from "../support/test.js";
 import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
 } from "../support/general.js";
 import { expectAdminBreadcrumbs } from "../support/admin.js";
-import { holdRequest } from "../support/utils.js";
+import { holdApiRequest, serverError } from "../support/utils.js";
+
+const test = mergeTests(settingsControllerTest, timezonesTest);
 
 test.describe("Admin settings general", () => {
   test.use({ authenticated: true });
 
-  test.beforeEach(async ({ currentUser }) => {
-    currentUser.data.permissions = [
+  test.beforeEach(async ({ currentUserResponse }) => {
+    currentUserResponse.data.permissions = [
       "admin.view",
       "settings.viewAny",
       "settings.update",
@@ -27,9 +28,9 @@ test.describe("Admin settings general", () => {
 
   test("visit with user without permission to view settings", async ({
     page,
-    currentUser,
+    currentUserResponse,
   }) => {
-    currentUser.data.permissions = ["admin.view"];
+    currentUserResponse.data.permissions = ["admin.view"];
 
     await page.goto("/admin/settings");
 
@@ -42,12 +43,12 @@ test.describe("Admin settings general", () => {
 
   test("loading state with view permission only", async ({
     page,
-    currentUser,
-    settings,
+    currentUserResponse,
+    settingsResponse,
   }) => {
-    currentUser.data.permissions = ["admin.view", "settings.viewAny"];
-    const release = await holdRequest(page, "**/api/v1/settings", {
-      json: settings,
+    currentUserResponse.data.permissions = ["admin.view", "settings.viewAny"];
+    const release = await holdApiRequest(page, "settings", {
+      json: settingsResponse,
     });
 
     await page.goto("/admin/settings");
@@ -65,9 +66,12 @@ test.describe("Admin settings general", () => {
     await expect(page.getByTestId("settings-save-button")).toHaveCount(0);
   });
 
-  test("loading state with edit permission", async ({ page, settings }) => {
-    const release = await holdRequest(page, "**/api/v1/settings", {
-      json: settings,
+  test("loading state with edit permission", async ({
+    page,
+    settingsResponse,
+  }) => {
+    const release = await holdApiRequest(page, "settings", {
+      json: settingsResponse,
     });
 
     await page.goto("/admin/settings");
@@ -92,7 +96,7 @@ test.describe("Admin settings general", () => {
       page,
     }) => {
       await page.route("**/api/v1/settings", (route) =>
-        route.fulfill({ status: 500, json: { message: "Test" } }),
+        route.fulfill(serverError()),
       );
 
       await page.goto("/admin/settings");
@@ -109,10 +113,10 @@ test.describe("Admin settings general", () => {
 
     test("retry after server error loads the settings", async ({
       page,
-      settings,
+      settingsResponse,
     }) => {
       await page.route("**/api/v1/settings", (route) =>
-        route.fulfill({ status: 500, json: { message: "Test" } }),
+        route.fulfill(serverError()),
       );
 
       await page.goto("/admin/settings");
@@ -122,7 +126,7 @@ test.describe("Admin settings general", () => {
       ]);
 
       await page.route("**/api/v1/settings", (route) =>
-        route.fulfill({ json: settings }),
+        route.fulfill({ json: settingsResponse }),
       );
       await page.getByTestId("loading-retry-button").click();
 
@@ -144,10 +148,7 @@ test.describe("Admin settings general", () => {
 
   test.describe("load timezones errors", () => {
     test("loading state and server error", async ({ page }) => {
-      const release = await holdRequest(page, "**/api/v1/getTimezones", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      const release = await holdApiRequest(page, "getTimezones", serverError());
 
       await page.goto("/admin/settings");
 
@@ -173,9 +174,12 @@ test.describe("Admin settings general", () => {
       );
     });
 
-    test("reload timezones after error", async ({ page, timezones }) => {
+    test("reload timezones after error", async ({
+      page,
+      timezonesResponse,
+    }) => {
       await page.route("**/api/v1/getTimezones", (route) =>
-        route.fulfill({ status: 500, json: { message: "Test" } }),
+        route.fulfill(serverError()),
       );
 
       await page.goto("/admin/settings");
@@ -185,7 +189,7 @@ test.describe("Admin settings general", () => {
       ]);
 
       await page.route("**/api/v1/getTimezones", (route) =>
-        route.fulfill({ json: timezones }),
+        route.fulfill({ json: timezonesResponse }),
       );
       await page.getByTestId("timezone-reload-button").click();
 

@@ -1,11 +1,32 @@
-import { test } from "../support/fixtures/roomsSettingsStreaming.js";
+import { mergeTests } from "@playwright/test";
+import { test as roomControllerTest } from "../support/fixtures/roomController.js";
+import { test as roomFileControllerTest } from "../support/fixtures/roomFileController.js";
+import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
+import { test as userControllerTest } from "../support/fixtures/userController.js";
+import { test as roomStreamingControllerTest } from "../support/fixtures/roomStreamingController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import { interceptRoomIndexRequests } from "../support/mocks.js";
 import {
   checkRoomAuthErrors,
   checkRoomAuthErrorsLoadingTab,
 } from "../support/room.js";
-import { mockMethod, nthRequest, readFixture } from "../support/utils.js";
+import {
+  mockApiRequest,
+  readFixture,
+  serverError,
+  modelNotFound,
+  validationErrors,
+} from "../support/utils.js";
+
+const test = mergeTests(
+  roomControllerTest,
+  roomFileControllerTest,
+  roomTypeControllerTest,
+  userControllerTest,
+  roomStreamingControllerTest,
+);
+test.use({ roomFilesFixtureName: "roomFilesNoDetails.json" });
+test.use({ roomTypesFixtureName: "roomTypesWithSettings.json" });
 
 test.use({ authenticated: true });
 
@@ -13,13 +34,13 @@ test.describe("Rooms view settings", () => {
   test.describe("load settings", () => {
     test("show loading state while the settings are loading", async ({
       page,
-      roomSettings,
+      roomSettingsResponse,
     }) => {
-      const settingsMock = await mockMethod(
+      const getRoomSettingsApiMock = await mockApiRequest(
         page,
         "GET",
-        "**/api/v1/rooms/abc-def-123/settings",
-        { json: roomSettings, hold: true },
+        "rooms/abc-def-123/settings",
+        { json: roomSettingsResponse, hold: true },
       );
 
       await page.goto("/rooms/abc-def-123");
@@ -53,15 +74,15 @@ test.describe("Rooms view settings", () => {
       await expect(saveButton).toHaveText("app.save");
       await expect(saveButton).toBeDisabled();
 
-      settingsMock.release();
+      getRoomSettingsApiMock.release();
 
       await expect(page.getByTestId("overlay")).toHaveCount(0);
     });
 
     test.describe("without expert mode", () => {
-      test.beforeEach(async ({ page, roomSettings }) => {
-        roomSettings.data.expert_mode = false;
-        roomSettings.data.welcome = "";
+      test.beforeEach(async ({ page, roomSettingsResponse }) => {
+        roomSettingsResponse.data.expert_mode = false;
+        roomSettingsResponse.data.welcome = "";
 
         await page.goto("/rooms/abc-def-123#tab=settings");
         await expect(page.getByTestId("overlay")).toHaveCount(0);
@@ -433,10 +454,12 @@ test.describe("Rooms view settings", () => {
     test("show error and keep buttons disabled on server error", async ({
       page,
     }) => {
-      await mockMethod(page, "GET", "**/api/v1/rooms/abc-def-123/settings", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(
+        page,
+        "GET",
+        "rooms/abc-def-123/settings",
+        serverError(),
+      );
 
       await page.goto("/rooms/abc-def-123#tab=settings");
 
@@ -476,14 +499,12 @@ test.describe("Rooms view settings", () => {
       page,
     }) => {
       await interceptRoomIndexRequests(page);
-      await mockMethod(page, "GET", "**/api/v1/rooms/abc-def-123/settings", {
-        status: 404,
-        json: {
-          message: "model_not_found",
-          model: "room",
-          ids: ["abc-def-123"],
-        },
-      });
+      await mockApiRequest(
+        page,
+        "GET",
+        "rooms/abc-def-123/settings",
+        modelNotFound("room", ["abc-def-123"]),
+      );
 
       await page.goto("/rooms/abc-def-123");
       await page.locator("#tab-settings").click();
@@ -497,10 +518,10 @@ test.describe("Rooms view settings", () => {
   });
 
   test.describe("load settings with different permissions", () => {
-    test("as co-owner", async ({ page, room }) => {
-      room.data.owner = { id: 2, name: "Max Doe" };
-      room.data.is_member = true;
-      room.data.is_co_owner = true;
+    test("as co-owner", async ({ page, roomResponse }) => {
+      roomResponse.data.owner = { id: 2, name: "Max Doe" };
+      roomResponse.data.is_member = true;
+      roomResponse.data.is_co_owner = true;
 
       await page.goto("/rooms/abc-def-123#tab=settings");
       await expect(page.getByTestId("overlay")).toHaveCount(0);
@@ -604,12 +625,12 @@ test.describe("Rooms view settings", () => {
 
     test("with rooms.viewAll permission", async ({
       page,
-      currentUser,
-      room,
+      currentUserResponse,
+      roomResponse,
     }) => {
-      currentUser.data.permissions = ["rooms.viewAll"];
-      room.data.owner = { id: 2, name: "Max Doe" };
-      room.data.current_user.permissions = ["rooms.viewAll"];
+      currentUserResponse.data.permissions = ["rooms.viewAll"];
+      roomResponse.data.owner = { id: 2, name: "Max Doe" };
+      roomResponse.data.current_user.permissions = ["rooms.viewAll"];
 
       await page.goto("/rooms/abc-def-123#tab=settings");
       await expect(page.getByTestId("overlay")).toHaveCount(0);
@@ -706,13 +727,13 @@ test.describe("Rooms view settings", () => {
 
     test("with rooms.manage permission", async ({
       page,
-      currentUser,
-      room,
+      currentUserResponse,
+      roomResponse,
     }) => {
       const permissions = ["rooms.create", "rooms.viewAll", "rooms.manage"];
-      currentUser.data.permissions = permissions;
-      room.data.owner = { id: 2, name: "Max Doe" };
-      room.data.current_user.permissions = permissions;
+      currentUserResponse.data.permissions = permissions;
+      roomResponse.data.owner = { id: 2, name: "Max Doe" };
+      roomResponse.data.current_user.permissions = permissions;
 
       await page.goto("/rooms/abc-def-123#tab=settings");
       await expect(page.getByTestId("overlay")).toHaveCount(0);
@@ -816,8 +837,8 @@ test.describe("Rooms view settings", () => {
   });
 
   test.describe("change settings", () => {
-    test.beforeEach(async ({ roomSettings }) => {
-      roomSettings.data.room_type = readFixture(
+    test.beforeEach(async ({ roomSettingsResponse }) => {
+      roomSettingsResponse.data.room_type = readFixture(
         "roomTypesWithSettings.json",
       ).data[0];
     });
@@ -1052,39 +1073,43 @@ test.describe("Rooms view settings", () => {
         visibility: 0,
         room_type: readFixture("roomTypesWithSettings.json").data[0],
       });
-      const saveMock = await mockMethod(
+      const putRoomApiMock = await mockApiRequest(
         page,
         "PUT",
-        "**/api/v1/rooms/abc-def-123",
-        { json: savedSettings },
+        "rooms/abc-def-123",
+        {
+          json: savedSettings,
+        },
       );
 
       await page.getByTestId("room-settings-save-button").click();
 
-      expect((await nthRequest(saveMock)).postDataJSON()).toEqual({
-        name: "Meeting Two",
-        expert_mode: true,
-        access_code: newAccessCode,
-        allow_guests: false,
-        short_description: "Short description two",
-        everyone_can_start: true,
-        mute_on_start: false,
-        record_attendance: true,
-        record: true,
-        auto_start_recording: true,
-        lobby: 0,
-        lock_settings_disable_cam: true,
-        webcams_only_for_moderator: false,
-        lock_settings_disable_mic: true,
-        lock_settings_disable_public_chat: false,
-        lock_settings_disable_private_chat: true,
-        lock_settings_disable_note: false,
-        lock_settings_hide_user_list: false,
-        allow_membership: true,
-        default_role: 2,
-        visibility: 0,
-        room_type: 1,
-        welcome: "Welcome message",
+      await expect(putRoomApiMock).toHaveReceivedRequest({
+        json: {
+          name: "Meeting Two",
+          expert_mode: true,
+          access_code: newAccessCode,
+          allow_guests: false,
+          short_description: "Short description two",
+          everyone_can_start: true,
+          mute_on_start: false,
+          record_attendance: true,
+          record: true,
+          auto_start_recording: true,
+          lobby: 0,
+          lock_settings_disable_cam: true,
+          webcams_only_for_moderator: false,
+          lock_settings_disable_mic: true,
+          lock_settings_disable_public_chat: false,
+          lock_settings_disable_private_chat: true,
+          lock_settings_disable_note: false,
+          lock_settings_hide_user_list: false,
+          allow_membership: true,
+          default_role: 2,
+          visibility: 0,
+          room_type: 1,
+          welcome: "Welcome message",
+        },
       });
 
       // Check that settings are shown correctly
@@ -1149,11 +1174,14 @@ test.describe("Rooms view settings", () => {
       savedSettings.data.room_type = readFixture(
         "roomTypesWithSettings.json",
       ).data[0];
-      const saveMock = await mockMethod(
+      const putRoomApiMock = await mockApiRequest(
         page,
         "PUT",
-        "**/api/v1/rooms/abc-def-123",
-        { json: savedSettings, hold: true },
+        "rooms/abc-def-123",
+        {
+          json: savedSettings,
+          hold: true,
+        },
       );
 
       await page
@@ -1177,7 +1205,7 @@ test.describe("Rooms view settings", () => {
         page.getByTestId("room-settings-save-button"),
       ).toBeDisabled();
 
-      saveMock.release();
+      putRoomApiMock.release();
 
       // Check that overlay and message are hidden and buttons are enabled
       await expect(page.getByTestId("overlay")).toHaveCount(0);
@@ -1198,8 +1226,8 @@ test.describe("Rooms view settings", () => {
     });
 
     test.describe("without expert mode", () => {
-      test.beforeEach(async ({ page, roomSettings }) => {
-        roomSettings.data.allow_guests = false;
+      test.beforeEach(async ({ page, roomSettingsResponse }) => {
+        roomSettingsResponse.data.allow_guests = false;
 
         await page.goto("/rooms/abc-def-123#tab=settings");
         await expect(page.getByTestId("overlay")).toHaveCount(0);
@@ -1251,39 +1279,41 @@ test.describe("Rooms view settings", () => {
           short_description: null,
           room_type: readFixture("roomTypesWithSettings.json").data[0],
         });
-        const saveMock = await mockMethod(
+        const putRoomApiMock = await mockApiRequest(
           page,
           "PUT",
-          "**/api/v1/rooms/abc-def-123",
+          "rooms/abc-def-123",
           { json: savedSettings },
         );
 
         await page.getByTestId("room-settings-save-button").click();
 
-        expect((await nthRequest(saveMock)).postDataJSON()).toEqual({
-          name: "Meeting Three",
-          expert_mode: false,
-          access_code: null,
-          allow_guests: true,
-          short_description: "",
-          everyone_can_start: false,
-          mute_on_start: true,
-          record_attendance: false,
-          record: false,
-          auto_start_recording: false,
-          lobby: 2,
-          lock_settings_disable_cam: false,
-          webcams_only_for_moderator: true,
-          lock_settings_disable_mic: false,
-          lock_settings_disable_public_chat: true,
-          lock_settings_disable_private_chat: false,
-          lock_settings_disable_note: true,
-          lock_settings_hide_user_list: true,
-          allow_membership: false,
-          default_role: 1,
-          visibility: 1,
-          room_type: 1,
-          welcome: "",
+        await expect(putRoomApiMock).toHaveReceivedRequest({
+          json: {
+            name: "Meeting Three",
+            expert_mode: false,
+            access_code: null,
+            allow_guests: true,
+            short_description: "",
+            everyone_can_start: false,
+            mute_on_start: true,
+            record_attendance: false,
+            record: false,
+            auto_start_recording: false,
+            lobby: 2,
+            lock_settings_disable_cam: false,
+            webcams_only_for_moderator: true,
+            lock_settings_disable_mic: false,
+            lock_settings_disable_public_chat: true,
+            lock_settings_disable_private_chat: false,
+            lock_settings_disable_note: true,
+            lock_settings_hide_user_list: true,
+            allow_membership: false,
+            default_role: 1,
+            visibility: 1,
+            room_type: 1,
+            welcome: "",
+          },
         });
 
         await expect(page.locator("#room-setting-name")).toHaveValue(
@@ -1299,11 +1329,11 @@ test.describe("Rooms view settings", () => {
 
     test("save settings with GL3 access code", async ({
       page,
-      roomSettings,
+      roomSettingsResponse,
     }) => {
-      roomSettings.data.room_type =
+      roomSettingsResponse.data.room_type =
         readFixture("roomSettings.json").data.room_type;
-      roomSettings.data.access_code = "012abc";
+      roomSettingsResponse.data.access_code = "012abc";
 
       await page.goto("/rooms/abc-def-123#tab=settings");
       await expect(page.getByTestId("overlay")).toHaveCount(0);
@@ -1319,39 +1349,43 @@ test.describe("Rooms view settings", () => {
       const savedSettings = readFixture("roomSettings.json");
       savedSettings.data.name = "Meeting Two";
       savedSettings.data.access_code = "012abc";
-      const saveMock = await mockMethod(
+      const putRoomApiMock = await mockApiRequest(
         page,
         "PUT",
-        "**/api/v1/rooms/abc-def-123",
-        { json: savedSettings },
+        "rooms/abc-def-123",
+        {
+          json: savedSettings,
+        },
       );
 
       await page.getByTestId("room-settings-save-button").click();
 
-      expect((await nthRequest(saveMock)).postDataJSON()).toEqual({
-        name: "Meeting Two",
-        expert_mode: true,
-        welcome: "Welcome message",
-        short_description: "Short description",
-        access_code: "012abc",
-        room_type: 2,
-        mute_on_start: true,
-        lock_settings_disable_cam: false,
-        webcams_only_for_moderator: true,
-        lock_settings_disable_mic: false,
-        lock_settings_disable_private_chat: false,
-        lock_settings_disable_public_chat: true,
-        lock_settings_disable_note: true,
-        lock_settings_hide_user_list: true,
-        everyone_can_start: false,
-        allow_membership: false,
-        allow_guests: true,
-        default_role: 1,
-        lobby: 2,
-        visibility: 1,
-        record_attendance: false,
-        record: false,
-        auto_start_recording: false,
+      await expect(putRoomApiMock).toHaveReceivedRequest({
+        json: {
+          name: "Meeting Two",
+          expert_mode: true,
+          welcome: "Welcome message",
+          short_description: "Short description",
+          access_code: "012abc",
+          room_type: 2,
+          mute_on_start: true,
+          lock_settings_disable_cam: false,
+          webcams_only_for_moderator: true,
+          lock_settings_disable_mic: false,
+          lock_settings_disable_private_chat: false,
+          lock_settings_disable_public_chat: true,
+          lock_settings_disable_note: true,
+          lock_settings_hide_user_list: true,
+          everyone_can_start: false,
+          allow_membership: false,
+          allow_guests: true,
+          default_role: 1,
+          lobby: 2,
+          visibility: 1,
+          record_attendance: false,
+          record: false,
+          auto_start_recording: false,
+        },
       });
 
       await expect(page.locator("#room-setting-name")).toHaveValue(
@@ -1361,12 +1395,12 @@ test.describe("Rooms view settings", () => {
   });
 
   test.describe("change settings errors", () => {
-    test.beforeEach(async ({ page, roomSettings }) => {
-      roomSettings.data.room_type = readFixture(
+    test.beforeEach(async ({ page, roomSettingsResponse }) => {
+      roomSettingsResponse.data.room_type = readFixture(
         "roomTypesWithSettings.json",
       ).data[0];
-      roomSettings.data.room_type.has_access_code_enforced = true;
-      roomSettings.data.access_code = null;
+      roomSettingsResponse.data.room_type.has_access_code_enforced = true;
+      roomSettingsResponse.data.access_code = null;
 
       await page.goto("/rooms/abc-def-123#tab=settings");
       await expect(page.getByTestId("overlay")).toHaveCount(0);
@@ -1396,7 +1430,7 @@ test.describe("Rooms view settings", () => {
     });
 
     test("show 422 errors with expert mode", async ({ page }) => {
-      const errors = {
+      const roomSettingsValidationErrorsResponse = {
         access_code: [
           "The room requires an access code because of its room type.",
         ],
@@ -1426,12 +1460,12 @@ test.describe("Rooms view settings", () => {
         default_role: ["The Default role field is required."],
         visibility: ["The Visibility field is required."],
       };
-      await mockMethod(page, "PUT", "**/api/v1/rooms/abc-def-123", {
+      await mockApiRequest(page, "PUT", "rooms/abc-def-123", {
         status: 422,
         json: {
           message:
             "The room requires an access code because of its room type. (and 17 more errors)",
-          errors,
+          errors: roomSettingsValidationErrorsResponse,
         },
       });
 
@@ -1441,7 +1475,9 @@ test.describe("Rooms view settings", () => {
         page,
         "The room requires an access code because of its room type. (and 17 more errors)",
       );
-      for (const [field, messages] of Object.entries(errors)) {
+      for (const [field, messages] of Object.entries(
+        roomSettingsValidationErrorsResponse,
+      )) {
         await expect(page.getByTestId(`room-setting-${field}`)).toContainText(
           messages[0].trim(),
         );
@@ -1457,7 +1493,7 @@ test.describe("Rooms view settings", () => {
       await expertModeDialog.getByTestId("dialog-continue-button").click();
       await expect(expertModeDialog).toBeHidden();
 
-      const errors = {
+      const roomSettingsValidationErrorsResponse = {
         access_code: [
           "The room requires an access code because of its room type.",
         ],
@@ -1468,12 +1504,12 @@ test.describe("Rooms view settings", () => {
         ],
         allow_guests: ["The Allow guests field is required."],
       };
-      await mockMethod(page, "PUT", "**/api/v1/rooms/abc-def-123", {
+      await mockApiRequest(page, "PUT", "rooms/abc-def-123", {
         status: 422,
         json: {
           message:
             "The room requires an access code because of its room type. (and 4 more errors)",
-          errors,
+          errors: roomSettingsValidationErrorsResponse,
         },
       });
 
@@ -1483,7 +1519,9 @@ test.describe("Rooms view settings", () => {
         page,
         "The room requires an access code because of its room type. (and 4 more errors)",
       );
-      for (const [field, messages] of Object.entries(errors)) {
+      for (const [field, messages] of Object.entries(
+        roomSettingsValidationErrorsResponse,
+      )) {
         await expect(page.getByTestId(`room-setting-${field}`)).toContainText(
           messages[0].trim(),
         );
@@ -1493,7 +1531,7 @@ test.describe("Rooms view settings", () => {
     test("hide 422 errors and show access code as prohibited after successful save", async ({
       page,
     }) => {
-      const errors = {
+      const roomSettingsValidationErrorsResponse = {
         access_code: [
           "The room requires an access code because of its room type.",
         ],
@@ -1523,12 +1561,12 @@ test.describe("Rooms view settings", () => {
         default_role: ["The Default role field is required."],
         visibility: ["The Visibility field is required."],
       };
-      await mockMethod(page, "PUT", "**/api/v1/rooms/abc-def-123", {
+      await mockApiRequest(page, "PUT", "rooms/abc-def-123", {
         status: 422,
         json: {
           message:
             "The room requires an access code because of its room type. (and 17 more errors)",
-          errors,
+          errors: roomSettingsValidationErrorsResponse,
         },
       });
       await page.getByTestId("room-settings-save-button").click();
@@ -1536,7 +1574,9 @@ test.describe("Rooms view settings", () => {
         page,
         "The room requires an access code because of its room type. (and 17 more errors)",
       );
-      for (const [field, messages] of Object.entries(errors)) {
+      for (const [field, messages] of Object.entries(
+        roomSettingsValidationErrorsResponse,
+      )) {
         await expect(page.getByTestId(`room-setting-${field}`)).toContainText(
           messages[0].trim(),
         );
@@ -1553,7 +1593,7 @@ test.describe("Rooms view settings", () => {
       ).data[0];
       savedSettings.data.room_type.has_access_code_enforced = true;
       savedSettings.data.room_type.has_access_code_default = false;
-      await mockMethod(page, "PUT", "**/api/v1/rooms/abc-def-123", {
+      await mockApiRequest(page, "PUT", "rooms/abc-def-123", {
         json: savedSettings,
       });
 
@@ -1593,7 +1633,9 @@ test.describe("Rooms view settings", () => {
       ).toHaveCount(0);
 
       // Check that 422 error messages are hidden
-      for (const [field, messages] of Object.entries(errors)) {
+      for (const [field, messages] of Object.entries(
+        roomSettingsValidationErrorsResponse,
+      )) {
         await expect(
           page.getByTestId(`room-setting-${field}`),
         ).not.toContainText(messages[0].trim());
@@ -1609,7 +1651,7 @@ test.describe("Rooms view settings", () => {
       await expertModeDialog.getByTestId("dialog-continue-button").click();
       await expect(expertModeDialog).toBeHidden();
 
-      const errors = {
+      const roomSettingsValidationErrorsResponse = {
         access_code: [
           "The room requires an access code because of its room type.",
         ],
@@ -1620,12 +1662,12 @@ test.describe("Rooms view settings", () => {
         ],
         allow_guests: ["The Allow guests field is required."],
       };
-      await mockMethod(page, "PUT", "**/api/v1/rooms/abc-def-123", {
+      await mockApiRequest(page, "PUT", "rooms/abc-def-123", {
         status: 422,
         json: {
           message:
             "The room requires an access code because of its room type. (and 4 more errors)",
-          errors,
+          errors: roomSettingsValidationErrorsResponse,
         },
       });
       await page.getByTestId("room-settings-save-button").click();
@@ -1633,23 +1675,24 @@ test.describe("Rooms view settings", () => {
         page,
         "The room requires an access code because of its room type. (and 4 more errors)",
       );
-      for (const [field, messages] of Object.entries(errors)) {
+      for (const [field, messages] of Object.entries(
+        roomSettingsValidationErrorsResponse,
+      )) {
         await expect(page.getByTestId(`room-setting-${field}`)).toContainText(
           messages[0].trim(),
         );
       }
 
-      await mockMethod(page, "PUT", "**/api/v1/rooms/abc-def-123", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "PUT", "rooms/abc-def-123", serverError());
       await page.getByTestId("room-settings-save-button").click();
 
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
         'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
-      for (const [field, messages] of Object.entries(errors)) {
+      for (const [field, messages] of Object.entries(
+        roomSettingsValidationErrorsResponse,
+      )) {
         await expect(
           page.getByTestId(`room-setting-${field}`),
         ).not.toContainText(messages[0].trim());
@@ -1672,14 +1715,12 @@ test.describe("Rooms view settings", () => {
       page,
     }) => {
       await interceptRoomIndexRequests(page);
-      await mockMethod(page, "PUT", "**/api/v1/rooms/abc-def-123", {
-        status: 404,
-        json: {
-          message: "model_not_found",
-          model: "room",
-          ids: ["abc-def-123"],
-        },
-      });
+      await mockApiRequest(
+        page,
+        "PUT",
+        "rooms/abc-def-123",
+        modelNotFound("room", ["abc-def-123"]),
+      );
 
       await page.getByTestId("room-settings-save-button").click();
 
@@ -1726,10 +1767,10 @@ test.describe("Rooms view settings", () => {
     test("delete room", async ({ page }) => {
       const dialog = page.getByTestId("room-delete-dialog");
       await interceptRoomIndexRequests(page);
-      const deleteMock = await mockMethod(
+      const deleteRoomApiMock = await mockApiRequest(
         page,
         "DELETE",
-        "**/api/v1/rooms/abc-def-123",
+        "rooms/abc-def-123",
         { status: 204, hold: true },
       );
 
@@ -1738,7 +1779,7 @@ test.describe("Rooms view settings", () => {
       await continueButton.click();
       await expect(continueButton).toBeDisabled();
 
-      deleteMock.release();
+      deleteRoomApiMock.release();
 
       await expect(page).toHaveURL((url) => url.pathname === "/rooms");
     });
@@ -1747,14 +1788,12 @@ test.describe("Rooms view settings", () => {
       page,
     }) => {
       await interceptRoomIndexRequests(page);
-      await mockMethod(page, "DELETE", "**/api/v1/rooms/abc-def-123", {
-        status: 404,
-        json: {
-          message: "model_not_found",
-          model: "room",
-          ids: ["abc-def-123"],
-        },
-      });
+      await mockApiRequest(
+        page,
+        "DELETE",
+        "rooms/abc-def-123",
+        modelNotFound("room", ["abc-def-123"]),
+      );
 
       await page
         .getByTestId("room-delete-dialog")
@@ -1769,10 +1808,7 @@ test.describe("Rooms view settings", () => {
     });
 
     test("keep dialog open on server error", async ({ page }) => {
-      await mockMethod(page, "DELETE", "**/api/v1/rooms/abc-def-123", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "DELETE", "rooms/abc-def-123", serverError());
 
       await page
         .getByTestId("room-delete-dialog")
@@ -1840,10 +1876,10 @@ test.describe("Rooms view settings", () => {
 
     test("show too many results while searching", async ({
       page,
-      userSearch,
+      userSearchResponse,
     }) => {
-      userSearch.status = 204;
-      userSearch.json = undefined;
+      userSearchResponse.status = 204;
+      userSearchResponse.json = undefined;
       const dialog = page.getByTestId("room-transfer-ownership-dialog");
       const dropdown = page.getByTestId("new-owner-dropdown");
       const options = dialog.locator(".multiselect__option");
@@ -1963,7 +1999,7 @@ test.describe("Rooms view settings", () => {
       ).toBeVisible();
     });
 
-    test("transfer ownership with a role", async ({ page, room }) => {
+    test("transfer ownership with a role", async ({ page, roomResponse }) => {
       const dialog = page.getByTestId("room-transfer-ownership-dialog");
       const dropdown = page.getByTestId("new-owner-dropdown");
 
@@ -1980,14 +2016,14 @@ test.describe("Rooms view settings", () => {
       await expect(dialog.locator(".multiselect__content")).toHaveCount(0);
       await page.locator("#participant-role").click();
 
-      const transferMock = await mockMethod(
+      const postRoomTransferApiMock = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/rooms/abc-def-123/transfer",
+        "rooms/abc-def-123/transfer",
         { status: 204, hold: true },
       );
-      room.data.owner = { id: 10, name: "Laura Walter" };
-      room.data.is_member = true;
+      roomResponse.data.owner = { id: 10, name: "Laura Walter" };
+      roomResponse.data.is_member = true;
 
       await dialog.getByTestId("dialog-continue-button").click();
 
@@ -2000,11 +2036,13 @@ test.describe("Rooms view settings", () => {
       await expect(dialog.getByTestId("dialog-cancel-button")).toBeDisabled();
       await expect(dialog.getByTestId("dialog-continue-button")).toBeDisabled();
 
-      transferMock.release();
+      postRoomTransferApiMock.release();
 
-      expect((await nthRequest(transferMock)).postDataJSON()).toEqual({
-        user: 10,
-        role: 1,
+      await expect(postRoomTransferApiMock).toHaveReceivedRequest({
+        json: {
+          user: 10,
+          role: 1,
+        },
       });
 
       await expect(page.getByText("Laura Walter")).toBeVisible();
@@ -2013,7 +2051,10 @@ test.describe("Rooms view settings", () => {
       );
     });
 
-    test("transfer ownership without a role", async ({ page, room }) => {
+    test("transfer ownership without a role", async ({
+      page,
+      roomResponse,
+    }) => {
       const dialog = page.getByTestId("room-transfer-ownership-dialog");
       const dropdown = page.getByTestId("new-owner-dropdown");
 
@@ -2030,19 +2071,21 @@ test.describe("Rooms view settings", () => {
       await expect(dialog.locator(".multiselect__content")).toHaveCount(0);
       await page.locator("#no-role").click();
 
-      const transferMock = await mockMethod(
+      const postRoomTransferApiMock = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/rooms/abc-def-123/transfer",
+        "rooms/abc-def-123/transfer",
         { status: 204 },
       );
-      room.data.owner = { id: 10, name: "Laura Walter" };
-      room.data.authenticated = false;
+      roomResponse.data.owner = { id: 10, name: "Laura Walter" };
+      roomResponse.data.authenticated = false;
 
       await dialog.getByTestId("dialog-continue-button").click();
 
-      expect((await nthRequest(transferMock)).postDataJSON()).toEqual({
-        user: 10,
+      await expect(postRoomTransferApiMock).toHaveReceivedRequest({
+        json: {
+          user: 10,
+        },
       });
 
       await expect(page.getByText("Laura Walter")).toBeVisible();
@@ -2053,12 +2096,12 @@ test.describe("Rooms view settings", () => {
 
     test("show email only hints if search by name is disabled", async ({
       page,
-      config,
+      configResponse,
     }) => {
       const dialog = page.getByTestId("room-transfer-ownership-dialog");
       const dropdown = page.getByTestId("new-owner-dropdown");
 
-      config.data.user.search_by_name = false;
+      configResponse.data.user.search_by_name = false;
       await page.reload();
       await expect(page.locator("#room-setting-name")).toBeVisible();
 
@@ -2083,10 +2126,10 @@ test.describe("Rooms view settings", () => {
     test.describe("errors", () => {
       test("show server error on user search and keep dialog open", async ({
         page,
-        userSearch,
+        userSearchResponse,
       }) => {
-        userSearch.status = 500;
-        userSearch.json = { message: "Test" };
+        userSearchResponse.status = 500;
+        userSearchResponse.json = { message: "Test" };
         const dialog = page.getByTestId("room-transfer-ownership-dialog");
         const dropdown = page.getByTestId("new-owner-dropdown");
 
@@ -2126,8 +2169,11 @@ test.describe("Rooms view settings", () => {
       });
 
       test.describe("with selected new owner", () => {
-        test.beforeEach(async ({ page, userSearch }) => {
-          userSearch.json.data = userSearch.json.data.slice(0, 2);
+        test.beforeEach(async ({ page, userSearchResponse }) => {
+          userSearchResponse.json.data = userSearchResponse.json.data.slice(
+            0,
+            2,
+          );
           const dialog = page.getByTestId("room-transfer-ownership-dialog");
           const dropdown = page.getByTestId("new-owner-dropdown");
 
@@ -2146,17 +2192,14 @@ test.describe("Rooms view settings", () => {
 
         test("show 422 error if the role is missing", async ({ page }) => {
           const dialog = page.getByTestId("room-transfer-ownership-dialog");
-          await mockMethod(
+          await mockApiRequest(
             page,
             "POST",
-            "**/api/v1/rooms/abc-def-123/transfer",
-            {
-              status: 422,
-              json: {
-                message: "The selected role is invalid.",
-                errors: { role: ["The selected role is invalid."] },
-              },
-            },
+            "rooms/abc-def-123/transfer",
+            validationErrors(
+              { role: ["The selected role is invalid."] },
+              "The selected role is invalid.",
+            ),
           );
 
           await dialog.getByTestId("dialog-continue-button").click();
@@ -2169,17 +2212,14 @@ test.describe("Rooms view settings", () => {
           page,
         }) => {
           const dialog = page.getByTestId("room-transfer-ownership-dialog");
-          await mockMethod(
+          await mockApiRequest(
             page,
             "POST",
-            "**/api/v1/rooms/abc-def-123/transfer",
-            {
-              status: 422,
-              json: {
-                message: "The selected role is invalid.",
-                errors: { role: ["The selected role is invalid."] },
-              },
-            },
+            "rooms/abc-def-123/transfer",
+            validationErrors(
+              { role: ["The selected role is invalid."] },
+              "The selected role is invalid.",
+            ),
           );
           await dialog.getByTestId("dialog-continue-button").click();
           await expect(dialog).toContainText("The selected role is invalid.");
@@ -2187,17 +2227,14 @@ test.describe("Rooms view settings", () => {
           // Select other role
           await page.locator("#moderator-role").click();
 
-          await mockMethod(
+          await mockApiRequest(
             page,
             "POST",
-            "**/api/v1/rooms/abc-def-123/transfer",
-            {
-              status: 422,
-              json: {
-                message: "The selected user can not own rooms.",
-                errors: { user: ["The selected user can not own rooms."] },
-              },
-            },
+            "rooms/abc-def-123/transfer",
+            validationErrors(
+              { user: ["The selected user can not own rooms."] },
+              "The selected user can not own rooms.",
+            ),
           );
           await dialog.getByTestId("dialog-continue-button").click();
 
@@ -2213,28 +2250,25 @@ test.describe("Rooms view settings", () => {
           page,
         }) => {
           const dialog = page.getByTestId("room-transfer-ownership-dialog");
-          await mockMethod(
+          await mockApiRequest(
             page,
             "POST",
-            "**/api/v1/rooms/abc-def-123/transfer",
-            {
-              status: 422,
-              json: {
-                message: "The selected user can not own rooms.",
-                errors: { user: ["The selected user can not own rooms."] },
-              },
-            },
+            "rooms/abc-def-123/transfer",
+            validationErrors(
+              { user: ["The selected user can not own rooms."] },
+              "The selected user can not own rooms.",
+            ),
           );
           await dialog.getByTestId("dialog-continue-button").click();
           await expect(dialog).toContainText(
             "The selected user can not own rooms.",
           );
 
-          await mockMethod(
+          await mockApiRequest(
             page,
             "POST",
-            "**/api/v1/rooms/abc-def-123/transfer",
-            { status: 500, json: { message: "Test" } },
+            "rooms/abc-def-123/transfer",
+            serverError(),
           );
           await dialog.getByTestId("dialog-continue-button").click();
 
@@ -2270,14 +2304,12 @@ test.describe("Rooms view settings", () => {
       }) => {
         const dialog = page.getByTestId("room-transfer-ownership-dialog");
         await interceptRoomIndexRequests(page);
-        await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/transfer", {
-          status: 404,
-          json: {
-            message: "model_not_found",
-            model: "room",
-            ids: ["abc-def-123"],
-          },
-        });
+        await mockApiRequest(
+          page,
+          "POST",
+          "rooms/abc-def-123/transfer",
+          modelNotFound("room", ["abc-def-123"]),
+        );
 
         await page.getByTestId("room-transfer-ownership-button").click();
         await expect(dialog).toBeVisible();

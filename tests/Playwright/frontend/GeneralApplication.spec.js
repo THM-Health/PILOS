@@ -1,6 +1,6 @@
 import { test, expect, expectToastAndClose } from "../support/test.js";
 import { interceptRoomIndexRequests } from "../support/mocks.js";
-import { holdRequest } from "../support/utils.js";
+import { holdApiRequest, validationErrors } from "../support/utils.js";
 
 test.describe("General", () => {
   test.use({ authenticated: true });
@@ -29,10 +29,10 @@ test.describe("General", () => {
 
     test("hide locale menu if only one locale is available", async ({
       page,
-      config,
+      configResponse,
     }) => {
       // NOTE: the Cypress version mocked /api/v1/locales, which the app never calls, so it passed vacuously.
-      config.data.general.enabled_locales = { en: "English" };
+      configResponse.data.general.enabled_locales = { en: "English" };
 
       await page.goto("/rooms");
 
@@ -48,7 +48,7 @@ test.describe("General", () => {
 
       test.beforeEach(async ({ page }) => {
         // Hold the locale request to be able to check the loading state
-        release = await holdRequest(page, "**/api/v1/locale");
+        release = await holdApiRequest(page, "locale");
         await page.route("**/api/v1/locale/de", (route) =>
           route.fulfill({ path: "tests/Playwright/fixtures/en.json" }),
         );
@@ -116,10 +116,7 @@ test.describe("General", () => {
             request.url().endsWith("/api/v1/locale"),
         );
         await page.route("**/api/v1/locale", (route) =>
-          route.fulfill({
-            status: 422,
-            json: { message: "Test", errors: { locale: ["Test"] } },
-          }),
+          route.fulfill(validationErrors({ locale: ["Test"] }, "Test")),
         );
 
         await page.goto("/rooms");
@@ -203,10 +200,10 @@ test.describe("General", () => {
 
       test("uses parent locale for invalid language-region codes (de-XX -> de)", async ({
         page,
-        config,
+        configResponse,
       }) => {
         // (imaginary) region-specific locale that is supported by the backend but not by PrimeLocale
-        config.data.general.enabled_locales = {
+        configResponse.data.general.enabled_locales = {
           en: "English",
           "de-xx": "Deutsch",
         };
@@ -238,9 +235,9 @@ test.describe("General", () => {
 
       test("uses local fallback (en) for unsupported PrimeLocale locales", async ({
         page,
-        config,
+        configResponse,
       }) => {
-        config.data.general.enabled_locales = {
+        configResponse.data.general.enabled_locales = {
           en: "English",
           xx: "Invalid locale",
         };
@@ -276,10 +273,10 @@ test.describe("General", () => {
   test.describe("welcome page", () => {
     test("disabled welcome page redirects unauthenticated users to login", async ({
       page,
-      config,
+      configResponse,
     }) => {
-      config.data.general.no_welcome_page = true;
-      config.data.auth.local = true;
+      configResponse.data.general.no_welcome_page = true;
+      configResponse.data.auth.local = true;
       await page.route("**/api/v1/currentUser", (route) =>
         route.fulfill({ json: {} }),
       );
@@ -292,9 +289,9 @@ test.describe("General", () => {
 
     test("disabled welcome page redirects authenticated users to rooms overview", async ({
       page,
-      config,
+      configResponse,
     }) => {
-      config.data.general.no_welcome_page = true;
+      configResponse.data.general.no_welcome_page = true;
 
       await page.goto("/");
 
@@ -313,9 +310,9 @@ test.describe("General", () => {
   test.describe("help button", () => {
     test("shows help button with link if help url specified", async ({
       page,
-      config,
+      configResponse,
     }) => {
-      config.data.general.help_url = `https://thm-health.github.io/PILOS-Redirect_Test_Pages/help?foo=a&bar=b`;
+      configResponse.data.general.help_url = `https://thm-health.github.io/PILOS-Redirect_Test_Pages/help?foo=a&bar=b`;
 
       await page.goto("/");
 
@@ -328,9 +325,9 @@ test.describe("General", () => {
       await expect(help).toHaveAttribute("target", "_blank");
     });
 
-    test("help button opens the help url", async ({ page, config }) => {
+    test("help button opens the help url", async ({ page, configResponse }) => {
       const helpUrl = `https://thm-health.github.io/PILOS-Redirect_Test_Pages/help?foo=a&bar=b`;
-      config.data.general.help_url = helpUrl;
+      configResponse.data.general.help_url = helpUrl;
       await page.route(helpUrl, (route) =>
         route.fulfill({ contentType: "text/html", body: "help" }),
       );
@@ -348,9 +345,9 @@ test.describe("General", () => {
 
     test("help button hidden if help url not specified", async ({
       page,
-      config,
+      configResponse,
     }) => {
-      config.data.general.help_url = "";
+      configResponse.data.general.help_url = "";
 
       await page.goto("/");
 
@@ -423,9 +420,9 @@ test.describe("General", () => {
 
       test("hides the dark mode button and forces light mode", async ({
         page,
-        config,
+        configResponse,
       }) => {
-        config.data.theme.enforced_color_mode = "light";
+        configResponse.data.theme.enforced_color_mode = "light";
 
         await page.goto("/");
 
@@ -442,9 +439,9 @@ test.describe("General", () => {
 
       test("hides the dark mode button and forces dark mode", async ({
         page,
-        config,
+        configResponse,
       }) => {
-        config.data.theme.enforced_color_mode = "dark";
+        configResponse.data.theme.enforced_color_mode = "dark";
 
         await page.goto("/");
 

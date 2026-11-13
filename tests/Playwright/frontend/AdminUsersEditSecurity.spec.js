@@ -1,15 +1,31 @@
+import { mergeTests } from "@playwright/test";
+import { test as userControllerTest } from "../support/fixtures/userController.js";
+import { test as roleControllerTest } from "../support/fixtures/roleController.js";
+import { test as timezonesTest } from "../support/fixtures/timezones.js";
+import { test as sessionControllerTest } from "../support/fixtures/sessionController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { test } from "../support/fixtures/adminUsersEdit.js";
 import { interceptAdminUsersIndexRequests } from "../support/mocks.js";
 import { expectLoginRedirect } from "../support/general.js";
 import { expectMultiselectOptions } from "../support/admin.js";
-import { mockMethod, nthRequest } from "../support/utils.js";
+import {
+  mockApiRequest,
+  validationErrors,
+  serverError,
+  modelNotFound,
+} from "../support/utils.js";
+
+const test = mergeTests(
+  userControllerTest,
+  roleControllerTest,
+  timezonesTest,
+  sessionControllerTest,
+);
 
 test.use({ authenticated: true });
 
 test.describe("Admin users edit security", () => {
-  test.beforeEach(async ({ currentUser, config }) => {
-    currentUser.data.permissions = [
+  test.beforeEach(async ({ currentUserResponse, configResponse }) => {
+    currentUserResponse.data.permissions = [
       "admin.view",
       "users.viewAny",
       "users.view",
@@ -18,7 +34,7 @@ test.describe("Admin users edit security", () => {
       "users.delete",
       "roles.viewAny",
     ];
-    config.data.auth.local = true;
+    configResponse.data.auth.local = true;
   });
 
   test("open security tab sets the tab hash", async ({ page }) => {
@@ -66,9 +82,9 @@ test.describe("Admin users edit security", () => {
     await expect(page.getByTestId("session-panel")).toHaveCount(0);
   });
 
-  test("view with external user", async ({ page, user }) => {
-    user.data.authenticator = "ldap";
-    user.data.external_id = "lwr";
+  test("view with external user", async ({ page, userResponse }) => {
+    userResponse.data.authenticator = "ldap";
+    userResponse.data.external_id = "lwr";
 
     await page.goto("/admin/users/2/edit#tab=security");
 
@@ -135,10 +151,10 @@ test.describe("Admin users edit security", () => {
 
     test("superuser role is disabled for users that are not superusers", async ({
       page,
-      currentUser,
+      currentUserResponse,
     }) => {
-      currentUser.data.superuser = false;
-      currentUser.data.permissions = [
+      currentUserResponse.data.superuser = false;
+      currentUserResponse.data.permissions = [
         "admin.view",
         "users.viewAny",
         "users.view",
@@ -178,7 +194,7 @@ test.describe("Admin users edit security", () => {
 
     test("roles pagination and loading state", async ({
       page,
-      secondRolesPage,
+      rolesSecondPageResponse,
     }) => {
       await page.getByTestId("role-dropdown").click();
       const content = page.locator(".multiselect__content");
@@ -191,8 +207,8 @@ test.describe("Admin users edit security", () => {
       await expect(next).toContainText("app.next_page");
       await expect(next).toBeEnabled();
 
-      const rolesRequest = await mockMethod(page, "GET", "**/api/v1/roles*", {
-        json: secondRolesPage,
+      const getRolesApiMock = await mockApiRequest(page, "GET", "roles*", {
+        json: rolesSecondPageResponse,
         hold: true,
       });
       await next.click();
@@ -205,8 +221,8 @@ test.describe("Admin users edit security", () => {
       );
       await expect(page.getByTestId("users-roles-save-button")).toBeDisabled();
 
-      rolesRequest.release();
-      await nthRequest(rolesRequest);
+      getRolesApiMock.release();
+      await getRolesApiMock.waitForRequest();
 
       await expect(page.getByTestId("users-roles-save-button")).toBeEnabled();
       await expect(previous).toBeEnabled();
@@ -231,14 +247,17 @@ test.describe("Admin users edit security", () => {
       }
     });
 
-    test("select and remove roles", async ({ page, secondRolesPage }) => {
+    test("select and remove roles", async ({
+      page,
+      rolesSecondPageResponse,
+    }) => {
       await page.getByTestId("role-dropdown").click();
       const content = page.locator(".multiselect__content");
       await expect(content).toBeVisible();
       await content.locator(".multiselect__option").nth(0).click();
 
-      await mockMethod(page, "GET", "**/api/v1/roles*", {
-        json: secondRolesPage,
+      await mockApiRequest(page, "GET", "roles*", {
+        json: rolesSecondPageResponse,
       });
       await content.getByTestId("next-page-button").click();
       await expectMultiselectOptions(
@@ -277,14 +296,18 @@ test.describe("Admin users edit security", () => {
       await expect(chips.nth(1)).toContainText("Superuser");
     });
 
-    test("save roles", async ({ page, user, secondRolesPage }) => {
+    test("save roles", async ({
+      page,
+      userResponse,
+      rolesSecondPageResponse,
+    }) => {
       await page.getByTestId("role-dropdown").click();
       const content = page.locator(".multiselect__content");
       await expect(content).toBeVisible();
       await content.locator(".multiselect__option").nth(0).click();
 
-      await mockMethod(page, "GET", "**/api/v1/roles*", {
-        json: secondRolesPage,
+      await mockApiRequest(page, "GET", "roles*", {
+        json: rolesSecondPageResponse,
       });
       await content.getByTestId("next-page-button").click();
       await expectMultiselectOptions(
@@ -302,14 +325,14 @@ test.describe("Admin users edit security", () => {
         .click();
       await expect(content).toHaveCount(0);
 
-      user.data.roles = [
+      userResponse.data.roles = [
         { id: 1, name: "Superuser", automatic: false, superuser: true },
         { id: 3, name: "Students", automatic: true, superuser: false },
         { id: 4, name: "Dean", automatic: false, superuser: false },
         { id: 6, name: "Manager", automatic: false, superuser: false },
       ];
-      const saveRequest = await mockMethod(page, "PUT", "**/api/v1/users/2", {
-        json: user,
+      const putUserApiMock = await mockApiRequest(page, "PUT", "users/2", {
+        json: userResponse,
         hold: true,
       });
 
@@ -340,9 +363,11 @@ test.describe("Admin users edit security", () => {
       );
       await expect(page.getByTestId("users-roles-save-button")).toBeDisabled();
 
-      saveRequest.release();
+      putUserApiMock.release();
 
-      expect((await nthRequest(saveRequest)).postDataJSON()).toMatchObject({
+      expect(
+        (await putUserApiMock.waitForRequest()).postDataJSON(),
+      ).toMatchObject({
         roles: [3, 1, 4, 6],
       });
 
@@ -359,15 +384,17 @@ test.describe("Admin users edit security", () => {
     });
 
     test("422 error shows messages at the field", async ({ page }) => {
-      const save = await mockMethod(page, "PUT", "**/api/v1/users/2", {
-        status: 422,
-        json: {
-          message: "The roles field is required.",
-          errors: { roles: ["The roles field is required."] },
-        },
-      });
+      const putUserApiMock = await mockApiRequest(
+        page,
+        "PUT",
+        "users/2",
+        validationErrors(
+          { roles: ["The roles field is required."] },
+          "The roles field is required.",
+        ),
+      );
       await page.getByTestId("users-roles-save-button").click();
-      await nthRequest(save);
+      await putUserApiMock.waitForRequest();
 
       await expectToastAndClose(page, "The roles field is required.");
       await expect(page.getByTestId("roles-field")).toContainText(
@@ -376,23 +403,22 @@ test.describe("Admin users edit security", () => {
     });
 
     test("500 error hides previous 422 messages", async ({ page }) => {
-      await mockMethod(page, "PUT", "**/api/v1/users/2", {
-        status: 422,
-        json: {
-          message: "The roles field is required.",
-          errors: { roles: ["The roles field is required."] },
-        },
-      });
+      await mockApiRequest(
+        page,
+        "PUT",
+        "users/2",
+        validationErrors(
+          { roles: ["The roles field is required."] },
+          "The roles field is required.",
+        ),
+      );
       await page.getByTestId("users-roles-save-button").click();
       await expectToastAndClose(page, "The roles field is required.");
       await expect(page.getByTestId("roles-field")).toContainText(
         "The roles field is required.",
       );
 
-      await mockMethod(page, "PUT", "**/api/v1/users/2", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "PUT", "users/2", serverError());
       await page.getByTestId("users-roles-save-button").click();
 
       await expectToastAndClose(page, [
@@ -404,23 +430,26 @@ test.describe("Admin users edit security", () => {
       );
     });
 
-    test("428 error shows stale dialog and reloads", async ({ page, user }) => {
-      user.data.roles = [
+    test("428 error shows stale dialog and reloads", async ({
+      page,
+      userResponse,
+    }) => {
+      userResponse.data.roles = [
         { id: 3, name: "Students", automatic: true },
         { id: 4, name: "Dean", automatic: false },
         { id: 6, name: "Manager", automatic: false },
       ];
-      user.data.user_locale = "de";
-      user.data.timezone = "Europe/Berlin";
+      userResponse.data.user_locale = "de";
+      userResponse.data.timezone = "Europe/Berlin";
 
-      const save = await mockMethod(page, "PUT", "**/api/v1/users/2", {
+      const putUserApiMock = await mockApiRequest(page, "PUT", "users/2", {
         status: 428,
-        json: { message: "stale_model", new_model: user.data },
+        json: { message: "stale_model", new_model: userResponse.data },
       });
 
       await expect(page.getByTestId("stale-user-dialog")).toHaveCount(0);
       await page.getByTestId("users-roles-save-button").click();
-      await nthRequest(save);
+      await putUserApiMock.waitForRequest();
 
       const dialog = page.getByTestId("stale-user-dialog");
       await expect(dialog).toBeVisible();
@@ -436,12 +465,14 @@ test.describe("Admin users edit security", () => {
 
     test("404 error redirects to users index", async ({ page }) => {
       await interceptAdminUsersIndexRequests(page);
-      const save = await mockMethod(page, "PUT", "**/api/v1/users/2", {
-        status: 404,
-        json: { message: "model_not_found", model: "user", ids: [2] },
-      });
+      const putUserApiMock = await mockApiRequest(
+        page,
+        "PUT",
+        "users/2",
+        modelNotFound("user", [2]),
+      );
       await page.getByTestId("users-roles-save-button").click();
-      await nthRequest(save);
+      await putUserApiMock.waitForRequest();
 
       await expect(page).not.toHaveURL(/\/admin\/users\/2\/edit/);
       await expect(page).toHaveURL(/\/admin\/users/);
@@ -452,11 +483,11 @@ test.describe("Admin users edit security", () => {
     });
 
     test("401 error redirects to login", async ({ page }) => {
-      const save = await mockMethod(page, "PUT", "**/api/v1/users/2", {
+      const putUserApiMock = await mockApiRequest(page, "PUT", "users/2", {
         status: 401,
       });
       await page.getByTestId("users-roles-save-button").click();
-      await nthRequest(save);
+      await putUserApiMock.waitForRequest();
 
       await expectLoginRedirect(page, "/admin/users/2/edit");
     });
@@ -468,16 +499,24 @@ test.describe("Admin users edit security", () => {
       await expect(page.getByTestId("role-chip")).toHaveCount(2);
     });
 
-    test("change password and loading state", async ({ page, user }) => {
+    test("change password and loading state", async ({
+      page,
+      userResponse,
+    }) => {
       await page.locator("#new_password").fill("secretPassword123#");
       await page
         .locator("#new_password_confirmation")
         .fill("secretPassword123#");
 
-      const save = await mockMethod(page, "PUT", "**/api/v1/users/2/password", {
-        json: user,
-        hold: true,
-      });
+      const putUserPasswordApiMock = await mockApiRequest(
+        page,
+        "PUT",
+        "users/2/password",
+        {
+          json: userResponse,
+          hold: true,
+        },
+      );
 
       await expect(page.getByTestId("change-password-save-button")).toHaveText(
         "auth.change_password",
@@ -506,11 +545,13 @@ test.describe("Admin users edit security", () => {
       );
       await expect(page.getByTestId("users-roles-save-button")).toBeDisabled();
 
-      save.release();
+      putUserPasswordApiMock.release();
 
-      expect((await nthRequest(save)).postDataJSON()).toEqual({
-        new_password: "secretPassword123#",
-        new_password_confirmation: "secretPassword123#",
+      await expect(putUserPasswordApiMock).toHaveReceivedRequest({
+        json: {
+          new_password: "secretPassword123#",
+          new_password_confirmation: "secretPassword123#",
+        },
       });
 
       await expectToastAndClose(page, "auth.flash.password_changed");
@@ -530,25 +571,22 @@ test.describe("Admin users edit security", () => {
       });
 
       test("422 error shows messages at the fields", async ({ page }) => {
-        const save = await mockMethod(
+        const putUserPasswordApiMock = await mockApiRequest(
           page,
           "PUT",
-          "**/api/v1/users/2/password",
-          {
-            status: 422,
-            json: {
-              message: "The New password field is required. (and 1 more error)",
-              errors: {
-                new_password: ["The New password field is required."],
-                new_password_confirmation: [
-                  "The New password confirmation field is required.",
-                ],
-              },
+          "users/2/password",
+          validationErrors(
+            {
+              new_password: ["The New password field is required."],
+              new_password_confirmation: [
+                "The New password confirmation field is required.",
+              ],
             },
-          },
+            "The New password field is required. (and 1 more error)",
+          ),
         );
         await page.getByTestId("change-password-save-button").click();
-        await nthRequest(save);
+        await putUserPasswordApiMock.waitForRequest();
 
         await expectToastAndClose(
           page,
@@ -563,18 +601,20 @@ test.describe("Admin users edit security", () => {
       });
 
       test("500 error hides previous 422 messages", async ({ page }) => {
-        await mockMethod(page, "PUT", "**/api/v1/users/2/password", {
-          status: 422,
-          json: {
-            message: "The New password field is required. (and 1 more error)",
-            errors: {
+        await mockApiRequest(
+          page,
+          "PUT",
+          "users/2/password",
+          validationErrors(
+            {
               new_password: ["The New password field is required."],
               new_password_confirmation: [
                 "The New password confirmation field is required.",
               ],
             },
-          },
-        });
+            "The New password field is required. (and 1 more error)",
+          ),
+        );
         await page.getByTestId("change-password-save-button").click();
         await expectToastAndClose(
           page,
@@ -596,10 +636,7 @@ test.describe("Admin users edit security", () => {
         await expect(confirmation).toHaveValue("");
         await confirmation.fill("newSecretPassword123#");
 
-        await mockMethod(page, "PUT", "**/api/v1/users/2/password", {
-          status: 500,
-          json: { message: "Test" },
-        });
+        await mockApiRequest(page, "PUT", "users/2/password", serverError());
         await page.getByTestId("change-password-save-button").click();
 
         await expectToastAndClose(page, [
@@ -616,17 +653,14 @@ test.describe("Admin users edit security", () => {
 
       test("404 error redirects to users index", async ({ page }) => {
         await interceptAdminUsersIndexRequests(page);
-        const save = await mockMethod(
+        const putUserPasswordApiMock = await mockApiRequest(
           page,
           "PUT",
-          "**/api/v1/users/2/password",
-          {
-            status: 404,
-            json: { message: "model_not_found", model: "user", ids: [2] },
-          },
+          "users/2/password",
+          modelNotFound("user", [2]),
         );
         await page.getByTestId("change-password-save-button").click();
-        await nthRequest(save);
+        await putUserPasswordApiMock.waitForRequest();
 
         await expect(page).not.toHaveURL(/\/admin\/users\/2\/edit/);
         await expect(page).toHaveURL(/\/admin\/users/);
@@ -637,16 +671,16 @@ test.describe("Admin users edit security", () => {
       });
 
       test("401 error redirects to login", async ({ page }) => {
-        const save = await mockMethod(
+        const putUserPasswordApiMock = await mockApiRequest(
           page,
           "PUT",
-          "**/api/v1/users/2/password",
+          "users/2/password",
           {
             status: 401,
           },
         );
         await page.getByTestId("change-password-save-button").click();
-        await nthRequest(save);
+        await putUserPasswordApiMock.waitForRequest();
 
         await expectLoginRedirect(page, "/admin/users/2/edit");
       });
@@ -654,12 +688,13 @@ test.describe("Admin users edit security", () => {
   });
 
   test.describe("load roles errors", () => {
-    test("500 error and reload", async ({ page, roles }) => {
-      const rolesRequest = await mockMethod(page, "GET", "**/api/v1/roles*", {
-        status: 500,
-        json: { message: "Test" },
-        hold: true,
-      });
+    test("500 error and reload", async ({ page, rolesResponse }) => {
+      const getRolesApiMock = await mockApiRequest(
+        page,
+        "GET",
+        "roles*",
+        serverError({ hold: true }),
+      );
 
       await page.goto("/admin/users/2/edit#tab=security");
 
@@ -669,8 +704,8 @@ test.describe("Admin users edit security", () => {
         /multiselect--disabled/,
       );
 
-      rolesRequest.release();
-      await nthRequest(rolesRequest);
+      getRolesApiMock.release();
+      await getRolesApiMock.waitForRequest();
 
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
@@ -683,11 +718,11 @@ test.describe("Admin users edit security", () => {
       await expect(page.getByTestId("users-roles-save-button")).toBeDisabled();
 
       // Reload roles without errors
-      const reloaded = await mockMethod(page, "GET", "**/api/v1/roles*", {
-        json: roles,
+      const getRolesApiMock2 = await mockApiRequest(page, "GET", "roles*", {
+        json: rolesResponse,
       });
       await page.getByTestId("roles-reload-button").click();
-      await nthRequest(reloaded);
+      await getRolesApiMock2.waitForRequest();
 
       await expect(page.getByTestId("role-dropdown")).not.toHaveClass(
         /multiselect--disabled/,
@@ -705,12 +740,14 @@ test.describe("Admin users edit security", () => {
       await page.getByTestId("role-dropdown").click();
       await expect(page.locator(".multiselect__content")).toBeVisible();
 
-      const roles = await mockMethod(page, "GET", "**/api/v1/roles*", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      const getRolesApiMock = await mockApiRequest(
+        page,
+        "GET",
+        "roles*",
+        serverError(),
+      );
       await page.getByTestId("next-page-button").click();
-      await nthRequest(roles);
+      await getRolesApiMock.waitForRequest();
 
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
@@ -724,7 +761,7 @@ test.describe("Admin users edit security", () => {
     });
 
     test("401 error redirects to login", async ({ page }) => {
-      await mockMethod(page, "GET", "**/api/v1/roles*", { status: 401 });
+      await mockApiRequest(page, "GET", "roles*", { status: 401 });
 
       await page.goto("/admin/users/2/edit#tab=security");
 
@@ -738,7 +775,7 @@ test.describe("Admin users edit security", () => {
       await page.getByTestId("role-dropdown").click();
       await expect(page.locator(".multiselect__content")).toBeVisible();
 
-      await mockMethod(page, "GET", "**/api/v1/roles*", { status: 401 });
+      await mockApiRequest(page, "GET", "roles*", { status: 401 });
       await page.getByTestId("next-page-button").click();
 
       await expectLoginRedirect(page, "/admin/users/2/edit");

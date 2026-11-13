@@ -1,17 +1,21 @@
+import { test } from "../support/fixtures/serverController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { test } from "../support/fixtures/adminServers.js";
 import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
 } from "../support/general.js";
 import { expectAdminBreadcrumbs } from "../support/admin.js";
-import { mockMethod } from "../support/utils.js";
+import {
+  mockApiRequest,
+  serverError,
+  modelNotFound,
+} from "../support/utils.js";
 
 test.describe("Admin servers view", () => {
   test.use({ authenticated: true });
 
-  test.beforeEach(({ currentUser }) => {
-    currentUser.data.permissions = [
+  test.beforeEach(({ currentUserResponse }) => {
+    currentUserResponse.data.permissions = [
       "admin.view",
       "servers.viewAny",
       "servers.view",
@@ -24,9 +28,9 @@ test.describe("Admin servers view", () => {
 
   test("visit with user without permission to view servers", async ({
     page,
-    currentUser,
+    currentUserResponse,
   }) => {
-    currentUser.data.permissions = ["admin.view", "servers.viewAny"];
+    currentUserResponse.data.permissions = ["admin.view", "servers.viewAny"];
 
     await page.goto("/admin/servers/1");
 
@@ -39,10 +43,10 @@ test.describe("Admin servers view", () => {
 
   test("loading state hides the buttons and shows the overlay", async ({
     page,
-    server,
+    serverResponse,
   }) => {
-    const serverRequest = await mockMethod(page, "GET", "**/api/v1/servers/1", {
-      json: server,
+    const getServerApiMock = await mockApiRequest(page, "GET", "servers/1", {
+      json: serverResponse,
       hold: true,
     });
     await page.goto("/admin/servers/1");
@@ -61,7 +65,7 @@ test.describe("Admin servers view", () => {
       await expect(page.getByTestId(testId)).toHaveCount(0);
     }
 
-    serverRequest.release();
+    getServerApiMock.release();
 
     await expect(page.getByTestId("name-field")).toBeVisible();
     await expect(page.getByTestId("overlay")).toHaveCount(0);
@@ -205,8 +209,8 @@ test.describe("Admin servers view", () => {
     });
   });
 
-  test("server draining", async ({ page, server }) => {
-    server.data.status = 0;
+  test("server draining", async ({ page, serverResponse }) => {
+    serverResponse.data.status = 0;
     await page.goto("/admin/servers/1");
 
     const statusField = page.getByTestId("status-field");
@@ -249,9 +253,9 @@ test.describe("Admin servers view", () => {
     await expect(page.getByTestId("video-count-field")).toBeVisible();
   });
 
-  test("server disabled", async ({ page, server }) => {
-    server.data.status = -1;
-    server.data.connection_status = null;
+  test("server disabled", async ({ page, serverResponse }) => {
+    serverResponse.data.status = -1;
+    serverResponse.data.connection_status = null;
     await page.goto("/admin/servers/1");
 
     const statusField = page.getByTestId("status-field");
@@ -323,10 +327,10 @@ test.describe("Admin servers view", () => {
 
     test("checked shows connection status unknown", async ({
       page,
-      server,
+      serverResponse,
       serverForm,
     }) => {
-      server.data.connection_status_always_online = true;
+      serverResponse.data.connection_status_always_online = true;
       await page.goto("/admin/servers/1");
 
       const field = page.getByTestId("connection-status-always-online-field");
@@ -351,8 +355,8 @@ test.describe("Admin servers view", () => {
   });
 
   test.describe("button visibility with update permission", () => {
-    test.beforeEach(({ currentUser }) => {
-      currentUser.data.permissions.push("servers.update");
+    test.beforeEach(({ currentUserResponse }) => {
+      currentUserResponse.data.permissions.push("servers.update");
     });
 
     for (const [name, status, panic, deletable] of [
@@ -360,8 +364,8 @@ test.describe("Admin servers view", () => {
       ["draining", 0, true, false],
       ["disabled", -1, false, false],
     ]) {
-      test(`server ${name}`, async ({ page, server, serverForm }) => {
-        server.data.status = status;
+      test(`server ${name}`, async ({ page, serverResponse, serverForm }) => {
+        serverResponse.data.status = status;
         await page.goto("/admin/servers/1");
 
         const editButton = page.getByTestId("servers-edit-button");
@@ -403,8 +407,8 @@ test.describe("Admin servers view", () => {
   });
 
   test.describe("button visibility with delete permission", () => {
-    test.beforeEach(({ currentUser }) => {
-      currentUser.data.permissions.push(
+    test.beforeEach(({ currentUserResponse }) => {
+      currentUserResponse.data.permissions.push(
         "servers.update",
         "servers.create",
         "servers.delete",
@@ -416,8 +420,8 @@ test.describe("Admin servers view", () => {
       ["draining", 0, true, false],
       ["disabled", -1, false, true],
     ]) {
-      test(`server ${name}`, async ({ page, server, serverForm }) => {
-        server.data.status = status;
+      test(`server ${name}`, async ({ page, serverResponse, serverForm }) => {
+        serverResponse.data.status = status;
         await page.goto("/admin/servers/1");
 
         const editButton = page.getByTestId("servers-edit-button");
@@ -461,13 +465,10 @@ test.describe("Admin servers view", () => {
   test.describe("open view errors", () => {
     test("server error shows overlay and can be retried", async ({
       page,
-      server,
+      serverResponse,
       serverForm,
     }) => {
-      await mockMethod(page, "GET", "**/api/v1/servers/1", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "GET", "servers/1", serverError());
 
       await page.goto("/admin/servers/1");
 
@@ -477,7 +478,7 @@ test.describe("Admin servers view", () => {
         'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
 
-      await mockMethod(page, "GET", "**/api/v1/servers/1", { json: server });
+      await mockApiRequest(page, "GET", "servers/1", { json: serverResponse });
       const retryButton = page.getByTestId("loading-retry-button");
       await expect(retryButton).toBeVisible();
       await expect(retryButton).toHaveText("app.reload");
@@ -489,10 +490,12 @@ test.describe("Admin servers view", () => {
     });
 
     test("404 redirects to the servers index", async ({ page }) => {
-      await mockMethod(page, "GET", "**/api/v1/servers/1", {
-        status: 404,
-        json: { message: "model_not_found", model: "server", ids: [1] },
-      });
+      await mockApiRequest(
+        page,
+        "GET",
+        "servers/1",
+        modelNotFound("server", [1]),
+      );
 
       const serversRequest = page.waitForRequest(/\/api\/v1\/servers\?/);
       await page.goto("/admin/servers/1");
@@ -506,7 +509,7 @@ test.describe("Admin servers view", () => {
     });
 
     test("401 redirects to the login page", async ({ page }) => {
-      await mockMethod(page, "GET", "**/api/v1/servers/1", { status: 401 });
+      await mockApiRequest(page, "GET", "servers/1", { status: 401 });
 
       await page.goto("/admin/servers/1");
 

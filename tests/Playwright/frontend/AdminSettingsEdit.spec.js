@@ -1,24 +1,29 @@
+import { mergeTests } from "@playwright/test";
+import { test as settingsControllerTest } from "../support/fixtures/settingsController.js";
+import { test as timezonesTest } from "../support/fixtures/timezones.js";
 import { readFileSync } from "node:fs";
-import { test } from "../support/fixtures/adminSettings.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import {
   getFileContentType,
-  mockMethod,
-  nthRequest,
-  parseFormData,
+  mockApiRequest,
+  getRequestFormData,
+  serverError,
+  unauthorized,
 } from "../support/utils.js";
 import {
   checkSettingsImageSelector,
   checkSettingsFileSelector,
 } from "../support/admin.js";
 
+const test = mergeTests(settingsControllerTest, timezonesTest);
+
 test.use({ authenticated: true });
 
 test.describe("Admin settings with edit permission", () => {
   let saveButton;
 
-  test.beforeEach(async ({ page, config, currentUser }) => {
-    currentUser.data.permissions = [
+  test.beforeEach(async ({ page, configResponse, currentUserResponse }) => {
+    currentUserResponse.data.permissions = [
       "admin.view",
       "settings.viewAny",
       "settings.update",
@@ -26,8 +31,8 @@ test.describe("Admin settings with edit permission", () => {
 
     // Add favicon settings to config because otherwise page will always
     // be reloaded if settings are saved
-    config.data.theme.favicon = "/images/favicon.ico";
-    config.data.theme.favicon_dark = "/images/favicon-dark.ico";
+    configResponse.data.theme.favicon = "/images/favicon.ico";
+    configResponse.data.theme.favicon_dark = "/images/favicon-dark.ico";
 
     saveButton = page.getByTestId("settings-save-button");
   });
@@ -187,7 +192,10 @@ test.describe("Admin settings with edit permission", () => {
       await expect(dropdown).toHaveText("Europe/Berlin");
     });
 
-    test("saves changed application settings", async ({ page, settings }) => {
+    test("saves changed application settings", async ({
+      page,
+      settingsResponse,
+    }) => {
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
       await expect(saveButton).toBeEnabled();
@@ -216,48 +224,59 @@ test.describe("Admin settings with edit permission", () => {
 
       await page.locator("#no-welcome-page").click();
 
-      settings.data.general_name = "PILOS test application";
-      settings.data.general_help_url = "http://www.pilos.com/help";
-      settings.data.general_legal_notice_url =
+      settingsResponse.data.general_name = "PILOS test application";
+      settingsResponse.data.general_help_url = "http://www.pilos.com/help";
+      settingsResponse.data.general_legal_notice_url =
         "http://www.pilos.com/legal_notice";
-      settings.data.general_privacy_policy_url =
+      settingsResponse.data.general_privacy_policy_url =
         "http://www.pilos.com/privacy_policy";
-      settings.data.general_accessibility_statement_url =
+      settingsResponse.data.general_accessibility_statement_url =
         "http://www.pilos.com/accessibility";
-      settings.data.general_pagination_page_size = 3;
-      settings.data.general_toast_lifetime = 10;
-      settings.data.general_default_timezone = "Europe/Berlin";
-      settings.data.general_no_welcome_page = false;
-      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
-        json: settings,
-        hold: true,
-      });
+      settingsResponse.data.general_pagination_page_size = 3;
+      settingsResponse.data.general_toast_lifetime = 10;
+      settingsResponse.data.general_default_timezone = "Europe/Berlin";
+      settingsResponse.data.general_no_welcome_page = false;
+      const postSettingsApiMock = await mockApiRequest(
+        page,
+        "POST",
+        "settings",
+        {
+          json: settingsResponse,
+          hold: true,
+        },
+      );
       const configRequest = page.waitForRequest("**/api/v1/config");
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
       await expect(page.getByTestId("overlay")).toBeVisible();
       await expect(saveButton).toBeDisabled();
-      save.release();
+      postSettingsApiMock.release();
 
-      const formData = await parseFormData(await nthRequest(save));
-      expect(formData.get("general_name")).toBe("PILOS test application");
-      expect(formData.get("general_help_url")).toBe(
+      const requestFormData = await getRequestFormData(
+        await postSettingsApiMock.waitForRequest(),
+      );
+      expect(requestFormData.get("general_name")).toBe(
+        "PILOS test application",
+      );
+      expect(requestFormData.get("general_help_url")).toBe(
         "http://www.pilos.com/help",
       );
-      expect(formData.get("general_legal_notice_url")).toBe(
+      expect(requestFormData.get("general_legal_notice_url")).toBe(
         "http://www.pilos.com/legal_notice",
       );
-      expect(formData.get("general_privacy_policy_url")).toBe(
+      expect(requestFormData.get("general_privacy_policy_url")).toBe(
         "http://www.pilos.com/privacy_policy",
       );
-      expect(formData.get("general_accessibility_statement_url")).toBe(
+      expect(requestFormData.get("general_accessibility_statement_url")).toBe(
         "http://www.pilos.com/accessibility",
       );
-      expect(formData.get("general_pagination_page_size")).toBe("3");
-      expect(formData.get("general_toast_lifetime")).toBe("10");
-      expect(formData.get("general_default_timezone")).toBe("Europe/Berlin");
-      expect(formData.get("general_no_welcome_page")).toBe("0");
+      expect(requestFormData.get("general_pagination_page_size")).toBe("3");
+      expect(requestFormData.get("general_toast_lifetime")).toBe("10");
+      expect(requestFormData.get("general_default_timezone")).toBe(
+        "Europe/Berlin",
+      );
+      expect(requestFormData.get("general_no_welcome_page")).toBe("0");
 
       await configRequest;
       await expect(page.getByTestId("overlay")).toHaveCount(0);
@@ -298,20 +317,20 @@ test.describe("Admin settings with edit permission", () => {
 
     test("saves cleared url fields and unlimited toast lifetime", async ({
       page,
-      settings,
+      settingsResponse,
     }) => {
-      settings.data.general_name = "PILOS test application";
-      settings.data.general_help_url = "http://www.pilos.com/help";
-      settings.data.general_legal_notice_url =
+      settingsResponse.data.general_name = "PILOS test application";
+      settingsResponse.data.general_help_url = "http://www.pilos.com/help";
+      settingsResponse.data.general_legal_notice_url =
         "http://www.pilos.com/legal_notice";
-      settings.data.general_privacy_policy_url =
+      settingsResponse.data.general_privacy_policy_url =
         "http://www.pilos.com/privacy_policy";
-      settings.data.general_accessibility_statement_url =
+      settingsResponse.data.general_accessibility_statement_url =
         "http://www.pilos.com/accessibility";
-      settings.data.general_pagination_page_size = 3;
-      settings.data.general_toast_lifetime = 10;
-      settings.data.general_default_timezone = "Europe/Berlin";
-      settings.data.general_no_welcome_page = false;
+      settingsResponse.data.general_pagination_page_size = 3;
+      settingsResponse.data.general_toast_lifetime = 10;
+      settingsResponse.data.general_default_timezone = "Europe/Berlin";
+      settingsResponse.data.general_no_welcome_page = false;
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
       await expect(saveButton).toBeEnabled();
@@ -326,28 +345,41 @@ test.describe("Admin settings with edit permission", () => {
         0,
       );
 
-      settings.data.general_help_url = null;
-      settings.data.general_legal_notice_url = null;
-      settings.data.general_privacy_policy_url = null;
-      settings.data.general_accessibility_statement_url = null;
-      settings.data.general_toast_lifetime = 0;
-      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
-        json: settings,
-      });
+      settingsResponse.data.general_help_url = null;
+      settingsResponse.data.general_legal_notice_url = null;
+      settingsResponse.data.general_privacy_policy_url = null;
+      settingsResponse.data.general_accessibility_statement_url = null;
+      settingsResponse.data.general_toast_lifetime = 0;
+      const postSettingsApiMock = await mockApiRequest(
+        page,
+        "POST",
+        "settings",
+        {
+          json: settingsResponse,
+        },
+      );
       const configRequest = page.waitForRequest("**/api/v1/config");
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
-      const formData = await parseFormData(await nthRequest(save));
-      expect(formData.get("general_name")).toBe("PILOS test application");
-      expect(formData.get("general_help_url")).toBe("");
-      expect(formData.get("general_legal_notice_url")).toBe("");
-      expect(formData.get("general_privacy_policy_url")).toBe("");
-      expect(formData.get("general_accessibility_statement_url")).toBe("");
-      expect(formData.get("general_pagination_page_size")).toBe("3");
-      expect(formData.get("general_toast_lifetime")).toBe("0");
-      expect(formData.get("general_default_timezone")).toBe("Europe/Berlin");
-      expect(formData.get("general_no_welcome_page")).toBe("0");
+      const requestFormData = await getRequestFormData(
+        await postSettingsApiMock.waitForRequest(),
+      );
+      expect(requestFormData.get("general_name")).toBe(
+        "PILOS test application",
+      );
+      expect(requestFormData.get("general_help_url")).toBe("");
+      expect(requestFormData.get("general_legal_notice_url")).toBe("");
+      expect(requestFormData.get("general_privacy_policy_url")).toBe("");
+      expect(requestFormData.get("general_accessibility_statement_url")).toBe(
+        "",
+      );
+      expect(requestFormData.get("general_pagination_page_size")).toBe("3");
+      expect(requestFormData.get("general_toast_lifetime")).toBe("0");
+      expect(requestFormData.get("general_default_timezone")).toBe(
+        "Europe/Berlin",
+      );
+      expect(requestFormData.get("general_no_welcome_page")).toBe("0");
 
       await configRequest;
       await expect(page.getByTestId("overlay")).toHaveCount(0);
@@ -462,7 +494,7 @@ test.describe("Admin settings with edit permission", () => {
 
     test("saves uploaded logos, primary color and rounded setting without reload", async ({
       page,
-      settings,
+      settingsResponse,
       settingsRequests,
     }) => {
       await page.goto("/admin/settings");
@@ -529,50 +561,58 @@ test.describe("Admin settings with edit permission", () => {
         "admin.settings.theme.enforced_color_mode.dark",
       );
 
-      settings.data.theme_logo = "/images/logo2.svg";
-      settings.data.theme_logo_dark = "/images/logo-dark2.svg";
-      settings.data.theme_primary_color = "#14b8a6";
-      settings.data.theme_rounded = false;
-      settings.data.theme_enforced_color_mode = "dark";
+      settingsResponse.data.theme_logo = "/images/logo2.svg";
+      settingsResponse.data.theme_logo_dark = "/images/logo-dark2.svg";
+      settingsResponse.data.theme_primary_color = "#14b8a6";
+      settingsResponse.data.theme_rounded = false;
+      settingsResponse.data.theme_enforced_color_mode = "dark";
       // Respond with custom css set to check that it is handled correctly in the next request
-      settings.data.theme_custom_css = "/storage/styles/theme_custom_css.css";
-      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
-        json: settings,
-        hold: true,
-      });
+      settingsResponse.data.theme_custom_css =
+        "/storage/styles/theme_custom_css.css";
+      const postSettingsApiMock = await mockApiRequest(
+        page,
+        "POST",
+        "settings",
+        {
+          json: settingsResponse,
+          hold: true,
+        },
+      );
       const configRequest = page.waitForRequest("**/api/v1/config");
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
       await expect(page.getByTestId("overlay")).toBeVisible();
       await expect(saveButton).toBeDisabled();
-      save.release();
+      postSettingsApiMock.release();
 
-      const formData = await parseFormData(await nthRequest(save));
-      expect(formData.get("theme_favicon_file")).toBeNull();
-      expect(formData.get("theme_favicon")).toBe("/images/favicon.ico");
-      expect(formData.get("theme_favicon_dark_file")).toBeNull();
-      expect(formData.get("theme_favicon_dark")).toBe(
+      const requestFormData = await getRequestFormData(
+        await postSettingsApiMock.waitForRequest(),
+      );
+      expect(requestFormData.get("theme_favicon_file")).toBeNull();
+      expect(requestFormData.get("theme_favicon")).toBe("/images/favicon.ico");
+      expect(requestFormData.get("theme_favicon_dark_file")).toBeNull();
+      expect(requestFormData.get("theme_favicon_dark")).toBe(
         "/images/favicon-dark.ico",
       );
-      const logoFile = formData.get("theme_logo_file");
+      const logoFile = requestFormData.get("theme_logo_file");
       expect(logoFile.name).toBe("logo.svg");
       expect(logoFile.type).toBe("image/svg+xml");
       expect(Buffer.from(await logoFile.arrayBuffer())).toEqual(
         readFileSync("tests/Playwright/fixtures/files/logo.svg"),
       );
-      expect(formData.get("theme_logo")).toBeNull();
-      const logoDarkFile = formData.get("theme_logo_dark_file");
+      expect(requestFormData.get("theme_logo")).toBeNull();
+      const logoDarkFile = requestFormData.get("theme_logo_dark_file");
       expect(logoDarkFile.name).toBe("logo-dark.svg");
       expect(logoDarkFile.type).toBe("image/svg+xml");
       expect(Buffer.from(await logoDarkFile.arrayBuffer())).toEqual(
         readFileSync("tests/Playwright/fixtures/files/logo-dark.svg"),
       );
-      expect(formData.get("theme_logo_dark")).toBeNull();
-      expect(formData.get("theme_primary_color")).toBe("#14b8a6");
-      expect(formData.get("theme_rounded")).toBe("0");
-      expect(formData.get("theme_enforced_color_mode")).toBe("dark");
-      expect(formData.get("theme_custom_css")).toBeNull();
+      expect(requestFormData.get("theme_logo_dark")).toBeNull();
+      expect(requestFormData.get("theme_primary_color")).toBe("#14b8a6");
+      expect(requestFormData.get("theme_rounded")).toBe("0");
+      expect(requestFormData.get("theme_enforced_color_mode")).toBe("dark");
+      expect(requestFormData.get("theme_custom_css")).toBeNull();
 
       await configRequest;
       await expect(page.getByTestId("overlay")).toHaveCount(0);
@@ -604,55 +644,70 @@ test.describe("Admin settings with edit permission", () => {
 
     test("saves without changes and does not send the unchanged custom css", async ({
       page,
-      settings,
+      settingsResponse,
       settingsRequests,
     }) => {
-      settings.data.theme_logo = "/images/logo2.svg";
-      settings.data.theme_logo_dark = "/images/logo-dark2.svg";
-      settings.data.theme_primary_color = "#14b8a6";
-      settings.data.theme_rounded = false;
-      settings.data.theme_enforced_color_mode = "dark";
+      settingsResponse.data.theme_logo = "/images/logo2.svg";
+      settingsResponse.data.theme_logo_dark = "/images/logo-dark2.svg";
+      settingsResponse.data.theme_primary_color = "#14b8a6";
+      settingsResponse.data.theme_rounded = false;
+      settingsResponse.data.theme_enforced_color_mode = "dark";
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
       await expect(saveButton).toBeEnabled();
 
       // First save responds with a custom css that was not set by the user
-      settings.data.theme_custom_css = "/storage/styles/theme_custom_css.css";
-      const firstSave = await mockMethod(page, "POST", "**/api/v1/settings", {
-        json: settings,
-      });
+      settingsResponse.data.theme_custom_css =
+        "/storage/styles/theme_custom_css.css";
+      const postSettingsApiMock = await mockApiRequest(
+        page,
+        "POST",
+        "settings",
+        {
+          json: settingsResponse,
+        },
+      );
       const firstConfigRequest = page.waitForRequest("**/api/v1/config");
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
-      await nthRequest(firstSave);
+      await postSettingsApiMock.waitForRequest();
       await firstConfigRequest;
       await expect(page.getByTestId("overlay")).toHaveCount(0);
       await expect(saveButton).toBeEnabled();
 
-      settings.data.theme_custom_css = null;
-      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
-        json: settings,
-      });
+      settingsResponse.data.theme_custom_css = null;
+      const postSettingsApiMock2 = await mockApiRequest(
+        page,
+        "POST",
+        "settings",
+        {
+          json: settingsResponse,
+        },
+      );
       const configRequest = page.waitForRequest("**/api/v1/config");
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
-      const formData = await parseFormData(await nthRequest(save));
-      expect(formData.get("theme_favicon_file")).toBeNull();
-      expect(formData.get("theme_favicon")).toBe("/images/favicon.ico");
-      expect(formData.get("theme_favicon_dark_file")).toBeNull();
-      expect(formData.get("theme_favicon_dark")).toBe(
+      const requestFormData = await getRequestFormData(
+        await postSettingsApiMock2.waitForRequest(),
+      );
+      expect(requestFormData.get("theme_favicon_file")).toBeNull();
+      expect(requestFormData.get("theme_favicon")).toBe("/images/favicon.ico");
+      expect(requestFormData.get("theme_favicon_dark_file")).toBeNull();
+      expect(requestFormData.get("theme_favicon_dark")).toBe(
         "/images/favicon-dark.ico",
       );
-      expect(formData.get("theme_logo_file")).toBeNull();
-      expect(formData.get("theme_logo")).toBe("/images/logo2.svg");
-      expect(formData.get("theme_logo_dark_file")).toBeNull();
-      expect(formData.get("theme_logo_dark")).toBe("/images/logo-dark2.svg");
-      expect(formData.get("theme_primary_color")).toBe("#14b8a6");
-      expect(formData.get("theme_rounded")).toBe("0");
-      expect(formData.get("theme_enforced_color_mode")).toBe("dark");
+      expect(requestFormData.get("theme_logo_file")).toBeNull();
+      expect(requestFormData.get("theme_logo")).toBe("/images/logo2.svg");
+      expect(requestFormData.get("theme_logo_dark_file")).toBeNull();
+      expect(requestFormData.get("theme_logo_dark")).toBe(
+        "/images/logo-dark2.svg",
+      );
+      expect(requestFormData.get("theme_primary_color")).toBe("#14b8a6");
+      expect(requestFormData.get("theme_rounded")).toBe("0");
+      expect(requestFormData.get("theme_enforced_color_mode")).toBe("dark");
       // Make sure that custom css is null, even though it is set (not changed by the user)
-      expect(formData.get("theme_custom_css")).toBeNull();
+      expect(requestFormData.get("theme_custom_css")).toBeNull();
 
       await configRequest;
       await expect(page.getByTestId("overlay")).toHaveCount(0);
@@ -680,14 +735,14 @@ test.describe("Admin settings with edit permission", () => {
 
     test("saves changed logo urls without reload", async ({
       page,
-      settings,
+      settingsResponse,
       settingsRequests,
     }) => {
-      settings.data.theme_logo = "/images/logo2.svg";
-      settings.data.theme_logo_dark = "/images/logo-dark2.svg";
-      settings.data.theme_primary_color = "#14b8a6";
-      settings.data.theme_rounded = false;
-      settings.data.theme_enforced_color_mode = "dark";
+      settingsResponse.data.theme_logo = "/images/logo2.svg";
+      settingsResponse.data.theme_logo_dark = "/images/logo-dark2.svg";
+      settingsResponse.data.theme_primary_color = "#14b8a6";
+      settingsResponse.data.theme_rounded = false;
+      settingsResponse.data.theme_enforced_color_mode = "dark";
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
       await expect(saveButton).toBeEnabled();
@@ -704,30 +759,39 @@ test.describe("Admin settings with edit permission", () => {
       await expect(logoDarkUrl).toHaveValue("/images/logo-dark2.svg");
       await logoDarkUrl.fill("/images/logo-dark3.svg");
 
-      settings.data.theme_logo = "/images/logo3.svg";
-      settings.data.theme_logo_dark = "/images/logo-dark3.svg";
-      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
-        json: settings,
-      });
+      settingsResponse.data.theme_logo = "/images/logo3.svg";
+      settingsResponse.data.theme_logo_dark = "/images/logo-dark3.svg";
+      const postSettingsApiMock = await mockApiRequest(
+        page,
+        "POST",
+        "settings",
+        {
+          json: settingsResponse,
+        },
+      );
       const configRequest = page.waitForRequest("**/api/v1/config");
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
-      const formData = await parseFormData(await nthRequest(save));
-      expect(formData.get("theme_favicon_file")).toBeNull();
-      expect(formData.get("theme_favicon")).toBe("/images/favicon.ico");
-      expect(formData.get("theme_favicon_dark_file")).toBeNull();
-      expect(formData.get("theme_favicon_dark")).toBe(
+      const requestFormData = await getRequestFormData(
+        await postSettingsApiMock.waitForRequest(),
+      );
+      expect(requestFormData.get("theme_favicon_file")).toBeNull();
+      expect(requestFormData.get("theme_favicon")).toBe("/images/favicon.ico");
+      expect(requestFormData.get("theme_favicon_dark_file")).toBeNull();
+      expect(requestFormData.get("theme_favicon_dark")).toBe(
         "/images/favicon-dark.ico",
       );
-      expect(formData.get("theme_logo_file")).toBeNull();
-      expect(formData.get("theme_logo")).toBe("/images/logo3.svg");
-      expect(formData.get("theme_logo_dark_file")).toBeNull();
-      expect(formData.get("theme_logo_dark")).toBe("/images/logo-dark3.svg");
-      expect(formData.get("theme_primary_color")).toBe("#14b8a6");
-      expect(formData.get("theme_rounded")).toBe("0");
-      expect(formData.get("theme_enforced_color_mode")).toBe("dark");
-      expect(formData.get("theme_custom_css")).toBeNull();
+      expect(requestFormData.get("theme_logo_file")).toBeNull();
+      expect(requestFormData.get("theme_logo")).toBe("/images/logo3.svg");
+      expect(requestFormData.get("theme_logo_dark_file")).toBeNull();
+      expect(requestFormData.get("theme_logo_dark")).toBe(
+        "/images/logo-dark3.svg",
+      );
+      expect(requestFormData.get("theme_primary_color")).toBe("#14b8a6");
+      expect(requestFormData.get("theme_rounded")).toBe("0");
+      expect(requestFormData.get("theme_enforced_color_mode")).toBe("dark");
+      expect(requestFormData.get("theme_custom_css")).toBeNull();
 
       await configRequest;
       await expect(page.getByTestId("overlay")).toHaveCount(0);
@@ -777,7 +841,7 @@ test.describe("Admin settings with edit permission", () => {
 
     test("saves an uploaded favicon and reloads the page", async ({
       page,
-      settings,
+      settingsResponse,
       settingsRequests,
     }) => {
       await page.goto("/admin/settings");
@@ -793,22 +857,29 @@ test.describe("Admin settings with edit permission", () => {
           buffer: readFileSync("tests/Playwright/fixtures/files/favicon.ico"),
         });
 
-      settings.data.theme_favicon = "/images/favicon2.ico";
-      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
-        json: settings,
-      });
+      settingsResponse.data.theme_favicon = "/images/favicon2.ico";
+      const postSettingsApiMock = await mockApiRequest(
+        page,
+        "POST",
+        "settings",
+        {
+          json: settingsResponse,
+        },
+      );
       const configRequest = page.waitForRequest("**/api/v1/config");
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
-      const formData = await parseFormData(await nthRequest(save));
-      const faviconFile = formData.get("theme_favicon_file");
+      const requestFormData = await getRequestFormData(
+        await postSettingsApiMock.waitForRequest(),
+      );
+      const faviconFile = requestFormData.get("theme_favicon_file");
       expect(faviconFile.name).toBe("favicon.ico");
       expect(faviconFile.type).toBe("image/vnd.microsoft.icon");
       expect(Buffer.from(await faviconFile.arrayBuffer())).toEqual(
         readFileSync("tests/Playwright/fixtures/files/favicon.ico"),
       );
-      expect(formData.get("theme_favicon")).toBeNull();
+      expect(requestFormData.get("theme_favicon")).toBeNull();
 
       // Config is loaded regardless of whether the page is reloaded or not
       await configRequest;
@@ -822,10 +893,10 @@ test.describe("Admin settings with edit permission", () => {
 
     test("saves a changed favicon url and reloads the page", async ({
       page,
-      settings,
+      settingsResponse,
       settingsRequests,
     }) => {
-      settings.data.theme_favicon = "/images/favicon2.ico";
+      settingsResponse.data.theme_favicon = "/images/favicon2.ico";
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
       await expect(saveButton).toBeEnabled();
@@ -836,17 +907,24 @@ test.describe("Admin settings with edit permission", () => {
       await expect(urlInput).toHaveValue("/images/favicon2.ico");
       await urlInput.fill("/images/favicon3.ico");
 
-      settings.data.theme_favicon = "/images/favicon3.ico";
-      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
-        json: settings,
-      });
+      settingsResponse.data.theme_favicon = "/images/favicon3.ico";
+      const postSettingsApiMock = await mockApiRequest(
+        page,
+        "POST",
+        "settings",
+        {
+          json: settingsResponse,
+        },
+      );
       const configRequest = page.waitForRequest("**/api/v1/config");
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
-      const formData = await parseFormData(await nthRequest(save));
-      expect(formData.get("theme_favicon_file")).toBeNull();
-      expect(formData.get("theme_favicon")).toBe("/images/favicon3.ico");
+      const requestFormData = await getRequestFormData(
+        await postSettingsApiMock.waitForRequest(),
+      );
+      expect(requestFormData.get("theme_favicon_file")).toBeNull();
+      expect(requestFormData.get("theme_favicon")).toBe("/images/favicon3.ico");
 
       await configRequest;
       await expect.poll(() => settingsRequests.length).toBe(2);
@@ -880,7 +958,7 @@ test.describe("Admin settings with edit permission", () => {
 
     test("saves an uploaded dark favicon and reloads the page", async ({
       page,
-      settings,
+      settingsResponse,
       settingsRequests,
     }) => {
       await page.goto("/admin/settings");
@@ -898,22 +976,29 @@ test.describe("Admin settings with edit permission", () => {
           ),
         });
 
-      settings.data.theme_favicon_dark = "/images/favicon-dark2.ico";
-      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
-        json: settings,
-      });
+      settingsResponse.data.theme_favicon_dark = "/images/favicon-dark2.ico";
+      const postSettingsApiMock = await mockApiRequest(
+        page,
+        "POST",
+        "settings",
+        {
+          json: settingsResponse,
+        },
+      );
       const configRequest = page.waitForRequest("**/api/v1/config");
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
-      const formData = await parseFormData(await nthRequest(save));
-      const faviconDarkFile = formData.get("theme_favicon_dark_file");
+      const requestFormData = await getRequestFormData(
+        await postSettingsApiMock.waitForRequest(),
+      );
+      const faviconDarkFile = requestFormData.get("theme_favicon_dark_file");
       expect(faviconDarkFile.name).toBe("favicon-dark.ico");
       expect(faviconDarkFile.type).toBe("image/vnd.microsoft.icon");
       expect(Buffer.from(await faviconDarkFile.arrayBuffer())).toEqual(
         readFileSync("tests/Playwright/fixtures/files/favicon-dark.ico"),
       );
-      expect(formData.get("theme_favicon_dark")).toBeNull();
+      expect(requestFormData.get("theme_favicon_dark")).toBeNull();
 
       await configRequest;
       await expect.poll(() => settingsRequests.length).toBe(2);
@@ -927,10 +1012,10 @@ test.describe("Admin settings with edit permission", () => {
 
     test("saves a changed dark favicon url and reloads the page", async ({
       page,
-      settings,
+      settingsResponse,
       settingsRequests,
     }) => {
-      settings.data.theme_favicon_dark = "/images/favicon-dark2.ico";
+      settingsResponse.data.theme_favicon_dark = "/images/favicon-dark2.ico";
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
       await expect(saveButton).toBeEnabled();
@@ -941,17 +1026,24 @@ test.describe("Admin settings with edit permission", () => {
       await expect(urlInput).toHaveValue("/images/favicon-dark2.ico");
       await urlInput.fill("/images/favicon-dark3.ico");
 
-      settings.data.theme_favicon_dark = "/images/favicon-dark3.ico";
-      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
-        json: settings,
-      });
+      settingsResponse.data.theme_favicon_dark = "/images/favicon-dark3.ico";
+      const postSettingsApiMock = await mockApiRequest(
+        page,
+        "POST",
+        "settings",
+        {
+          json: settingsResponse,
+        },
+      );
       const configRequest = page.waitForRequest("**/api/v1/config");
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
-      const formData = await parseFormData(await nthRequest(save));
-      expect(formData.get("theme_favicon_dark_file")).toBeNull();
-      expect(formData.get("theme_favicon_dark")).toBe(
+      const requestFormData = await getRequestFormData(
+        await postSettingsApiMock.waitForRequest(),
+      );
+      expect(requestFormData.get("theme_favicon_dark_file")).toBeNull();
+      expect(requestFormData.get("theme_favicon_dark")).toBe(
         "/images/favicon-dark3.ico",
       );
 
@@ -989,7 +1081,7 @@ test.describe("Admin settings with edit permission", () => {
 
     test("saves an uploaded custom css file and reloads the page", async ({
       page,
-      settings,
+      settingsResponse,
       settingsRequests,
     }) => {
       await page.goto("/admin/settings");
@@ -1007,16 +1099,24 @@ test.describe("Admin settings with edit permission", () => {
           ),
         });
 
-      settings.data.theme_custom_css = "/storage/styles/theme_custom_css.css";
-      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
-        json: settings,
-      });
+      settingsResponse.data.theme_custom_css =
+        "/storage/styles/theme_custom_css.css";
+      const postSettingsApiMock = await mockApiRequest(
+        page,
+        "POST",
+        "settings",
+        {
+          json: settingsResponse,
+        },
+      );
       const configRequest = page.waitForRequest("**/api/v1/config");
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
-      const formData = await parseFormData(await nthRequest(save));
-      const cssFile = formData.get("theme_custom_css");
+      const requestFormData = await getRequestFormData(
+        await postSettingsApiMock.waitForRequest(),
+      );
+      const cssFile = requestFormData.get("theme_custom_css");
       expect(cssFile.name).toBe("theme_custom_css.css");
       expect(cssFile.type).toBe("text/css");
       expect(Buffer.from(await cssFile.arrayBuffer())).toEqual(
@@ -1044,10 +1144,11 @@ test.describe("Admin settings with edit permission", () => {
 
     test("saves a removed custom css file and reloads the page", async ({
       page,
-      settings,
+      settingsResponse,
       settingsRequests,
     }) => {
-      settings.data.theme_custom_css = "/storage/styles/theme_custom_css.css";
+      settingsResponse.data.theme_custom_css =
+        "/storage/styles/theme_custom_css.css";
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
       await expect(saveButton).toBeEnabled();
@@ -1055,16 +1156,23 @@ test.describe("Admin settings with edit permission", () => {
       const field = page.getByTestId("theme-custom-css-field");
       await field.getByTestId("settings-file-delete-button").click();
 
-      settings.data.theme_custom_css = null;
-      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
-        json: settings,
-      });
+      settingsResponse.data.theme_custom_css = null;
+      const postSettingsApiMock = await mockApiRequest(
+        page,
+        "POST",
+        "settings",
+        {
+          json: settingsResponse,
+        },
+      );
       const configRequest = page.waitForRequest("**/api/v1/config");
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
-      const formData = await parseFormData(await nthRequest(save));
-      expect(formData.get("theme_custom_css")).toBe("");
+      const requestFormData = await getRequestFormData(
+        await postSettingsApiMock.waitForRequest(),
+      );
+      expect(requestFormData.get("theme_custom_css")).toBe("");
 
       await configRequest;
       await expect.poll(() => settingsRequests.length).toBe(2);
@@ -1139,9 +1247,9 @@ test.describe("Admin settings with edit permission", () => {
 
     test("updates the banner preview with the icon", async ({
       page,
-      settings,
+      settingsResponse,
     }) => {
-      settings.data.banner_title = "Banner title";
+      settingsResponse.data.banner_title = "Banner title";
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
       await expect(saveButton).toBeEnabled();
@@ -1170,10 +1278,10 @@ test.describe("Admin settings with edit permission", () => {
 
     test("updates the banner preview with the message", async ({
       page,
-      settings,
+      settingsResponse,
     }) => {
-      settings.data.banner_title = "Banner title";
-      settings.data.banner_icon = "fa-solid fa-door-open";
+      settingsResponse.data.banner_title = "Banner title";
+      settingsResponse.data.banner_icon = "fa-solid fa-door-open";
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
       await expect(saveButton).toBeEnabled();
@@ -1202,11 +1310,11 @@ test.describe("Admin settings with edit permission", () => {
 
     test("updates the banner preview with the link and link text", async ({
       page,
-      settings,
+      settingsResponse,
     }) => {
-      settings.data.banner_title = "Banner title";
-      settings.data.banner_icon = "fa-solid fa-door-open";
-      settings.data.banner_message = "Banner text message";
+      settingsResponse.data.banner_title = "Banner title";
+      settingsResponse.data.banner_icon = "fa-solid fa-door-open";
+      settingsResponse.data.banner_message = "Banner text message";
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
       await expect(saveButton).toBeEnabled();
@@ -1264,12 +1372,15 @@ test.describe("Admin settings with edit permission", () => {
       await expect(linkButton).not.toHaveAttribute("style", /.+/);
     });
 
-    test("changes the link style of the banner", async ({ page, settings }) => {
-      settings.data.banner_title = "Banner title";
-      settings.data.banner_icon = "fa-solid fa-door-open";
-      settings.data.banner_message = "Banner text message";
-      settings.data.banner_link = "/rooms";
-      settings.data.banner_link_text = "Rooms";
+    test("changes the link style of the banner", async ({
+      page,
+      settingsResponse,
+    }) => {
+      settingsResponse.data.banner_title = "Banner title";
+      settingsResponse.data.banner_icon = "fa-solid fa-door-open";
+      settingsResponse.data.banner_message = "Banner text message";
+      settingsResponse.data.banner_link = "/rooms";
+      settingsResponse.data.banner_link_text = "Rooms";
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
       await expect(saveButton).toBeEnabled();
@@ -1318,14 +1429,14 @@ test.describe("Admin settings with edit permission", () => {
 
     test("changes the link target of the banner", async ({
       page,
-      settings,
+      settingsResponse,
     }) => {
-      settings.data.banner_title = "Banner title";
-      settings.data.banner_icon = "fa-solid fa-door-open";
-      settings.data.banner_message = "Banner text message";
-      settings.data.banner_link = "/rooms";
-      settings.data.banner_link_text = "Rooms";
-      settings.data.banner_link_style = "link";
+      settingsResponse.data.banner_title = "Banner title";
+      settingsResponse.data.banner_icon = "fa-solid fa-door-open";
+      settingsResponse.data.banner_message = "Banner text message";
+      settingsResponse.data.banner_link = "/rooms";
+      settingsResponse.data.banner_link_text = "Rooms";
+      settingsResponse.data.banner_link_style = "link";
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
       await expect(saveButton).toBeEnabled();
@@ -1371,12 +1482,15 @@ test.describe("Admin settings with edit permission", () => {
       await expect(linkButton).not.toHaveAttribute("style", /.+/);
     });
 
-    test("changes the text color of the banner", async ({ page, settings }) => {
-      settings.data.banner_title = "Banner title";
-      settings.data.banner_message = "Banner text message";
-      settings.data.banner_link = "/rooms";
-      settings.data.banner_link_text = "Rooms";
-      settings.data.banner_link_style = "link";
+    test("changes the text color of the banner", async ({
+      page,
+      settingsResponse,
+    }) => {
+      settingsResponse.data.banner_title = "Banner title";
+      settingsResponse.data.banner_message = "Banner text message";
+      settingsResponse.data.banner_link = "/rooms";
+      settingsResponse.data.banner_link_text = "Rooms";
+      settingsResponse.data.banner_link_style = "link";
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
       await expect(saveButton).toBeEnabled();
@@ -1438,11 +1552,11 @@ test.describe("Admin settings with edit permission", () => {
 
     test("changes the background color of the banner", async ({
       page,
-      settings,
+      settingsResponse,
     }) => {
-      settings.data.banner_title = "Banner title";
-      settings.data.banner_message = "Banner text message";
-      settings.data.banner_color = "#FFFFFF";
+      settingsResponse.data.banner_title = "Banner title";
+      settingsResponse.data.banner_message = "Banner text message";
+      settingsResponse.data.banner_color = "#FFFFFF";
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
       await expect(saveButton).toBeEnabled();
@@ -1502,7 +1616,7 @@ test.describe("Admin settings with edit permission", () => {
       await expect(banner.getByTestId("banner-link-button")).toHaveCount(0);
     });
 
-    test("saves the banner settings", async ({ page, settings }) => {
+    test("saves the banner settings", async ({ page, settingsResponse }) => {
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
       await expect(saveButton).toBeEnabled();
@@ -1530,39 +1644,46 @@ test.describe("Admin settings with edit permission", () => {
         .nth(7)
         .click();
 
-      settings.data.banner_enabled = true;
-      settings.data.banner_title = "Banner title";
-      settings.data.banner_icon = "fa-solid fa-door-open";
-      settings.data.banner_message = "Banner text message";
-      settings.data.banner_link = "/rooms";
-      settings.data.banner_link_text = "Rooms";
-      settings.data.banner_link_style = "link";
-      settings.data.banner_link_target = "self";
-      settings.data.banner_color = "#FFFFFF";
-      settings.data.banner_background = "#ef4444";
-      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
-        json: settings,
-        hold: true,
-      });
+      settingsResponse.data.banner_enabled = true;
+      settingsResponse.data.banner_title = "Banner title";
+      settingsResponse.data.banner_icon = "fa-solid fa-door-open";
+      settingsResponse.data.banner_message = "Banner text message";
+      settingsResponse.data.banner_link = "/rooms";
+      settingsResponse.data.banner_link_text = "Rooms";
+      settingsResponse.data.banner_link_style = "link";
+      settingsResponse.data.banner_link_target = "self";
+      settingsResponse.data.banner_color = "#FFFFFF";
+      settingsResponse.data.banner_background = "#ef4444";
+      const postSettingsApiMock = await mockApiRequest(
+        page,
+        "POST",
+        "settings",
+        {
+          json: settingsResponse,
+          hold: true,
+        },
+      );
       const configRequest = page.waitForRequest("**/api/v1/config");
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
       await expect(page.getByTestId("overlay")).toBeVisible();
       await expect(saveButton).toBeDisabled();
-      save.release();
+      postSettingsApiMock.release();
 
-      const formData = await parseFormData(await nthRequest(save));
-      expect(formData.get("banner_enabled")).toBe("1");
-      expect(formData.get("banner_title")).toBe("Banner title");
-      expect(formData.get("banner_icon")).toBe("fa-solid fa-door-open");
-      expect(formData.get("banner_message")).toBe("Banner text message");
-      expect(formData.get("banner_link")).toBe("/rooms");
-      expect(formData.get("banner_link_text")).toBe("Rooms");
-      expect(formData.get("banner_link_style")).toBe("link");
-      expect(formData.get("banner_link_target")).toBe("self");
-      expect(formData.get("banner_color")).toBe("#FFFFFF");
-      expect(formData.get("banner_background")).toBe("#ef4444");
+      const requestFormData = await getRequestFormData(
+        await postSettingsApiMock.waitForRequest(),
+      );
+      expect(requestFormData.get("banner_enabled")).toBe("1");
+      expect(requestFormData.get("banner_title")).toBe("Banner title");
+      expect(requestFormData.get("banner_icon")).toBe("fa-solid fa-door-open");
+      expect(requestFormData.get("banner_message")).toBe("Banner text message");
+      expect(requestFormData.get("banner_link")).toBe("/rooms");
+      expect(requestFormData.get("banner_link_text")).toBe("Rooms");
+      expect(requestFormData.get("banner_link_style")).toBe("link");
+      expect(requestFormData.get("banner_link_target")).toBe("self");
+      expect(requestFormData.get("banner_color")).toBe("#FFFFFF");
+      expect(requestFormData.get("banner_background")).toBe("#ef4444");
 
       await configRequest;
       await expect(page.getByTestId("overlay")).toHaveCount(0);
@@ -1638,18 +1759,18 @@ test.describe("Admin settings with edit permission", () => {
 
     test("saves a disabled banner with cleared inputs", async ({
       page,
-      settings,
+      settingsResponse,
     }) => {
-      settings.data.banner_enabled = true;
-      settings.data.banner_title = "Banner title";
-      settings.data.banner_icon = "fa-solid fa-door-open";
-      settings.data.banner_message = "Banner text message";
-      settings.data.banner_link = "/rooms";
-      settings.data.banner_link_text = "Rooms";
-      settings.data.banner_link_style = "link";
-      settings.data.banner_link_target = "self";
-      settings.data.banner_color = "#FFFFFF";
-      settings.data.banner_background = "#ef4444";
+      settingsResponse.data.banner_enabled = true;
+      settingsResponse.data.banner_title = "Banner title";
+      settingsResponse.data.banner_icon = "fa-solid fa-door-open";
+      settingsResponse.data.banner_message = "Banner text message";
+      settingsResponse.data.banner_link = "/rooms";
+      settingsResponse.data.banner_link_text = "Rooms";
+      settingsResponse.data.banner_link_style = "link";
+      settingsResponse.data.banner_link_target = "self";
+      settingsResponse.data.banner_color = "#FFFFFF";
+      settingsResponse.data.banner_background = "#ef4444";
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
       await expect(saveButton).toBeEnabled();
@@ -1736,32 +1857,39 @@ test.describe("Admin settings with edit permission", () => {
       await expect(banner.getByTestId("banner-message")).toHaveText("");
       await expect(linkButton).toHaveCount(0);
 
-      settings.data.banner_enabled = false;
-      settings.data.banner_title = null;
-      settings.data.banner_icon = null;
-      settings.data.banner_message = null;
-      settings.data.banner_link = null;
-      settings.data.banner_link_text = null;
-      settings.data.banner_color = null;
-      settings.data.banner_background = null;
-      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
-        json: settings,
-      });
+      settingsResponse.data.banner_enabled = false;
+      settingsResponse.data.banner_title = null;
+      settingsResponse.data.banner_icon = null;
+      settingsResponse.data.banner_message = null;
+      settingsResponse.data.banner_link = null;
+      settingsResponse.data.banner_link_text = null;
+      settingsResponse.data.banner_color = null;
+      settingsResponse.data.banner_background = null;
+      const postSettingsApiMock = await mockApiRequest(
+        page,
+        "POST",
+        "settings",
+        {
+          json: settingsResponse,
+        },
+      );
       const configRequest = page.waitForRequest("**/api/v1/config");
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
-      const formData = await parseFormData(await nthRequest(save));
-      expect(formData.get("banner_enabled")).toBe("0");
-      expect(formData.get("banner_title")).toBe("");
-      expect(formData.get("banner_icon")).toBe("");
-      expect(formData.get("banner_message")).toBe("");
-      expect(formData.get("banner_link")).toBe("");
-      expect(formData.get("banner_link_text")).toBe("");
-      expect(formData.get("banner_link_style")).toBe("link");
-      expect(formData.get("banner_link_target")).toBe("self");
-      expect(formData.get("banner_color")).toBe("");
-      expect(formData.get("banner_background")).toBe("");
+      const requestFormData = await getRequestFormData(
+        await postSettingsApiMock.waitForRequest(),
+      );
+      expect(requestFormData.get("banner_enabled")).toBe("0");
+      expect(requestFormData.get("banner_title")).toBe("");
+      expect(requestFormData.get("banner_icon")).toBe("");
+      expect(requestFormData.get("banner_message")).toBe("");
+      expect(requestFormData.get("banner_link")).toBe("");
+      expect(requestFormData.get("banner_link_text")).toBe("");
+      expect(requestFormData.get("banner_link_style")).toBe("link");
+      expect(requestFormData.get("banner_link_target")).toBe("self");
+      expect(requestFormData.get("banner_color")).toBe("");
+      expect(requestFormData.get("banner_background")).toBe("");
 
       await configRequest;
       await expect(page.getByTestId("overlay")).toHaveCount(0);
@@ -1900,9 +2028,9 @@ test.describe("Admin settings with edit permission", () => {
 
     test("changes the auto delete deadline period", async ({
       page,
-      settings,
+      settingsResponse,
     }) => {
-      settings.data.room_personalized_link_expiration = 14;
+      settingsResponse.data.room_personalized_link_expiration = 14;
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
       await expect(saveButton).toBeEnabled();
@@ -2057,7 +2185,7 @@ test.describe("Admin settings with edit permission", () => {
       await expect(hideOwnerField.locator("#room-hide-owner")).toBeChecked();
     });
 
-    test("saves the room settings", async ({ page, settings }) => {
+    test("saves the room settings", async ({ page, settingsResponse }) => {
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
       await expect(saveButton).toBeEnabled();
@@ -2091,35 +2219,49 @@ test.describe("Admin settings with edit permission", () => {
         .fill("New room file terms of use");
       await page.locator("#room-hide-owner").click();
 
-      settings.data.room_limit = 10;
-      settings.data.room_personalized_link_expiration = 14;
-      settings.data.room_auto_delete_deadline_period = 7;
-      settings.data.room_auto_delete_inactive_period = 30;
-      settings.data.room_auto_delete_never_used_period = 730;
-      settings.data.room_file_terms_of_use = "New room file terms of use";
-      settings.data.room_hide_owner_from_guests = true;
-      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
-        json: settings,
-        hold: true,
-      });
+      settingsResponse.data.room_limit = 10;
+      settingsResponse.data.room_personalized_link_expiration = 14;
+      settingsResponse.data.room_auto_delete_deadline_period = 7;
+      settingsResponse.data.room_auto_delete_inactive_period = 30;
+      settingsResponse.data.room_auto_delete_never_used_period = 730;
+      settingsResponse.data.room_file_terms_of_use =
+        "New room file terms of use";
+      settingsResponse.data.room_hide_owner_from_guests = true;
+      const postSettingsApiMock = await mockApiRequest(
+        page,
+        "POST",
+        "settings",
+        {
+          json: settingsResponse,
+          hold: true,
+        },
+      );
       const configRequest = page.waitForRequest("**/api/v1/config");
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
       await expect(page.getByTestId("overlay")).toBeVisible();
       await expect(saveButton).toBeDisabled();
-      save.release();
+      postSettingsApiMock.release();
 
-      const formData = await parseFormData(await nthRequest(save));
-      expect(formData.get("room_limit")).toBe("10");
-      expect(formData.get("room_personalized_link_expiration")).toBe("14");
-      expect(formData.get("room_auto_delete_deadline_period")).toBe("7");
-      expect(formData.get("room_auto_delete_inactive_period")).toBe("30");
-      expect(formData.get("room_auto_delete_never_used_period")).toBe("730");
-      expect(formData.get("room_file_terms_of_use")).toBe(
+      const requestFormData = await getRequestFormData(
+        await postSettingsApiMock.waitForRequest(),
+      );
+      expect(requestFormData.get("room_limit")).toBe("10");
+      expect(requestFormData.get("room_personalized_link_expiration")).toBe(
+        "14",
+      );
+      expect(requestFormData.get("room_auto_delete_deadline_period")).toBe("7");
+      expect(requestFormData.get("room_auto_delete_inactive_period")).toBe(
+        "30",
+      );
+      expect(requestFormData.get("room_auto_delete_never_used_period")).toBe(
+        "730",
+      );
+      expect(requestFormData.get("room_file_terms_of_use")).toBe(
         "New room file terms of use",
       );
-      expect(formData.get("room_hide_owner_from_guests")).toBe("1");
+      expect(requestFormData.get("room_hide_owner_from_guests")).toBe("1");
 
       await configRequest;
       await expect(page.getByTestId("overlay")).toHaveCount(0);
@@ -2152,15 +2294,16 @@ test.describe("Admin settings with edit permission", () => {
 
     test("saves an unlimited room limit and cleared terms of use", async ({
       page,
-      settings,
+      settingsResponse,
     }) => {
-      settings.data.room_personalized_link_expiration = 14;
-      settings.data.room_auto_delete_deadline_period = 7;
-      settings.data.room_auto_delete_inactive_period = 30;
-      settings.data.room_auto_delete_never_used_period = 730;
-      settings.data.room_limit = 10;
-      settings.data.room_file_terms_of_use = "New room file terms of use";
-      settings.data.room_hide_owner_from_guests = true;
+      settingsResponse.data.room_personalized_link_expiration = 14;
+      settingsResponse.data.room_auto_delete_deadline_period = 7;
+      settingsResponse.data.room_auto_delete_inactive_period = 30;
+      settingsResponse.data.room_auto_delete_never_used_period = 730;
+      settingsResponse.data.room_limit = 10;
+      settingsResponse.data.room_file_terms_of_use =
+        "New room file terms of use";
+      settingsResponse.data.room_hide_owner_from_guests = true;
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
       await expect(saveButton).toBeEnabled();
@@ -2171,24 +2314,37 @@ test.describe("Admin settings with edit permission", () => {
       await page.locator("#room-file-terms-of-use").fill("");
       await page.locator("#room-hide-owner").click();
 
-      settings.data.room_limit = -1;
-      settings.data.room_file_terms_of_use = null;
-      settings.data.room_hide_owner_from_guests = false;
-      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
-        json: settings,
-      });
+      settingsResponse.data.room_limit = -1;
+      settingsResponse.data.room_file_terms_of_use = null;
+      settingsResponse.data.room_hide_owner_from_guests = false;
+      const postSettingsApiMock = await mockApiRequest(
+        page,
+        "POST",
+        "settings",
+        {
+          json: settingsResponse,
+        },
+      );
       const configRequest = page.waitForRequest("**/api/v1/config");
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
-      const formData = await parseFormData(await nthRequest(save));
-      expect(formData.get("room_limit")).toBe("-1");
-      expect(formData.get("room_personalized_link_expiration")).toBe("14");
-      expect(formData.get("room_auto_delete_deadline_period")).toBe("7");
-      expect(formData.get("room_auto_delete_inactive_period")).toBe("30");
-      expect(formData.get("room_auto_delete_never_used_period")).toBe("730");
-      expect(formData.get("room_file_terms_of_use")).toBe("");
-      expect(formData.get("room_hide_owner_from_guests")).toBe("0");
+      const requestFormData = await getRequestFormData(
+        await postSettingsApiMock.waitForRequest(),
+      );
+      expect(requestFormData.get("room_limit")).toBe("-1");
+      expect(requestFormData.get("room_personalized_link_expiration")).toBe(
+        "14",
+      );
+      expect(requestFormData.get("room_auto_delete_deadline_period")).toBe("7");
+      expect(requestFormData.get("room_auto_delete_inactive_period")).toBe(
+        "30",
+      );
+      expect(requestFormData.get("room_auto_delete_never_used_period")).toBe(
+        "730",
+      );
+      expect(requestFormData.get("room_file_terms_of_use")).toBe("");
+      expect(requestFormData.get("room_hide_owner_from_guests")).toBe("0");
 
       await configRequest;
       await expect(page.getByTestId("overlay")).toHaveCount(0);
@@ -2242,7 +2398,7 @@ test.describe("Admin settings with edit permission", () => {
       await expect(searchField.locator("#user-search-by-name")).toBeChecked();
     });
 
-    test("saves the user settings", async ({ page, settings }) => {
+    test("saves the user settings", async ({ page, settingsResponse }) => {
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
       await expect(saveButton).toBeEnabled();
@@ -2250,23 +2406,30 @@ test.describe("Admin settings with edit permission", () => {
       await page.locator("#password-change-allowed").click();
       await page.locator("#user-search-by-name").click();
 
-      settings.data.user_password_change_allowed = false;
-      settings.data.user_search_by_name = false;
-      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
-        json: settings,
-        hold: true,
-      });
+      settingsResponse.data.user_password_change_allowed = false;
+      settingsResponse.data.user_search_by_name = false;
+      const postSettingsApiMock = await mockApiRequest(
+        page,
+        "POST",
+        "settings",
+        {
+          json: settingsResponse,
+          hold: true,
+        },
+      );
       const configRequest = page.waitForRequest("**/api/v1/config");
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
       await expect(page.getByTestId("overlay")).toBeVisible();
       await expect(saveButton).toBeDisabled();
-      save.release();
+      postSettingsApiMock.release();
 
-      const formData = await parseFormData(await nthRequest(save));
-      expect(formData.get("user_password_change_allowed")).toBe("0");
-      expect(formData.get("user_search_by_name")).toBe("0");
+      const requestFormData = await getRequestFormData(
+        await postSettingsApiMock.waitForRequest(),
+      );
+      expect(requestFormData.get("user_password_change_allowed")).toBe("0");
+      expect(requestFormData.get("user_search_by_name")).toBe("0");
 
       await configRequest;
       await expect(page.getByTestId("overlay")).toHaveCount(0);
@@ -2468,7 +2631,7 @@ test.describe("Admin settings with edit permission", () => {
 
     test("saves the recording and statistics settings", async ({
       page,
-      settings,
+      settingsResponse,
     }) => {
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
@@ -2501,35 +2664,46 @@ test.describe("Admin settings with edit permission", () => {
         .nth(0)
         .click();
 
-      settings.data.recording_server_usage_enabled = false;
-      settings.data.recording_server_usage_retention_period = 90;
-      settings.data.recording_meeting_usage_enabled = false;
-      settings.data.recording_meeting_usage_retention_period = 180;
-      settings.data.recording_attendance_retention_period = 365;
-      settings.data.recording_recording_retention_period = 7;
-      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
-        json: settings,
-        hold: true,
-      });
+      settingsResponse.data.recording_server_usage_enabled = false;
+      settingsResponse.data.recording_server_usage_retention_period = 90;
+      settingsResponse.data.recording_meeting_usage_enabled = false;
+      settingsResponse.data.recording_meeting_usage_retention_period = 180;
+      settingsResponse.data.recording_attendance_retention_period = 365;
+      settingsResponse.data.recording_recording_retention_period = 7;
+      const postSettingsApiMock = await mockApiRequest(
+        page,
+        "POST",
+        "settings",
+        {
+          json: settingsResponse,
+          hold: true,
+        },
+      );
       const configRequest = page.waitForRequest("**/api/v1/config");
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
       await expect(page.getByTestId("overlay")).toBeVisible();
       await expect(saveButton).toBeDisabled();
-      save.release();
+      postSettingsApiMock.release();
 
-      const formData = await parseFormData(await nthRequest(save));
-      expect(formData.get("recording_server_usage_enabled")).toBe("0");
-      expect(formData.get("recording_server_usage_retention_period")).toBe(
-        "90",
+      const requestFormData = await getRequestFormData(
+        await postSettingsApiMock.waitForRequest(),
       );
-      expect(formData.get("recording_meeting_usage_enabled")).toBe("0");
-      expect(formData.get("recording_meeting_usage_retention_period")).toBe(
-        "180",
+      expect(requestFormData.get("recording_server_usage_enabled")).toBe("0");
+      expect(
+        requestFormData.get("recording_server_usage_retention_period"),
+      ).toBe("90");
+      expect(requestFormData.get("recording_meeting_usage_enabled")).toBe("0");
+      expect(
+        requestFormData.get("recording_meeting_usage_retention_period"),
+      ).toBe("180");
+      expect(requestFormData.get("recording_attendance_retention_period")).toBe(
+        "365",
       );
-      expect(formData.get("recording_attendance_retention_period")).toBe("365");
-      expect(formData.get("recording_recording_retention_period")).toBe("7");
+      expect(requestFormData.get("recording_recording_retention_period")).toBe(
+        "7",
+      );
 
       await configRequest;
       await expect(page.getByTestId("overlay")).toHaveCount(0);
@@ -2650,7 +2824,7 @@ test.describe("Admin settings with edit permission", () => {
 
     test("saves uploaded bbb files and the welcome message", async ({
       page,
-      settings,
+      settingsResponse,
     }) => {
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
@@ -2690,51 +2864,59 @@ test.describe("Admin settings with edit permission", () => {
         });
       await page.locator("#bbb-default-welcome-message").fill("Welcome to BBB");
 
-      settings.data.bbb_logo = "/images/logo.svg";
-      settings.data.bbb_logo_dark = "/images/logo-dark.svg";
-      settings.data.bbb_style = "/files/bbb_style.css";
-      settings.data.bbb_default_presentation = "/files/testFile.txt";
-      settings.data.bbb_default_welcome_message = "Welcome to BigBlueButton";
-      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
-        json: settings,
-        hold: true,
-      });
+      settingsResponse.data.bbb_logo = "/images/logo.svg";
+      settingsResponse.data.bbb_logo_dark = "/images/logo-dark.svg";
+      settingsResponse.data.bbb_style = "/files/bbb_style.css";
+      settingsResponse.data.bbb_default_presentation = "/files/testFile.txt";
+      settingsResponse.data.bbb_default_welcome_message =
+        "Welcome to BigBlueButton";
+      const postSettingsApiMock = await mockApiRequest(
+        page,
+        "POST",
+        "settings",
+        {
+          json: settingsResponse,
+          hold: true,
+        },
+      );
       const configRequest = page.waitForRequest("**/api/v1/config");
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
       await expect(page.getByTestId("overlay")).toBeVisible();
       await expect(saveButton).toBeDisabled();
-      save.release();
+      postSettingsApiMock.release();
 
-      const formData = await parseFormData(await nthRequest(save));
-      const logoFile = formData.get("bbb_logo_file");
+      const requestFormData = await getRequestFormData(
+        await postSettingsApiMock.waitForRequest(),
+      );
+      const logoFile = requestFormData.get("bbb_logo_file");
       expect(logoFile.name).toBe("logo.svg");
       expect(logoFile.type).toBe("image/svg+xml");
       expect(Buffer.from(await logoFile.arrayBuffer())).toEqual(
         readFileSync("tests/Playwright/fixtures/files/logo.svg"),
       );
-      expect(formData.get("bbb_logo")).toBeNull();
-      const logoDarkFile = formData.get("bbb_logo_dark_file");
+      expect(requestFormData.get("bbb_logo")).toBeNull();
+      const logoDarkFile = requestFormData.get("bbb_logo_dark_file");
       expect(logoDarkFile.name).toBe("logo-dark.svg");
       expect(logoDarkFile.type).toBe("image/svg+xml");
       expect(Buffer.from(await logoDarkFile.arrayBuffer())).toEqual(
         readFileSync("tests/Playwright/fixtures/files/logo-dark.svg"),
       );
-      expect(formData.get("bbb_logo_dark")).toBeNull();
-      const styleFile = formData.get("bbb_style");
+      expect(requestFormData.get("bbb_logo_dark")).toBeNull();
+      const styleFile = requestFormData.get("bbb_style");
       expect(styleFile.name).toBe("bbb_style.css");
       expect(styleFile.type).toBe("text/css");
       expect(Buffer.from(await styleFile.arrayBuffer())).toEqual(
         readFileSync("tests/Playwright/fixtures/files/bbb_style.css"),
       );
-      const presentationFile = formData.get("bbb_default_presentation");
+      const presentationFile = requestFormData.get("bbb_default_presentation");
       expect(presentationFile.name).toBe("testFile.txt");
       expect(presentationFile.type).toBe("text/plain");
       expect(Buffer.from(await presentationFile.arrayBuffer())).toEqual(
         readFileSync("tests/Playwright/fixtures/files/testFile.txt"),
       );
-      expect(formData.get("bbb_default_welcome_message")).toBe(
+      expect(requestFormData.get("bbb_default_welcome_message")).toBe(
         "Welcome to BBB",
       );
 
@@ -2778,13 +2960,14 @@ test.describe("Admin settings with edit permission", () => {
 
     test("deletes bbb files and images and saves the deletion", async ({
       page,
-      settings,
+      settingsResponse,
     }) => {
-      settings.data.bbb_logo = "/images/logo.svg";
-      settings.data.bbb_logo_dark = "/images/logo-dark.svg";
-      settings.data.bbb_style = "/files/bbb_style.css";
-      settings.data.bbb_default_presentation = "/files/testFile.txt";
-      settings.data.bbb_default_welcome_message = "Welcome to BigBlueButton";
+      settingsResponse.data.bbb_logo = "/images/logo.svg";
+      settingsResponse.data.bbb_logo_dark = "/images/logo-dark.svg";
+      settingsResponse.data.bbb_style = "/files/bbb_style.css";
+      settingsResponse.data.bbb_default_presentation = "/files/testFile.txt";
+      settingsResponse.data.bbb_default_welcome_message =
+        "Welcome to BigBlueButton";
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
       await expect(saveButton).toBeEnabled();
@@ -2868,25 +3051,32 @@ test.describe("Admin settings with edit permission", () => {
         'app.char_counter_{"chars":0,"max":500}',
       );
 
-      settings.data.bbb_logo = null;
-      settings.data.bbb_logo_dark = null;
-      settings.data.bbb_style = null;
-      settings.data.bbb_default_presentation = null;
-      settings.data.bbb_default_welcome_message = null;
-      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
-        json: settings,
-      });
+      settingsResponse.data.bbb_logo = null;
+      settingsResponse.data.bbb_logo_dark = null;
+      settingsResponse.data.bbb_style = null;
+      settingsResponse.data.bbb_default_presentation = null;
+      settingsResponse.data.bbb_default_welcome_message = null;
+      const postSettingsApiMock = await mockApiRequest(
+        page,
+        "POST",
+        "settings",
+        {
+          json: settingsResponse,
+        },
+      );
       const configRequest = page.waitForRequest("**/api/v1/config");
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
-      const formData = await parseFormData(await nthRequest(save));
-      expect(formData.get("bbb_logo_file")).toBeNull();
-      expect(formData.get("bbb_logo")).toBe("");
-      expect(formData.get("bbb_logo_dark")).toBe("");
-      expect(formData.get("bbb_style")).toBe("");
-      expect(formData.get("bbb_default_presentation")).toBe("");
-      expect(formData.get("bbb_default_welcome_message")).toBe("");
+      const requestFormData = await getRequestFormData(
+        await postSettingsApiMock.waitForRequest(),
+      );
+      expect(requestFormData.get("bbb_logo_file")).toBeNull();
+      expect(requestFormData.get("bbb_logo")).toBe("");
+      expect(requestFormData.get("bbb_logo_dark")).toBe("");
+      expect(requestFormData.get("bbb_style")).toBe("");
+      expect(requestFormData.get("bbb_default_presentation")).toBe("");
+      expect(requestFormData.get("bbb_default_welcome_message")).toBe("");
 
       await configRequest;
       await expect(page.getByTestId("overlay")).toHaveCount(0);
@@ -2926,31 +3116,38 @@ test.describe("Admin settings with edit permission", () => {
 
     test("saves empty bbb settings without sending unchanged values", async ({
       page,
-      settings,
+      settingsResponse,
     }) => {
-      settings.data.bbb_logo = null;
-      settings.data.bbb_logo_dark = null;
-      settings.data.bbb_style = null;
-      settings.data.bbb_default_presentation = null;
-      settings.data.bbb_default_welcome_message = null;
+      settingsResponse.data.bbb_logo = null;
+      settingsResponse.data.bbb_logo_dark = null;
+      settingsResponse.data.bbb_style = null;
+      settingsResponse.data.bbb_default_presentation = null;
+      settingsResponse.data.bbb_default_welcome_message = null;
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
       await expect(saveButton).toBeEnabled();
 
-      const save = await mockMethod(page, "POST", "**/api/v1/settings", {
-        json: settings,
-      });
+      const postSettingsApiMock = await mockApiRequest(
+        page,
+        "POST",
+        "settings",
+        {
+          json: settingsResponse,
+        },
+      );
       const configRequest = page.waitForRequest("**/api/v1/config");
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
-      const formData = await parseFormData(await nthRequest(save));
-      expect(formData.get("bbb_logo_file")).toBeNull();
-      expect(formData.get("bbb_logo")).toBeNull();
-      expect(formData.get("bbb_logo_dark_file")).toBeNull();
-      expect(formData.get("bbb_logo_dark")).toBeNull();
-      expect(formData.get("bbb_style")).toBeNull();
-      expect(formData.get("bbb_default_presentation")).toBeNull();
+      const requestFormData = await getRequestFormData(
+        await postSettingsApiMock.waitForRequest(),
+      );
+      expect(requestFormData.get("bbb_logo_file")).toBeNull();
+      expect(requestFormData.get("bbb_logo")).toBeNull();
+      expect(requestFormData.get("bbb_logo_dark_file")).toBeNull();
+      expect(requestFormData.get("bbb_logo_dark")).toBeNull();
+      expect(requestFormData.get("bbb_style")).toBeNull();
+      expect(requestFormData.get("bbb_default_presentation")).toBeNull();
 
       await configRequest;
       await expect(page.getByTestId("overlay")).toHaveCount(0);
@@ -2959,7 +3156,7 @@ test.describe("Admin settings with edit permission", () => {
   });
 
   test.describe("save changes errors", () => {
-    const errors = {
+    const settingsValidationErrorsResponse = {
       general_name: ["The general name field is required."],
       general_help_url: ["The selected general help url is invalid."],
       general_legal_notice_url: [
@@ -3059,95 +3256,185 @@ test.describe("Admin settings with edit permission", () => {
 
     // Field (data-test) and the error messages that have to be shown in it
     const fieldErrors = [
-      ["application-name-field", [errors.general_name]],
-      ["help-url-field", [errors.general_help_url]],
-      ["legal-notice-url-field", [errors.general_legal_notice_url]],
-      ["privacy-policy-url-field", [errors.general_privacy_policy_url]],
+      [
+        "application-name-field",
+        [settingsValidationErrorsResponse.general_name],
+      ],
+      ["help-url-field", [settingsValidationErrorsResponse.general_help_url]],
+      [
+        "legal-notice-url-field",
+        [settingsValidationErrorsResponse.general_legal_notice_url],
+      ],
+      [
+        "privacy-policy-url-field",
+        [settingsValidationErrorsResponse.general_privacy_policy_url],
+      ],
       [
         "accessibility-statement-url-field",
-        [errors.general_accessibility_statement_url],
+        [settingsValidationErrorsResponse.general_accessibility_statement_url],
       ],
-      ["pagination-page-size-field", [errors.general_pagination_page_size]],
-      ["toast-lifetime-field", [errors.general_toast_lifetime]],
-      ["default-timezone-field", [errors.general_default_timezone]],
-      ["no-welcome-page-field", [errors.general_no_welcome_page]],
-      ["favicon-field", [errors.theme_favicon, errors.theme_favicon_file]],
+      [
+        "pagination-page-size-field",
+        [settingsValidationErrorsResponse.general_pagination_page_size],
+      ],
+      [
+        "toast-lifetime-field",
+        [settingsValidationErrorsResponse.general_toast_lifetime],
+      ],
+      [
+        "default-timezone-field",
+        [settingsValidationErrorsResponse.general_default_timezone],
+      ],
+      [
+        "no-welcome-page-field",
+        [settingsValidationErrorsResponse.general_no_welcome_page],
+      ],
+      [
+        "favicon-field",
+        [
+          settingsValidationErrorsResponse.theme_favicon,
+          settingsValidationErrorsResponse.theme_favicon_file,
+        ],
+      ],
       [
         "favicon-dark-field",
-        [errors.theme_favicon_dark, errors.theme_favicon_dark_file],
+        [
+          settingsValidationErrorsResponse.theme_favicon_dark,
+          settingsValidationErrorsResponse.theme_favicon_dark_file,
+        ],
       ],
-      ["logo-field", [errors.theme_logo, errors.theme_logo_file]],
+      [
+        "logo-field",
+        [
+          settingsValidationErrorsResponse.theme_logo,
+          settingsValidationErrorsResponse.theme_logo_file,
+        ],
+      ],
       [
         "logo-dark-field",
-        [errors.theme_logo_dark, errors.theme_logo_dark_file],
+        [
+          settingsValidationErrorsResponse.theme_logo_dark,
+          settingsValidationErrorsResponse.theme_logo_dark_file,
+        ],
       ],
-      ["primary-color-field", [errors.theme_primary_color]],
-      ["theme-rounded-field", [errors.theme_rounded]],
-      ["theme-custom-css-field", [errors.theme_custom_css]],
-      ["banner-enabled-field", [errors.banner_enabled]],
-      ["banner-title-field", [errors.banner_title]],
-      ["banner-icon-field", [errors.banner_icon]],
-      ["banner-message-field", [errors.banner_message]],
-      ["banner-link-field", [errors.banner_link]],
-      ["banner-link-text-field", [errors.banner_link_text]],
-      ["banner-link-style-field", [errors.banner_link_style]],
-      ["banner-link-target-field", [errors.banner_link_target]],
-      ["banner-color-field", [errors.banner_color]],
-      ["banner-background-field", [errors.banner_background]],
-      ["room-limit-field", [errors.room_limit]],
+      [
+        "primary-color-field",
+        [settingsValidationErrorsResponse.theme_primary_color],
+      ],
+      ["theme-rounded-field", [settingsValidationErrorsResponse.theme_rounded]],
+      [
+        "theme-custom-css-field",
+        [settingsValidationErrorsResponse.theme_custom_css],
+      ],
+      [
+        "banner-enabled-field",
+        [settingsValidationErrorsResponse.banner_enabled],
+      ],
+      ["banner-title-field", [settingsValidationErrorsResponse.banner_title]],
+      ["banner-icon-field", [settingsValidationErrorsResponse.banner_icon]],
+      [
+        "banner-message-field",
+        [settingsValidationErrorsResponse.banner_message],
+      ],
+      ["banner-link-field", [settingsValidationErrorsResponse.banner_link]],
+      [
+        "banner-link-text-field",
+        [settingsValidationErrorsResponse.banner_link_text],
+      ],
+      [
+        "banner-link-style-field",
+        [settingsValidationErrorsResponse.banner_link_style],
+      ],
+      [
+        "banner-link-target-field",
+        [settingsValidationErrorsResponse.banner_link_target],
+      ],
+      ["banner-color-field", [settingsValidationErrorsResponse.banner_color]],
+      [
+        "banner-background-field",
+        [settingsValidationErrorsResponse.banner_background],
+      ],
+      ["room-limit-field", [settingsValidationErrorsResponse.room_limit]],
       [
         "room-personalized-link-expiration-field",
-        [errors.room_personalized_link_expiration],
+        [settingsValidationErrorsResponse.room_personalized_link_expiration],
       ],
       [
         "room-auto-delete-deadline-period-field",
-        [errors.room_auto_delete_deadline_period],
+        [settingsValidationErrorsResponse.room_auto_delete_deadline_period],
       ],
       [
         "room-auto-delete-inactive-period-field",
-        [errors.room_auto_delete_inactive_period],
+        [settingsValidationErrorsResponse.room_auto_delete_inactive_period],
       ],
       [
         "room-auto-delete-never-used-period-field",
-        [errors.room_auto_delete_never_used_period],
+        [settingsValidationErrorsResponse.room_auto_delete_never_used_period],
       ],
-      ["room-file-terms-of-use-field", [errors.room_file_terms_of_use]],
-      ["room-hide-owner-field", [errors.room_hide_owner_from_guests]],
-      ["password-change-allowed-field", [errors.user_password_change_allowed]],
+      [
+        "room-file-terms-of-use-field",
+        [settingsValidationErrorsResponse.room_file_terms_of_use],
+      ],
+      [
+        "room-hide-owner-field",
+        [settingsValidationErrorsResponse.room_hide_owner_from_guests],
+      ],
+      [
+        "password-change-allowed-field",
+        [settingsValidationErrorsResponse.user_password_change_allowed],
+      ],
       [
         "statistics-servers-enabled-field",
-        [errors.recording_server_usage_enabled],
+        [settingsValidationErrorsResponse.recording_server_usage_enabled],
       ],
       [
         "statistics-servers-retention-period-field",
-        [errors.recording_server_usage_retention_period],
+        [
+          settingsValidationErrorsResponse.recording_server_usage_retention_period,
+        ],
       ],
       [
         "statistics-meetings-enabled-field",
-        [errors.recording_meeting_usage_enabled],
+        [settingsValidationErrorsResponse.recording_meeting_usage_enabled],
       ],
       [
         "statistics-meetings-retention-period-field",
-        [errors.recording_meeting_usage_retention_period],
+        [
+          settingsValidationErrorsResponse.recording_meeting_usage_retention_period,
+        ],
       ],
       [
         "attendance-retention-period-field",
-        [errors.recording_attendance_retention_period],
+        [
+          settingsValidationErrorsResponse.recording_attendance_retention_period,
+        ],
       ],
       [
         "recording-retention-period-field",
-        [errors.recording_recording_retention_period],
+        [settingsValidationErrorsResponse.recording_recording_retention_period],
       ],
-      ["bbb-logo-field", [errors.bbb_logo, errors.bbb_logo_file]],
+      [
+        "bbb-logo-field",
+        [
+          settingsValidationErrorsResponse.bbb_logo,
+          settingsValidationErrorsResponse.bbb_logo_file,
+        ],
+      ],
       [
         "bbb-logo-dark-field",
-        [errors.bbb_logo_dark, errors.bbb_logo_dark_file],
+        [
+          settingsValidationErrorsResponse.bbb_logo_dark,
+          settingsValidationErrorsResponse.bbb_logo_dark_file,
+        ],
       ],
-      ["bbb-style-field", [errors.bbb_style]],
-      ["default-presentation-field", [errors.bbb_default_presentation]],
+      ["bbb-style-field", [settingsValidationErrorsResponse.bbb_style]],
+      [
+        "default-presentation-field",
+        [settingsValidationErrorsResponse.bbb_default_presentation],
+      ],
       [
         "bbb-default-welcome-message-field",
-        [errors.bbb_default_welcome_message],
+        [settingsValidationErrorsResponse.bbb_default_welcome_message],
       ],
     ].map(([testId, messages]) => [testId, messages.flat()]);
 
@@ -3158,11 +3445,11 @@ test.describe("Admin settings with edit permission", () => {
     });
 
     test("shows the validation errors of a 422 response", async ({ page }) => {
-      await mockMethod(page, "POST", "**/api/v1/settings", {
+      await mockApiRequest(page, "POST", "settings", {
         status: 422,
         json: {
           message: "The general name field is required. (and 49 more errors)",
-          errors,
+          errors: settingsValidationErrorsResponse,
         },
       });
       await saveButton.click();
@@ -3184,11 +3471,11 @@ test.describe("Admin settings with edit permission", () => {
     test("shows the error and hides the validation errors on a 500 response", async ({
       page,
     }) => {
-      await mockMethod(page, "POST", "**/api/v1/settings", {
+      await mockApiRequest(page, "POST", "settings", {
         status: 422,
         json: {
           message: "The general name field is required. (and 49 more errors)",
-          errors,
+          errors: settingsValidationErrorsResponse,
         },
       });
       await saveButton.click();
@@ -3197,13 +3484,10 @@ test.describe("Admin settings with edit permission", () => {
         "The general name field is required. (and 49 more errors)",
       );
       await expect(page.getByTestId("application-name-field")).toContainText(
-        errors.general_name[0],
+        settingsValidationErrorsResponse.general_name[0],
       );
 
-      await mockMethod(page, "POST", "**/api/v1/settings", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "POST", "settings", serverError());
       await saveButton.click();
 
       const toast = page.locator(".p-toast-message");
@@ -3225,7 +3509,7 @@ test.describe("Admin settings with edit permission", () => {
     });
 
     test("shows an error on a 413 response", async ({ page }) => {
-      await mockMethod(page, "POST", "**/api/v1/settings", {
+      await mockApiRequest(page, "POST", "settings", {
         status: 413,
         json: { message: "Test" },
       });
@@ -3236,10 +3520,7 @@ test.describe("Admin settings with edit permission", () => {
     });
 
     test("redirects to the login on a 401 response", async ({ page }) => {
-      await mockMethod(page, "POST", "**/api/v1/settings", {
-        status: 401,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "POST", "settings", unauthorized("Test"));
       await saveButton.click();
 
       await expect(page).toHaveURL(/\/login\?redirect=\/admin\/settings/);

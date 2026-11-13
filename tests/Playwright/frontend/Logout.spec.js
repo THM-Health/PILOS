@@ -1,3 +1,4 @@
+import { serverError } from "../support/utils.js";
 import { test, expect, expectToastAndClose } from "../support/test.js";
 import { interceptRoomIndexRequests } from "../support/mocks.js";
 
@@ -77,7 +78,7 @@ test.describe("Logout", () => {
     page,
   }) => {
     await page.route("**/api/v1/logout", (route) =>
-      route.fulfill({ status: 500, json: { message: "Test" } }),
+      route.fulfill(serverError()),
     );
     await page.goto("/rooms");
 

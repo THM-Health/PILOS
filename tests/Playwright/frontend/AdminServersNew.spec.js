@@ -1,17 +1,17 @@
+import { test } from "../support/fixtures/serverController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { test } from "../support/fixtures/adminServers.js";
 import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
 } from "../support/general.js";
 import { expectAdminBreadcrumbs } from "../support/admin.js";
-import { mockMethod, nthRequest } from "../support/utils.js";
+import { mockApiRequest, serverError } from "../support/utils.js";
 
 test.use({ authenticated: true });
 
 test.describe("Admin servers new", () => {
-  test.beforeEach(({ currentUser }) => {
-    currentUser.data.permissions = [
+  test.beforeEach(({ currentUserResponse }) => {
+    currentUserResponse.data.permissions = [
       "admin.view",
       "servers.viewAny",
       "servers.view",
@@ -27,9 +27,9 @@ test.describe("Admin servers new", () => {
 
   test("visit with user without permission to add new servers", async ({
     page,
-    currentUser,
+    currentUserResponse,
   }) => {
-    currentUser.data.permissions = [
+    currentUserResponse.data.permissions = [
       "admin.view",
       "servers.viewAny",
       "servers.view",
@@ -189,12 +189,12 @@ test.describe("Admin servers new", () => {
     });
 
     test.describe("save", () => {
-      test.beforeEach(async ({ server, serverForm }) => {
+      test.beforeEach(async ({ serverResponse, serverForm }) => {
         // The server as the backend returns it after it was created
-        server.data.id = 30;
-        server.data.description = "Testserver 01 for testing purposes";
-        server.data.secret = "Secret123456789";
-        server.data.strength = 6;
+        serverResponse.data.id = 30;
+        serverResponse.data.description = "Testserver 01 for testing purposes";
+        serverResponse.data.secret = "Secret123456789";
+        serverResponse.data.strength = 6;
 
         await serverForm.fillTextFields({
           name: "Server 01",
@@ -208,20 +208,26 @@ test.describe("Admin servers new", () => {
 
       test("loading state disables the form", async ({
         page,
-        server,
+        serverResponse,
         serverForm,
       }) => {
-        const newServerRequest = await mockMethod(
+        const postServersApiMock = await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/servers",
-          { status: 201, json: server, hold: true },
+          "servers",
+          {
+            status: 201,
+            json: serverResponse,
+            hold: true,
+          },
         );
-        await mockMethod(page, "GET", "**/api/v1/servers/30", { json: server });
+        await mockApiRequest(page, "GET", "servers/30", {
+          json: serverResponse,
+        });
 
         await expect(page.getByTestId("overlay")).toBeHidden();
         await serverForm.saveButton.click();
-        await nthRequest(newServerRequest);
+        await postServersApiMock.waitForRequest();
 
         await expect(page.getByTestId("overlay")).toBeVisible();
 
@@ -238,31 +244,36 @@ test.describe("Admin servers new", () => {
         await expect(serverForm.testConnectionButton).toBeDisabled();
         await expect(serverForm.saveButton).toBeDisabled();
 
-        newServerRequest.release();
+        postServersApiMock.release();
         await expect(page).toHaveURL(/\/admin\/servers\/30$/);
       });
 
       test("save new server and redirect to the server view", async ({
         page,
-        server,
+        serverResponse,
         serverForm,
       }) => {
-        const newServerRequest = await mockMethod(
+        const postServersApiMock = await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/servers",
-          { status: 201, json: server },
+          "servers",
+          {
+            status: 201,
+            json: serverResponse,
+          },
         );
-        const serverRequest = await mockMethod(
+        const getServerApiMock = await mockApiRequest(
           page,
           "GET",
-          "**/api/v1/servers/30",
-          { json: server },
+          "servers/30",
+          {
+            json: serverResponse,
+          },
         );
 
         await serverForm.saveButton.click();
 
-        const request = await nthRequest(newServerRequest);
+        const request = await postServersApiMock.waitForRequest();
         expect(request.postDataJSON()).toEqual({
           base_url: "https://localhost/bigbluebutton",
           description: "Testserver 01 for testing purposes",
@@ -274,7 +285,7 @@ test.describe("Admin servers new", () => {
           strength: 6,
         });
 
-        await nthRequest(serverRequest);
+        await getServerApiMock.waitForRequest();
 
         await expect(page).toHaveURL(/\/admin\/servers\/30$/);
         await expectAdminBreadcrumbs(
@@ -298,10 +309,10 @@ test.describe("Admin servers new", () => {
           ["strength", "strength-field", "The strength field is required."],
           ["status", "status-field", "The status field is required."],
         ];
-        const newServerRequest = await mockMethod(
+        const postServersApiMock = await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/servers",
+          "servers",
           {
             status: 422,
             json: {
@@ -314,7 +325,7 @@ test.describe("Admin servers new", () => {
         );
 
         await serverForm.saveButton.click();
-        await nthRequest(newServerRequest);
+        await postServersApiMock.waitForRequest();
 
         await expectToastAndClose(page, message);
         for (const [, testId, error] of fieldErrors) {
@@ -338,10 +349,10 @@ test.describe("Admin servers new", () => {
           ["strength", "strength-field", "The strength field is required."],
           ["status", "status-field", "The status field is required."],
         ];
-        const validationRequest = await mockMethod(
+        const postServersApiMock = await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/servers",
+          "servers",
           {
             status: 422,
             json: {
@@ -353,7 +364,7 @@ test.describe("Admin servers new", () => {
           },
         );
         await serverForm.saveButton.click();
-        await nthRequest(validationRequest);
+        await postServersApiMock.waitForRequest();
         await expectToastAndClose(
           page,
           "The name field is required. (and 5 more errors)",
@@ -362,14 +373,14 @@ test.describe("Admin servers new", () => {
           "The name field is required.",
         );
 
-        const errorRequest = await mockMethod(
+        const postServersApiMock2 = await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/servers",
-          { status: 500, json: { message: "Test" } },
+          "servers",
+          serverError(),
         );
         await serverForm.saveButton.click();
-        await nthRequest(errorRequest);
+        await postServersApiMock2.waitForRequest();
 
         await expectToastAndClose(page, [
           'app.flash.server_error.message_{"message":"Test"}',
@@ -384,15 +395,18 @@ test.describe("Admin servers new", () => {
         page,
         serverForm,
       }) => {
-        const newServerRequest = await mockMethod(
+        const postServersApiMock = await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/servers",
-          { status: 404, json: { message: "No query results for model" } },
+          "servers",
+          {
+            status: 404,
+            json: { message: "No query results for model" },
+          },
         );
 
         await serverForm.saveButton.click();
-        await nthRequest(newServerRequest);
+        await postServersApiMock.waitForRequest();
 
         await expect(page).toHaveURL(/\/admin\/servers$/);
         await expectToastAndClose(page, [
@@ -405,15 +419,17 @@ test.describe("Admin servers new", () => {
         page,
         serverForm,
       }) => {
-        const newServerRequest = await mockMethod(
+        const postServersApiMock = await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/servers",
-          { status: 401 },
+          "servers",
+          {
+            status: 401,
+          },
         );
 
         await serverForm.saveButton.click();
-        await nthRequest(newServerRequest);
+        await postServersApiMock.waitForRequest();
 
         await expectLoginRedirect(page, "/admin/servers/new");
       });

@@ -1,4 +1,6 @@
-import { test } from "../support/fixtures/adminRoles.js";
+import { mergeTests } from "@playwright/test";
+import { test as roleControllerTest } from "../support/fixtures/roleController.js";
+import { test as permissionControllerTest } from "../support/fixtures/permissionController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import {
   checkPermissionGroup,
@@ -9,13 +11,19 @@ import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
 } from "../support/general.js";
-import { mockMethod } from "../support/utils.js";
+import {
+  mockApiRequest,
+  serverError,
+  modelNotFound,
+} from "../support/utils.js";
+
+const test = mergeTests(roleControllerTest, permissionControllerTest);
 
 test.describe("Admin roles view", () => {
   test.use({ authenticated: true });
 
-  test.beforeEach(async ({ currentUser }) => {
-    currentUser.data.permissions = [
+  test.beforeEach(async ({ currentUserResponse }) => {
+    currentUserResponse.data.permissions = [
       "admin.view",
       "roles.viewAny",
       "roles.view",
@@ -28,9 +36,9 @@ test.describe("Admin roles view", () => {
 
   test("visit with user without permission to view roles", async ({
     page,
-    currentUser,
+    currentUserResponse,
   }) => {
-    currentUser.data.permissions = ["admin.view", "roles.viewAny"];
+    currentUserResponse.data.permissions = ["admin.view", "roles.viewAny"];
 
     await page.goto("/admin/roles/2");
 
@@ -116,11 +124,11 @@ test.describe("Admin roles view", () => {
 
     test("loading state hides buttons until the role is loaded", async ({
       page,
-      role,
+      roleResponse,
     }) => {
-      const roleRequest = await mockMethod(page, "GET", "**/api/v1/roles/2", {
+      const getRoleApiMock = await mockApiRequest(page, "GET", "roles/2", {
         hold: true,
-        json: role,
+        json: roleResponse,
       });
 
       await page.goto("/admin/roles/2");
@@ -134,7 +142,7 @@ test.describe("Admin roles view", () => {
       await expect(page.getByTestId("roles-delete-button")).toHaveCount(0);
       await expect(page.getByTestId("roles-save-button")).toHaveCount(0);
 
-      roleRequest.release();
+      getRoleApiMock.release();
 
       // Check that loading is done
       await expect(page.locator("#name")).toHaveValue("Staff");
@@ -257,9 +265,9 @@ test.describe("Admin roles view", () => {
     }
 
     test.describe("without permission dependencies", () => {
-      test.beforeEach(async ({ permissionList }) => {
+      test.beforeEach(async ({ permissionsResponse }) => {
         for (const index of [18, 19, 20, 21]) {
-          permissionList.data[index].included_permissions = [];
+          permissionsResponse.data[index].included_permissions = [];
         }
       });
 
@@ -309,8 +317,8 @@ test.describe("Admin roles view", () => {
       }
     });
 
-    test("no permissions available", async ({ page, permissionList }) => {
-      permissionList.data = [];
+    test("no permissions available", async ({ page, permissionsResponse }) => {
+      permissionsResponse.data = [];
 
       await page.goto("/admin/roles/2");
 
@@ -356,8 +364,8 @@ test.describe("Admin roles view", () => {
   });
 
   test.describe("room limit", () => {
-    test.beforeEach(async ({ config }) => {
-      config.data.room.limit = 5;
+    test.beforeEach(async ({ configResponse }) => {
+      configResponse.data.room.limit = 5;
     });
 
     test("system default", async ({ page }) => {
@@ -395,8 +403,8 @@ test.describe("Admin roles view", () => {
       await expect(page.locator("#room-limit")).toHaveCount(0);
     });
 
-    test("unlimited", async ({ page, role }) => {
-      role.data.room_limit = -1;
+    test("unlimited", async ({ page, roleResponse }) => {
+      roleResponse.data.room_limit = -1;
 
       await page.goto("/admin/roles/2");
 
@@ -432,8 +440,8 @@ test.describe("Admin roles view", () => {
       await expect(page.locator("#room-limit")).toHaveCount(0);
     });
 
-    test("custom", async ({ page, role }) => {
-      role.data.room_limit = 2;
+    test("custom", async ({ page, roleResponse }) => {
+      roleResponse.data.room_limit = 2;
 
       await page.goto("/admin/roles/2");
 
@@ -473,11 +481,11 @@ test.describe("Admin roles view", () => {
   });
 
   test.describe("load errors", () => {
-    test("role request fails and can be retried", async ({ page, role }) => {
-      await mockMethod(page, "GET", "**/api/v1/roles/2", {
-        status: 500,
-        json: { message: "Test" },
-      });
+    test("role request fails and can be retried", async ({
+      page,
+      roleResponse,
+    }) => {
+      await mockApiRequest(page, "GET", "roles/2", serverError());
 
       await page.goto("/admin/roles/2");
 
@@ -488,7 +496,7 @@ test.describe("Admin roles view", () => {
       await expect(page.getByTestId("overlay")).toBeVisible();
 
       // Reload with correct data
-      await mockMethod(page, "GET", "**/api/v1/roles/2", { json: role });
+      await mockApiRequest(page, "GET", "roles/2", { json: roleResponse });
 
       const retryButton = page.getByTestId("loading-retry-button");
       await expect(retryButton).toHaveText("app.reload");
@@ -508,10 +516,7 @@ test.describe("Admin roles view", () => {
     });
 
     test("role not found", async ({ page }) => {
-      await mockMethod(page, "GET", "**/api/v1/roles/2", {
-        status: 404,
-        json: { message: "model_not_found", model: "role", ids: [2] },
-      });
+      await mockApiRequest(page, "GET", "roles/2", modelNotFound("role", [2]));
 
       await page.goto("/admin/roles/2");
 
@@ -524,7 +529,7 @@ test.describe("Admin roles view", () => {
     });
 
     test("role request unauthenticated", async ({ page }) => {
-      await mockMethod(page, "GET", "**/api/v1/roles/2", { status: 401 });
+      await mockApiRequest(page, "GET", "roles/2", { status: 401 });
 
       await page.goto("/admin/roles/2");
 
@@ -533,13 +538,13 @@ test.describe("Admin roles view", () => {
 
     test("permissions request fails and can be retried", async ({
       page,
-      permissionList,
+      permissionsResponse,
     }) => {
-      const permissionsRequest = await mockMethod(
+      const getPermissionsApiMock = await mockApiRequest(
         page,
         "GET",
-        "**/api/v1/permissions",
-        { hold: true, status: 500, json: { message: "Test" } },
+        "permissions",
+        serverError({ hold: true }),
       );
 
       await page.goto("/admin/roles/2");
@@ -551,7 +556,7 @@ test.describe("Admin roles view", () => {
       await expect(page.getByTestId("roles-delete-button")).toHaveCount(0);
       await expect(page.getByTestId("roles-save-button")).toHaveCount(0);
 
-      permissionsRequest.release();
+      getPermissionsApiMock.release();
 
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
@@ -566,8 +571,8 @@ test.describe("Admin roles view", () => {
       await expect(page.getByTestId("roles-save-button")).toHaveCount(0);
 
       // Reload with correct data
-      await mockMethod(page, "GET", "**/api/v1/permissions", {
-        json: permissionList,
+      await mockApiRequest(page, "GET", "permissions", {
+        json: permissionsResponse,
       });
 
       const retryButton = page.getByTestId("loading-retry-button");
@@ -588,7 +593,7 @@ test.describe("Admin roles view", () => {
     });
 
     test("permissions request unauthenticated", async ({ page }) => {
-      await mockMethod(page, "GET", "**/api/v1/permissions", { status: 401 });
+      await mockApiRequest(page, "GET", "permissions", { status: 401 });
 
       await page.goto("/admin/roles/2");
 
@@ -597,8 +602,8 @@ test.describe("Admin roles view", () => {
   });
 
   test.describe("button visibility", () => {
-    test("with update permission", async ({ page, currentUser }) => {
-      currentUser.data.permissions.push("roles.update");
+    test("with update permission", async ({ page, currentUserResponse }) => {
+      currentUserResponse.data.permissions.push("roles.update");
 
       await page.goto("/admin/roles/2");
 
@@ -611,8 +616,8 @@ test.describe("Admin roles view", () => {
       await expect(page.getByTestId("roles-save-button")).toHaveCount(0);
     });
 
-    test("with delete permission", async ({ page, currentUser }) => {
-      currentUser.data.permissions.push(
+    test("with delete permission", async ({ page, currentUserResponse }) => {
+      currentUserResponse.data.permissions.push(
         "roles.update",
         "roles.create",
         "roles.delete",
@@ -632,11 +637,11 @@ test.describe("Admin roles view", () => {
 
     for (const userIsSuperuser of [undefined, false]) {
       test.describe(`user superuser flag ${userIsSuperuser ?? "from fixture"}`, () => {
-        test.beforeEach(async ({ currentUser }) => {
+        test.beforeEach(async ({ currentUserResponse }) => {
           if (userIsSuperuser === false) {
-            currentUser.data.superuser = false;
+            currentUserResponse.data.superuser = false;
           }
-          currentUser.data.permissions.push(
+          currentUserResponse.data.permissions.push(
             "roles.create",
             "roles.update",
             "roles.delete",
@@ -661,8 +666,8 @@ test.describe("Admin roles view", () => {
           ).toHaveCount(0);
         });
 
-        test("role is a superuser role", async ({ page, role }) => {
-          role.data.superuser = true;
+        test("role is a superuser role", async ({ page, roleResponse }) => {
+          roleResponse.data.superuser = true;
 
           await page.goto("/admin/roles/2");
 

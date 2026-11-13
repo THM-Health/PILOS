@@ -1,11 +1,17 @@
-import { test } from "../support/fixtures/roomsMembersLinks.js";
+import { mergeTests } from "@playwright/test";
+import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
+import { test as roomControllerTest } from "../support/fixtures/roomController.js";
+import { test as roomFileControllerTest } from "../support/fixtures/roomFileController.js";
+import { test as roomMemberControllerTest } from "../support/fixtures/roomMemberController.js";
+import { test as roomPersonalizedLinkControllerTest } from "../support/fixtures/roomPersonalizedLinkController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import {
   expectActivePage,
-  mockMethod,
-  nthRequest,
-  queryOf,
+  getRequestQuery,
   readFixture,
+  serverError,
+  forbidden,
+  modelNotFound,
 } from "../support/utils.js";
 import { interceptRoomIndexRequests } from "../support/mocks.js";
 import {
@@ -14,19 +20,30 @@ import {
   selectSortType,
 } from "../support/room.js";
 
+const test = mergeTests(
+  roomControllerTest,
+  roomFileControllerTest,
+  roomMemberControllerTest,
+  roomPersonalizedLinkControllerTest,
+  participantNameCheckTest,
+);
+test.use({ roomFilesFixtureName: "roomFilesNoDetails.json" });
+
 test.use({ authenticated: true });
 
 // There are two paginator components, the first one for small devices and the second one for larger devices
 
 test.describe("Rooms view members", () => {
   test.describe("load members", () => {
-    test("shows the loading state", async ({ page, roomMembers }) => {
-      const membersRequest = await mockMethod(
-        page,
-        "GET",
-        "**/api/v1/rooms/abc-def-123/member*",
-        { json: roomMembers, hold: true },
-      );
+    test("shows the loading state", async ({
+      page,
+      roomMembersResponse,
+      getRoomMembersApiMock,
+    }) => {
+      getRoomMembersApiMock.respondWith({
+        json: roomMembersResponse,
+        hold: true,
+      });
 
       await page.goto("/rooms/abc-def-123");
       await page.locator("#tab-members").click();
@@ -53,7 +70,7 @@ test.describe("Rooms view members", () => {
       await expect(addButton).toBeDisabled();
       await expect(reloadButton).toBeDisabled();
 
-      membersRequest.release();
+      getRoomMembersApiMock.release();
 
       await expect(page.getByTestId("overlay")).toBeHidden();
       await expect(search.locator("input")).toBeEnabled();
@@ -112,9 +129,9 @@ test.describe("Rooms view members", () => {
   test.describe("load errors", () => {
     test("shows the overlay and the error on a server error", async ({
       page,
-      roomMembersFailure,
+      getRoomMembersApiMock,
     }) => {
-      roomMembersFailure.response = { status: 500, json: { message: "Test" } };
+      getRoomMembersApiMock.respondWith(serverError());
 
       await page.goto("/rooms/abc-def-123#tab=members");
 
@@ -150,12 +167,12 @@ test.describe("Rooms view members", () => {
 
     test("reloads the members after a server error", async ({
       page,
-      roomMembers,
-      roomMembersFailure,
+      roomMembersResponse,
+      getRoomMembersApiMock,
     }) => {
-      roomMembers.meta.per_page = 1;
-      roomMembers.meta.last_page = 3;
-      roomMembersFailure.response = { status: 500, json: { message: "Test" } };
+      roomMembersResponse.meta.per_page = 1;
+      roomMembersResponse.meta.last_page = 3;
+      getRoomMembersApiMock.respondWith(serverError());
 
       await page.goto("/rooms/abc-def-123#tab=members");
       await expectToastAndClose(page, [
@@ -163,7 +180,7 @@ test.describe("Rooms view members", () => {
         'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
 
-      roomMembersFailure.response = null;
+      getRoomMembersApiMock.respondWithDefault();
 
       const retryButton = page.getByTestId("loading-retry-button");
       await expect(retryButton).toContainText("app.reload");
@@ -179,22 +196,21 @@ test.describe("Rooms view members", () => {
     });
 
     test.describe("on changing the page", () => {
-      test.beforeEach(async ({ page, roomMembers, roomMembersFailure }) => {
-        roomMembers.meta.per_page = 1;
-        roomMembers.meta.last_page = 3;
-        await page.goto("/rooms/abc-def-123#tab=members");
-        await expect(page.getByTestId("room-member-item")).toHaveCount(1);
+      test.beforeEach(
+        async ({ page, roomMembersResponse, getRoomMembersApiMock }) => {
+          roomMembersResponse.meta.per_page = 1;
+          roomMembersResponse.meta.last_page = 3;
+          await page.goto("/rooms/abc-def-123#tab=members");
+          await expect(page.getByTestId("room-member-item")).toHaveCount(1);
 
-        roomMembersFailure.response = {
-          status: 500,
-          json: { message: "Test" },
-        };
-        await page.getByTestId("paginator-next-button").nth(1).click();
-        await expectToastAndClose(page, [
-          'app.flash.server_error.message_{"message":"Test"}',
-          'app.flash.server_error.error_code_{"statusCode":500}',
-        ]);
-      });
+          getRoomMembersApiMock.respondWith(serverError());
+          await page.getByTestId("paginator-next-button").nth(1).click();
+          await expectToastAndClose(page, [
+            'app.flash.server_error.message_{"message":"Test"}',
+            'app.flash.server_error.error_code_{"statusCode":500}',
+          ]);
+        },
+      );
 
       test("shows the overlay and the error on a server error", async ({
         page,
@@ -224,8 +240,11 @@ test.describe("Rooms view members", () => {
         ).toBeEnabled();
       });
 
-      test("reloads the first page", async ({ page, roomMembersFailure }) => {
-        roomMembersFailure.response = null;
+      test("reloads the first page", async ({
+        page,
+        getRoomMembersApiMock,
+      }) => {
+        getRoomMembersApiMock.respondWithDefault();
 
         const membersRequest = page.waitForRequest(
           "**/api/v1/rooms/abc-def-123/member?*",
@@ -233,7 +252,9 @@ test.describe("Rooms view members", () => {
         await expect(page.getByTestId("overlay")).toBeVisible();
         await page.getByTestId("loading-retry-button").click();
 
-        expect(queryOf(await membersRequest)).toMatchObject({ page: "1" });
+        expect(getRequestQuery(await membersRequest)).toMatchObject({
+          page: "1",
+        });
 
         await expect(page.getByTestId("room-member-item")).toHaveCount(1);
         await expect(
@@ -247,20 +268,23 @@ test.describe("Rooms view members", () => {
     });
 
     test.describe("on changing the page with an unauthenticated error", () => {
-      test.beforeEach(async ({ page, roomMembers, roomMembersFailure }) => {
-        roomMembers.meta.per_page = 1;
-        roomMembers.meta.last_page = 3;
-        await page.goto("/rooms/abc-def-123#tab=members");
-        await expect(page.getByTestId("room-member-item")).toHaveCount(1);
+      test.beforeEach(
+        async ({ page, roomMembersResponse, getRoomMembersApiMock }) => {
+          roomMembersResponse.meta.per_page = 1;
+          roomMembersResponse.meta.last_page = 3;
+          await page.goto("/rooms/abc-def-123#tab=members");
+          await expect(page.getByTestId("room-member-item")).toHaveCount(1);
 
-        roomMembersFailure.response = { status: 401, json: {} };
-      });
+          getRoomMembersApiMock.respondWith({ status: 401, json: {} });
+        },
+      );
 
       test("asks for the guest name if the room has no access code", async ({
         page,
-        room,
+        roomResponse,
+        postParticipantNameCheckApiMock,
       }) => {
-        room.data.current_user = null;
+        roomResponse.data.current_user = null;
 
         const roomRequest = page.waitForRequest(
           /\/api\/v1\/rooms\/abc-def-123(\?.*)?$/,
@@ -272,14 +296,10 @@ test.describe("Rooms view members", () => {
         await expect(page.getByTestId("room-access-overlay")).toBeVisible();
         await page.locator("#participant-name").fill("Max Doe");
 
-        const nameCheck = await mockMethod(
-          page,
-          "POST",
-          "**/api/v1/participantName/check",
-          { status: 204 },
-        );
+        const postParticipantNameCheckRequestsAfterChange =
+          postParticipantNameCheckApiMock.respondWith({ status: 204 });
         await page.getByTestId("room-login-button").click();
-        await nthRequest(nameCheck);
+        await postParticipantNameCheckRequestsAfterChange.waitForRequest();
 
         await expect(page.getByTestId("room-access-overlay")).toBeHidden();
 
@@ -292,10 +312,10 @@ test.describe("Rooms view members", () => {
 
       test("shows the access code overlay if the room has an access code", async ({
         page,
-        room,
+        roomResponse,
       }) => {
-        room.data.current_user = null;
-        room.data.authenticated = false;
+        roomResponse.data.current_user = null;
+        roomResponse.data.authenticated = false;
 
         const roomRequest = page.waitForRequest(
           /\/api\/v1\/rooms\/abc-def-123(\?.*)?$/,
@@ -308,13 +328,11 @@ test.describe("Rooms view members", () => {
         await expect(page.getByText("auth.login").first()).toBeVisible();
       });
 
-      test("shows an error if guests are forbidden", async ({ page }) => {
-        await mockMethod(
-          page,
-          "GET",
-          (url) => url.pathname === "/api/v1/rooms/abc-def-123",
-          { status: 403, json: { message: "guests_not_allowed" } },
-        );
+      test("shows an error if guests are forbidden", async ({
+        page,
+        getRoomApiMock,
+      }) => {
+        getRoomApiMock.respondWith(forbidden("guests_not_allowed"));
 
         const roomRequest = page.waitForRequest(
           /\/api\/v1\/rooms\/abc-def-123(\?.*)?$/,
@@ -332,21 +350,20 @@ test.describe("Rooms view members", () => {
 
     test("redirects to the files tab on a forbidden error when changing the page", async ({
       page,
-      room,
-      roomMembers,
-      roomMembersFailure,
+      roomResponse,
+      roomMembersResponse,
+      getRoomMembersApiMock,
     }) => {
-      roomMembers.meta.per_page = 1;
-      roomMembers.meta.last_page = 3;
+      roomMembersResponse.meta.per_page = 1;
+      roomMembersResponse.meta.last_page = 3;
       await page.goto("/rooms/abc-def-123#tab=members");
       await expect(page.getByTestId("room-member-item")).toHaveCount(1);
 
-      room.data.owner = { id: 2, name: "Max Doe" };
-      room.data.is_member = true;
-      roomMembersFailure.response = {
-        status: 403,
-        json: { message: "This action is unauthorized." },
-      };
+      roomResponse.data.owner = { id: 2, name: "Max Doe" };
+      roomResponse.data.is_member = true;
+      getRoomMembersApiMock.respondWith(
+        forbidden("This action is unauthorized."),
+      );
 
       await page.getByTestId("paginator-next-button").nth(1).click();
 
@@ -365,17 +382,10 @@ test.describe("Rooms view members", () => {
 
     test("redirects to the room index page if the room is not found", async ({
       page,
-      roomMembersFailure,
+      getRoomMembersApiMock,
     }) => {
       await interceptRoomIndexRequests(page);
-      roomMembersFailure.response = {
-        status: 404,
-        json: {
-          message: "model_not_found",
-          model: "room",
-          ids: ["abc-def-123"],
-        },
-      };
+      getRoomMembersApiMock.respondWith(modelNotFound("room", ["abc-def-123"]));
 
       await page.goto("/rooms/abc-def-123#tab=members");
 
@@ -389,13 +399,13 @@ test.describe("Rooms view members", () => {
 
   test("resets the page if the requested page is out of range", async ({
     page,
-    roomMembers,
+    roomMembersResponse,
   }) => {
-    roomMembers.data[0].role = 3;
-    roomMembers.meta.per_page = 1;
-    roomMembers.meta.last_page = 2;
-    roomMembers.meta.total = 2;
-    roomMembers.meta.total_no_filter = 2;
+    roomMembersResponse.data[0].role = 3;
+    roomMembersResponse.meta.per_page = 1;
+    roomMembersResponse.meta.last_page = 2;
+    roomMembersResponse.meta.total = 2;
+    roomMembersResponse.meta.total_no_filter = 2;
 
     await page.goto("/rooms/abc-def-123#tab=members");
     await expect(page.getByTestId("room-member-item")).toHaveCount(1);
@@ -403,7 +413,7 @@ test.describe("Rooms view members", () => {
     // The second page is empty, the following request (first page) returns the members
     const requests = [];
     await page.route("**/api/v1/rooms/abc-def-123/member*", (route) => {
-      requests.push(queryOf(route.request()));
+      requests.push(getRequestQuery(route.request()));
       const members = readFixture("roomMembers.json");
       if (requests.length === 1) {
         members.data = [];
@@ -441,20 +451,20 @@ test.describe("Rooms view members", () => {
 
       await page.goto("/rooms/abc-def-123#tab=members");
 
-      const query = queryOf(await membersRequest);
+      const query = getRequestQuery(await membersRequest);
       expect(query.query).toBeUndefined();
       expect(query).toMatchObject({ page: "1" });
     });
 
     test("shows a message if no members match the search query", async ({
       page,
-      roomMembers,
+      roomMembersResponse,
     }) => {
       await page.goto("/rooms/abc-def-123#tab=members");
       await expect(page.getByTestId("room-member-item")).toHaveCount(3);
 
-      roomMembers.data = [];
-      roomMembers.meta.total = 0;
+      roomMembersResponse.data = [];
+      roomMembersResponse.meta.total = 0;
       const membersRequest = page.waitForRequest(
         "**/api/v1/rooms/abc-def-123/member?*",
       );
@@ -465,7 +475,7 @@ test.describe("Rooms view members", () => {
         .fill("Test");
       await page.getByTestId("room-members-search").locator("button").click();
 
-      expect(queryOf(await membersRequest)).toMatchObject({
+      expect(getRequestQuery(await membersRequest)).toMatchObject({
         query: "Test",
         page: "1",
       });
@@ -476,14 +486,14 @@ test.describe("Rooms view members", () => {
 
     test("shows a message if there are no members in the room", async ({
       page,
-      roomMembers,
+      roomMembersResponse,
     }) => {
       await page.goto("/rooms/abc-def-123#tab=members");
       await expect(page.getByTestId("room-member-item")).toHaveCount(3);
 
-      roomMembers.data = [];
-      roomMembers.meta.total = 0;
-      roomMembers.meta.total_no_filter = 0;
+      roomMembersResponse.data = [];
+      roomMembersResponse.meta.total = 0;
+      roomMembersResponse.meta.total_no_filter = 0;
       const membersRequest = page.waitForRequest(
         "**/api/v1/rooms/abc-def-123/member?*",
       );
@@ -497,7 +507,7 @@ test.describe("Rooms view members", () => {
         .locator("input")
         .press("Enter");
 
-      expect(queryOf(await membersRequest)).toMatchObject({
+      expect(getRequestQuery(await membersRequest)).toMatchObject({
         query: "Test2",
         page: "1",
       });
@@ -507,12 +517,12 @@ test.describe("Rooms view members", () => {
     });
 
     test.describe("with multiple pages", () => {
-      test.beforeEach(async ({ page, roomMembers }) => {
+      test.beforeEach(async ({ page, roomMembersResponse }) => {
         await page.goto("/rooms/abc-def-123#tab=members");
         await expect(page.getByTestId("room-member-item")).toHaveCount(3);
 
-        roomMembers.data = [
-          roomMembers.data[0],
+        roomMembersResponse.data = [
+          roomMembersResponse.data[0],
           {
             id: 10,
             firstname: "Laura",
@@ -522,10 +532,10 @@ test.describe("Rooms view members", () => {
             image: null,
           },
         ];
-        roomMembers.meta.per_page = 1;
-        roomMembers.meta.last_page = 2;
-        roomMembers.meta.total = 2;
-        roomMembers.meta.total_no_filter = 2;
+        roomMembersResponse.meta.per_page = 1;
+        roomMembersResponse.meta.last_page = 2;
+        roomMembersResponse.meta.total = 2;
+        roomMembersResponse.meta.total_no_filter = 2;
         const membersRequest = page.waitForRequest(
           "**/api/v1/rooms/abc-def-123/member?*",
         );
@@ -536,7 +546,7 @@ test.describe("Rooms view members", () => {
           .fill("Laura");
         await page.getByTestId("room-members-search").locator("button").click();
 
-        expect(queryOf(await membersRequest)).toMatchObject({
+        expect(getRequestQuery(await membersRequest)).toMatchObject({
           query: "Laura",
           page: "1",
         });
@@ -561,7 +571,7 @@ test.describe("Rooms view members", () => {
 
         await page.getByTestId("paginator-next-button").nth(1).click();
 
-        expect(queryOf(await membersRequest)).toMatchObject({
+        expect(getRequestQuery(await membersRequest)).toMatchObject({
           query: "Laura",
           page: "2",
         });
@@ -595,7 +605,7 @@ test.describe("Rooms view members", () => {
           .fill("Laur");
         await page.getByTestId("room-members-search").locator("button").click();
 
-        expect(queryOf(await membersRequest)).toMatchObject({
+        expect(getRequestQuery(await membersRequest)).toMatchObject({
           query: "Laur",
           page: "1",
         });
@@ -613,7 +623,7 @@ test.describe("Rooms view members", () => {
 
       await page.goto("/rooms/abc-def-123#tab=members");
 
-      const query = queryOf(await membersRequest);
+      const query = getRequestQuery(await membersRequest);
       expect(query.filter).toBeUndefined();
       expect(query).toMatchObject({ page: "1" });
     });
@@ -648,17 +658,17 @@ test.describe("Rooms view members", () => {
 
       test("shows a message if no members match the filter", async ({
         page,
-        roomMembers,
+        roomMembersResponse,
       }) => {
-        roomMembers.data = [];
-        roomMembers.meta.total = 0;
+        roomMembersResponse.data = [];
+        roomMembersResponse.meta.total = 0;
         const membersRequest = page.waitForRequest(
           "**/api/v1/rooms/abc-def-123/member?*",
         );
 
         await selectFilter(page, 1);
 
-        expect(queryOf(await membersRequest)).toMatchObject({
+        expect(getRequestQuery(await membersRequest)).toMatchObject({
           filter: "participant_role",
           page: "1",
         });
@@ -673,18 +683,18 @@ test.describe("Rooms view members", () => {
 
       test("shows a message if there are no members in the room", async ({
         page,
-        roomMembers,
+        roomMembersResponse,
       }) => {
-        roomMembers.data = [];
-        roomMembers.meta.total = 0;
-        roomMembers.meta.total_no_filter = 0;
+        roomMembersResponse.data = [];
+        roomMembersResponse.meta.total = 0;
+        roomMembersResponse.meta.total_no_filter = 0;
         const membersRequest = page.waitForRequest(
           "**/api/v1/rooms/abc-def-123/member?*",
         );
 
         await selectFilter(page, 2);
 
-        expect(queryOf(await membersRequest)).toMatchObject({
+        expect(getRequestQuery(await membersRequest)).toMatchObject({
           filter: "moderator_role",
           page: "1",
         });
@@ -698,9 +708,9 @@ test.describe("Rooms view members", () => {
       });
 
       test.describe("with multiple pages", () => {
-        test.beforeEach(async ({ page, roomMembers }) => {
-          roomMembers.data = [
-            { ...roomMembers.data[0], role: 3 },
+        test.beforeEach(async ({ page, roomMembersResponse }) => {
+          roomMembersResponse.data = [
+            { ...roomMembersResponse.data[0], role: 3 },
             {
               id: 10,
               firstname: "Laura",
@@ -710,17 +720,17 @@ test.describe("Rooms view members", () => {
               image: null,
             },
           ];
-          roomMembers.meta.per_page = 1;
-          roomMembers.meta.last_page = 2;
-          roomMembers.meta.total = 2;
-          roomMembers.meta.total_no_filter = 2;
+          roomMembersResponse.meta.per_page = 1;
+          roomMembersResponse.meta.last_page = 2;
+          roomMembersResponse.meta.total = 2;
+          roomMembersResponse.meta.total_no_filter = 2;
           const membersRequest = page.waitForRequest(
             "**/api/v1/rooms/abc-def-123/member?*",
           );
 
           await selectFilter(page, 3);
 
-          expect(queryOf(await membersRequest)).toMatchObject({
+          expect(getRequestQuery(await membersRequest)).toMatchObject({
             filter: "co_owner_role",
             page: "1",
           });
@@ -746,7 +756,7 @@ test.describe("Rooms view members", () => {
 
           await page.getByTestId("paginator-next-button").nth(1).click();
 
-          expect(queryOf(await membersRequest)).toMatchObject({
+          expect(getRequestQuery(await membersRequest)).toMatchObject({
             filter: "co_owner_role",
             page: "2",
           });
@@ -774,7 +784,7 @@ test.describe("Rooms view members", () => {
 
           await selectFilter(page, 0);
 
-          const query = queryOf(await membersRequest);
+          const query = getRequestQuery(await membersRequest);
           expect(query.filter).toBeUndefined();
           expect(query).toMatchObject({ page: "1" });
 
@@ -795,7 +805,7 @@ test.describe("Rooms view members", () => {
 
       await page.goto("/rooms/abc-def-123#tab=members");
 
-      expect(queryOf(await membersRequest)).toMatchObject({
+      expect(getRequestQuery(await membersRequest)).toMatchObject({
         sort_by: "lastname",
         sort_direction: "asc",
         page: "1",
@@ -829,16 +839,19 @@ test.describe("Rooms view members", () => {
         await expect(page.getByTestId("room-member-item")).toHaveCount(3);
       });
 
-      test("changes the sorting type", async ({ page, roomMembers }) => {
-        roomMembers.meta.per_page = 1;
-        roomMembers.meta.last_page = 3;
+      test("changes the sorting type", async ({
+        page,
+        roomMembersResponse,
+      }) => {
+        roomMembersResponse.meta.per_page = 1;
+        roomMembersResponse.meta.last_page = 3;
         const membersRequest = page.waitForRequest(
           "**/api/v1/rooms/abc-def-123/member?*",
         );
 
         await selectSortType(page, 0);
 
-        expect(queryOf(await membersRequest)).toMatchObject({
+        expect(getRequestQuery(await membersRequest)).toMatchObject({
           sort_by: "firstname",
           sort_direction: "asc",
           page: "1",
@@ -859,9 +872,9 @@ test.describe("Rooms view members", () => {
       });
 
       test.describe("sorted by firstname", () => {
-        test.beforeEach(async ({ page, roomMembers }) => {
-          roomMembers.meta.per_page = 1;
-          roomMembers.meta.last_page = 3;
+        test.beforeEach(async ({ page, roomMembersResponse }) => {
+          roomMembersResponse.meta.per_page = 1;
+          roomMembersResponse.meta.last_page = 3;
           await selectSortType(page, 0);
           await expect(page.getByTestId("sorting-type-dropdown")).toHaveText(
             "app.firstname",
@@ -876,7 +889,7 @@ test.describe("Rooms view members", () => {
 
           await page.getByTestId("paginator-next-button").nth(1).click();
 
-          expect(queryOf(await membersRequest)).toMatchObject({
+          expect(getRequestQuery(await membersRequest)).toMatchObject({
             sort_by: "firstname",
             sort_direction: "asc",
             page: "2",
@@ -907,7 +920,7 @@ test.describe("Rooms view members", () => {
             .locator("button")
             .click();
 
-          expect(queryOf(await membersRequest)).toMatchObject({
+          expect(getRequestQuery(await membersRequest)).toMatchObject({
             sort_by: "firstname",
             sort_direction: "desc",
             page: "1",
@@ -931,7 +944,7 @@ test.describe("Rooms view members", () => {
 
           await page.getByTestId("paginator-next-button").nth(1).click();
 
-          expect(queryOf(await membersRequest)).toMatchObject({
+          expect(getRequestQuery(await membersRequest)).toMatchObject({
             sort_by: "firstname",
             sort_direction: "desc",
             page: "2",
@@ -957,7 +970,7 @@ test.describe("Rooms view members", () => {
 
           await selectSortType(page, 1);
 
-          expect(queryOf(await membersRequest)).toMatchObject({
+          expect(getRequestQuery(await membersRequest)).toMatchObject({
             sort_by: "lastname",
             sort_direction: "desc",
             page: "1",
@@ -974,11 +987,11 @@ test.describe("Rooms view members", () => {
 
   test.describe("permissions", () => {
     test.describe("as co-owner", () => {
-      test.beforeEach(async ({ page, room, roomMembers }) => {
-        room.data.owner = { id: 2, name: "Max Doe" };
-        room.data.is_member = true;
-        room.data.is_co_owner = true;
-        roomMembers.data.unshift({
+      test.beforeEach(async ({ page, roomResponse, roomMembersResponse }) => {
+        roomResponse.data.owner = { id: 2, name: "Max Doe" };
+        roomResponse.data.is_member = true;
+        roomResponse.data.is_co_owner = true;
+        roomMembersResponse.data.unshift({
           id: 1,
           firstname: "John",
           lastname: "Doe",
@@ -986,9 +999,9 @@ test.describe("Rooms view members", () => {
           role: 3,
           image: null,
         });
-        roomMembers.meta.per_page = 4;
-        roomMembers.meta.total = 4;
-        roomMembers.meta.total_no_filter = 4;
+        roomMembersResponse.meta.per_page = 4;
+        roomMembersResponse.meta.total = 4;
+        roomMembersResponse.meta.total_no_filter = 4;
 
         await page.goto("/rooms/abc-def-123#tab=members");
         await expect(page.getByTestId("room-member-item")).toHaveCount(4);
@@ -1088,11 +1101,11 @@ test.describe("Rooms view members", () => {
 
       test("hides the select all checkbox if only the current user is a member", async ({
         page,
-        roomMembers,
+        roomMembersResponse,
       }) => {
-        roomMembers.data = [roomMembers.data[0]];
-        roomMembers.meta.total = 1;
-        roomMembers.meta.total_no_filter = 1;
+        roomMembersResponse.data = [roomMembersResponse.data[0]];
+        roomMembersResponse.meta.total = 1;
+        roomMembersResponse.meta.total_no_filter = 1;
 
         await page.getByTestId("room-members-reload-button").click();
 
@@ -1104,10 +1117,10 @@ test.describe("Rooms view members", () => {
     });
 
     test.describe("with rooms.viewAll permission", () => {
-      test.beforeEach(async ({ page, currentUser, room }) => {
-        currentUser.data.permissions = ["rooms.viewAll"];
-        room.data.owner = { id: 2, name: "Max Doe" };
-        room.data.current_user.permissions = ["rooms.viewAll"];
+      test.beforeEach(async ({ page, currentUserResponse, roomResponse }) => {
+        currentUserResponse.data.permissions = ["rooms.viewAll"];
+        roomResponse.data.owner = { id: 2, name: "Max Doe" };
+        roomResponse.data.current_user.permissions = ["rooms.viewAll"];
 
         await page.goto("/rooms/abc-def-123#tab=members");
         await expect(page.getByTestId("room-member-item")).toHaveCount(3);
@@ -1142,11 +1155,11 @@ test.describe("Rooms view members", () => {
     });
 
     test.describe("with rooms.manage permission", () => {
-      test.beforeEach(async ({ page, currentUser, room }) => {
+      test.beforeEach(async ({ page, currentUserResponse, roomResponse }) => {
         const permissions = ["rooms.create", "rooms.viewAll", "rooms.manage"];
-        currentUser.data.permissions = permissions;
-        room.data.owner = { id: 2, name: "Max Doe" };
-        room.data.current_user.permissions = permissions;
+        currentUserResponse.data.permissions = permissions;
+        roomResponse.data.owner = { id: 2, name: "Max Doe" };
+        roomResponse.data.current_user.permissions = permissions;
 
         await page.goto("/rooms/abc-def-123#tab=members");
         await expect(page.getByTestId("room-member-item")).toHaveCount(3);

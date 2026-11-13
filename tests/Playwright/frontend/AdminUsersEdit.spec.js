@@ -1,18 +1,33 @@
+import { mergeTests } from "@playwright/test";
+import { test as userControllerTest } from "../support/fixtures/userController.js";
+import { test as roleControllerTest } from "../support/fixtures/roleController.js";
+import { test as timezonesTest } from "../support/fixtures/timezones.js";
+import { test as sessionControllerTest } from "../support/fixtures/sessionController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { test } from "../support/fixtures/adminUsersEdit.js";
 import { interceptAdminUsersIndexRequests } from "../support/mocks.js";
 import {
   expectLoginRedirect,
   testVisitWithoutCurrentUser,
 } from "../support/general.js";
 import { expectAdminBreadcrumbs } from "../support/admin.js";
-import { mockMethod } from "../support/utils.js";
+import {
+  mockApiRequest,
+  serverError,
+  modelNotFound,
+} from "../support/utils.js";
+
+const test = mergeTests(
+  userControllerTest,
+  roleControllerTest,
+  timezonesTest,
+  sessionControllerTest,
+);
 
 test.use({ authenticated: true });
 
 test.describe("Admin users edit", () => {
-  test.beforeEach(async ({ currentUser, config }) => {
-    currentUser.data.permissions = [
+  test.beforeEach(async ({ currentUserResponse, configResponse }) => {
+    currentUserResponse.data.permissions = [
       "admin.view",
       "users.viewAny",
       "users.view",
@@ -20,7 +35,7 @@ test.describe("Admin users edit", () => {
       "users.create",
       "roles.viewAny",
     ];
-    config.data.auth.local = true;
+    configResponse.data.auth.local = true;
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
@@ -29,9 +44,9 @@ test.describe("Admin users edit", () => {
 
   test("visit with user without permission to edit users", async ({
     page,
-    currentUser,
+    currentUserResponse,
   }) => {
-    currentUser.data.permissions = [
+    currentUserResponse.data.permissions = [
       "admin.view",
       "users.viewAny",
       "users.view",
@@ -49,9 +64,9 @@ test.describe("Admin users edit", () => {
   });
 
   test.describe("superuser", () => {
-    test.beforeEach(async ({ user }) => {
-      user.data.superuser = true;
-      user.data.roles.push({
+    test.beforeEach(async ({ userResponse }) => {
+      userResponse.data.superuser = true;
+      userResponse.data.roles.push({
         id: 1,
         name: "Superuser",
         automatic: true,
@@ -61,9 +76,9 @@ test.describe("Admin users edit", () => {
 
     test("edit page of a superuser is shown to a superuser", async ({
       page,
-      currentUser,
+      currentUserResponse,
     }) => {
-      currentUser.data.superuser = true;
+      currentUserResponse.data.superuser = true;
 
       await page.goto("/admin/users/2/edit");
 
@@ -96,9 +111,9 @@ test.describe("Admin users edit", () => {
 
     test("non-superuser is redirected to the view page", async ({
       page,
-      currentUser,
+      currentUserResponse,
     }) => {
-      currentUser.data.superuser = false;
+      currentUserResponse.data.superuser = false;
 
       await page.goto("/admin/users/2/edit");
 
@@ -108,10 +123,13 @@ test.describe("Admin users edit", () => {
   });
 
   test.describe("visit edit user page", () => {
-    test("loading state hides buttons and tabs", async ({ page, user }) => {
-      const userRequest = await mockMethod(page, "GET", "**/api/v1/users/2", {
+    test("loading state hides buttons and tabs", async ({
+      page,
+      userResponse,
+    }) => {
+      const getUserApiMock = await mockApiRequest(page, "GET", "users/2", {
         hold: true,
-        json: user,
+        json: userResponse,
       });
 
       await page.goto("/admin/users/2/edit");
@@ -135,7 +153,7 @@ test.describe("Admin users edit", () => {
         await expect(page.getByTestId(id)).toHaveCount(0);
       }
 
-      userRequest.release();
+      getUserApiMock.release();
       await expect(page.getByTestId("base-tab-button")).toBeVisible();
       await expect(page.getByTestId("overlay")).toBeHidden();
     });
@@ -185,9 +203,9 @@ test.describe("Admin users edit", () => {
 
     test("delete button is shown with delete permission", async ({
       page,
-      currentUser,
+      currentUserResponse,
     }) => {
-      currentUser.data.permissions.push("users.delete");
+      currentUserResponse.data.permissions.push("users.delete");
 
       await page.goto("/admin/users/2/edit");
 
@@ -228,12 +246,9 @@ test.describe("Admin users edit", () => {
   test.describe("errors", () => {
     test("server error shows overlay and allows reload", async ({
       page,
-      user,
+      userResponse,
     }) => {
-      await mockMethod(page, "GET", "**/api/v1/users/2", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "GET", "users/2", serverError());
 
       await page.goto("/admin/users/2/edit");
 
@@ -244,8 +259,8 @@ test.describe("Admin users edit", () => {
       ]);
 
       // Reload with correct data
-      await mockMethod(page, "GET", "**/api/v1/users/2", {
-        json: user,
+      await mockApiRequest(page, "GET", "users/2", {
+        json: userResponse,
       });
 
       const retryButton = page.getByTestId("loading-retry-button");
@@ -259,10 +274,7 @@ test.describe("Admin users edit", () => {
 
     test("404 error redirects to users index", async ({ page }) => {
       await interceptAdminUsersIndexRequests(page);
-      await mockMethod(page, "GET", "**/api/v1/users/2", {
-        status: 404,
-        json: { message: "model_not_found", model: "user", ids: [2] },
-      });
+      await mockApiRequest(page, "GET", "users/2", modelNotFound("user", [2]));
 
       await page.goto("/admin/users/2/edit");
 
@@ -274,7 +286,7 @@ test.describe("Admin users edit", () => {
     });
 
     test("401 error redirects to login", async ({ page }) => {
-      await mockMethod(page, "GET", "**/api/v1/users/2", { status: 401 });
+      await mockApiRequest(page, "GET", "users/2", { status: 401 });
 
       await page.goto("/admin/users/2/edit");
 

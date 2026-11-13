@@ -1,7 +1,22 @@
-import { test } from "../support/fixtures/userProfile.js";
+import { mergeTests } from "@playwright/test";
+import { test as userProfileTest } from "../support/fixtures/userProfile.js";
+import { test as userControllerTest } from "../support/fixtures/userController.js";
+import { test as timezonesTest } from "../support/fixtures/timezones.js";
+import { test as sessionControllerTest } from "../support/fixtures/sessionController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import { expectLoginRedirect } from "../support/general.js";
-import { mockMethod, nthRequest } from "../support/utils.js";
+import {
+  mockApiRequest,
+  validationErrors,
+  serverError,
+} from "../support/utils.js";
+
+const test = mergeTests(
+  userProfileTest,
+  userControllerTest,
+  timezonesTest,
+  sessionControllerTest,
+);
 
 test.use({ authenticated: true });
 
@@ -20,10 +35,10 @@ test.describe("User profile others", () => {
     await expect(field.locator("#bbb_skip_check_audio")).not.toBeChecked();
   });
 
-  test("save changes", async ({ page, profileUser }) => {
-    const user = structuredClone(profileUser);
+  test("save changes", async ({ page, profileUserResponse }) => {
+    const user = structuredClone(profileUserResponse);
     user.data.bbb_skip_check_audio = true;
-    const save = await mockMethod(page, "POST", "**/api/v1/users/1", {
+    const postUserApiMock = await mockApiRequest(page, "POST", "users/1", {
       status: 200,
       json: user,
       hold: true,
@@ -39,9 +54,9 @@ test.describe("User profile others", () => {
       page.getByTestId("user-tab-others-save-button"),
     ).toBeDisabled();
 
-    save.release();
+    postUserApiMock.release();
 
-    const request = await nthRequest(save);
+    const request = await postUserApiMock.waitForRequest();
     expect(request.postDataJSON()).toMatchObject({
       bbb_skip_check_audio: true,
     });
@@ -57,20 +72,22 @@ test.describe("User profile others", () => {
     });
 
     test("422 error", async ({ page }) => {
-      const save = await mockMethod(page, "POST", "**/api/v1/users/1", {
-        status: 422,
-        json: {
-          message: "The bbb skip check audio field is required.",
-          errors: {
+      const postUserApiMock = await mockApiRequest(
+        page,
+        "POST",
+        "users/1",
+        validationErrors(
+          {
             bbb_skip_check_audio: [
               "The bbb skip check audio field is required.",
             ],
           },
-        },
-      });
+          "The bbb skip check audio field is required.",
+        ),
+      );
 
       await page.getByTestId("user-tab-others-save-button").click();
-      await nthRequest(save);
+      await postUserApiMock.waitForRequest();
 
       await expect(page.locator("#bbb_skip_check_audio")).not.toBeChecked();
       await expectToastAndClose(
@@ -83,20 +100,22 @@ test.describe("User profile others", () => {
     });
 
     test("500 error hides previous validation errors", async ({ page }) => {
-      const validation = await mockMethod(page, "POST", "**/api/v1/users/1", {
-        status: 422,
-        json: {
-          message: "The bbb skip check audio field is required.",
-          errors: {
+      const postUserApiMock = await mockApiRequest(
+        page,
+        "POST",
+        "users/1",
+        validationErrors(
+          {
             bbb_skip_check_audio: [
               "The bbb skip check audio field is required.",
             ],
           },
-        },
-      });
+          "The bbb skip check audio field is required.",
+        ),
+      );
 
       await page.getByTestId("user-tab-others-save-button").click();
-      await nthRequest(validation);
+      await postUserApiMock.waitForRequest();
       await expectToastAndClose(
         page,
         "The bbb skip check audio field is required.",
@@ -105,13 +124,15 @@ test.describe("User profile others", () => {
         page.getByTestId("bbb-skip-check-audio-field"),
       ).toContainText("The bbb skip check audio field is required.");
 
-      const save = await mockMethod(page, "POST", "**/api/v1/users/1", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      const postUserApiMock2 = await mockApiRequest(
+        page,
+        "POST",
+        "users/1",
+        serverError(),
+      );
 
       await page.getByTestId("user-tab-others-save-button").click();
-      await nthRequest(save);
+      await postUserApiMock2.waitForRequest();
 
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
@@ -122,17 +143,17 @@ test.describe("User profile others", () => {
       ).not.toContainText("The bbb skip check audio field is required.");
     });
 
-    test("428 stale error", async ({ page, profileUser }) => {
-      const newModel = structuredClone(profileUser.data);
+    test("428 stale error", async ({ page, profileUserResponse }) => {
+      const newModel = structuredClone(profileUserResponse.data);
       newModel.bbb_skip_check_audio = true;
-      const save = await mockMethod(page, "POST", "**/api/v1/users/1", {
+      const postUserApiMock = await mockApiRequest(page, "POST", "users/1", {
         status: 428,
         json: { message: "stale_model", new_model: newModel },
       });
 
       await expect(page.getByTestId("stale-user-dialog")).toHaveCount(0);
       await page.getByTestId("user-tab-others-save-button").click();
-      await nthRequest(save);
+      await postUserApiMock.waitForRequest();
 
       await expect(page.getByTestId("stale-user-dialog")).toContainText(
         'app.errors.stale_model_{"model":"app.model.user"}',
@@ -145,12 +166,12 @@ test.describe("User profile others", () => {
     });
 
     test("401 error redirects to login", async ({ page }) => {
-      const save = await mockMethod(page, "POST", "**/api/v1/users/1", {
+      const postUserApiMock = await mockApiRequest(page, "POST", "users/1", {
         status: 401,
       });
 
       await page.getByTestId("user-tab-others-save-button").click();
-      await nthRequest(save);
+      await postUserApiMock.waitForRequest();
 
       await expectLoginRedirect(page, "/profile");
     });

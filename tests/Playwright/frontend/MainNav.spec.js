@@ -17,8 +17,8 @@ test.describe("Main navigation", () => {
   test.describe("authenticated", () => {
     test.use({ authenticated: true });
 
-    test.beforeEach(async ({ currentUser }) => {
-      currentUser.data.permissions = [];
+    test.beforeEach(async ({ currentUserResponse }) => {
+      currentUserResponse.data.permissions = [];
     });
 
     test("shows only rooms entry without permissions", async ({ page }) => {
@@ -35,9 +35,9 @@ test.describe("Main navigation", () => {
 
     test("shows meetings entry with meetings.viewAny permission", async ({
       page,
-      currentUser,
+      currentUserResponse,
     }) => {
-      currentUser.data.permissions = ["meetings.viewAny"];
+      currentUserResponse.data.permissions = ["meetings.viewAny"];
 
       await page.goto("/");
 
@@ -55,9 +55,9 @@ test.describe("Main navigation", () => {
 
     test("shows admin entry with admin.view permission", async ({
       page,
-      currentUser,
+      currentUserResponse,
     }) => {
-      currentUser.data.permissions = ["admin.view"];
+      currentUserResponse.data.permissions = ["admin.view"];
 
       await page.goto("/");
 
@@ -75,9 +75,9 @@ test.describe("Main navigation", () => {
 
     test("shows monitor menu with system.monitor permission", async ({
       page,
-      currentUser,
+      currentUserResponse,
     }) => {
-      currentUser.data.permissions = ["system.monitor"];
+      currentUserResponse.data.permissions = ["system.monitor"];
 
       await page.goto("/");
 
@@ -91,8 +91,8 @@ test.describe("Main navigation", () => {
     });
 
     test.describe("monitor submenu", () => {
-      test.beforeEach(async ({ currentUser }) => {
-        currentUser.data.permissions = ["system.monitor"];
+      test.beforeEach(async ({ currentUserResponse }) => {
+        currentUserResponse.data.permissions = ["system.monitor"];
       });
 
       for (const [name, monitor] of [
@@ -100,8 +100,8 @@ test.describe("Main navigation", () => {
         ["pulse", { horizon: true, pulse: true, telescope: false }],
         ["telescope", { horizon: true, pulse: false, telescope: true }],
       ]) {
-        test(`shows ${name} entry`, async ({ page, config }) => {
-          config.data.monitor = monitor;
+        test(`shows ${name} entry`, async ({ page, configResponse }) => {
+          configResponse.data.monitor = monitor;
 
           await page.goto("/");
           await page.locator("#mainmenu").getByTestId("navbar-monitor").click();
@@ -116,9 +116,9 @@ test.describe("Main navigation", () => {
 
       test("hides pulse entry when monitor.pulse is false", async ({
         page,
-        config,
+        configResponse,
       }) => {
-        config.data.monitor = {
+        configResponse.data.monitor = {
           horizon: true,
           pulse: false,
           telescope: true,
@@ -139,9 +139,9 @@ test.describe("Main navigation", () => {
 
       test("hides telescope entry when monitor.telescope is false", async ({
         page,
-        config,
+        configResponse,
       }) => {
-        config.data.monitor = {
+        configResponse.data.monitor = {
           horizon: true,
           pulse: true,
           telescope: false,

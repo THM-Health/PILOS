@@ -1,7 +1,22 @@
-import { test } from "../support/fixtures/userProfile.js";
+import { mergeTests } from "@playwright/test";
+import { test as userProfileTest } from "../support/fixtures/userProfile.js";
+import { test as userControllerTest } from "../support/fixtures/userController.js";
+import { test as timezonesTest } from "../support/fixtures/timezones.js";
+import { test as sessionControllerTest } from "../support/fixtures/sessionController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import { expectLoginRedirect } from "../support/general.js";
-import { mockMethod, nthRequest } from "../support/utils.js";
+import {
+  mockApiRequest,
+  validationErrors,
+  serverError,
+} from "../support/utils.js";
+
+const test = mergeTests(
+  userProfileTest,
+  userControllerTest,
+  timezonesTest,
+  sessionControllerTest,
+);
 
 test.use({ authenticated: true });
 
@@ -32,10 +47,15 @@ test.describe("User profile email", () => {
     });
 
     test("fields are disabled while saving", async ({ page }) => {
-      const mock = await mockMethod(page, "PUT", "**/api/v1/users/1/email", {
-        status: 202,
-        hold: true,
-      });
+      const putUserEmailApiMock = await mockApiRequest(
+        page,
+        "PUT",
+        "users/1/email",
+        {
+          status: 202,
+          hold: true,
+        },
+      );
 
       await page.locator("#current_password").fill("secretPassword123#");
       await page.locator("#email").fill("john.doe@example.com");
@@ -47,22 +67,27 @@ test.describe("User profile email", () => {
       await expect(page.locator("#current_password")).toBeDisabled();
       await expect(page.locator("#email")).toBeDisabled();
 
-      mock.release();
+      putUserEmailApiMock.release();
       await expect(page.locator("#email")).toBeEnabled();
     });
 
     test("save changes sends the new email and resets the fields", async ({
       page,
     }) => {
-      const mock = await mockMethod(page, "PUT", "**/api/v1/users/1/email", {
-        status: 202,
-      });
+      const putUserEmailApiMock = await mockApiRequest(
+        page,
+        "PUT",
+        "users/1/email",
+        {
+          status: 202,
+        },
+      );
 
       await page.locator("#current_password").fill("secretPassword123#");
       await page.locator("#email").fill("john.doe@example.com");
       await page.getByTestId("user-tab-email-save-button").click();
 
-      const request = await nthRequest(mock);
+      const request = await putUserEmailApiMock.waitForRequest();
       expect(request.postDataJSON()).toEqual({
         email: "john.doe@example.com",
         current_password: "secretPassword123#",
@@ -82,9 +107,11 @@ test.describe("User profile email", () => {
 
     test("confirmation message is hidden if the server already changed the email", async ({
       page,
-      profileUser,
+      profileUserResponse,
     }) => {
-      await mockMethod(page, "PUT", "**/api/v1/users/1/email", { status: 202 });
+      await mockApiRequest(page, "PUT", "users/1/email", {
+        status: 202,
+      });
 
       await page.locator("#current_password").fill("secretPassword123#");
       await page.locator("#email").fill("john.doe@example.com");
@@ -93,9 +120,9 @@ test.describe("User profile email", () => {
         page.getByTestId("email-confirmation-message"),
       ).toBeVisible();
 
-      const user = structuredClone(profileUser);
+      const user = structuredClone(profileUserResponse);
       user.data.email = "john.doe@example.com";
-      await mockMethod(page, "PUT", "**/api/v1/users/1/email", {
+      await mockApiRequest(page, "PUT", "users/1/email", {
         status: 200,
         json: { data: user.data },
       });
@@ -117,7 +144,7 @@ test.describe("User profile email", () => {
       });
 
       test("throttle error (471)", async ({ page }) => {
-        await mockMethod(page, "PUT", "**/api/v1/users/1/email", {
+        await mockApiRequest(page, "PUT", "users/1/email", {
           status: 471,
         });
         await page.getByTestId("user-tab-email-save-button").click();
@@ -126,16 +153,18 @@ test.describe("User profile email", () => {
       });
 
       test("validation error (422)", async ({ page }) => {
-        await mockMethod(page, "PUT", "**/api/v1/users/1/email", {
-          status: 422,
-          json: {
-            message: "The email field is required. (and 1 more error)",
-            errors: {
+        await mockApiRequest(
+          page,
+          "PUT",
+          "users/1/email",
+          validationErrors(
+            {
               email: ["The email field is required."],
               current_password: ["The current password is incorrect."],
             },
-          },
-        });
+            "The email field is required. (and 1 more error)",
+          ),
+        );
         await page.getByTestId("user-tab-email-save-button").click();
 
         await expectToastAndClose(
@@ -153,16 +182,18 @@ test.describe("User profile email", () => {
       test("server error (500) hides previous validation errors", async ({
         page,
       }) => {
-        await mockMethod(page, "PUT", "**/api/v1/users/1/email", {
-          status: 422,
-          json: {
-            message: "The email field is required. (and 1 more error)",
-            errors: {
+        await mockApiRequest(
+          page,
+          "PUT",
+          "users/1/email",
+          validationErrors(
+            {
               email: ["The email field is required."],
               current_password: ["The current password is incorrect."],
             },
-          },
-        });
+            "The email field is required. (and 1 more error)",
+          ),
+        );
         await page.getByTestId("user-tab-email-save-button").click();
         await expectToastAndClose(
           page,
@@ -172,10 +203,7 @@ test.describe("User profile email", () => {
           "The email field is required.",
         );
 
-        await mockMethod(page, "PUT", "**/api/v1/users/1/email", {
-          status: 500,
-          json: { message: "Test" },
-        });
+        await mockApiRequest(page, "PUT", "users/1/email", serverError());
         await page.locator("#current_password").fill("secretPassword123#");
         await page.getByTestId("user-tab-email-save-button").click();
 
@@ -192,7 +220,7 @@ test.describe("User profile email", () => {
       });
 
       test("unauthenticated (401) redirects to login", async ({ page }) => {
-        await mockMethod(page, "PUT", "**/api/v1/users/1/email", {
+        await mockApiRequest(page, "PUT", "users/1/email", {
           status: 401,
         });
         await page.getByTestId("user-tab-email-save-button").click();
@@ -216,17 +244,17 @@ test.describe("User profile email", () => {
 
     test("without users.updateOwnAttributes permission", async ({
       page,
-      currentUser,
+      currentUserResponse,
     }) => {
-      currentUser.data.permissions = [];
+      currentUserResponse.data.permissions = [];
 
       await page.goto("/profile#tab=email");
       await expect(page.locator("#email")).toBeVisible();
     });
 
-    test("as external user", async ({ page, profileUser }) => {
-      profileUser.data.authenticator = "ldap";
-      profileUser.data.external_id = "jdo";
+    test("as external user", async ({ page, profileUserResponse }) => {
+      profileUserResponse.data.authenticator = "ldap";
+      profileUserResponse.data.external_id = "jdo";
 
       await page.goto("/profile#tab=email");
       await expect(page.locator("#email")).toBeVisible();

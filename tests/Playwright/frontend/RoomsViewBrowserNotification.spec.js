@@ -1,9 +1,13 @@
+import { mergeTests } from "@playwright/test";
+import { test as roomControllerTest } from "../support/fixtures/roomController.js";
+import { test as browserApisTest } from "../support/fixtures/browserApis.js";
 import {
   expect,
   expectToastAndClose,
   stubNotification,
 } from "../support/test.js";
-import { test } from "../support/fixtures/roomsGeneralMisc.js";
+
+const test = mergeTests(roomControllerTest, browserApisTest);
 
 test.describe("Rooms view browser notification", () => {
   test.use({ authenticated: true });
@@ -133,15 +137,15 @@ test.describe("Rooms view browser notification", () => {
   });
 
   test.describe("running state changes", () => {
-    test.beforeEach(async ({ page, config }) => {
-      config.data.theme.favicon = "favicon.ico";
+    test.beforeEach(async ({ page, configResponse }) => {
+      configResponse.data.theme.favicon = "favicon.ico";
       // Fixed date, only Date is faked (timers keep running)
       await page.clock.setFixedTime(new Date(Date.UTC(2017, 1, 1)));
     });
 
     test("notification is shown when room changes from not running to running", async ({
       page,
-      room,
+      roomResponse,
       stubBrowserApis,
     }) => {
       const getState = await stubBrowserApis();
@@ -151,7 +155,7 @@ test.describe("Rooms view browser notification", () => {
       await button.click();
       await expectToastAndClose(page, "rooms.notification.enabled");
 
-      room.data.last_meeting = {
+      roomResponse.data.last_meeting = {
         start: "2023-08-21T08:18:28.000000Z",
         end: null,
       };
@@ -184,7 +188,7 @@ test.describe("Rooms view browser notification", () => {
 
     test("notification is closed when room changes from running to not running", async ({
       page,
-      room,
+      roomResponse,
       stubBrowserApis,
     }) => {
       const getState = await stubBrowserApis();
@@ -192,7 +196,7 @@ test.describe("Rooms view browser notification", () => {
       await page.getByTestId("room-notification-button").click();
       await expectToastAndClose(page, "rooms.notification.enabled");
 
-      room.data.last_meeting = {
+      roomResponse.data.last_meeting = {
         start: "2023-08-21T08:18:28.000000Z",
         end: null,
       };
@@ -202,7 +206,7 @@ test.describe("Rooms view browser notification", () => {
       ]);
       await expect.poll(async () => (await getState()).plays).toBe(1);
 
-      room.data.last_meeting = {
+      roomResponse.data.last_meeting = {
         start: "2023-08-21T08:18:28.000000Z",
         end: "2023-08-21T09:18:28.000000Z",
       };
@@ -216,7 +220,7 @@ test.describe("Rooms view browser notification", () => {
 
     test("new notification is shown when room starts running again and clicking it focuses the window", async ({
       page,
-      room,
+      roomResponse,
       stubBrowserApis,
     }) => {
       const getState = await stubBrowserApis();
@@ -225,7 +229,7 @@ test.describe("Rooms view browser notification", () => {
       await button.click();
       await expectToastAndClose(page, "rooms.notification.enabled");
 
-      room.data.last_meeting = {
+      roomResponse.data.last_meeting = {
         start: "2023-08-21T08:18:28.000000Z",
         end: null,
       };
@@ -234,7 +238,7 @@ test.describe("Rooms view browser notification", () => {
         page.getByTestId("reload-room-button").click(),
       ]);
       await expect.poll(async () => (await getState()).plays).toBe(1);
-      room.data.last_meeting = {
+      roomResponse.data.last_meeting = {
         start: "2023-08-21T08:18:28.000000Z",
         end: "2023-08-21T09:18:28.000000Z",
       };
@@ -244,7 +248,7 @@ test.describe("Rooms view browser notification", () => {
       ]);
       await expect.poll(async () => (await getState()).closed).toEqual([0]);
 
-      room.data.last_meeting = {
+      roomResponse.data.last_meeting = {
         start: "2023-08-21T08:18:28.000000Z",
         end: null,
       };
@@ -295,7 +299,7 @@ test.describe("Rooms view browser notification", () => {
 
     test("notifications can be disabled", async ({
       page,
-      room,
+      roomResponse,
       stubBrowserApis,
     }) => {
       await stubBrowserApis();
@@ -304,7 +308,7 @@ test.describe("Rooms view browser notification", () => {
       await button.click();
       await expectToastAndClose(page, "rooms.notification.enabled");
 
-      room.data.last_meeting = {
+      roomResponse.data.last_meeting = {
         start: "2023-08-21T08:18:28.000000Z",
         end: null,
       };
@@ -313,7 +317,7 @@ test.describe("Rooms view browser notification", () => {
         page.getByTestId("reload-room-button").click(),
       ]);
       await expect(button).toHaveCount(0);
-      room.data.last_meeting = {
+      roomResponse.data.last_meeting = {
         start: "2023-08-21T08:18:28.000000Z",
         end: "2023-08-21T09:18:28.000000Z",
       };
@@ -333,7 +337,7 @@ test.describe("Rooms view browser notification", () => {
 
     test("error on creating notification hides the button and shows an error", async ({
       page,
-      room,
+      roomResponse,
       stubBrowserApis,
     }) => {
       const getState = await stubBrowserApis({ throwOnConstruct: true });
@@ -342,7 +346,7 @@ test.describe("Rooms view browser notification", () => {
       await button.click();
       await expectToastAndClose(page, "rooms.notification.enabled");
 
-      room.data.last_meeting = {
+      roomResponse.data.last_meeting = {
         start: "2023-08-21T08:18:28.000000Z",
         end: null,
       };

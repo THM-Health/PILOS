@@ -1,19 +1,27 @@
-import {
-  test,
-  expect,
-} from "../support/fixtures/adminSettingsOtherStreaming.js";
+import { mergeTests } from "@playwright/test";
+import { test as streamingControllerTest } from "../support/fixtures/streamingController.js";
+import { test as roomTypeStreamingControllerTest } from "../support/fixtures/roomTypeStreamingController.js";
+import { expect } from "../support/test.js";
 import { checkSettingsFileSelectorOnlyView } from "../support/admin.js";
+
+const test = mergeTests(
+  streamingControllerTest,
+  roomTypeStreamingControllerTest,
+);
 
 test.describe("Admin streaming settings with view permission", () => {
   test.use({ authenticated: true });
 
-  test.beforeEach(async ({ config, currentUser }) => {
-    config.data.streaming.enabled = true;
-    currentUser.data.permissions = ["admin.view", "streaming.viewAny"];
+  test.beforeEach(async ({ configResponse, currentUserResponse }) => {
+    configResponse.data.streaming.enabled = true;
+    currentUserResponse.data.permissions = ["admin.view", "streaming.viewAny"];
   });
 
-  test("redirects to 404 with streaming disabled", async ({ page, config }) => {
-    config.data.streaming.enabled = false;
+  test("redirects to 404 with streaming disabled", async ({
+    page,
+    configResponse,
+  }) => {
+    configResponse.data.streaming.enabled = false;
 
     await page.goto("/admin/streaming_settings");
     await expect(page).toHaveURL(/\/404/);
@@ -53,13 +61,14 @@ test.describe("Admin streaming settings with view permission", () => {
 
   test("shows configured general settings read-only", async ({
     page,
-    streaming,
+    streamingResponse,
   }) => {
     const joinParameters =
       "userdata-bbb_hide_nav_bar=true\nuserdata-bbb_hide_notifications=true";
-    streaming.data.default_pause_image = "https://example.com/image.png";
-    streaming.data.css_file = "https://example.com/streaming.css";
-    streaming.data.join_parameters = joinParameters;
+    streamingResponse.data.default_pause_image =
+      "https://example.com/image.png";
+    streamingResponse.data.css_file = "https://example.com/streaming.css";
+    streamingResponse.data.join_parameters = joinParameters;
 
     await page.goto("/admin/streaming_settings");
     await expect(page.getByText("admin.streaming.general.title")).toBeVisible();
@@ -192,12 +201,12 @@ test.describe("Admin streaming settings with view permission", () => {
 
     test("shows changed streaming and pause image state after reload", async ({
       page,
-      streaming,
+      streamingResponse,
     }) => {
-      streaming.data.room_types[0].streaming_settings.enabled = false;
-      streaming.data.room_types[0].streaming_settings.default_pause_image =
+      streamingResponse.data.room_types[0].streaming_settings.enabled = false;
+      streamingResponse.data.room_types[0].streaming_settings.default_pause_image =
         "https://example.com/lecture-pause.jpg";
-      streaming.data.room_types[2].streaming_settings.enabled = true;
+      streamingResponse.data.room_types[2].streaming_settings.enabled = true;
 
       await page.reload();
 

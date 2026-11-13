@@ -3,16 +3,24 @@ import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
 } from "../support/general.js";
-import { holdRequest } from "../support/utils.js";
+import {
+  holdApiRequest,
+  validationErrors,
+  serverError,
+  errorResponse,
+} from "../support/utils.js";
 
 test.use({ authenticated: true });
 
-test.beforeEach(async ({ config }) => {
-  config.data.auth.local = true;
+test.beforeEach(async ({ configResponse }) => {
+  configResponse.data.auth.local = true;
 });
 
-test("redirect to 404 with local auth disabled", async ({ page, config }) => {
-  config.data.auth.local = false;
+test("redirect to 404 with local auth disabled", async ({
+  page,
+  configResponse,
+}) => {
+  configResponse.data.auth.local = false;
 
   await page.goto("/verify_email");
 
@@ -26,7 +34,7 @@ test("redirect to login if not logged in", async ({ page }) => {
 
 test.describe("verify email", () => {
   test("shows loading state and sends email and token", async ({ page }) => {
-    const release = await holdRequest(page, "**/api/v1/email/verify");
+    const release = await holdApiRequest(page, "email/verify");
     const requestPromise = page.waitForRequest("**/api/v1/email/verify");
 
     await page.goto("/verify_email?email=MaxDoe@domain.tld&token=Token123");
@@ -66,16 +74,15 @@ test.describe("verify email", () => {
 test.describe("verify email errors", () => {
   test("shows invalid message on 422 with missing props", async ({ page }) => {
     await page.route("**/api/v1/email/verify", (route) =>
-      route.fulfill({
-        status: 422,
-        json: {
-          message: "The email field is required. (and 1 more error)",
-          errors: {
+      route.fulfill(
+        validationErrors(
+          {
             email: ["The email field is required."],
             token: ["The token field is required."],
           },
-        },
-      }),
+          "The email field is required. (and 1 more error)",
+        ),
+      ),
     );
 
     await page.goto("/verify_email");
@@ -103,7 +110,7 @@ test.describe("verify email errors", () => {
 
   test("shows error message and toast on server error", async ({ page }) => {
     await page.route("**/api/v1/email/verify", (route) =>
-      route.fulfill({ status: 500, json: { message: "Test" } }),
+      route.fulfill(serverError()),
     );
 
     await page.goto("/verify_email?email=MaxDoe@domain.tld&token=Token123");
@@ -123,7 +130,7 @@ test.describe("verify email errors", () => {
     page,
   }) => {
     await page.route("**/api/v1/email/verify", (route) =>
-      route.fulfill({ status: 429, json: { message: "Too many requests" } }),
+      route.fulfill(errorResponse(429, "Too many requests")),
     );
 
     await page.goto("/verify_email?email=MaxDoe@domain.tld&token=Token123");

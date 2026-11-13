@@ -1,17 +1,19 @@
-import {
-  test,
-  expect,
-} from "../support/fixtures/adminSettingsOtherSettings.js";
+import { mergeTests } from "@playwright/test";
+import { test as settingsControllerTest } from "../support/fixtures/settingsController.js";
+import { test as timezonesTest } from "../support/fixtures/timezones.js";
+import { expect } from "../support/test.js";
 import {
   checkSettingsImageSelectorOnlyView,
   checkSettingsFileSelectorOnlyView,
 } from "../support/admin.js";
 
+const test = mergeTests(settingsControllerTest, timezonesTest);
+
 test.describe("Admin settings with view permission only", () => {
   test.use({ authenticated: true });
 
-  test.beforeEach(async ({ currentUser }) => {
-    currentUser.data.permissions = ["admin.view", "settings.viewAny"];
+  test.beforeEach(async ({ currentUserResponse }) => {
+    currentUserResponse.data.permissions = ["admin.view", "settings.viewAny"];
   });
 
   test.describe("application", () => {
@@ -114,8 +116,11 @@ test.describe("Admin settings with view permission only", () => {
       ).toBeDisabled();
     });
 
-    test("shows custom toast lifetime disabled", async ({ page, settings }) => {
-      settings.data.general_toast_lifetime = 10;
+    test("shows custom toast lifetime disabled", async ({
+      page,
+      settingsResponse,
+    }) => {
+      settingsResponse.data.general_toast_lifetime = 10;
       await page.goto("/admin/settings");
 
       const lifetime = page.getByTestId("toast-lifetime-field");
@@ -326,8 +331,8 @@ test.describe("Admin settings with view permission only", () => {
     });
 
     test.describe("with banner configured", () => {
-      test.beforeEach(async ({ page, settings }) => {
-        Object.assign(settings.data, {
+      test.beforeEach(async ({ page, settingsResponse }) => {
+        Object.assign(settingsResponse.data, {
           banner_enabled: true,
           banner_title: "Banner title",
           banner_icon: "fa-solid fa-door-open",
@@ -482,9 +487,9 @@ test.describe("Admin settings with view permission only", () => {
   });
 
   test.describe("rooms", () => {
-    test.beforeEach(({ settings }) => {
-      settings.data.room_auto_delete_inactive_period = 30;
-      settings.data.room_auto_delete_never_used_period = 730;
+    test.beforeEach(({ settingsResponse }) => {
+      settingsResponse.data.room_auto_delete_inactive_period = 30;
+      settingsResponse.data.room_auto_delete_never_used_period = 730;
     });
 
     test("shows the room settings disabled", async ({ page }) => {
@@ -582,10 +587,10 @@ test.describe("Admin settings with view permission only", () => {
 
     test("shows a custom room limit and hidden owner disabled", async ({
       page,
-      settings,
+      settingsResponse,
     }) => {
-      settings.data.room_limit = 10;
-      settings.data.room_hide_owner_from_guests = true;
+      settingsResponse.data.room_limit = 10;
+      settingsResponse.data.room_hide_owner_from_guests = true;
       await page.goto("/admin/settings");
 
       const limit = page.getByTestId("room-limit-field");
@@ -653,10 +658,10 @@ test.describe("Admin settings with view permission only", () => {
 
     test("shows the user settings turned off and disabled", async ({
       page,
-      settings,
+      settingsResponse,
     }) => {
-      settings.data.user_password_change_allowed = false;
-      settings.data.user_search_by_name = false;
+      settingsResponse.data.user_password_change_allowed = false;
+      settingsResponse.data.user_search_by_name = false;
       await page.goto("/admin/settings");
 
       const password = page.getByTestId("password-change-allowed-field");
@@ -684,9 +689,9 @@ test.describe("Admin settings with view permission only", () => {
 
   test("shows the recording and statistics settings disabled", async ({
     page,
-    settings,
+    settingsResponse,
   }) => {
-    Object.assign(settings.data, {
+    Object.assign(settingsResponse.data, {
       recording_server_usage_retention_period: 90,
       recording_meeting_usage_retention_period: 180,
       recording_attendance_retention_period: 365,
@@ -796,9 +801,9 @@ test.describe("Admin settings with view permission only", () => {
 
     test("shows configured bbb settings read-only", async ({
       page,
-      settings,
+      settingsResponse,
     }) => {
-      Object.assign(settings.data, {
+      Object.assign(settingsResponse.data, {
         bbb_logo: null,
         bbb_logo_dark: null,
         bbb_style: "/files/bbb_style.css",

@@ -1,14 +1,30 @@
+import { mergeTests } from "@playwright/test";
+import { test as userControllerTest } from "../support/fixtures/userController.js";
+import { test as roleControllerTest } from "../support/fixtures/roleController.js";
+import { test as timezonesTest } from "../support/fixtures/timezones.js";
+import { test as sessionControllerTest } from "../support/fixtures/sessionController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { test } from "../support/fixtures/adminUsersEdit.js";
 import { interceptAdminUsersIndexRequests } from "../support/mocks.js";
 import { expectLoginRedirect } from "../support/general.js";
-import { mockMethod, nthRequest } from "../support/utils.js";
+import {
+  mockApiRequest,
+  validationErrors,
+  serverError,
+  modelNotFound,
+} from "../support/utils.js";
+
+const test = mergeTests(
+  userControllerTest,
+  roleControllerTest,
+  timezonesTest,
+  sessionControllerTest,
+);
 
 test.use({ authenticated: true });
 
 test.describe("Admin users edit email", () => {
-  test.beforeEach(async ({ currentUser, config }) => {
-    currentUser.data.permissions = [
+  test.beforeEach(async ({ currentUserResponse, configResponse }) => {
+    currentUserResponse.data.permissions = [
       "admin.view",
       "users.viewAny",
       "users.view",
@@ -17,7 +33,7 @@ test.describe("Admin users edit email", () => {
       "users.delete",
       "roles.viewAny",
     ];
-    config.data.auth.local = true;
+    configResponse.data.auth.local = true;
   });
 
   test.describe("view", () => {
@@ -42,9 +58,12 @@ test.describe("Admin users edit email", () => {
       await expect(emailField.locator("#email")).toBeEnabled();
     });
 
-    test("external user cannot change the email", async ({ page, user }) => {
-      user.data.authenticator = "ldap";
-      user.data.external_id = "lwr";
+    test("external user cannot change the email", async ({
+      page,
+      userResponse,
+    }) => {
+      userResponse.data.authenticator = "ldap";
+      userResponse.data.external_id = "lwr";
 
       await page.goto("/admin/users/2/edit#tab=email");
 
@@ -72,14 +91,19 @@ test.describe("Admin users edit email", () => {
 
     test("sends the new email and redirects to the user view", async ({
       page,
-      user,
+      userResponse,
     }) => {
-      user.data.email = "laura.rivera@example.com";
-      const save = await mockMethod(page, "PUT", "**/api/v1/users/2/email", {
-        json: user,
-      });
-      const userRequest = await mockMethod(page, "GET", "**/api/v1/users/2", {
-        json: user,
+      userResponse.data.email = "laura.rivera@example.com";
+      const putUserEmailApiMock = await mockApiRequest(
+        page,
+        "PUT",
+        "users/2/email",
+        {
+          json: userResponse,
+        },
+      );
+      const getUserApiMock = await mockApiRequest(page, "GET", "users/2", {
+        json: userResponse,
       });
 
       await expect(page.getByTestId("user-tab-email-save-button")).toHaveText(
@@ -87,24 +111,31 @@ test.describe("Admin users edit email", () => {
       );
       await page.getByTestId("user-tab-email-save-button").click();
 
-      expect((await nthRequest(save)).postDataJSON()).toEqual({
-        email: "laura.rivera@example.com",
+      await expect(putUserEmailApiMock).toHaveReceivedRequest({
+        json: {
+          email: "laura.rivera@example.com",
+        },
       });
 
       await expect(page).toHaveURL(/\/admin\/users\/2#tab=email/);
       await expect(page).not.toHaveURL(/\/edit/);
-      await nthRequest(userRequest);
+      await getUserApiMock.waitForRequest();
     });
 
     test("disables tabs, header buttons and fields while saving", async ({
       page,
-      user,
+      userResponse,
     }) => {
-      user.data.email = "laura.rivera@example.com";
-      const save = await mockMethod(page, "PUT", "**/api/v1/users/2/email", {
-        json: user,
-        hold: true,
-      });
+      userResponse.data.email = "laura.rivera@example.com";
+      const putUserEmailApiMock = await mockApiRequest(
+        page,
+        "PUT",
+        "users/2/email",
+        {
+          json: userResponse,
+          hold: true,
+        },
+      );
 
       await page.getByTestId("user-tab-email-save-button").click();
 
@@ -127,7 +158,7 @@ test.describe("Admin users edit email", () => {
       await expect(page.locator("#current_password")).toHaveCount(0);
       await expect(page.locator("#email")).toBeDisabled();
 
-      save.release();
+      putUserEmailApiMock.release();
 
       await expect(page).toHaveURL(/\/admin\/users\/2#tab=email/);
       await expect(page).not.toHaveURL(/\/edit/);
@@ -143,15 +174,17 @@ test.describe("Admin users edit email", () => {
     });
 
     test("422 error shows the messages at the field", async ({ page }) => {
-      const save = await mockMethod(page, "PUT", "**/api/v1/users/2/email", {
-        status: 422,
-        json: {
-          message: "The email field is required",
-          errors: { email: ["The email field is required."] },
-        },
-      });
+      const putUserEmailApiMock = await mockApiRequest(
+        page,
+        "PUT",
+        "users/2/email",
+        validationErrors(
+          { email: ["The email field is required."] },
+          "The email field is required",
+        ),
+      );
       await page.getByTestId("user-tab-email-save-button").click();
-      await nthRequest(save);
+      await putUserEmailApiMock.waitForRequest();
 
       await expectToastAndClose(page, "The email field is required");
       await expect(page.getByTestId("email-field")).toContainText(
@@ -162,36 +195,30 @@ test.describe("Admin users edit email", () => {
     test("500 error shows a toast and hides previous field errors", async ({
       page,
     }) => {
-      const validationError = await mockMethod(
+      const putUserEmailApiMock = await mockApiRequest(
         page,
         "PUT",
-        "**/api/v1/users/2/email",
-        {
-          status: 422,
-          json: {
-            message: "The email field is required",
-            errors: { email: ["The email field is required."] },
-          },
-        },
+        "users/2/email",
+        validationErrors(
+          { email: ["The email field is required."] },
+          "The email field is required",
+        ),
       );
       await page.getByTestId("user-tab-email-save-button").click();
-      await nthRequest(validationError);
+      await putUserEmailApiMock.waitForRequest();
       await expectToastAndClose(page, "The email field is required");
       await expect(page.getByTestId("email-field")).toContainText(
         "The email field is required.",
       );
 
-      const serverError = await mockMethod(
+      const putUserEmailApiMock2 = await mockApiRequest(
         page,
         "PUT",
-        "**/api/v1/users/2/email",
-        {
-          status: 500,
-          json: { message: "Test" },
-        },
+        "users/2/email",
+        serverError(),
       );
       await page.getByTestId("user-tab-email-save-button").click();
-      await nthRequest(serverError);
+      await putUserEmailApiMock2.waitForRequest();
 
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
@@ -204,13 +231,15 @@ test.describe("Admin users edit email", () => {
 
     test("404 error redirects to users index", async ({ page }) => {
       await interceptAdminUsersIndexRequests(page);
-      const save = await mockMethod(page, "PUT", "**/api/v1/users/2/email", {
-        status: 404,
-        json: { message: "model_not_found", model: "user", ids: [2] },
-      });
+      const putUserEmailApiMock = await mockApiRequest(
+        page,
+        "PUT",
+        "users/2/email",
+        modelNotFound("user", [2]),
+      );
       const usersRequest = page.waitForRequest(/\/api\/v1\/users\?/);
       await page.getByTestId("user-tab-email-save-button").click();
-      await nthRequest(save);
+      await putUserEmailApiMock.waitForRequest();
 
       await expect(page).not.toHaveURL(/\/admin\/users\/2\/edit/);
       await expect(page).toHaveURL(/\/admin\/users/);
@@ -222,11 +251,16 @@ test.describe("Admin users edit email", () => {
     });
 
     test("401 error redirects to login", async ({ page }) => {
-      const save = await mockMethod(page, "PUT", "**/api/v1/users/2/email", {
-        status: 401,
-      });
+      const putUserEmailApiMock = await mockApiRequest(
+        page,
+        "PUT",
+        "users/2/email",
+        {
+          status: 401,
+        },
+      );
       await page.getByTestId("user-tab-email-save-button").click();
-      await nthRequest(save);
+      await putUserEmailApiMock.waitForRequest();
 
       await expectLoginRedirect(page, "/admin/users/2/edit");
     });

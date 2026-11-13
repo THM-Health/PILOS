@@ -82,9 +82,9 @@ test.describe("Footer", () => {
   ]) {
     test(`shown correctly with ${footerCase.name}`, async ({
       page,
-      config,
+      configResponse,
     }) => {
-      Object.assign(config.data.general, {
+      Object.assign(configResponse.data.general, {
         legal_notice_url: footerCase.legal,
         privacy_policy_url: footerCase.privacy,
         accessibility_statement_url: footerCase.accessibility,
@@ -145,9 +145,9 @@ test.describe("Footer", () => {
 
   test("hidden with no links, no version and whitelabel", async ({
     page,
-    config,
+    configResponse,
   }) => {
-    Object.assign(config.data.general, {
+    Object.assign(configResponse.data.general, {
       legal_notice_url: "",
       privacy_policy_url: "",
       accessibility_statement_url: "",
@@ -187,9 +187,9 @@ test.describe("Footer", () => {
         "privacy",
       ],
     ]) {
-      test(`open ${name} link`, async ({ page, config }) => {
+      test(`open ${name} link`, async ({ page, configResponse }) => {
         const url = `https://thm-health.github.io/PILOS-Redirect_Test_Pages/${path}?foo=a&bar=b`;
-        config.data.general[setting] = url;
+        configResponse.data.general[setting] = url;
 
         await page.goto("/");
         await page.getByTestId(testId).click();

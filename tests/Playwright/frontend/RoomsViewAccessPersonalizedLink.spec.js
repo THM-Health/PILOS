@@ -1,45 +1,54 @@
-import { test } from "../support/fixtures/roomsAccess.js";
+import {
+  unauthorized,
+  errorResponse,
+  validationErrors,
+  modelNotFound,
+  serverError,
+} from "../support/utils.js";
+import { mergeTests } from "@playwright/test";
+import { test as roomControllerTest } from "../support/fixtures/roomController.js";
+import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import {
   interceptRoomFilesRequest,
   interceptRoomIndexRequests,
 } from "../support/mocks.js";
 import { expectAuthToken, expectNoAuthToken } from "../support/room.js";
-import { mockMethod, nthRequest } from "../support/utils.js";
 
-test.beforeEach(async ({ page, roomAuth }) => {
+const test = mergeTests(roomControllerTest, participantNameCheckTest);
+
+test.beforeEach(async ({ page, postRoomAuthApiMock }) => {
   await interceptRoomFilesRequest(page);
-  roomAuth.json = { data: { id: "roomAuthToken", type: 1 } };
+  postRoomAuthApiMock.respondWith({
+    status: 201,
+    json: { data: { id: "roomAuthToken", type: 1 } },
+  });
 });
 
 test.describe("guest with personalized link", () => {
-  test.beforeEach(async ({ room }) => {
-    room.data.username = "Laura Rivera";
-    room.data.allow_membership = true;
-    room.data.is_member = true;
-    room.data.current_user = null;
+  test.beforeEach(async ({ roomResponse }) => {
+    roomResponse.data.username = "Laura Rivera";
+    roomResponse.data.allow_membership = true;
+    roomResponse.data.is_member = true;
+    roomResponse.data.current_user = null;
   });
 
   test("shows loading spinner until the room auth request is answered", async ({
     page,
+    postRoomAuthApiMock,
   }) => {
-    const auth = await mockMethod(
-      page,
-      "POST",
-      "**/api/v1/rooms/abc-def-123/auth*",
-      {
-        status: 201,
-        json: { data: { id: "roomAuthToken", type: 1 } },
-        hold: true,
-      },
-    );
+    postRoomAuthApiMock.respondWith({
+      status: 201,
+      json: { data: { id: "roomAuthToken", type: 1 } },
+      hold: true,
+    });
 
     await page.goto(
       "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
     await expect(page.getByTestId("room-loading-spinner")).toBeVisible();
-    auth.release();
+    postRoomAuthApiMock.release();
 
     await expect(page).toHaveTitle("Meeting One - PILOS Test");
     await expect(page.getByTestId("room-loading-spinner")).toBeHidden();
@@ -47,21 +56,23 @@ test.describe("guest with personalized link", () => {
 
   test("authenticates with the link from the hash and loads the room with the token", async ({
     page,
-    roomAuth,
-    roomRequests,
+    getRoomApiMock,
+    postRoomAuthApiMock,
   }) => {
     await page.goto(
       "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
     await expect(page).toHaveTitle("Meeting One - PILOS Test");
-    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
-      personalized_link_token:
-        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      type: 1,
+    await expect(postRoomAuthApiMock).toHaveReceivedRequest({
+      json: {
+        personalized_link_token:
+          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+        type: 1,
+      },
     });
 
-    expectAuthToken(await nthRequest(roomRequests), "1");
+    expectAuthToken(await getRoomApiMock.waitForRequest(), "1");
   });
 
   test("stores the link in the sessionStorage and removes it from the url", async ({
@@ -126,24 +137,26 @@ test.describe("guest with personalized link", () => {
 
   test("shows the room as moderator", async ({
     page,
-    room,
-    roomAuth,
-    roomRequests,
+    roomResponse,
+    getRoomApiMock,
+    postRoomAuthApiMock,
   }) => {
-    room.data.is_moderator = true;
+    roomResponse.data.is_moderator = true;
 
     await page.goto(
       "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
     await expect(page).toHaveTitle("Meeting One - PILOS Test");
-    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
-      personalized_link_token:
-        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      type: 1,
+    await expect(postRoomAuthApiMock).toHaveReceivedRequest({
+      json: {
+        personalized_link_token:
+          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+        type: 1,
+      },
     });
 
-    expectAuthToken(await nthRequest(roomRequests), "1");
+    expectAuthToken(await getRoomApiMock.waitForRequest(), "1");
     await expect
       .poll(() =>
         page.evaluate(() =>
@@ -193,21 +206,23 @@ test.describe("guest with personalized link", () => {
 
   test("authenticates with the link from the legacy route", async ({
     page,
-    roomAuth,
-    roomRequests,
+    getRoomApiMock,
+    postRoomAuthApiMock,
   }) => {
     await page.goto(
       "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
     await expect(page).toHaveTitle("Meeting One - PILOS Test");
-    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
-      personalized_link_token:
-        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      type: 1,
+    await expect(postRoomAuthApiMock).toHaveReceivedRequest({
+      json: {
+        personalized_link_token:
+          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+        type: 1,
+      },
     });
 
-    expectAuthToken(await nthRequest(roomRequests), "1");
+    expectAuthToken(await getRoomApiMock.waitForRequest(), "1");
     await expect
       .poll(() =>
         page.evaluate(() =>
@@ -265,8 +280,8 @@ test.describe("guest with personalized link", () => {
 
   test("reuses the link from the sessionStorage after a reload", async ({
     page,
-    roomAuth,
-    roomRequests,
+    getRoomApiMock,
+    postRoomAuthApiMock,
   }) => {
     await page.goto(
       "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
@@ -279,13 +294,18 @@ test.describe("guest with personalized link", () => {
 
     await page.reload();
 
-    expect((await nthRequest(roomAuth, 2)).postDataJSON()).toEqual({
-      personalized_link_token:
-        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      type: 1,
-    });
+    await expect(postRoomAuthApiMock).toHaveReceivedRequest(
+      {
+        json: {
+          personalized_link_token:
+            "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+          type: 1,
+        },
+      },
+      { nth: 2 },
+    );
 
-    expectAuthToken(await nthRequest(roomRequests, 2), "1");
+    expectAuthToken(await getRoomApiMock.waitForRequest(2), "1");
     await expect
       .poll(() =>
         page.evaluate(() =>
@@ -331,7 +351,8 @@ test.describe("guest with personalized link", () => {
 
   test("reload button with an invalid link clears the link and shows an error", async ({
     page,
-    roomAuth,
+    postRoomAuthApiMock,
+    getRoomApiMock,
   }) => {
     await page.goto(
       "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
@@ -342,17 +363,17 @@ test.describe("guest with personalized link", () => {
       page.getByText("rooms.index.room_component.never_started"),
     ).toBeVisible();
 
-    roomAuth.status = 401;
-    roomAuth.json = { message: "invalid_personalized_link" };
-    const room = await mockMethod(page, "GET", "**/api/v1/rooms/abc-def-123*", {
-      status: 401,
-      json: { message: "invalid_auth_token" },
-    });
+    const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith(
+      unauthorized("invalid_personalized_link"),
+    );
+    const getRoomRequestsAfterChange = getRoomApiMock.respondWith(
+      unauthorized("invalid_auth_token"),
+    );
 
     await page.getByTestId("reload-room-button").click();
 
-    expectAuthToken(await nthRequest(room), "1");
-    await nthRequest(roomAuth, 2);
+    expectAuthToken(await getRoomRequestsAfterChange.waitForRequest(), "1");
+    await postRoomAuthRequestsAfterChange.waitForRequest();
     await expect
       .poll(() =>
         page.evaluate(() =>
@@ -372,7 +393,8 @@ test.describe("guest with personalized link", () => {
 
   test("reload button with an invalid token clears the link and shows an error", async ({
     page,
-    roomAuth,
+    getRoomApiMock,
+    postRoomAuthApiMock,
   }) => {
     await page.goto(
       "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
@@ -393,17 +415,16 @@ test.describe("guest with personalized link", () => {
         "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
       );
 
-    const room = await mockMethod(page, "GET", "**/api/v1/rooms/abc-def-123*", {
-      status: 401,
-      json: { message: "invalid_auth_token" },
-    });
-    roomAuth.status = 401;
-    roomAuth.json = { message: "invalid_personalized_link" };
-
+    const getRoomRequestsAfterChange = getRoomApiMock.respondWith(
+      unauthorized("invalid_auth_token"),
+    );
+    const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith(
+      unauthorized("invalid_personalized_link"),
+    );
     await page.getByTestId("reload-room-button").click();
 
-    expectAuthToken(await nthRequest(room), "1");
-    await nthRequest(roomAuth, 2);
+    expectAuthToken(await getRoomRequestsAfterChange.waitForRequest(), "1");
+    await postRoomAuthRequestsAfterChange.waitForRequest();
     await expect
       .poll(() =>
         page.evaluate(() =>
@@ -423,6 +444,7 @@ test.describe("guest with personalized link", () => {
 
   test("reload button shows the guests only error if the room is no longer accessible", async ({
     page,
+    getRoomApiMock,
   }) => {
     await page.goto(
       "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
@@ -443,14 +465,13 @@ test.describe("guest with personalized link", () => {
         "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
       );
 
-    const room = await mockMethod(page, "GET", "**/api/v1/rooms/abc-def-123*", {
-      status: 420,
-      json: { message: "guests_only" },
-    });
+    const getRoomRequestsAfterChange = getRoomApiMock.respondWith(
+      errorResponse(420, "guests_only"),
+    );
 
     await page.getByTestId("reload-room-button").click();
 
-    await nthRequest(room);
+    await getRoomRequestsAfterChange.waitForRequest();
     await expectToastAndClose(page, "app.flash.guests_only");
     await expect(page).toHaveURL((url) => !url.href.includes("/rooms"));
   });
@@ -459,19 +480,22 @@ test.describe("guest with personalized link", () => {
 test.describe("room auth request errors", () => {
   test("invalid personalized link (401) clears the link and shows an error", async ({
     page,
-    roomAuth,
+    postRoomAuthApiMock,
   }) => {
-    roomAuth.status = 401;
-    roomAuth.json = { message: "invalid_personalized_link" };
+    const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith(
+      unauthorized("invalid_personalized_link"),
+    );
 
     await page.goto(
       "/rooms/abc-def-123#personalizedLink=E401evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
-    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
-      personalized_link_token:
-        "E401evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      type: 1,
+    await expect(postRoomAuthRequestsAfterChange).toHaveReceivedRequest({
+      json: {
+        personalized_link_token:
+          "E401evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+        type: 1,
+      },
     });
 
     await expect
@@ -493,24 +517,27 @@ test.describe("room auth request errors", () => {
 
   test("validation error (422) clears the link and shows an error", async ({
     page,
-    roomAuth,
+    postRoomAuthApiMock,
   }) => {
-    roomAuth.status = 422;
-    roomAuth.json = {
-      message: "The Access token field is required.",
-      errors: {
-        personalized_link_token: ["The Access token field is required."],
-      },
-    };
+    const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith(
+      validationErrors(
+        {
+          personalized_link_token: ["The Access token field is required."],
+        },
+        "The Access token field is required.",
+      ),
+    );
 
     await page.goto(
       "/rooms/abc-def-123#personalizedLink=E422evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
-    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
-      personalized_link_token:
-        "E422evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      type: 1,
+    await expect(postRoomAuthRequestsAfterChange).toHaveReceivedRequest({
+      json: {
+        personalized_link_token:
+          "E422evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+        type: 1,
+      },
     });
 
     await expect
@@ -532,19 +559,22 @@ test.describe("room auth request errors", () => {
 
   test("guests only error (420) redirects away from the room", async ({
     page,
-    roomAuth,
+    postRoomAuthApiMock,
   }) => {
-    roomAuth.status = 420;
-    roomAuth.json = { message: "guests_only" };
+    const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith(
+      errorResponse(420, "guests_only"),
+    );
 
     await page.goto(
       "/rooms/abc-def-123#personalizedLink=E420evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
-    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
-      personalized_link_token:
-        "E420evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      type: 1,
+    await expect(postRoomAuthRequestsAfterChange).toHaveReceivedRequest({
+      json: {
+        personalized_link_token:
+          "E420evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+        type: 1,
+      },
     });
 
     await expect
@@ -567,23 +597,22 @@ test.describe("room auth request errors", () => {
 
   test("room not found (404) redirects to the 404 page", async ({
     page,
-    roomAuth,
+    postRoomAuthApiMock,
   }) => {
-    roomAuth.status = 404;
-    roomAuth.json = {
-      message: "model_not_found",
-      model: "room",
-      ids: ["abc-def-123"],
-    };
+    const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith(
+      modelNotFound("room", ["abc-def-123"]),
+    );
 
     await page.goto(
       "/rooms/abc-def-123#personalizedLink=E404evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
-    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
-      personalized_link_token:
-        "E404evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      type: 1,
+    await expect(postRoomAuthRequestsAfterChange).toHaveReceivedRequest({
+      json: {
+        personalized_link_token:
+          "E404evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+        type: 1,
+      },
     });
 
     await expect(page).toHaveURL((url) => url.href.includes("/404"));
@@ -599,21 +628,22 @@ test.describe("room auth request errors", () => {
   });
 
   test.describe("server error (500)", () => {
-    test.beforeEach(async ({ page, room, roomAuth }) => {
-      room.data.username = "Laura Rivera";
-      room.data.allow_membership = true;
-      room.data.is_member = true;
-      room.data.current_user = null;
-      roomAuth.status = 500;
-      roomAuth.json = { message: "Test" };
+    test.beforeEach(async ({ page, roomResponse, postRoomAuthApiMock }) => {
+      roomResponse.data.username = "Laura Rivera";
+      roomResponse.data.allow_membership = true;
+      roomResponse.data.is_member = true;
+      roomResponse.data.current_user = null;
+      postRoomAuthApiMock.respondWith(serverError());
 
       await page.goto(
         "/rooms/abc-def-123#personalizedLink=E500evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
       );
-      expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
-        personalized_link_token:
-          "E500evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-        type: 1,
+      await expect(postRoomAuthApiMock).toHaveReceivedRequest({
+        json: {
+          personalized_link_token:
+            "E500evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+          type: 1,
+        },
       });
 
       await expect
@@ -640,7 +670,7 @@ test.describe("room auth request errors", () => {
 
     test("keeps the error after a reload and reuses the link from the sessionStorage", async ({
       page,
-      roomAuth,
+      postRoomAuthApiMock,
     }) => {
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
@@ -650,11 +680,16 @@ test.describe("room auth request errors", () => {
 
       await page.reload();
 
-      expect((await nthRequest(roomAuth, 2)).postDataJSON()).toEqual({
-        personalized_link_token:
-          "E500evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-        type: 1,
-      });
+      await expect(postRoomAuthApiMock).toHaveReceivedRequest(
+        {
+          json: {
+            personalized_link_token:
+              "E500evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+            type: 1,
+          },
+        },
+        { nth: 2 },
+      );
 
       await expect
         .poll(() =>
@@ -675,8 +710,8 @@ test.describe("room auth request errors", () => {
 
     test("reload button sends the auth request again and loads the room", async ({
       page,
-      roomAuth,
-      roomRequests,
+      getRoomApiMock,
+      postRoomAuthApiMock,
     }) => {
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
@@ -684,18 +719,22 @@ test.describe("room auth request errors", () => {
       ]);
       await expect(page.getByTestId("reload-button")).toBeVisible();
 
-      roomAuth.status = 201;
-      roomAuth.json = { data: { id: "roomAuthToken", type: 1 } };
+      const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith({
+        status: 201,
+        json: { data: { id: "roomAuthToken", type: 1 } },
+      });
 
       await page.getByTestId("reload-button").click();
 
-      expect((await nthRequest(roomAuth, 2)).postDataJSON()).toEqual({
-        personalized_link_token:
-          "E500evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-        type: 1,
+      await expect(postRoomAuthRequestsAfterChange).toHaveReceivedRequest({
+        json: {
+          personalized_link_token:
+            "E500evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+          type: 1,
+        },
       });
 
-      expectAuthToken(await nthRequest(roomRequests), "1");
+      expectAuthToken(await getRoomApiMock.waitForRequest(), "1");
       await expect
         .poll(() =>
           page.evaluate(() =>
@@ -716,51 +755,47 @@ test.describe("room auth request errors", () => {
 });
 
 test.describe("room request errors", () => {
-  test.beforeEach(async ({ room }) => {
-    room.data.username = "Laura Rivera";
-    room.data.allow_membership = true;
-    room.data.is_member = true;
-    room.data.current_user = null;
+  test.beforeEach(async ({ roomResponse }) => {
+    roomResponse.data.username = "Laura Rivera";
+    roomResponse.data.allow_membership = true;
+    roomResponse.data.is_member = true;
+    roomResponse.data.current_user = null;
   });
 
   test("invalid auth token (401) requests a new auth token, an invalid link shows an error", async ({
     page,
-    roomAuth,
+    getRoomApiMock,
+    postRoomAuthApiMock,
   }) => {
-    const room = await mockMethod(page, "GET", "**/api/v1/rooms/abc-def-123*", {
-      status: 401,
-      json: { message: "invalid_auth_token" },
-      hold: true,
-    });
+    const getRoomRequestsAfterChange = getRoomApiMock.respondWith(
+      unauthorized("invalid_auth_token", { hold: true }),
+    );
 
     await page.goto(
       "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
-    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
-      personalized_link_token:
-        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      type: 1,
+    await expect(postRoomAuthApiMock).toHaveReceivedRequest({
+      json: {
+        personalized_link_token:
+          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+        type: 1,
+      },
     });
 
     // The second auth request (after the invalid token) is held, then answered with an invalid link
-    const secondAuth = await mockMethod(
-      page,
-      "POST",
-      "**/api/v1/rooms/abc-def-123/auth*",
-      {
-        status: 401,
-        json: { message: "invalid_personalized_link" },
-        hold: true,
-      },
+    const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith(
+      unauthorized("invalid_personalized_link", { hold: true }),
     );
-    room.release();
+    getRoomApiMock.release();
 
-    expectAuthToken(await nthRequest(room), "1");
-    expect((await nthRequest(secondAuth, 1)).postDataJSON()).toEqual({
-      personalized_link_token:
-        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      type: 1,
+    expectAuthToken(await getRoomRequestsAfterChange.waitForRequest(), "1");
+    await expect(postRoomAuthRequestsAfterChange).toHaveReceivedRequest({
+      json: {
+        personalized_link_token:
+          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+        type: 1,
+      },
     });
 
     await expect
@@ -773,7 +808,7 @@ test.describe("room request errors", () => {
         "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
       );
 
-    secondAuth.release();
+    postRoomAuthApiMock.release();
 
     await expect
       .poll(() =>
@@ -794,24 +829,26 @@ test.describe("room request errors", () => {
 
   test("guests only error (420) redirects away from the room", async ({
     page,
-    roomAuth,
+    getRoomApiMock,
+    postRoomAuthApiMock,
   }) => {
-    const room = await mockMethod(page, "GET", "**/api/v1/rooms/abc-def-123*", {
-      status: 420,
-      json: { message: "guests_only" },
-    });
+    const getRoomRequestsAfterChange = getRoomApiMock.respondWith(
+      errorResponse(420, "guests_only"),
+    );
 
     await page.goto(
       "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );
 
-    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
-      personalized_link_token:
-        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      type: 1,
+    await expect(postRoomAuthApiMock).toHaveReceivedRequest({
+      json: {
+        personalized_link_token:
+          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+        type: 1,
+      },
     });
 
-    expectAuthToken(await nthRequest(room), "1");
+    expectAuthToken(await getRoomRequestsAfterChange.waitForRequest(), "1");
     await expect
       .poll(() =>
         page.evaluate(() =>
@@ -831,24 +868,22 @@ test.describe("room request errors", () => {
   });
 
   test.describe("server error (500)", () => {
-    test.beforeEach(async ({ page, roomAuth }) => {
-      const room = await mockMethod(
-        page,
-        "GET",
-        "**/api/v1/rooms/abc-def-123*",
-        { status: 500, json: { message: "Test" } },
-      );
+    test.beforeEach(async ({ page, getRoomApiMock, postRoomAuthApiMock }) => {
+      const getRoomRequestsAfterChange =
+        getRoomApiMock.respondWith(serverError());
 
       await page.goto(
         "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
       );
-      expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
-        personalized_link_token:
-          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-        type: 1,
+      await expect(postRoomAuthApiMock).toHaveReceivedRequest({
+        json: {
+          personalized_link_token:
+            "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+          type: 1,
+        },
       });
 
-      expectAuthToken(await nthRequest(room), "1");
+      expectAuthToken(await getRoomRequestsAfterChange.waitForRequest(), "1");
       await expect
         .poll(() =>
           page.evaluate(() =>
@@ -870,7 +905,9 @@ test.describe("room request errors", () => {
 
     test("reload button requests the room again with the same auth token", async ({
       page,
-      room,
+      roomResponse,
+      postRoomAuthApiMock,
+      getRoomApiMock,
     }) => {
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
@@ -878,22 +915,17 @@ test.describe("room request errors", () => {
       ]);
       await expect(page.getByTestId("reload-button")).toBeVisible();
 
-      const differentAuth = await mockMethod(
-        page,
-        "POST",
-        "**/api/v1/rooms/abc-def-123/auth*",
-        { status: 201, json: { data: { id: "differentToken", type: 1 } } },
-      );
-      const newRoom = await mockMethod(
-        page,
-        "GET",
-        "**/api/v1/rooms/abc-def-123*",
-        { json: room },
-      );
+      const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith({
+        status: 201,
+        json: { data: { id: "differentToken", type: 1 } },
+      });
+      const getRoomRequestsAfterChange = getRoomApiMock.respondWith({
+        json: roomResponse,
+      });
 
       await page.getByTestId("reload-button").click();
 
-      expectAuthToken(await nthRequest(newRoom), "1");
+      expectAuthToken(await getRoomRequestsAfterChange.waitForRequest(), "1");
       await expect
         .poll(() =>
           page.evaluate(() =>
@@ -911,7 +943,7 @@ test.describe("room request errors", () => {
       ).toBeVisible();
 
       // The auth request was not sent again
-      expect(differentAuth.requests).toHaveLength(0);
+      expect(postRoomAuthRequestsAfterChange.requests).toHaveLength(0);
     });
   });
 });
@@ -919,16 +951,16 @@ test.describe("room request errors", () => {
 test.describe("authenticated user", () => {
   test.use({ authenticated: true });
 
-  test.beforeEach(async ({ room }) => {
-    room.data.owner = { id: 2, name: "Max Doe" };
-    room.data.is_member = true;
-    room.data.is_moderator = true;
-    room.data.allow_membership = true;
+  test.beforeEach(async ({ roomResponse }) => {
+    roomResponse.data.owner = { id: 2, name: "Max Doe" };
+    roomResponse.data.is_member = true;
+    roomResponse.data.is_moderator = true;
+    roomResponse.data.allow_membership = true;
   });
 
   test("visiting with a personalized link in the hash redirects away from the room", async ({
     page,
-    roomRequests,
+    getRoomApiMock,
   }) => {
     await interceptRoomIndexRequests(page);
 
@@ -939,13 +971,13 @@ test.describe("authenticated user", () => {
     await expectToastAndClose(page, "app.flash.guests_only");
     await expect(page).toHaveURL((url) => !url.href.includes("/rooms"));
 
-    expect(roomRequests.requests).toHaveLength(0);
+    expect(getRoomApiMock.requests).toHaveLength(0);
   });
 
   test("a personalized link in the sessionStorage is ignored and cleared", async ({
     page,
-    roomAuth,
-    roomRequests,
+    getRoomApiMock,
+    postRoomAuthApiMock,
   }) => {
     await page.addInitScript(() =>
       window.sessionStorage.setItem(
@@ -957,7 +989,7 @@ test.describe("authenticated user", () => {
     await page.goto("/rooms/abc-def-123");
 
     // Room is requested without auth token
-    expectNoAuthToken(await nthRequest(roomRequests));
+    expectNoAuthToken(await getRoomApiMock.waitForRequest());
 
     await expect(page.getByText("Meeting One").first()).toBeVisible();
 
@@ -977,6 +1009,6 @@ test.describe("authenticated user", () => {
       )
       .toBe(null);
 
-    expect(roomAuth.requests).toHaveLength(0);
+    expect(postRoomAuthApiMock.requests).toHaveLength(0);
   });
 });

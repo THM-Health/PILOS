@@ -1,13 +1,21 @@
-import { test } from "../support/fixtures/adminServerPools.js";
+import { mergeTests } from "@playwright/test";
+import { test as serverPoolControllerTest } from "../support/fixtures/serverPoolController.js";
+import { test as serverControllerTest } from "../support/fixtures/serverController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import { expectLoginRedirect } from "../support/general.js";
-import { mockMethod, nthRequest } from "../support/utils.js";
+import {
+  mockApiRequest,
+  serverError,
+  modelNotFound,
+} from "../support/utils.js";
+
+const test = mergeTests(serverPoolControllerTest, serverControllerTest);
 
 test.use({ authenticated: true });
 
 test.describe("Admin server pools index server pool actions", () => {
-  test.beforeEach(async ({ page, currentUser }) => {
-    currentUser.data.permissions = [
+  test.beforeEach(async ({ page, currentUserResponse }) => {
+    currentUserResponse.data.permissions = [
       "admin.view",
       "servers.viewAny",
       "serverPools.viewAny",
@@ -40,7 +48,7 @@ test.describe("Admin server pools index server pool actions", () => {
 
     test("delete shows loading state and removes server pool", async ({
       page,
-      serverPools,
+      serverPoolsResponse,
     }) => {
       await page
         .getByTestId("server-pool-item")
@@ -51,16 +59,20 @@ test.describe("Admin server pools index server pool actions", () => {
         page.getByTestId("server-pools-delete-dialog"),
       ).toBeVisible();
 
-      const deleteRequest = await mockMethod(
+      const deleteServerPoolApiMock = await mockApiRequest(
         page,
         "DELETE",
-        "**/api/v1/serverPools/1",
+        "serverPools/1",
         { status: 204, hold: true },
       );
-      serverPools.data = serverPools.data.filter(
+      serverPoolsResponse.data = serverPoolsResponse.data.filter(
         (serverPool) => serverPool.id !== 1,
       );
-      Object.assign(serverPools.meta, { to: 1, total: 1, total_no_filter: 1 });
+      Object.assign(serverPoolsResponse.meta, {
+        to: 1,
+        total: 1,
+        total_no_filter: 1,
+      });
 
       const continueButton = page.getByTestId("dialog-continue-button");
       await expect(continueButton).toHaveText("app.yes");
@@ -73,8 +85,8 @@ test.describe("Admin server pools index server pool actions", () => {
       await expect(page.getByTestId("dialog-cancel-button")).toBeDisabled();
       await expect(continueButton).toBeDisabled();
 
-      deleteRequest.release();
-      await nthRequest(deleteRequest);
+      deleteServerPoolApiMock.release();
+      await deleteServerPoolApiMock.waitForRequest();
 
       // Check that server pool was deleted and dialog is closed
       await expect(page.getByTestId("server-pool-item")).toHaveCount(1);
@@ -86,7 +98,7 @@ test.describe("Admin server pools index server pool actions", () => {
 
     test("dialog can be opened for another server pool after deletion", async ({
       page,
-      serverPools,
+      serverPoolsResponse,
     }) => {
       await page
         .getByTestId("server-pool-item")
@@ -97,13 +109,17 @@ test.describe("Admin server pools index server pool actions", () => {
         page.getByTestId("server-pools-delete-dialog"),
       ).toBeVisible();
 
-      await mockMethod(page, "DELETE", "**/api/v1/serverPools/1", {
+      await mockApiRequest(page, "DELETE", "serverPools/1", {
         status: 204,
       });
-      serverPools.data = serverPools.data.filter(
+      serverPoolsResponse.data = serverPoolsResponse.data.filter(
         (serverPool) => serverPool.id !== 1,
       );
-      Object.assign(serverPools.meta, { to: 1, total: 1, total_no_filter: 1 });
+      Object.assign(serverPoolsResponse.meta, {
+        to: 1,
+        total: 1,
+        total_no_filter: 1,
+      });
       await page.getByTestId("dialog-continue-button").click();
 
       await expect(page.getByTestId("server-pools-delete-dialog")).toBeHidden();
@@ -143,7 +159,7 @@ test.describe("Admin server pools index server pool actions", () => {
       test("room types attached (428) shows the room types", async ({
         page,
       }) => {
-        await mockMethod(page, "DELETE", "**/api/v1/serverPools/1", {
+        await mockApiRequest(page, "DELETE", "serverPools/1", {
           status: 428,
           json: {
             error: 428,
@@ -186,7 +202,7 @@ test.describe("Admin server pools index server pool actions", () => {
       });
 
       test("dialog with room types error can be closed", async ({ page }) => {
-        await mockMethod(page, "DELETE", "**/api/v1/serverPools/1", {
+        await mockApiRequest(page, "DELETE", "serverPools/1", {
           status: 428,
           json: {
             error: 428,
@@ -229,10 +245,7 @@ test.describe("Admin server pools index server pool actions", () => {
       });
 
       test("server error (500) keeps dialog open", async ({ page }) => {
-        await mockMethod(page, "DELETE", "**/api/v1/serverPools/1", {
-          status: 500,
-          json: { message: "Test" },
-        });
+        await mockApiRequest(page, "DELETE", "serverPools/1", serverError());
 
         await page.getByTestId("dialog-continue-button").click();
 
@@ -248,20 +261,22 @@ test.describe("Admin server pools index server pool actions", () => {
 
       test("server pool not found (404) reloads server pools and closes dialog", async ({
         page,
-        serverPools,
+        serverPoolsResponse,
       }) => {
-        serverPools.data = serverPools.data.filter(
+        serverPoolsResponse.data = serverPoolsResponse.data.filter(
           (serverPool) => serverPool.id !== 1,
         );
-        Object.assign(serverPools.meta, {
+        Object.assign(serverPoolsResponse.meta, {
           to: 1,
           total: 1,
           total_no_filter: 1,
         });
-        await mockMethod(page, "DELETE", "**/api/v1/serverPools/1", {
-          status: 404,
-          json: { message: "model_not_found", model: "server_pool", ids: [1] },
-        });
+        await mockApiRequest(
+          page,
+          "DELETE",
+          "serverPools/1",
+          modelNotFound("server_pool", [1]),
+        );
 
         await page.getByTestId("dialog-continue-button").click();
 
@@ -280,7 +295,7 @@ test.describe("Admin server pools index server pool actions", () => {
       });
 
       test("unauthenticated (401) redirects to login", async ({ page }) => {
-        await mockMethod(page, "DELETE", "**/api/v1/serverPools/1", {
+        await mockApiRequest(page, "DELETE", "serverPools/1", {
           status: 401,
         });
 

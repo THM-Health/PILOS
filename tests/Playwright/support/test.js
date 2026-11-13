@@ -1,12 +1,16 @@
-import { test as base, expect } from "@playwright/test";
+import { test as base, expect as baseExpect } from "@playwright/test";
 import { coverageFixture } from "./coverage.js";
+import { matchers } from "./matchers.js";
 import { readFixture } from "./utils.js";
+
+/** `expect` of Playwright with the matchers for mock handles, see `matchers.js`. */
+export const expect = baseExpect.extend(matchers);
 
 /**
  * Shared `test` object for the frontend and visual suites (API is mocked, the Cypress fixtures are reused).
  *
  * Fixtures:
- * - `config`, `currentUser`: mutable copies of the default responses, served for the whole test.
+ * - `configResponse`, `currentUserResponse`: mutable copies of the default responses, served for the whole test.
  *   Change them before `page.goto()` / `page.reload()` to change what the app receives.
  * - `authenticated` (option): `test.use({ authenticated: true })` mocks a logged in user (replaces `cy.init()`),
  *   otherwise the current user request returns an empty user (guest).
@@ -21,18 +25,25 @@ export const test = base.extend({
   coverage: coverageFixture,
   authenticated: [false, { option: true }],
   mockLocale: [true, { option: true }],
-  config: async ({ baseURL }, use) => {
-    const config = readFixture("config.json");
-    config.data.general.base_url = baseURL;
-    await use(config);
+  configResponse: async ({ baseURL }, use) => {
+    const configResponse = readFixture("config.json");
+    configResponse.data.general.base_url = baseURL;
+    await use(configResponse);
   },
-  currentUser: async ({}, use) => {
+  currentUserResponse: async ({}, use) => {
     await use(readFixture("currentUser.json"));
   },
 
   mockApp: [
     async (
-      { page, config, currentUser, authenticated, mockLocale, baseURL },
+      {
+        page,
+        configResponse,
+        currentUserResponse,
+        authenticated,
+        mockLocale,
+        baseURL,
+      },
       use,
     ) => {
       // The frontend suite never talks to the real backend. Routes registered later take precedence, so this is the
@@ -54,7 +65,7 @@ export const test = base.extend({
       );
 
       await page.route("**/api/v1/config", (route) =>
-        route.fulfill({ json: config }),
+        route.fulfill({ json: configResponse }),
       );
       if (mockLocale) {
         await page.route("**/api/v1/locale/en", (route) =>
@@ -63,7 +74,7 @@ export const test = base.extend({
       }
       await page.route("**/api/v1/currentUser", (route) =>
         authenticated
-          ? route.fulfill({ json: currentUser })
+          ? route.fulfill({ json: currentUserResponse })
           : route.fulfill({ json: { data: [] } }),
       );
 
@@ -86,8 +97,6 @@ export const test = base.extend({
     { auto: true },
   ],
 });
-
-export { expect };
 
 /**
  * Check a toast that contains all given texts, then close it (open toasts fail the final state check).

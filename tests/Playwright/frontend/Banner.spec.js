@@ -5,8 +5,8 @@ test.describe("Banner", () => {
   test.use({ authenticated: true });
 
   test.describe("enabled", () => {
-    test.beforeEach(async ({ config }) => {
-      Object.assign(config.data.banner, {
+    test.beforeEach(async ({ configResponse }) => {
+      Object.assign(configResponse.data.banner, {
         enabled: true,
         title: "Banner title",
         icon: "fa-solid fa-door-open",
@@ -60,11 +60,14 @@ test.describe("Banner", () => {
       await expect(link).toHaveCSS("color", "rgb(255, 255, 255)");
     });
 
-    test("updates after the settings changed", async ({ page, config }) => {
+    test("updates after the settings changed", async ({
+      page,
+      configResponse,
+    }) => {
       await page.goto("/");
       await expect(page.getByTestId("app-banner")).toBeVisible();
 
-      Object.assign(config.data.banner, {
+      Object.assign(configResponse.data.banner, {
         title: "New banner title",
         message: "Banner message",
         color: "#000000",
@@ -85,9 +88,12 @@ test.describe("Banner", () => {
       );
     });
 
-    test("hides icon and link if not configured", async ({ page, config }) => {
-      config.data.banner.icon = null;
-      config.data.banner.link = null;
+    test("hides icon and link if not configured", async ({
+      page,
+      configResponse,
+    }) => {
+      configResponse.data.banner.icon = null;
+      configResponse.data.banner.link = null;
 
       await page.goto("/");
 
@@ -99,10 +105,10 @@ test.describe("Banner", () => {
 
   test("check banner link works correctly", async ({
     page,
-    config,
+    configResponse,
     baseURL,
   }) => {
-    Object.assign(config.data.banner, {
+    Object.assign(configResponse.data.banner, {
       enabled: true,
       title: "Banner title",
       link: baseURL + "/rooms",
@@ -138,9 +144,9 @@ test.describe("Banner", () => {
     await expect(link).toHaveText("Room link");
   });
 
-  test("check banner hidden if disabled", async ({ page, config }) => {
-    config.data.banner.enabled = false;
-    config.data.banner.title = "Banner title";
+  test("check banner hidden if disabled", async ({ page, configResponse }) => {
+    configResponse.data.banner.enabled = false;
+    configResponse.data.banner.title = "Banner title";
 
     await page.goto("/");
 

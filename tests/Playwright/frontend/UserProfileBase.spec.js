@@ -1,13 +1,25 @@
-import { test } from "../support/fixtures/userProfile.js";
+import { mergeTests } from "@playwright/test";
+import { test as userProfileTest } from "../support/fixtures/userProfile.js";
+import { test as userControllerTest } from "../support/fixtures/userController.js";
+import { test as timezonesTest } from "../support/fixtures/timezones.js";
+import { test as sessionControllerTest } from "../support/fixtures/sessionController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import { expectLoginRedirect } from "../support/general.js";
 import {
-  mockMethod,
-  nthRequest,
-  parseFormData,
+  mockApiRequest,
+  getRequestFormData,
   expectImageToMatchScreenshot,
   IMAGE_SNAPSHOT_OPTIONS,
+  validationErrors,
+  serverError,
 } from "../support/utils.js";
+
+const test = mergeTests(
+  userProfileTest,
+  userControllerTest,
+  timezonesTest,
+  sessionControllerTest,
+);
 
 test.use({ authenticated: true });
 
@@ -387,45 +399,52 @@ test.describe("User profile base", () => {
 
   test.describe("save changes", () => {
     let savedUser;
-    let currentUserMock;
+    let getCurrentUserApiMock;
 
-    test.beforeEach(async ({ page, baseURL, profileUser, currentUser }) => {
-      savedUser = structuredClone(profileUser);
-      savedUser.data.firstname = "Laura";
-      savedUser.data.lastname = "Rivera";
-      savedUser.data.user_locale = "de";
-      savedUser.data.timezone = "Europe/Berlin";
-      savedUser.data.image = baseURL + "/test.jpg";
-      savedUser.data.updated_at = "2024-09-13T14:22:26.000000Z";
+    test.beforeEach(
+      async ({ page, baseURL, profileUserResponse, currentUserResponse }) => {
+        savedUser = structuredClone(profileUserResponse);
+        savedUser.data.firstname = "Laura";
+        savedUser.data.lastname = "Rivera";
+        savedUser.data.user_locale = "de";
+        savedUser.data.timezone = "Europe/Berlin";
+        savedUser.data.image = baseURL + "/test.jpg";
+        savedUser.data.updated_at = "2024-09-13T14:22:26.000000Z";
 
-      const updatedCurrentUser = structuredClone(currentUser);
-      updatedCurrentUser.data.firstname = "Laura";
-      updatedCurrentUser.data.lastname = "Rivera";
-      updatedCurrentUser.data.user_locale = "de";
-      currentUserMock = await mockMethod(page, "GET", "**/api/v1/currentUser", {
-        json: updatedCurrentUser,
-      });
+        const updatedCurrentUser = structuredClone(currentUserResponse);
+        updatedCurrentUser.data.firstname = "Laura";
+        updatedCurrentUser.data.lastname = "Rivera";
+        updatedCurrentUser.data.user_locale = "de";
+        getCurrentUserApiMock = await mockApiRequest(
+          page,
+          "GET",
+          "currentUser",
+          {
+            json: updatedCurrentUser,
+          },
+        );
 
-      await page.goto("/profile");
-      await expect(page.locator("#firstname")).toHaveValue("John");
+        await page.goto("/profile");
+        await expect(page.locator("#firstname")).toHaveValue("John");
 
-      await page.locator("#firstname").fill("Laura");
-      await page.locator("#lastname").fill("Rivera");
+        await page.locator("#firstname").fill("Laura");
+        await page.locator("#lastname").fill("Rivera");
 
-      await page.getByTestId("locale-dropdown").click();
-      await page.getByTestId("locale-dropdown-option").nth(0).click();
-      await page.getByTestId("timezone-dropdown").click();
-      await page.getByTestId("timezone-dropdown-option").nth(2).click();
+        await page.getByTestId("locale-dropdown").click();
+        await page.getByTestId("locale-dropdown-option").nth(0).click();
+        await page.getByTestId("timezone-dropdown").click();
+        await page.getByTestId("timezone-dropdown-option").nth(2).click();
 
-      await page
-        .getByTestId("upload-file-input")
-        .setInputFiles("tests/Playwright/fixtures/files/profileImage.jpg");
-      await page.getByTestId("dialog-save-button").click();
-      await expect(page.getByTestId("crop-image-dialog")).toHaveCount(0);
-    });
+        await page
+          .getByTestId("upload-file-input")
+          .setInputFiles("tests/Playwright/fixtures/files/profileImage.jpg");
+        await page.getByTestId("dialog-save-button").click();
+        await expect(page.getByTestId("crop-image-dialog")).toHaveCount(0);
+      },
+    );
 
     test("loading state while saving", async ({ page }) => {
-      const save = await mockMethod(page, "POST", "**/api/v1/users/1", {
+      const postUserApiMock = await mockApiRequest(page, "POST", "users/1", {
         json: savedUser,
         hold: true,
       });
@@ -433,7 +452,7 @@ test.describe("User profile base", () => {
       const saveButton = page.getByTestId("user-tab-profile-save-button");
       await expect(saveButton).toHaveText("app.save");
       await saveButton.click();
-      await nthRequest(save);
+      await postUserApiMock.waitForRequest();
 
       await expect(page.locator("#firstname")).toBeDisabled();
       await expect(page.locator("#lastname")).toBeDisabled();
@@ -451,26 +470,30 @@ test.describe("User profile base", () => {
 
       await expect(saveButton).toBeDisabled();
 
-      save.release();
+      postUserApiMock.release();
       await expect(page.locator("#firstname")).toBeEnabled();
     });
 
     test("sends the changes", async ({ page }) => {
-      const save = await mockMethod(page, "POST", "**/api/v1/users/1", {
+      const postUserApiMock = await mockApiRequest(page, "POST", "users/1", {
         json: savedUser,
       });
 
       await page.getByTestId("user-tab-profile-save-button").click();
 
-      const formData = await parseFormData(await nthRequest(save));
-      expect(formData.get("user_locale")).toEqual("de");
-      expect(formData.get("timezone")).toEqual("Europe/Berlin");
-      expect(formData.get("firstname")).toEqual("Laura");
-      expect(formData.get("lastname")).toEqual("Rivera");
-      expect(formData.get("_method")).toEqual("PUT");
-      expect(formData.get("updated_at")).toEqual("2024-09-13T14:20:26.000000Z");
+      const requestFormData = await getRequestFormData(
+        await postUserApiMock.waitForRequest(),
+      );
+      expect(requestFormData.get("user_locale")).toEqual("de");
+      expect(requestFormData.get("timezone")).toEqual("Europe/Berlin");
+      expect(requestFormData.get("firstname")).toEqual("Laura");
+      expect(requestFormData.get("lastname")).toEqual("Rivera");
+      expect(requestFormData.get("_method")).toEqual("PUT");
+      expect(requestFormData.get("updated_at")).toEqual(
+        "2024-09-13T14:20:26.000000Z",
+      );
 
-      const uploadedFile = formData.get("image");
+      const uploadedFile = requestFormData.get("image");
       expect(uploadedFile.name).toEqual("image.jpg");
       expect(uploadedFile.type).toEqual("image/jpeg");
       expect(Buffer.from(await uploadedFile.arrayBuffer())).toMatchSnapshot(
@@ -480,13 +503,13 @@ test.describe("User profile base", () => {
     });
 
     test("shows the saved changes", async ({ page, baseURL }) => {
-      const save = await mockMethod(page, "POST", "**/api/v1/users/1", {
+      const postUserApiMock = await mockApiRequest(page, "POST", "users/1", {
         json: savedUser,
       });
 
       await page.getByTestId("user-tab-profile-save-button").click();
-      await nthRequest(save);
-      await nthRequest(currentUserMock, 2);
+      await postUserApiMock.waitForRequest();
+      await getCurrentUserApiMock.waitForRequest(2);
 
       await expect(page.locator("#firstname")).toHaveValue("Laura");
       await expect(page.locator("#firstname")).toBeEnabled();
@@ -526,9 +549,9 @@ test.describe("User profile base", () => {
   });
 
   test.describe("existing profile image", () => {
-    test.beforeEach(async ({ page, baseURL, profileUser }) => {
-      profileUser.data.image = baseURL + "/test.jpg";
-      profileUser.data.updated_at = "2024-09-13T14:22:26.000000Z";
+    test.beforeEach(async ({ page, baseURL, profileUserResponse }) => {
+      profileUserResponse.data.image = baseURL + "/test.jpg";
+      profileUserResponse.data.updated_at = "2024-09-13T14:22:26.000000Z";
 
       await page.goto("/profile");
       await expect(page.getByTestId("profile-image-preview")).toBeVisible();
@@ -566,34 +589,40 @@ test.describe("User profile base", () => {
 
     test("save after deleting the profile image", async ({
       page,
-      profileUser,
-      currentUser,
+      profileUserResponse,
+      currentUserResponse,
     }) => {
-      const savedUser = structuredClone(profileUser);
+      const savedUser = structuredClone(profileUserResponse);
       savedUser.data.image = null;
       savedUser.data.updated_at = "2024-09-13T14:24:26.000000Z";
-      const save = await mockMethod(page, "POST", "**/api/v1/users/1", {
+      const postUserApiMock = await mockApiRequest(page, "POST", "users/1", {
         json: savedUser,
       });
-      const currentUserMock = await mockMethod(
+      const getCurrentUserApiMock = await mockApiRequest(
         page,
         "GET",
-        "**/api/v1/currentUser",
-        { json: currentUser },
+        "currentUser",
+        {
+          json: currentUserResponse,
+        },
       );
 
       await page.getByTestId("delete-image-button").click();
       await page.getByTestId("user-tab-profile-save-button").click();
 
-      const formData = await parseFormData(await nthRequest(save));
-      expect(formData.get("user_locale")).toEqual("en");
-      expect(formData.get("timezone")).toEqual("UTC");
-      expect(formData.get("firstname")).toEqual("John");
-      expect(formData.get("lastname")).toEqual("Doe");
-      expect(formData.get("_method")).toEqual("PUT");
-      expect(formData.get("updated_at")).toEqual("2024-09-13T14:22:26.000000Z");
-      expect(formData.get("image")).toEqual("");
-      await nthRequest(currentUserMock);
+      const requestFormData = await getRequestFormData(
+        await postUserApiMock.waitForRequest(),
+      );
+      expect(requestFormData.get("user_locale")).toEqual("en");
+      expect(requestFormData.get("timezone")).toEqual("UTC");
+      expect(requestFormData.get("firstname")).toEqual("John");
+      expect(requestFormData.get("lastname")).toEqual("Doe");
+      expect(requestFormData.get("_method")).toEqual("PUT");
+      expect(requestFormData.get("updated_at")).toEqual(
+        "2024-09-13T14:22:26.000000Z",
+      );
+      expect(requestFormData.get("image")).toEqual("");
+      await getCurrentUserApiMock.waitForRequest();
 
       await expect(page.getByTestId("delete-image-button")).toHaveCount(0);
       await expect(page.getByTestId("profile-image-preview")).toHaveCount(0);
@@ -610,21 +639,23 @@ test.describe("User profile base", () => {
     });
 
     test("422 validation errors", async ({ page }) => {
-      const save = await mockMethod(page, "POST", "**/api/v1/users/1", {
-        status: 422,
-        json: {
-          message: "The firstname field is required. (and 3 more errors)",
-          errors: {
+      const postUserApiMock = await mockApiRequest(
+        page,
+        "POST",
+        "users/1",
+        validationErrors(
+          {
             firstname: ["The firstname field is required."],
             lastname: ["The lastname field is required."],
             user_locale: ["The user locale field is required."],
             timezone: ["The timezone field is required."],
           },
-        },
-      });
+          "The firstname field is required. (and 3 more errors)",
+        ),
+      );
 
       await page.getByTestId("user-tab-profile-save-button").click();
-      await nthRequest(save);
+      await postUserApiMock.waitForRequest();
 
       await expectToastAndClose(
         page,
@@ -646,13 +677,15 @@ test.describe("User profile base", () => {
     });
 
     test("500 error", async ({ page }) => {
-      const save = await mockMethod(page, "POST", "**/api/v1/users/1", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      const postUserApiMock = await mockApiRequest(
+        page,
+        "POST",
+        "users/1",
+        serverError(),
+      );
 
       await page.getByTestId("user-tab-profile-save-button").click();
-      await nthRequest(save);
+      await postUserApiMock.waitForRequest();
 
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
@@ -661,21 +694,23 @@ test.describe("User profile base", () => {
     });
 
     test("500 error hides previous validation errors", async ({ page }) => {
-      const validation = await mockMethod(page, "POST", "**/api/v1/users/1", {
-        status: 422,
-        json: {
-          message: "The firstname field is required. (and 3 more errors)",
-          errors: {
+      const postUserApiMock = await mockApiRequest(
+        page,
+        "POST",
+        "users/1",
+        validationErrors(
+          {
             firstname: ["The firstname field is required."],
             lastname: ["The lastname field is required."],
             user_locale: ["The user locale field is required."],
             timezone: ["The timezone field is required."],
           },
-        },
-      });
+          "The firstname field is required. (and 3 more errors)",
+        ),
+      );
 
       await page.getByTestId("user-tab-profile-save-button").click();
-      await nthRequest(validation);
+      await postUserApiMock.waitForRequest();
       await expectToastAndClose(
         page,
         "The firstname field is required. (and 3 more errors)",
@@ -684,12 +719,14 @@ test.describe("User profile base", () => {
         "The firstname field is required.",
       );
 
-      const failing = await mockMethod(page, "POST", "**/api/v1/users/1", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      const postUserApiMock2 = await mockApiRequest(
+        page,
+        "POST",
+        "users/1",
+        serverError(),
+      );
       await page.getByTestId("user-tab-profile-save-button").click();
-      await nthRequest(failing);
+      await postUserApiMock2.waitForRequest();
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
         'app.flash.server_error.error_code_{"statusCode":500}',
@@ -710,21 +747,21 @@ test.describe("User profile base", () => {
     });
 
     test.describe("428 stale error", () => {
-      test.beforeEach(async ({ page, profileUser }) => {
-        const newModel = structuredClone(profileUser.data);
+      test.beforeEach(async ({ page, profileUserResponse }) => {
+        const newModel = structuredClone(profileUserResponse.data);
         newModel.firstname = "Laura";
         newModel.lastname = "Rivera";
         newModel.user_locale = "de";
         newModel.timezone = "Europe/Berlin";
 
-        const save = await mockMethod(page, "POST", "**/api/v1/users/1", {
+        const postUserApiMock = await mockApiRequest(page, "POST", "users/1", {
           status: 428,
           json: { message: "stale_model", new_model: newModel },
         });
 
         await expect(page.getByTestId("stale-user-dialog")).toHaveCount(0);
         await page.getByTestId("user-tab-profile-save-button").click();
-        await nthRequest(save);
+        await postUserApiMock.waitForRequest();
       });
 
       test("shows the stale dialog", async ({ page }) => {
@@ -759,12 +796,12 @@ test.describe("User profile base", () => {
     });
 
     test("401 error redirects to login", async ({ page }) => {
-      const save = await mockMethod(page, "POST", "**/api/v1/users/1", {
+      const postUserApiMock = await mockApiRequest(page, "POST", "users/1", {
         status: 401,
       });
 
       await page.getByTestId("user-tab-profile-save-button").click();
-      await nthRequest(save);
+      await postUserApiMock.waitForRequest();
 
       await expectLoginRedirect(page, "/profile");
     });
@@ -772,9 +809,9 @@ test.describe("User profile base", () => {
 
   test("view without users.updateOwnAttributes permission", async ({
     page,
-    currentUser,
+    currentUserResponse,
   }) => {
-    currentUser.data.permissions = [];
+    currentUserResponse.data.permissions = [];
 
     await page.goto("/profile");
 
@@ -811,9 +848,9 @@ test.describe("User profile base", () => {
     );
   });
 
-  test("view as external user", async ({ page, profileUser }) => {
-    profileUser.data.authenticator = "ldap";
-    profileUser.data.external_id = "jdo";
+  test("view as external user", async ({ page, profileUserResponse }) => {
+    profileUserResponse.data.authenticator = "ldap";
+    profileUserResponse.data.external_id = "jdo";
 
     await page.goto("/profile");
 
@@ -857,15 +894,11 @@ test.describe("User profile base", () => {
 
   test.describe("load timezones error", () => {
     test("loading state", async ({ page }) => {
-      const timezones = await mockMethod(
+      const getTimezonesApiMock = await mockApiRequest(
         page,
         "GET",
-        "**/api/v1/getTimezones",
-        {
-          status: 500,
-          json: { message: "Test" },
-          hold: true,
-        },
+        "getTimezones",
+        serverError({ hold: true }),
       );
 
       await page.goto("/profile");
@@ -878,7 +911,7 @@ test.describe("User profile base", () => {
         page.getByTestId("timezone-dropdown").locator(".p-select-label"),
       ).toHaveAttribute("aria-disabled", "true");
 
-      timezones.release();
+      getTimezonesApiMock.release();
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
         'app.flash.server_error.error_code_{"statusCode":500}',
@@ -888,10 +921,7 @@ test.describe("User profile base", () => {
     test("error shows a reload button and keeps the dropdown disabled", async ({
       page,
     }) => {
-      await mockMethod(page, "GET", "**/api/v1/getTimezones", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "GET", "getTimezones", serverError());
 
       await page.goto("/profile");
       await expectToastAndClose(page, [
@@ -908,11 +938,11 @@ test.describe("User profile base", () => {
       );
     });
 
-    test("reload timezones without error", async ({ page, timezones }) => {
-      await mockMethod(page, "GET", "**/api/v1/getTimezones", {
-        status: 500,
-        json: { message: "Test" },
-      });
+    test("reload timezones without error", async ({
+      page,
+      timezonesResponse,
+    }) => {
+      await mockApiRequest(page, "GET", "getTimezones", serverError());
 
       await page.goto("/profile");
       await expectToastAndClose(page, [
@@ -920,11 +950,16 @@ test.describe("User profile base", () => {
         'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
 
-      const reload = await mockMethod(page, "GET", "**/api/v1/getTimezones", {
-        json: timezones,
-      });
+      const getTimezonesApiMock = await mockApiRequest(
+        page,
+        "GET",
+        "getTimezones",
+        {
+          json: timezonesResponse,
+        },
+      );
       await page.getByTestId("timezone-reload-button").click();
-      await nthRequest(reload);
+      await getTimezonesApiMock.waitForRequest();
 
       const timezone = page.getByTestId("timezone-dropdown");
       await expect(timezone).toHaveText("UTC");
@@ -945,17 +980,17 @@ test.describe("User profile base", () => {
     });
 
     test("401 error redirects to login", async ({ page }) => {
-      const timezones = await mockMethod(
+      const getTimezonesApiMock = await mockApiRequest(
         page,
         "GET",
-        "**/api/v1/getTimezones",
+        "getTimezones",
         {
           status: 401,
         },
       );
 
       await page.goto("/profile");
-      await nthRequest(timezones);
+      await getTimezonesApiMock.waitForRequest();
 
       await expectLoginRedirect(page, "/profile");
     });

@@ -1,24 +1,32 @@
+import { mergeTests } from "@playwright/test";
+import { test as roomControllerTest } from "../support/fixtures/roomController.js";
+import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { test } from "../support/fixtures/roomsIndexMeetingsRooms.js";
 import { interceptRoomViewRequests } from "../support/mocks.js";
 import { expectLoginRedirect } from "../support/general.js";
 import { checkDefaultRoomSettingField } from "../support/room.js";
 import {
-  mockMethod,
-  nthRequest,
-  queryOf,
+  mockApiRequest,
+  getRequestQuery,
   readFixture,
+  validationErrors,
+  serverError,
 } from "../support/utils.js";
+
+const test = mergeTests(roomControllerTest, roomTypeControllerTest);
 
 test.use({ authenticated: true });
 
 test.describe("Rooms index create new room", () => {
-  test.beforeEach(async ({ currentUser }) => {
-    currentUser.data.permissions = ["rooms.create"];
+  test.beforeEach(async ({ currentUserResponse }) => {
+    currentUserResponse.data.permissions = ["rooms.create"];
   });
 
-  test("button to create new room hidden", async ({ page, currentUser }) => {
-    currentUser.data.permissions = [];
+  test("button to create new room hidden", async ({
+    page,
+    currentUserResponse,
+  }) => {
+    currentUserResponse.data.permissions = [];
 
     await page.goto("/rooms");
 
@@ -44,14 +52,19 @@ test.describe("Rooms index create new room", () => {
       await expect(page.getByText("rooms.room_limit")).toHaveCount(0);
     });
 
-    test("open dialog and load room types", async ({ page, roomTypes }) => {
-      roomTypes.withSettings();
-      const loadedBefore = roomTypes.requests.length;
+    test("open dialog and load room types", async ({
+      page,
+      getRoomTypesApiMock,
+    }) => {
+      getRoomTypesApiMock.respondWithSettings();
+      const loadedBefore = getRoomTypesApiMock.requests.length;
 
       await page.getByTestId("room-create-button").click();
 
-      const request = await nthRequest(roomTypes, loadedBefore + 1);
-      expect(queryOf(request)).toEqual({
+      const request = await getRoomTypesApiMock.waitForRequest(
+        loadedBefore + 1,
+      );
+      expect(getRequestQuery(request)).toEqual({
         with_room_settings: "1",
         with_features: "1",
         filter: "own",
@@ -99,8 +112,8 @@ test.describe("Rooms index create new room", () => {
   });
 
   test.describe("room type details", () => {
-    test.beforeEach(async ({ page, roomTypes }) => {
-      roomTypes.withSettings();
+    test.beforeEach(async ({ page, getRoomTypesApiMock }) => {
+      getRoomTypesApiMock.respondWithSettings();
       await page.goto("/rooms");
       await expect(page.getByTestId("room-card")).toHaveCount(3);
       await page.getByTestId("room-create-button").click();
@@ -273,14 +286,14 @@ test.describe("Rooms index create new room", () => {
   });
 
   test.describe("room type features", () => {
-    test.beforeEach(async ({ roomTypes }) => {
-      roomTypes.withSettings();
-      roomTypes.json.data[0].features.streaming.enabled = true;
+    test.beforeEach(async ({ getRoomTypesApiMock }) => {
+      getRoomTypesApiMock.respondWithSettings();
+      getRoomTypesApiMock.json.data[0].features.streaming.enabled = true;
     });
 
-    test("features enabled", async ({ page, config }) => {
-      config.data.streaming.enabled = true;
-      config.data.general.hide_disabled_features = true;
+    test("features enabled", async ({ page, configResponse }) => {
+      configResponse.data.streaming.enabled = true;
+      configResponse.data.general.hide_disabled_features = true;
 
       await page.goto("/rooms");
       await expect(page.getByTestId("room-card")).toHaveCount(3);
@@ -307,9 +320,9 @@ test.describe("Rooms index create new room", () => {
       ).toHaveClass(/p-tag-secondary/);
     });
 
-    test("features hidden if disabled", async ({ page, config }) => {
-      config.data.streaming.enabled = false;
-      config.data.general.hide_disabled_features = true;
+    test("features hidden if disabled", async ({ page, configResponse }) => {
+      configResponse.data.streaming.enabled = false;
+      configResponse.data.general.hide_disabled_features = true;
 
       await page.goto("/rooms");
       await expect(page.getByTestId("room-card")).toHaveCount(3);
@@ -322,9 +335,12 @@ test.describe("Rooms index create new room", () => {
       await expect(dialog.getByTestId("room-type-features")).toHaveCount(0);
     });
 
-    test("disabled features shown if configured", async ({ page, config }) => {
-      config.data.streaming.enabled = false;
-      config.data.general.hide_disabled_features = false;
+    test("disabled features shown if configured", async ({
+      page,
+      configResponse,
+    }) => {
+      configResponse.data.streaming.enabled = false;
+      configResponse.data.general.hide_disabled_features = false;
 
       await page.goto("/rooms");
       await expect(page.getByTestId("room-card")).toHaveCount(3);
@@ -344,8 +360,8 @@ test.describe("Rooms index create new room", () => {
   });
 
   test.describe("create room", () => {
-    test.beforeEach(async ({ page, roomTypes }) => {
-      roomTypes.withSettings();
+    test.beforeEach(async ({ page, getRoomTypesApiMock }) => {
+      getRoomTypesApiMock.respondWithSettings();
       await page.goto("/rooms");
       await expect(page.getByTestId("room-card")).toHaveCount(3);
       await page.getByTestId("room-create-button").click();
@@ -355,7 +371,7 @@ test.describe("Rooms index create new room", () => {
       page,
     }) => {
       await interceptRoomViewRequests(page);
-      const createRoom = await mockMethod(page, "POST", "**/api/v1/rooms", {
+      const postRoomsApiMock = await mockApiRequest(page, "POST", "rooms", {
         status: 201,
         json: {
           data: {
@@ -380,9 +396,9 @@ test.describe("Rooms index create new room", () => {
       );
       await expect(dialog.getByTestId("dialog-save-button")).toBeDisabled();
 
-      createRoom.release();
+      postRoomsApiMock.release();
 
-      const request = await nthRequest(createRoom);
+      const request = await postRoomsApiMock.waitForRequest();
       expect(request.postDataJSON()).toEqual({
         name: "New Room",
         room_type: 2,
@@ -395,13 +411,13 @@ test.describe("Rooms index create new room", () => {
 
     test("422 errors are shown and replaced, room types are not reloaded", async ({
       page,
-      roomTypes,
+      getRoomTypesApiMock,
     }) => {
-      roomTypes.json = readFixture("roomTypes.json");
-      const invalidType = structuredClone(roomTypes.json.data[0]);
+      getRoomTypesApiMock.json = readFixture("roomTypes.json");
+      const invalidType = structuredClone(getRoomTypesApiMock.json.data[0]);
       invalidType.id = 999;
       invalidType.name = "Invalid Type";
-      roomTypes.json.data.unshift(invalidType);
+      getRoomTypesApiMock.json.data.unshift(invalidType);
       // Reload the page so that the dialog requests the room types with the invalid type
       await page.reload();
       await expect(page.getByTestId("room-card")).toHaveCount(3);
@@ -410,37 +426,41 @@ test.describe("Rooms index create new room", () => {
       await expect(dialog.getByTestId("room-type-select-option")).toHaveCount(
         5,
       );
-      const roomTypesCount = roomTypes.requests.length;
+      const roomTypesCount = getRoomTypesApiMock.requests.length;
 
       // Create new room without room type
-      await mockMethod(page, "POST", "**/api/v1/rooms", {
-        status: 422,
-        json: {
-          message: "The Room type field is required.",
-          errors: { room_type: ["The Room type field is required."] },
-        },
-      });
+      await mockApiRequest(
+        page,
+        "POST",
+        "rooms",
+        validationErrors(
+          { room_type: ["The Room type field is required."] },
+          "The Room type field is required.",
+        ),
+      );
       await dialog.locator("#room-name").fill("New Room");
       await dialog.getByTestId("dialog-save-button").click();
 
       await expect(dialog).toContainText("The Room type field is required.");
       // Room types are not reloaded on form errors
-      expect(roomTypes.requests).toHaveLength(roomTypesCount);
+      expect(getRoomTypesApiMock.requests).toHaveLength(roomTypesCount);
 
       // Create new room with invalid room type
-      await mockMethod(page, "POST", "**/api/v1/rooms", {
-        status: 422,
-        json: {
-          message: "The selected Room type is invalid.",
-          errors: { room_type: ["The selected Room type is invalid."] },
-        },
-      });
+      await mockApiRequest(
+        page,
+        "POST",
+        "rooms",
+        validationErrors(
+          { room_type: ["The selected Room type is invalid."] },
+          "The selected Room type is invalid.",
+        ),
+      );
       await dialog.getByTestId("room-type-select-option").nth(0).click();
       await expect(
         dialog.locator('[data-test="room-type-details"] > h3'),
       ).toContainText("Invalid Type");
       // The reloaded list has no invalid type anymore
-      roomTypes.json = readFixture("roomTypes.json");
+      getRoomTypesApiMock.json = readFixture("roomTypes.json");
       await dialog.getByTestId("dialog-save-button").click();
 
       // New error is shown, old error is gone
@@ -449,7 +469,7 @@ test.describe("Rooms index create new room", () => {
         "The Room type field is required.",
       );
       // Room types are reloaded and the selection is reset
-      await nthRequest(roomTypes, roomTypesCount + 1);
+      await getRoomTypesApiMock.waitForRequest(roomTypesCount + 1);
       await expect(dialog.getByTestId("room-type-select-option")).toHaveCount(
         4,
       );
@@ -459,25 +479,29 @@ test.describe("Rooms index create new room", () => {
     test("422 name error replaces previous errors", async ({ page }) => {
       const dialog = page.getByTestId("room-create-dialog");
 
-      await mockMethod(page, "POST", "**/api/v1/rooms", {
-        status: 422,
-        json: {
-          message: "The selected Room type is invalid.",
-          errors: { room_type: ["The selected Room type is invalid."] },
-        },
-      });
+      await mockApiRequest(
+        page,
+        "POST",
+        "rooms",
+        validationErrors(
+          { room_type: ["The selected Room type is invalid."] },
+          "The selected Room type is invalid.",
+        ),
+      );
       await dialog.locator("#room-name").fill("New Room");
       await dialog.getByTestId("room-type-select-option").nth(0).click();
       await dialog.getByTestId("dialog-save-button").click();
       await expect(dialog).toContainText("The selected Room type is invalid.");
 
-      await mockMethod(page, "POST", "**/api/v1/rooms", {
-        status: 422,
-        json: {
-          message: "The Name field is required.",
-          errors: { name: ["The Name field is required."] },
-        },
-      });
+      await mockApiRequest(
+        page,
+        "POST",
+        "rooms",
+        validationErrors(
+          { name: ["The Name field is required."] },
+          "The Name field is required.",
+        ),
+      );
       await dialog.locator("#room-name").clear();
       await dialog.getByTestId("room-type-select-option").nth(0).click();
       await dialog.getByTestId("dialog-save-button").click();
@@ -492,21 +516,20 @@ test.describe("Rooms index create new room", () => {
       const dialog = page.getByTestId("room-create-dialog");
 
       // Previous 422 error is hidden by the next request
-      await mockMethod(page, "POST", "**/api/v1/rooms", {
-        status: 422,
-        json: {
-          message: "The Name field is required.",
-          errors: { name: ["The Name field is required."] },
-        },
-      });
+      await mockApiRequest(
+        page,
+        "POST",
+        "rooms",
+        validationErrors(
+          { name: ["The Name field is required."] },
+          "The Name field is required.",
+        ),
+      );
       await dialog.getByTestId("room-type-select-option").nth(0).click();
       await dialog.getByTestId("dialog-save-button").click();
       await expect(dialog).toContainText("The Name field is required.");
 
-      await mockMethod(page, "POST", "**/api/v1/rooms", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "POST", "rooms", serverError());
       await dialog.locator("#room-name").fill("New Room");
       await dialog.getByTestId("dialog-save-button").click();
 
@@ -520,11 +543,11 @@ test.describe("Rooms index create new room", () => {
 
     test("403 error closes the dialog and removes the create button", async ({
       page,
-      currentUser,
+      currentUserResponse,
     }) => {
       const dialog = page.getByTestId("room-create-dialog");
-      await mockMethod(page, "POST", "**/api/v1/rooms", { status: 403 });
-      currentUser.data.permissions = [];
+      await mockApiRequest(page, "POST", "rooms", { status: 403 });
+      currentUserResponse.data.permissions = [];
 
       await dialog.getByTestId("dialog-save-button").click();
 
@@ -535,7 +558,7 @@ test.describe("Rooms index create new room", () => {
 
     test("401 error redirects to login", async ({ page }) => {
       const dialog = page.getByTestId("room-create-dialog");
-      await mockMethod(page, "POST", "**/api/v1/rooms", { status: 401 });
+      await mockApiRequest(page, "POST", "rooms", { status: 401 });
 
       await dialog.locator("#room-name").fill("New Room");
       await dialog.getByTestId("room-type-select-option").nth(0).click();
@@ -546,17 +569,17 @@ test.describe("Rooms index create new room", () => {
   });
 
   test.describe("room limit", () => {
-    test.beforeEach(async ({ currentUser, rooms }) => {
-      currentUser.data.room_limit = 1;
-      rooms.json.data = [];
-      rooms.json.meta.total = 0;
-      rooms.json.meta.total_no_filter = 0;
-      rooms.json.meta.total_own = 0;
+    test.beforeEach(async ({ currentUserResponse, roomsResponse }) => {
+      currentUserResponse.data.room_limit = 1;
+      roomsResponse.data = [];
+      roomsResponse.meta.total = 0;
+      roomsResponse.meta.total_no_filter = 0;
+      roomsResponse.meta.total_own = 0;
     });
 
-    test("limit reached when visiting", async ({ page, rooms }) => {
+    test("limit reached when visiting", async ({ page, roomsResponse }) => {
       // The user already has a room
-      rooms.json.meta.total_own = 1;
+      roomsResponse.meta.total_own = 1;
       await page.goto("/rooms");
 
       await expect(
@@ -575,8 +598,8 @@ test.describe("Rooms index create new room", () => {
     });
 
     test.describe("limit reached on creation", () => {
-      test.beforeEach(async ({ page, rooms }) => {
-        await mockMethod(page, "POST", "**/api/v1/rooms", {
+      test.beforeEach(async ({ page, getRoomsApiMock }) => {
+        await mockApiRequest(page, "POST", "rooms", {
           status: 463,
           json: { message: "Test" },
         });
@@ -591,7 +614,10 @@ test.describe("Rooms index create new room", () => {
         await dialog.getByTestId("room-type-select-option").nth(0).click();
 
         // Change the response so that the room limit gets reached
-        rooms.showPage(1, 3);
+        getRoomsApiMock.respondWithPage({
+          currentPage: 1,
+          lastPage: 3,
+        });
 
         await dialog.getByTestId("dialog-save-button").click();
 
@@ -606,8 +632,14 @@ test.describe("Rooms index create new room", () => {
         ).toBeVisible();
       });
 
-      test("limit stays the same on the next page", async ({ page, rooms }) => {
-        rooms.showPage(2, 3);
+      test("limit stays the same on the next page", async ({
+        page,
+        getRoomsApiMock,
+      }) => {
+        getRoomsApiMock.respondWithPage({
+          currentPage: 2,
+          lastPage: 3,
+        });
 
         // two paginator components (first one for small devices, second one for larger devices)
         await page.getByTestId("paginator-next-button").nth(1).click();
@@ -623,11 +655,11 @@ test.describe("Rooms index create new room", () => {
 
       test("limit is independent of the search query", async ({
         page,
-        rooms,
+        roomsResponse,
       }) => {
-        rooms.json.data = [];
-        rooms.json.meta.total = 0;
-        rooms.json.meta.total_no_filter = 0;
+        roomsResponse.data = [];
+        roomsResponse.meta.total = 0;
+        roomsResponse.meta.total_no_filter = 0;
 
         const search = page.getByTestId("room-search").locator("input");
         await search.fill("Test");
@@ -647,11 +679,12 @@ test.describe("Rooms index create new room", () => {
       await page.goto("/rooms");
       await expect(page.getByTestId("room-card")).toHaveCount(3);
 
-      const failing = await mockMethod(page, "GET", "**/api/v1/roomTypes*", {
-        status: 500,
-        json: { message: "Test" },
-        hold: true,
-      });
+      const getRoomTypesApiMock = await mockApiRequest(
+        page,
+        "GET",
+        "roomTypes*",
+        serverError({ hold: true }),
+      );
 
       await page.getByTestId("room-create-button").click();
 
@@ -663,8 +696,8 @@ test.describe("Rooms index create new room", () => {
       await expect(dialog.getByTestId("dialog-cancel-button")).toBeDisabled();
       await expect(dialog.getByTestId("dialog-save-button")).toBeDisabled();
 
-      failing.release();
-      await nthRequest(failing);
+      getRoomTypesApiMock.release();
+      await getRoomTypesApiMock.waitForRequest();
 
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
@@ -679,7 +712,7 @@ test.describe("Rooms index create new room", () => {
       await expect(dialog.getByTestId("dialog-save-button")).toBeDisabled();
 
       // Reload with valid room types
-      await mockMethod(page, "GET", "**/api/v1/roomTypes*", {
+      await mockApiRequest(page, "GET", "roomTypes*", {
         json: readFixture("roomTypesWithSettings.json"),
       });
       await dialog.getByTestId("reload-room-types-button").click();
@@ -696,7 +729,7 @@ test.describe("Rooms index create new room", () => {
       await page.goto("/rooms");
       await expect(page.getByTestId("room-card")).toHaveCount(3);
 
-      await mockMethod(page, "GET", "**/api/v1/roomTypes*", { status: 401 });
+      await mockApiRequest(page, "GET", "roomTypes*", { status: 401 });
       await page.getByTestId("room-create-button").click();
 
       await expectLoginRedirect(page, "/rooms");

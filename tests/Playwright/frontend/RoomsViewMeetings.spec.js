@@ -1,5 +1,14 @@
+import {
+  unauthorized,
+  forbidden,
+  validationErrors,
+  serverError,
+  modelNotFound,
+} from "../support/utils.js";
+import { mergeTests } from "@playwright/test";
+import { test as roomControllerTest } from "../support/fixtures/roomController.js";
+import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { test } from "../support/fixtures/roomsGeneralMisc.js";
 import {
   interceptRoomFilesRequest,
   interceptRoomIndexRequests,
@@ -9,7 +18,8 @@ import {
   expectAuthToken,
   expectNoAuthToken,
 } from "../support/room.js";
-import { mockMethod, nthRequest } from "../support/utils.js";
+
+const test = mergeTests(roomControllerTest, participantNameCheckTest);
 
 test.describe("Rooms view meetings", () => {
   test.use({ authenticated: true });
@@ -45,23 +55,25 @@ test.describe("Rooms view meetings", () => {
     },
   ]) {
     test.describe(`${action} meeting`, () => {
-      test.beforeEach(async ({ room }) => {
-        Object.assign(room.data, roomData);
+      test.beforeEach(async ({ roomResponse }) => {
+        Object.assign(roomResponse.data, roomData);
       });
 
       test(`${action} with loading state`, async ({
         page,
-        meetingFeatures,
-        meetingAction,
+        optionsRoomJoinOrStartApiMock,
+        roomJoinOrStartRedirectUrl,
+        roomJoinOrStartRequestBodyWithoutConsent,
+        postRoomJoinOrStartApiMock,
       }) => {
         const dialog = page.getByTestId("room-join-dialog");
         const button = page.getByTestId(buttonId);
-        const request = await mockMethod(
-          page,
-          "POST",
-          `**/api/v1/rooms/abc-def-123/${action}*`,
-          { status: 200, json: { url: meetingAction.redirectUrl }, hold: true },
-        );
+        const postRoomJoinOrStartRequestsAfterChange =
+          postRoomJoinOrStartApiMock.respondWith({
+            status: 200,
+            json: { url: roomJoinOrStartRedirectUrl },
+            hold: true,
+          });
 
         await page.goto("/rooms/abc-def-123");
 
@@ -77,29 +89,33 @@ test.describe("Rooms view meetings", () => {
         ).toBeDisabled();
         await expect(button).toBeDisabled();
 
-        await nthRequest(meetingFeatures);
-        request.release();
+        await optionsRoomJoinOrStartApiMock.waitForRequest();
+        postRoomJoinOrStartApiMock.release();
 
-        expect((await nthRequest(request)).postDataJSON()).toEqual(
-          meetingAction.defaultBody,
-        );
-        await expect(page).toHaveURL(meetingAction.redirectUrl);
+        await expect(
+          postRoomJoinOrStartRequestsAfterChange,
+        ).toHaveReceivedRequest({
+          json: roomJoinOrStartRequestBodyWithoutConsent,
+        });
+        await expect(page).toHaveURL(roomJoinOrStartRedirectUrl);
       });
 
       test(`${action} with attendance logging`, async ({
         page,
-        meetingFeatures,
-        meetingAction,
+        optionsRoomJoinOrStartApiMock,
+        roomJoinOrStartRedirectUrl,
+        roomJoinOrStartRequestBodyWithoutConsent,
+        postRoomJoinOrStartApiMock,
       }) => {
         const dialog = page.getByTestId("room-join-dialog");
         const button = page.getByTestId(buttonId);
-        meetingFeatures.features.attendance_recording = true;
-        const request = await mockMethod(
-          page,
-          "POST",
-          `**/api/v1/rooms/abc-def-123/${action}*`,
-          { status: 200, json: { url: meetingAction.redirectUrl }, hold: true },
-        );
+        optionsRoomJoinOrStartApiMock.features.attendance_recording = true;
+        const postRoomJoinOrStartRequestsAfterChange =
+          postRoomJoinOrStartApiMock.respondWith({
+            status: 200,
+            json: { url: roomJoinOrStartRedirectUrl },
+            hold: true,
+          });
 
         await page.goto("/rooms/abc-def-123");
 
@@ -124,29 +140,35 @@ test.describe("Rooms view meetings", () => {
         await expect(
           dialog.getByTestId("dialog-continue-button"),
         ).toBeDisabled();
-        request.release();
+        postRoomJoinOrStartApiMock.release();
 
-        expect((await nthRequest(request)).postDataJSON()).toEqual({
-          ...meetingAction.defaultBody,
-          consent_record_attendance: true,
+        await expect(
+          postRoomJoinOrStartRequestsAfterChange,
+        ).toHaveReceivedRequest({
+          json: {
+            ...roomJoinOrStartRequestBodyWithoutConsent,
+            consent_record_attendance: true,
+          },
         });
-        await expect(page).toHaveURL(meetingAction.redirectUrl);
+        await expect(page).toHaveURL(roomJoinOrStartRedirectUrl);
       });
 
       test(`${action} with streaming`, async ({
         page,
-        meetingFeatures,
-        meetingAction,
+        optionsRoomJoinOrStartApiMock,
+        roomJoinOrStartRedirectUrl,
+        roomJoinOrStartRequestBodyWithoutConsent,
+        postRoomJoinOrStartApiMock,
       }) => {
         const dialog = page.getByTestId("room-join-dialog");
         const button = page.getByTestId(buttonId);
-        meetingFeatures.features.streaming = true;
-        const request = await mockMethod(
-          page,
-          "POST",
-          `**/api/v1/rooms/abc-def-123/${action}*`,
-          { status: 200, json: { url: meetingAction.redirectUrl }, hold: true },
-        );
+        optionsRoomJoinOrStartApiMock.features.streaming = true;
+        const postRoomJoinOrStartRequestsAfterChange =
+          postRoomJoinOrStartApiMock.respondWith({
+            status: 200,
+            json: { url: roomJoinOrStartRedirectUrl },
+            hold: true,
+          });
 
         await page.goto("/rooms/abc-def-123");
 
@@ -167,29 +189,35 @@ test.describe("Rooms view meetings", () => {
         await expect(
           dialog.getByTestId("dialog-continue-button"),
         ).toBeDisabled();
-        request.release();
+        postRoomJoinOrStartApiMock.release();
 
-        expect((await nthRequest(request)).postDataJSON()).toEqual({
-          ...meetingAction.defaultBody,
-          consent_streaming: true,
+        await expect(
+          postRoomJoinOrStartRequestsAfterChange,
+        ).toHaveReceivedRequest({
+          json: {
+            ...roomJoinOrStartRequestBodyWithoutConsent,
+            consent_streaming: true,
+          },
         });
-        await expect(page).toHaveURL(meetingAction.redirectUrl);
+        await expect(page).toHaveURL(roomJoinOrStartRedirectUrl);
       });
 
       test(`${action} with recording`, async ({
         page,
-        meetingFeatures,
-        meetingAction,
+        optionsRoomJoinOrStartApiMock,
+        roomJoinOrStartRedirectUrl,
+        roomJoinOrStartRequestBodyWithoutConsent,
+        postRoomJoinOrStartApiMock,
       }) => {
         const dialog = page.getByTestId("room-join-dialog");
         const button = page.getByTestId(buttonId);
-        meetingFeatures.features.recording = true;
-        const request = await mockMethod(
-          page,
-          "POST",
-          `**/api/v1/rooms/abc-def-123/${action}*`,
-          { status: 200, json: { url: meetingAction.redirectUrl }, hold: true },
-        );
+        optionsRoomJoinOrStartApiMock.features.recording = true;
+        const postRoomJoinOrStartRequestsAfterChange =
+          postRoomJoinOrStartApiMock.respondWith({
+            status: 200,
+            json: { url: roomJoinOrStartRedirectUrl },
+            hold: true,
+          });
 
         await page.goto("/rooms/abc-def-123");
 
@@ -216,25 +244,31 @@ test.describe("Rooms view meetings", () => {
         await expect(
           dialog.getByTestId("dialog-continue-button"),
         ).toBeDisabled();
-        request.release();
+        postRoomJoinOrStartApiMock.release();
 
-        expect((await nthRequest(request)).postDataJSON()).toEqual({
-          ...meetingAction.defaultBody,
-          consent_record: true,
-          consent_record_video: true,
+        await expect(
+          postRoomJoinOrStartRequestsAfterChange,
+        ).toHaveReceivedRequest({
+          json: {
+            ...roomJoinOrStartRequestBodyWithoutConsent,
+            consent_record: true,
+            consent_record_video: true,
+          },
         });
-        await expect(page).toHaveURL(meetingAction.redirectUrl);
+        await expect(page).toHaveURL(roomJoinOrStartRedirectUrl);
       });
 
       test(`${action} with recording without video`, async ({
         page,
-        room,
-        meetingFeatures,
-        meetingAction,
+        roomResponse,
+        optionsRoomJoinOrStartApiMock,
+        postRoomJoinOrStartApiMock,
+        roomJoinOrStartRedirectUrl,
+        roomJoinOrStartRequestBodyWithoutConsent,
       }) => {
         const dialog = page.getByTestId("room-join-dialog");
-        room.data.record = true;
-        meetingFeatures.features.recording = true;
+        roomResponse.data.record = true;
+        optionsRoomJoinOrStartApiMock.features.recording = true;
 
         await page.goto("/rooms/abc-def-123");
         await page.getByTestId(buttonId).click();
@@ -244,32 +278,39 @@ test.describe("Rooms view meetings", () => {
         await checkbox.click();
         await dialog.getByTestId("dialog-continue-button").click();
 
-        expect((await nthRequest(meetingAction)).postDataJSON()).toEqual({
-          ...meetingAction.defaultBody,
-          consent_record: true,
+        await expect(postRoomJoinOrStartApiMock).toHaveReceivedRequest({
+          json: {
+            ...roomJoinOrStartRequestBodyWithoutConsent,
+            consent_record: true,
+          },
         });
-        await expect(page).toHaveURL(meetingAction.redirectUrl);
+        await expect(page).toHaveURL(roomJoinOrStartRedirectUrl);
       });
 
       test(`${action} with access code`, async ({
         page,
-        room,
-        roomRequests,
-        meetingFeatures,
-        meetingAction,
+        roomResponse,
+        getRoomApiMock,
+        optionsRoomJoinOrStartApiMock,
+        postRoomJoinOrStartApiMock,
+        roomJoinOrStartRedirectUrl,
+        roomJoinOrStartRequestBodyWithoutConsent,
       }) => {
         const dialog = page.getByTestId("room-join-dialog");
-        room.data.owner = { id: 2, name: "Max Doe" };
-        meetingFeatures.features.recording = true;
-        meetingFeatures.features.attendance_recording = true;
+        roomResponse.data.owner = { id: 2, name: "Max Doe" };
+        optionsRoomJoinOrStartApiMock.features.recording = true;
+        optionsRoomJoinOrStartApiMock.features.attendance_recording = true;
 
         await page.goto("/rooms/abc-def-123#accessCode=123456789");
-        await nthRequest(roomRequests);
+        await getRoomApiMock.waitForRequest();
 
         await page.getByTestId(buttonId).click();
 
         // Check that the access code is sent
-        expectAuthToken(await nthRequest(meetingFeatures), "0");
+        expectAuthToken(
+          await optionsRoomJoinOrStartApiMock.waitForRequest(),
+          "0",
+        );
 
         await expect(dialog).toBeVisible();
         for (const id of [
@@ -284,41 +325,48 @@ test.describe("Rooms view meetings", () => {
 
         await dialog.getByTestId("dialog-continue-button").click();
 
-        const sent = await nthRequest(meetingAction);
+        const sent = await postRoomJoinOrStartApiMock.waitForRequest();
         expect(sent.postDataJSON()).toEqual({
-          ...meetingAction.defaultBody,
+          ...roomJoinOrStartRequestBodyWithoutConsent,
           consent_record_attendance: true,
           consent_record: true,
           consent_record_video: true,
         });
         expectAuthToken(sent, "0");
-        await expect(page).toHaveURL(meetingAction.redirectUrl);
+        await expect(page).toHaveURL(roomJoinOrStartRedirectUrl);
       });
 
       test(`${action} with invalid access code`, async ({
         page,
-        room,
-        roomRequests,
-        meetingAction,
+        roomResponse,
+        getRoomApiMock,
+        postRoomJoinOrStartApiMock,
       }) => {
         const button = page.getByTestId(buttonId);
-        room.data.owner = { id: 2, name: "Max Doe" };
+        roomResponse.data.owner = { id: 2, name: "Max Doe" };
 
         await page.goto("/rooms/abc-def-123#accessCode=123456789");
-        await nthRequest(roomRequests);
+        await getRoomApiMock.waitForRequest();
         await expect(button).toBeVisible();
 
         // The request is rejected and the room is reloaded (not authenticated anymore)
-        meetingAction.status = 401;
-        meetingAction.json = { message: "invalid_auth_token" };
-        room.data.authenticated = false;
-        const roomRequestCount = roomRequests.requests.length;
+        const postRoomJoinOrStartRequestsAfterChange =
+          postRoomJoinOrStartApiMock.respondWith(
+            unauthorized("invalid_auth_token"),
+          );
+        roomResponse.data.authenticated = false;
+        const roomRequestCount = getRoomApiMock.requests.length;
 
         await button.click();
 
         // Check that the access code is sent and reset afterwards
-        expectAuthToken(await nthRequest(meetingAction), "0");
-        expectNoAuthToken(await nthRequest(roomRequests, roomRequestCount + 1));
+        expectAuthToken(
+          await postRoomJoinOrStartRequestsAfterChange.waitForRequest(),
+          "0",
+        );
+        expectNoAuthToken(
+          await getRoomApiMock.waitForRequest(roomRequestCount + 1),
+        );
 
         await expectToastAndClose(page, "rooms.flash.access_code_invalid");
         await expect(
@@ -326,35 +374,41 @@ test.describe("Rooms view meetings", () => {
         ).toBeVisible();
 
         // Reload the room (but without room auth token)
-        room.data.authenticated = true;
+        roomResponse.data.authenticated = true;
         await page.getByTestId("reload-room-button").click();
 
-        expectNoAuthToken(await nthRequest(roomRequests, roomRequestCount + 2));
+        expectNoAuthToken(
+          await getRoomApiMock.waitForRequest(roomRequestCount + 2),
+        );
         await expect(button).toBeVisible();
       });
 
       test(`${action} with access code required`, async ({
         page,
-        room,
-        roomRequests,
-        meetingAction,
+        roomResponse,
+        getRoomApiMock,
+        postRoomJoinOrStartApiMock,
       }) => {
         const button = page.getByTestId(buttonId);
-        room.data.owner = { id: 2, name: "Max Doe" };
+        roomResponse.data.owner = { id: 2, name: "Max Doe" };
 
         await page.goto("/rooms/abc-def-123");
-        await nthRequest(roomRequests);
+        await getRoomApiMock.waitForRequest();
         await expect(button).toBeVisible();
 
-        meetingAction.status = 403;
-        meetingAction.json = { message: "require_code" };
-        room.data.authenticated = false;
-        const roomRequestCount = roomRequests.requests.length;
+        const postRoomJoinOrStartRequestsAfterChange =
+          postRoomJoinOrStartApiMock.respondWith(forbidden("require_code"));
+        roomResponse.data.authenticated = false;
+        const roomRequestCount = getRoomApiMock.requests.length;
 
         await button.click();
 
-        expectNoAuthToken(await nthRequest(meetingAction));
-        expectNoAuthToken(await nthRequest(roomRequests, roomRequestCount + 1));
+        expectNoAuthToken(
+          await postRoomJoinOrStartRequestsAfterChange.waitForRequest(),
+        );
+        expectNoAuthToken(
+          await getRoomApiMock.waitForRequest(roomRequestCount + 1),
+        );
 
         await expectToastAndClose(page, "rooms.require_access_code");
 
@@ -367,45 +421,46 @@ test.describe("Rooms view meetings", () => {
       test.describe("dark mode", () => {
         test.use({ colorScheme: "dark" });
 
-        test(`${action} with dark mode`, async ({ page, meetingAction }) => {
+        test(`${action} with dark mode`, async ({
+          page,
+          postRoomJoinOrStartApiMock,
+          roomJoinOrStartRedirectUrl,
+          roomJoinOrStartRequestBodyWithoutConsent,
+        }) => {
           await page.goto("/rooms/abc-def-123");
           await page.getByTestId(buttonId).click();
 
-          expect((await nthRequest(meetingAction)).postDataJSON()).toEqual({
-            ...meetingAction.defaultBody,
-            dark_mode: true,
+          await expect(postRoomJoinOrStartApiMock).toHaveReceivedRequest({
+            json: {
+              ...roomJoinOrStartRequestBodyWithoutConsent,
+              dark_mode: true,
+            },
           });
-          await expect(page).toHaveURL(meetingAction.redirectUrl);
+          await expect(page).toHaveURL(roomJoinOrStartRedirectUrl);
         });
       });
 
       test(`${action} with validation errors for missing agreements`, async ({
         page,
-        meetingFeatures,
-        meetingAction,
+        optionsRoomJoinOrStartApiMock,
+        postRoomJoinOrStartApiMock,
       }) => {
         const dialog = page.getByTestId("room-join-dialog");
         const button = page.getByTestId(buttonId);
         // The room settings changed in the meantime, therefore the agreements are missing
-        const request = await mockMethod(
-          page,
-          "POST",
-          `**/api/v1/rooms/abc-def-123/${action}*`,
-          {
-            status: 422,
-            json: {
-              message:
-                "The consent record attendance must be accepted. (and 1 more error)",
-              errors: {
+        const postRoomJoinOrStartRequestsAfterChange =
+          postRoomJoinOrStartApiMock.respondWith(
+            validationErrors(
+              {
                 consent_record_attendance: [
                   "The consent record attendance must be accepted.",
                 ],
                 consent_record: ["The consent record must be accepted."],
               },
-            },
-            hold: true,
-          },
-        );
+              "The consent record attendance must be accepted. (and 1 more error)",
+              { hold: true },
+            ),
+          );
 
         await page.goto("/rooms/abc-def-123");
         await expect(dialog).toBeHidden();
@@ -424,10 +479,10 @@ test.describe("Rooms view meetings", () => {
           dialog.getByTestId("dialog-continue-button"),
         ).toBeDisabled();
 
-        meetingFeatures.features.recording = true;
-        meetingFeatures.features.attendance_recording = true;
-        request.release();
-        await nthRequest(request);
+        optionsRoomJoinOrStartApiMock.features.recording = true;
+        optionsRoomJoinOrStartApiMock.features.attendance_recording = true;
+        postRoomJoinOrStartApiMock.release();
+        await postRoomJoinOrStartRequestsAfterChange.waitForRequest();
 
         // Check that checkboxes for agreements are shown
         await expect(dialog.getByText("rooms.recording_info")).toBeVisible();
@@ -465,25 +520,27 @@ test.describe("Rooms view meetings", () => {
         await expect(
           dialog.getByText("The consent record must be accepted."),
         ).toHaveCount(0);
-        expect(meetingAction.requests).toHaveLength(0);
+        expect(postRoomJoinOrStartRequestsAfterChange.requests).toHaveLength(1);
       });
 
       test(`${action} with required agreements and validation error`, async ({
         page,
-        meetingFeatures,
-        meetingAction,
+        optionsRoomJoinOrStartApiMock,
+        postRoomJoinOrStartApiMock,
       }) => {
         const dialog = page.getByTestId("room-join-dialog");
-        meetingFeatures.features.recording = true;
-        meetingAction.status = 422;
-        meetingAction.json = {
-          message: "The consent record attendance must be accepted.",
-          errors: {
-            consent_record_attendance: [
+        optionsRoomJoinOrStartApiMock.features.recording = true;
+        const postRoomJoinOrStartRequestsAfterChange =
+          postRoomJoinOrStartApiMock.respondWith(
+            validationErrors(
+              {
+                consent_record_attendance: [
+                  "The consent record attendance must be accepted.",
+                ],
+              },
               "The consent record attendance must be accepted.",
-            ],
-          },
-        };
+            ),
+          );
 
         await page.goto("/rooms/abc-def-123");
         await page.getByTestId(buttonId).click();
@@ -508,9 +565,9 @@ test.describe("Rooms view meetings", () => {
         ).toHaveCount(0);
 
         // The settings changed and the attendance agreement is required now
-        meetingFeatures.features.attendance_recording = true;
+        optionsRoomJoinOrStartApiMock.features.attendance_recording = true;
         await dialog.getByTestId("dialog-continue-button").click();
-        await nthRequest(meetingAction);
+        await postRoomJoinOrStartRequestsAfterChange.waitForRequest();
 
         await expect(
           dialog.getByText("The consent record attendance must be accepted."),
@@ -528,21 +585,23 @@ test.describe("Rooms view meetings", () => {
 
       test(`${action} with server error hides validation errors`, async ({
         page,
-        meetingFeatures,
-        meetingAction,
+        optionsRoomJoinOrStartApiMock,
+        postRoomJoinOrStartApiMock,
       }) => {
         const dialog = page.getByTestId("room-join-dialog");
-        meetingFeatures.features.recording = true;
-        meetingFeatures.features.attendance_recording = true;
-        meetingAction.status = 422;
-        meetingAction.json = {
-          message: "The consent record attendance must be accepted.",
-          errors: {
-            consent_record_attendance: [
+        optionsRoomJoinOrStartApiMock.features.recording = true;
+        optionsRoomJoinOrStartApiMock.features.attendance_recording = true;
+        const postRoomJoinOrStartRequestsAfterChange1 =
+          postRoomJoinOrStartApiMock.respondWith(
+            validationErrors(
+              {
+                consent_record_attendance: [
+                  "The consent record attendance must be accepted.",
+                ],
+              },
               "The consent record attendance must be accepted.",
-            ],
-          },
-        };
+            ),
+          );
 
         await page.goto("/rooms/abc-def-123");
         await page.getByTestId(buttonId).click();
@@ -557,15 +616,15 @@ test.describe("Rooms view meetings", () => {
           await checkbox.click();
         }
         await dialog.getByTestId("dialog-continue-button").click();
-        await nthRequest(meetingAction);
+        await postRoomJoinOrStartRequestsAfterChange1.waitForRequest();
         await expect(
           dialog.getByText("The consent record attendance must be accepted."),
         ).toBeVisible();
 
-        meetingAction.status = 500;
-        meetingAction.json = { message: "Test" };
+        const postRoomJoinOrStartRequestsAfterChange2 =
+          postRoomJoinOrStartApiMock.respondWith(serverError());
         await dialog.getByTestId("dialog-continue-button").click();
-        await nthRequest(meetingAction, 2);
+        await postRoomJoinOrStartRequestsAfterChange2.waitForRequest();
 
         // Check that room join dialog stays open and 422 error messages are hidden
         await expectToastAndClose(page, [
@@ -583,18 +642,16 @@ test.describe("Rooms view meetings", () => {
 
       test(`${action} with room not found`, async ({
         page,
-        meetingFeatures,
-        meetingAction,
+        optionsRoomJoinOrStartApiMock,
+        postRoomJoinOrStartApiMock,
       }) => {
         const dialog = page.getByTestId("room-join-dialog");
-        meetingFeatures.features.recording = true;
-        meetingFeatures.features.attendance_recording = true;
-        meetingAction.status = 404;
-        meetingAction.json = {
-          message: "model_not_found",
-          model: "room",
-          ids: ["abc-def-123"],
-        };
+        optionsRoomJoinOrStartApiMock.features.recording = true;
+        optionsRoomJoinOrStartApiMock.features.attendance_recording = true;
+        const postRoomJoinOrStartRequestsAfterChange =
+          postRoomJoinOrStartApiMock.respondWith(
+            modelNotFound("room", ["abc-def-123"]),
+          );
         await interceptRoomIndexRequests(page);
 
         await page.goto("/rooms/abc-def-123");
@@ -610,7 +667,7 @@ test.describe("Rooms view meetings", () => {
           await checkbox.click();
         }
         await dialog.getByTestId("dialog-continue-button").click();
-        await nthRequest(meetingAction);
+        await postRoomJoinOrStartRequestsAfterChange.waitForRequest();
 
         // Check that redirect to room index page worked and error message is shown
         await expect(page).toHaveURL(
@@ -627,22 +684,24 @@ test.describe("Rooms view meetings", () => {
       test.describe("guests", () => {
         test.use({ authenticated: false });
 
-        test.beforeEach(async ({ room }) => {
-          room.data.current_user = null;
+        test.beforeEach(async ({ roomResponse }) => {
+          roomResponse.data.current_user = null;
         });
 
         test(`${action} as guest`, async ({
           page,
-          meetingFeatures,
-          meetingAction,
+          optionsRoomJoinOrStartApiMock,
+          postRoomJoinOrStartApiMock,
+          roomJoinOrStartRedirectUrl,
+          roomJoinOrStartRequestBodyWithoutConsent,
         }) => {
           const dialog = page.getByTestId("room-join-dialog");
-          meetingFeatures.features.recording = true;
-          meetingFeatures.features.attendance_recording = true;
+          optionsRoomJoinOrStartApiMock.features.recording = true;
+          optionsRoomJoinOrStartApiMock.features.attendance_recording = true;
 
           await page.goto("/rooms/abc-def-123");
           await page.getByTestId(buttonId).click();
-          await nthRequest(meetingFeatures);
+          await optionsRoomJoinOrStartApiMock.waitForRequest();
 
           await expect(dialog).toBeVisible();
           for (const id of [
@@ -656,34 +715,38 @@ test.describe("Rooms view meetings", () => {
           }
           await dialog.getByTestId("dialog-continue-button").click();
 
-          expect((await nthRequest(meetingAction)).postDataJSON()).toEqual({
-            ...meetingAction.defaultBody,
-            name: "Laura Rivera",
-            consent_record_attendance: true,
-            consent_record: true,
-            consent_record_video: true,
+          await expect(postRoomJoinOrStartApiMock).toHaveReceivedRequest({
+            json: {
+              ...roomJoinOrStartRequestBodyWithoutConsent,
+              name: "Laura Rivera",
+              consent_record_attendance: true,
+              consent_record: true,
+              consent_record_video: true,
+            },
           });
-          await expect(page).toHaveURL(meetingAction.redirectUrl);
+          await expect(page).toHaveURL(roomJoinOrStartRedirectUrl);
         });
 
         test(`${action} as guest with invalid name`, async ({
           page,
-          meetingFeatures,
-          meetingAction,
+          optionsRoomJoinOrStartApiMock,
+          roomJoinOrStartRequestBodyWithoutConsent,
+          postRoomJoinOrStartApiMock,
         }) => {
           const dialog = page.getByTestId("room-join-dialog");
-          meetingFeatures.features.recording = true;
-          meetingFeatures.features.attendance_recording = true;
-          meetingAction.status = 422;
-          meetingAction.json = {
-            message:
-              "The name contains the following non-permitted characters: 123!",
-            errors: {
-              name: [
+          optionsRoomJoinOrStartApiMock.features.recording = true;
+          optionsRoomJoinOrStartApiMock.features.attendance_recording = true;
+          const postRoomJoinOrStartRequestsAfterChange =
+            postRoomJoinOrStartApiMock.respondWith(
+              validationErrors(
+                {
+                  name: [
+                    "The name contains the following non-permitted characters: 123!",
+                  ],
+                },
                 "The name contains the following non-permitted characters: 123!",
-              ],
-            },
-          };
+              ),
+            );
 
           await page.goto("/rooms/abc-def-123");
           await page.getByTestId(buttonId).click();
@@ -699,12 +762,16 @@ test.describe("Rooms view meetings", () => {
           }
           await dialog.getByTestId("dialog-continue-button").click();
 
-          expect((await nthRequest(meetingAction)).postDataJSON()).toEqual({
-            ...meetingAction.defaultBody,
-            name: "Laura Rivera",
-            consent_record_attendance: true,
-            consent_record: true,
-            consent_record_video: true,
+          await expect(
+            postRoomJoinOrStartRequestsAfterChange,
+          ).toHaveReceivedRequest({
+            json: {
+              ...roomJoinOrStartRequestBodyWithoutConsent,
+              name: "Laura Rivera",
+              consent_record_attendance: true,
+              consent_record: true,
+              consent_record_video: true,
+            },
           });
 
           // Check if error message is shown
@@ -716,22 +783,23 @@ test.describe("Rooms view meetings", () => {
 
         test(`${action} as guest with server error hides name error`, async ({
           page,
-          meetingFeatures,
-          meetingAction,
+          optionsRoomJoinOrStartApiMock,
+          postRoomJoinOrStartApiMock,
         }) => {
           const dialog = page.getByTestId("room-join-dialog");
-          meetingFeatures.features.recording = true;
-          meetingFeatures.features.attendance_recording = true;
-          meetingAction.status = 422;
-          meetingAction.json = {
-            message:
-              "The name contains the following non-permitted characters: 123!",
-            errors: {
-              name: [
+          optionsRoomJoinOrStartApiMock.features.recording = true;
+          optionsRoomJoinOrStartApiMock.features.attendance_recording = true;
+          const postRoomJoinOrStartRequestsAfterChange1 =
+            postRoomJoinOrStartApiMock.respondWith(
+              validationErrors(
+                {
+                  name: [
+                    "The name contains the following non-permitted characters: 123!",
+                  ],
+                },
                 "The name contains the following non-permitted characters: 123!",
-              ],
-            },
-          };
+              ),
+            );
 
           await page.goto("/rooms/abc-def-123");
           await page.getByTestId(buttonId).click();
@@ -746,15 +814,15 @@ test.describe("Rooms view meetings", () => {
             await checkbox.click();
           }
           await dialog.getByTestId("dialog-continue-button").click();
-          await nthRequest(meetingAction);
+          await postRoomJoinOrStartRequestsAfterChange1.waitForRequest();
           await expect(dialog).toContainText(
             "The name contains the following non-permitted characters: 123!",
           );
 
-          meetingAction.status = 500;
-          meetingAction.json = { message: "Test" };
+          const postRoomJoinOrStartRequestsAfterChange2 =
+            postRoomJoinOrStartApiMock.respondWith(serverError());
           await dialog.getByTestId("dialog-continue-button").click();
-          await nthRequest(meetingAction, 2);
+          await postRoomJoinOrStartRequestsAfterChange2.waitForRequest();
 
           // Check that room join dialog stays open and 422 error messages are hidden
           await expectToastAndClose(page, [
@@ -769,26 +837,35 @@ test.describe("Rooms view meetings", () => {
 
         test(`${action} with personalized link`, async ({
           page,
-          room,
-          roomAuth,
-          meetingFeatures,
-          meetingAction,
+          roomResponse,
+          optionsRoomJoinOrStartApiMock,
+          postRoomJoinOrStartApiMock,
+          roomJoinOrStartRedirectUrl,
+          roomJoinOrStartRequestBodyWithoutConsent,
+          postRoomAuthApiMock,
         }) => {
           const dialog = page.getByTestId("room-join-dialog");
-          room.data.username = "Max Doe";
-          roomAuth.json.data.type = 1;
-          meetingFeatures.features.recording = true;
-          meetingFeatures.features.attendance_recording = true;
+          roomResponse.data.username = "Max Doe";
+          const postRoomAuthRequestsAfterChange =
+            postRoomAuthApiMock.respondWith({
+              status: 201,
+              json: { data: { id: "roomAuthToken", type: 1 } },
+            });
+          optionsRoomJoinOrStartApiMock.features.recording = true;
+          optionsRoomJoinOrStartApiMock.features.attendance_recording = true;
 
           // Visit room with personalized link
           await page.goto(
             "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
           );
-          await nthRequest(roomAuth);
+          await postRoomAuthRequestsAfterChange.waitForRequest();
 
           await page.getByTestId(buttonId).click();
           // Check that the token is set
-          expectAuthToken(await nthRequest(meetingFeatures), "1");
+          expectAuthToken(
+            await optionsRoomJoinOrStartApiMock.waitForRequest(),
+            "1",
+          );
 
           await expect(dialog).toBeVisible();
           for (const id of [
@@ -802,40 +879,46 @@ test.describe("Rooms view meetings", () => {
           }
           await dialog.getByTestId("dialog-continue-button").click();
 
-          const sent = await nthRequest(meetingAction);
+          const sent = await postRoomJoinOrStartApiMock.waitForRequest();
           expect(sent.postDataJSON()).toEqual({
-            ...meetingAction.defaultBody,
+            ...roomJoinOrStartRequestBodyWithoutConsent,
             name: "Laura Rivera",
             consent_record_attendance: true,
             consent_record: true,
             consent_record_video: true,
           });
           expectAuthToken(sent, "1");
-          await expect(page).toHaveURL(meetingAction.redirectUrl);
+          await expect(page).toHaveURL(roomJoinOrStartRedirectUrl);
         });
 
         test(`${action} with invalid personalized link`, async ({
           page,
-          roomAuth,
-          meetingAction,
+          postRoomAuthApiMock,
+          postRoomJoinOrStartApiMock,
         }) => {
           const button = page.getByTestId(buttonId);
-          roomAuth.json.data.type = 1;
+          postRoomAuthApiMock.respondWith({
+            status: 201,
+            json: { data: { id: "roomAuthToken", type: 1 } },
+          });
 
           await page.goto(
             "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
           );
           await expect(button).toBeVisible();
 
-          roomAuth.status = 401;
-          roomAuth.json = { message: "invalid_personalized_link" };
-          const authRequestCount = roomAuth.requests.length;
-          meetingAction.status = 401;
-          meetingAction.json = { message: "invalid_auth_token" };
+          const postRoomAuthRequestsAfterChange =
+            postRoomAuthApiMock.respondWith(
+              unauthorized("invalid_personalized_link"),
+            );
+          const postRoomJoinOrStartRequestsAfterChange =
+            postRoomJoinOrStartApiMock.respondWith(
+              unauthorized("invalid_auth_token"),
+            );
 
           await button.click();
-          await nthRequest(meetingAction);
-          await nthRequest(roomAuth, authRequestCount + 1);
+          await postRoomJoinOrStartRequestsAfterChange.waitForRequest();
+          await postRoomAuthRequestsAfterChange.waitForRequest();
 
           // Check that error message is shown and url changed
           await expectToastAndClose(
@@ -861,15 +944,17 @@ test.describe("Rooms view meetings", () => {
 
         test(`${action} as guest not allowed`, async ({
           page,
-          meetingAction,
+          postRoomJoinOrStartApiMock,
         }) => {
-          meetingAction.status = 403;
-          meetingAction.json = { message: "guests_not_allowed" };
+          const postRoomJoinOrStartRequestsAfterChange =
+            postRoomJoinOrStartApiMock.respondWith(
+              forbidden("guests_not_allowed"),
+            );
 
           await page.goto("/rooms/abc-def-123");
           await expect(page.getByTestId(buttonId)).toHaveText(label);
           await page.getByTestId(buttonId).click();
-          await nthRequest(meetingAction);
+          await postRoomJoinOrStartRequestsAfterChange.waitForRequest();
 
           await expect(
             page.getByText("rooms.only_used_by_authenticated_users"),
@@ -878,16 +963,18 @@ test.describe("Rooms view meetings", () => {
 
         test(`${action} requirements as guest not allowed`, async ({
           page,
-          room,
-          meetingFeatures,
+          roomResponse,
+          optionsRoomJoinOrStartApiMock,
         }) => {
-          Object.assign(room.data, loadRoomData);
-          meetingFeatures.status = 403;
-          meetingFeatures.error = { message: "guests_not_allowed" };
+          Object.assign(roomResponse.data, loadRoomData);
+          optionsRoomJoinOrStartApiMock.status = 403;
+          optionsRoomJoinOrStartApiMock.error = {
+            message: "guests_not_allowed",
+          };
 
           await page.goto("/rooms/abc-def-123");
           await page.getByTestId(buttonId).click();
-          await nthRequest(meetingFeatures);
+          await optionsRoomJoinOrStartApiMock.waitForRequest();
 
           await expect(
             page.getByText("rooms.only_used_by_authenticated_users"),
@@ -896,18 +983,18 @@ test.describe("Rooms view meetings", () => {
 
         test(`${action} requirements with server error and retry`, async ({
           page,
-          room,
-          roomRequests,
-          meetingFeatures,
+          roomResponse,
+          getRoomApiMock,
+          optionsRoomJoinOrStartApiMock,
         }) => {
           const dialog = page.getByTestId("room-join-dialog");
-          Object.assign(room.data, loadRoomData);
-          meetingFeatures.status = 500;
-          meetingFeatures.error = { message: "Test" };
+          Object.assign(roomResponse.data, loadRoomData);
+          optionsRoomJoinOrStartApiMock.status = 500;
+          optionsRoomJoinOrStartApiMock.error = { message: "Test" };
 
           await page.goto("/rooms/abc-def-123");
           await page.getByTestId(buttonId).click();
-          await nthRequest(meetingFeatures);
+          await optionsRoomJoinOrStartApiMock.waitForRequest();
 
           // Check that the dialog stays open and the error message is shown
           await expectToastAndClose(page, [
@@ -917,14 +1004,16 @@ test.describe("Rooms view meetings", () => {
           await expect(dialog).toBeVisible();
 
           // The access code is invalid now and the room is reloaded
-          meetingFeatures.status = 401;
-          meetingFeatures.error = { message: "invalid_auth_token" };
-          room.data.authenticated = false;
-          const roomRequestCount = roomRequests.requests.length;
+          optionsRoomJoinOrStartApiMock.status = 401;
+          optionsRoomJoinOrStartApiMock.error = {
+            message: "invalid_auth_token",
+          };
+          roomResponse.data.authenticated = false;
+          const roomRequestCount = getRoomApiMock.requests.length;
           await page.getByTestId("loading-retry-button").click();
 
-          await nthRequest(meetingFeatures, 2);
-          await nthRequest(roomRequests, roomRequestCount + 1);
+          await optionsRoomJoinOrStartApiMock.waitForRequest(2);
+          await getRoomApiMock.waitForRequest(roomRequestCount + 1);
 
           await expectToastAndClose(page, "rooms.flash.access_code_invalid");
 
@@ -937,23 +1026,25 @@ test.describe("Rooms view meetings", () => {
 
         test(`${action} requirements with access code required`, async ({
           page,
-          room,
-          roomRequests,
-          meetingFeatures,
+          roomResponse,
+          getRoomApiMock,
+          optionsRoomJoinOrStartApiMock,
         }) => {
           const button = page.getByTestId(buttonId);
-          Object.assign(room.data, loadRoomData);
+          Object.assign(roomResponse.data, loadRoomData);
           await page.goto("/rooms/abc-def-123");
           await expect(button).toBeVisible();
 
-          meetingFeatures.status = 403;
-          meetingFeatures.error = { message: "require_code" };
-          room.data.authenticated = false;
-          const roomRequestCount = roomRequests.requests.length;
+          optionsRoomJoinOrStartApiMock.status = 403;
+          optionsRoomJoinOrStartApiMock.error = {
+            message: "require_code",
+          };
+          roomResponse.data.authenticated = false;
+          const roomRequestCount = getRoomApiMock.requests.length;
 
           await button.click();
-          await nthRequest(meetingFeatures);
-          await nthRequest(roomRequests, roomRequestCount + 1);
+          await optionsRoomJoinOrStartApiMock.waitForRequest();
+          await getRoomApiMock.waitForRequest(roomRequestCount + 1);
 
           await expectToastAndClose(page, "rooms.require_access_code");
 
@@ -967,28 +1058,34 @@ test.describe("Rooms view meetings", () => {
 
         test(`${action} requirements with invalid personalized link`, async ({
           page,
-          room,
-          roomAuth,
-          meetingFeatures,
+          roomResponse,
+          optionsRoomJoinOrStartApiMock,
+          postRoomAuthApiMock,
         }) => {
           const button = page.getByTestId(buttonId);
-          Object.assign(room.data, loadRoomData);
-          roomAuth.json.data.type = 1;
+          Object.assign(roomResponse.data, loadRoomData);
+          postRoomAuthApiMock.respondWith({
+            status: 201,
+            json: { data: { id: "roomAuthToken", type: 1 } },
+          });
 
           await page.goto(
             "/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
           );
           await expect(button).toBeVisible();
 
-          roomAuth.status = 401;
-          roomAuth.json = { message: "invalid_personalized_link" };
-          const authRequestCount = roomAuth.requests.length;
-          meetingFeatures.status = 401;
-          meetingFeatures.error = { message: "invalid_auth_token" };
+          const postRoomAuthRequestsAfterChange =
+            postRoomAuthApiMock.respondWith(
+              unauthorized("invalid_personalized_link"),
+            );
+          optionsRoomJoinOrStartApiMock.status = 401;
+          optionsRoomJoinOrStartApiMock.error = {
+            message: "invalid_auth_token",
+          };
 
           await button.click();
-          await nthRequest(meetingFeatures);
-          await nthRequest(roomAuth, authRequestCount + 1);
+          await optionsRoomJoinOrStartApiMock.waitForRequest();
+          await postRoomAuthRequestsAfterChange.waitForRequest();
 
           // Check that error message is shown and url changed
           await expectToastAndClose(
@@ -1014,23 +1111,23 @@ test.describe("Rooms view meetings", () => {
 
         test(`${action} requirements with room not found`, async ({
           page,
-          room,
-          meetingFeatures,
+          roomResponse,
+          optionsRoomJoinOrStartApiMock,
         }) => {
           const button = page.getByTestId(buttonId);
-          Object.assign(room.data, loadRoomData);
+          Object.assign(roomResponse.data, loadRoomData);
           await page.goto("/rooms/abc-def-123");
           await expect(button).toBeVisible();
 
-          meetingFeatures.status = 404;
-          meetingFeatures.error = {
+          optionsRoomJoinOrStartApiMock.status = 404;
+          optionsRoomJoinOrStartApiMock.error = {
             message: "model_not_found",
             model: "room",
             ids: ["abc-def-123"],
           };
 
           await button.click();
-          await nthRequest(meetingFeatures);
+          await optionsRoomJoinOrStartApiMock.waitForRequest();
 
           // Check that redirect to 404 page worked and error message is shown
           await expect(page).toHaveURL(
@@ -1048,8 +1145,8 @@ test.describe("Rooms view meetings", () => {
   }
 
   test.describe("join meeting only", () => {
-    test.beforeEach(async ({ room }) => {
-      room.data.last_meeting = {
+    test.beforeEach(async ({ roomResponse }) => {
+      roomResponse.data.last_meeting = {
         start: "2023-08-21T08:18:28.000000Z",
         end: null,
       };
@@ -1057,24 +1154,27 @@ test.describe("Rooms view meetings", () => {
 
     test("join with closed room", async ({
       page,
-      room,
-      roomRequests,
-      meetingAction,
+      roomResponse,
+      getRoomApiMock,
+      postRoomJoinOrStartApiMock,
     }) => {
-      meetingAction.status = 460;
-      meetingAction.json = {
-        message: "Joining failed! The room is currently closed.",
-      };
+      const postRoomJoinOrStartRequestsAfterChange =
+        postRoomJoinOrStartApiMock.respondWith({
+          status: 460,
+          json: {
+            message: "Joining failed! The room is currently closed.",
+          },
+        });
 
       await page.goto("/rooms/abc-def-123");
       await expect(page.getByTestId("room-join-button")).toBeVisible();
 
       // The room is not running anymore
-      room.data.last_meeting = null;
-      const roomRequestCount = roomRequests.requests.length;
+      roomResponse.data.last_meeting = null;
+      const roomRequestCount = getRoomApiMock.requests.length;
       await page.getByTestId("room-join-button").click();
-      await nthRequest(meetingAction);
-      await nthRequest(roomRequests, roomRequestCount + 1);
+      await postRoomJoinOrStartRequestsAfterChange.waitForRequest();
+      await getRoomApiMock.waitForRequest(roomRequestCount + 1);
 
       // Check if error message is shown and button has switched to start room
       await expectToastAndClose(page, "app.errors.not_running");
@@ -1088,15 +1188,17 @@ test.describe("Rooms view meetings", () => {
   test.describe("start meeting only", () => {
     test("start without permission", async ({
       page,
-      room,
-      roomRequests,
-      meetingFeatures,
-      meetingAction,
+      roomResponse,
+      getRoomApiMock,
+      optionsRoomJoinOrStartApiMock,
+      postRoomJoinOrStartApiMock,
     }) => {
-      meetingFeatures.features.recording = true;
-      meetingFeatures.features.attendance_recording = true;
-      meetingAction.status = 403;
-      meetingAction.json = { message: "This action is unauthorized." };
+      optionsRoomJoinOrStartApiMock.features.recording = true;
+      optionsRoomJoinOrStartApiMock.features.attendance_recording = true;
+      const postRoomJoinOrStartRequestsAfterChange =
+        postRoomJoinOrStartApiMock.respondWith(
+          forbidden("This action is unauthorized."),
+        );
 
       await page.goto("/rooms/abc-def-123");
       await page.getByTestId("room-start-button").click();
@@ -1105,11 +1207,11 @@ test.describe("Rooms view meetings", () => {
       await expect(dialog).toBeVisible();
 
       // The room is reloaded and the user is not allowed to start the room anymore
-      room.data.can_start = false;
-      const roomRequestCount = roomRequests.requests.length;
+      roomResponse.data.can_start = false;
+      const roomRequestCount = getRoomApiMock.requests.length;
       await dialog.getByTestId("dialog-continue-button").click();
-      await nthRequest(meetingAction);
-      await nthRequest(roomRequests, roomRequestCount + 1);
+      await postRoomJoinOrStartRequestsAfterChange.waitForRequest();
+      await getRoomApiMock.waitForRequest(roomRequestCount + 1);
 
       // Check that room join dialog is closed and the error message is shown
       await expectToastAndClose(page, "rooms.flash.start_forbidden");
@@ -1120,24 +1222,29 @@ test.describe("Rooms view meetings", () => {
       await expect(page.getByTestId("room-start-button")).toHaveCount(0);
 
       // Reload room with permission to start room
-      room.data.can_start = true;
+      roomResponse.data.can_start = true;
       await page.getByTestId("reload-room-button").click();
-      await nthRequest(roomRequests, roomRequestCount + 2);
+      await getRoomApiMock.waitForRequest(roomRequestCount + 2);
       await expect(page.getByTestId("room-start-button")).toBeVisible();
     });
 
     test("start of already running room switches to join", async ({
       page,
-      room,
-      roomRequests,
-      meetingFeatures,
-      meetingAction,
+      roomResponse,
+      getRoomApiMock,
+      optionsRoomJoinOrStartApiMock,
+      roomJoinOrStartRedirectUrl,
+      postRoomJoinOrStartApiMock,
     }) => {
-      meetingFeatures.features.recording = true;
-      meetingAction.status = 474;
-      meetingAction.json = {
-        message: "The room could not be started because it is already running.",
-      };
+      optionsRoomJoinOrStartApiMock.features.recording = true;
+      const postRoomJoinOrStartRequestsAfterChange1 =
+        postRoomJoinOrStartApiMock.respondWith({
+          status: 474,
+          json: {
+            message:
+              "The room could not be started because it is already running.",
+          },
+        });
 
       await page.goto("/rooms/abc-def-123");
       await page.getByTestId("room-start-button").click();
@@ -1147,16 +1254,16 @@ test.describe("Rooms view meetings", () => {
       await expect(page.getByText("rooms.not_running")).toHaveCount(0);
 
       // The room is running now
-      room.data.last_meeting = {
+      roomResponse.data.last_meeting = {
         start: "2023-08-21T08:18:28.000000Z",
         end: null,
       };
-      const roomRequestCount = roomRequests.requests.length;
+      const roomRequestCount = getRoomApiMock.requests.length;
       await dialog.getByTestId("dialog-continue-button").click();
 
-      await nthRequest(meetingAction);
-      await nthRequest(roomRequests, roomRequestCount + 1);
-      await nthRequest(meetingFeatures, 2);
+      await postRoomJoinOrStartRequestsAfterChange1.waitForRequest();
+      await getRoomApiMock.waitForRequest(roomRequestCount + 1);
+      await optionsRoomJoinOrStartApiMock.waitForRequest(2);
 
       await expect(page.getByTestId("room-join-button")).toHaveText(
         "rooms.join",
@@ -1166,26 +1273,31 @@ test.describe("Rooms view meetings", () => {
       await expect(dialog).toContainText("app.errors.room_already_running");
 
       // Check if join request gets send when clicking on continue button
-      meetingAction.status = 200;
-      meetingAction.json = { url: meetingAction.redirectUrl };
+      const postRoomJoinOrStartRequestsAfterChange2 =
+        postRoomJoinOrStartApiMock.respondWith({
+          status: 200,
+          json: { url: roomJoinOrStartRedirectUrl },
+        });
       await dialog.getByTestId("dialog-continue-button").click();
 
-      await nthRequest(meetingAction, 2);
-      await expect(page).toHaveURL(meetingAction.redirectUrl);
+      await postRoomJoinOrStartRequestsAfterChange2.waitForRequest();
+      await expect(page).toHaveURL(roomJoinOrStartRedirectUrl);
     });
 
     test("start requirements without permission", async ({
       page,
-      room,
-      meetingFeatures,
+      roomResponse,
+      optionsRoomJoinOrStartApiMock,
     }) => {
-      room.data.current_user = null;
-      meetingFeatures.status = 403;
-      meetingFeatures.error = { message: "This action is unauthorized." };
+      roomResponse.data.current_user = null;
+      optionsRoomJoinOrStartApiMock.status = 403;
+      optionsRoomJoinOrStartApiMock.error = {
+        message: "This action is unauthorized.",
+      };
 
       await page.goto("/rooms/abc-def-123");
       await page.getByTestId("room-start-button").click();
-      await nthRequest(meetingFeatures);
+      await optionsRoomJoinOrStartApiMock.waitForRequest();
 
       // Check if error message is shown and the dialog is closed
       await expectToastAndClose(page, "rooms.flash.start_forbidden");

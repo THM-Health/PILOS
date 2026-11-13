@@ -1,17 +1,21 @@
+import { test } from "../support/fixtures/serverController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { test } from "../support/fixtures/adminServers.js";
 import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
 } from "../support/general.js";
 import { expectAdminBreadcrumbs } from "../support/admin.js";
-import { mockMethod, nthRequest } from "../support/utils.js";
+import {
+  mockApiRequest,
+  serverError,
+  modelNotFound,
+} from "../support/utils.js";
 
 test.describe("Admin servers edit", () => {
   test.use({ authenticated: true });
 
-  test.beforeEach(async ({ currentUser }) => {
-    currentUser.data.permissions = [
+  test.beforeEach(async ({ currentUserResponse }) => {
+    currentUserResponse.data.permissions = [
       "admin.view",
       "servers.viewAny",
       "servers.view",
@@ -27,9 +31,9 @@ test.describe("Admin servers edit", () => {
 
   test("visit with user without permission to edit servers", async ({
     page,
-    currentUser,
+    currentUserResponse,
   }) => {
-    currentUser.data.permissions = [
+    currentUserResponse.data.permissions = [
       "admin.view",
       "servers.viewAny",
       "servers.view",
@@ -45,12 +49,12 @@ test.describe("Admin servers edit", () => {
 
   test("shows loading state while the server is loading", async ({
     page,
-    server,
+    serverResponse,
   }) => {
-    server.data.status = -1;
-    const serverRequest = await mockMethod(page, "GET", "**/api/v1/servers/1", {
+    serverResponse.data.status = -1;
+    const getServerApiMock = await mockApiRequest(page, "GET", "servers/1", {
       hold: true,
-      json: server,
+      json: serverResponse,
     });
 
     await page.goto("/admin/servers/1/edit");
@@ -64,13 +68,13 @@ test.describe("Admin servers edit", () => {
     await expect(page.getByTestId("servers-delete-button")).toHaveCount(0);
     await expect(page.getByTestId("servers-save-button")).toBeDisabled();
 
-    serverRequest.release();
+    getServerApiMock.release();
 
     await expect(page.getByTestId("overlay")).toBeHidden();
   });
 
-  test("shows buttons and breadcrumbs", async ({ page, server }) => {
-    server.data.status = -1;
+  test("shows buttons and breadcrumbs", async ({ page, serverResponse }) => {
+    serverResponse.data.status = -1;
 
     await page.goto("/admin/servers/1/edit");
 
@@ -232,8 +236,8 @@ test.describe("Admin servers edit", () => {
     }
   });
 
-  test("change the status", async ({ page, server, serverForm }) => {
-    server.data.status = -1;
+  test("change the status", async ({ page, serverResponse, serverForm }) => {
+    serverResponse.data.status = -1;
 
     await page.goto("/admin/servers/1/edit");
 
@@ -289,8 +293,8 @@ test.describe("Admin servers edit", () => {
       status: 1,
     };
 
-    test.beforeEach(async ({ page, server, serverForm }) => {
-      server.data.status = -1;
+    test.beforeEach(async ({ page, serverResponse, serverForm }) => {
+      serverResponse.data.status = -1;
       await page.goto("/admin/servers/1/edit");
       await expect(page.getByTestId("overlay")).toBeHidden();
 
@@ -307,17 +311,17 @@ test.describe("Admin servers edit", () => {
 
     test("sends the changes and redirects to the server view", async ({
       page,
-      server,
+      serverResponse,
     }) => {
-      Object.assign(server.data, newValues);
-      const saveRequest = await mockMethod(page, "PUT", "**/api/v1/servers/1", {
-        json: server,
+      Object.assign(serverResponse.data, newValues);
+      const putServerApiMock = await mockApiRequest(page, "PUT", "servers/1", {
+        json: serverResponse,
       });
 
       await page.getByTestId("servers-save-button").click();
 
-      const request = await nthRequest(saveRequest);
-      expect(request.postDataJSON()).toEqual(server.data);
+      const request = await putServerApiMock.waitForRequest();
+      expect(request.postDataJSON()).toEqual(serverResponse.data);
 
       await expect(page).toHaveURL(/\/admin\/servers\/1$/);
       await expectAdminBreadcrumbs(
@@ -333,13 +337,13 @@ test.describe("Admin servers edit", () => {
 
     test("disables the form while saving", async ({
       page,
-      server,
+      serverResponse,
       serverForm,
     }) => {
-      Object.assign(server.data, newValues);
-      const saveRequest = await mockMethod(page, "PUT", "**/api/v1/servers/1", {
+      Object.assign(serverResponse.data, newValues);
+      const putServerApiMock = await mockApiRequest(page, "PUT", "servers/1", {
         hold: true,
-        json: server,
+        json: serverResponse,
       });
 
       await expect(page.getByTestId("overlay")).toBeHidden();
@@ -377,7 +381,7 @@ test.describe("Admin servers edit", () => {
       await expect(serverForm.testConnectionButton).toBeDisabled();
       await expect(serverForm.saveButton).toBeDisabled();
 
-      saveRequest.release();
+      putServerApiMock.release();
 
       await expect(page).toHaveURL(/\/admin\/servers\/1$/);
     });
@@ -412,7 +416,7 @@ test.describe("Admin servers edit", () => {
           "The connection status always online field is required.",
         ],
       ];
-      const saveRequest = await mockMethod(page, "PUT", "**/api/v1/servers/1", {
+      const putServerApiMock = await mockApiRequest(page, "PUT", "servers/1", {
         status: 422,
         json: {
           message,
@@ -423,7 +427,7 @@ test.describe("Admin servers edit", () => {
       });
 
       await page.getByTestId("servers-save-button").click();
-      await nthRequest(saveRequest);
+      await putServerApiMock.waitForRequest();
 
       await expectToastAndClose(page, message);
       for (const [, testId, error] of fieldErrors) {
@@ -451,7 +455,7 @@ test.describe("Admin servers edit", () => {
           "The connection status always online field is required.",
         ],
       ];
-      const saveRequest = await mockMethod(page, "PUT", "**/api/v1/servers/1", {
+      const putServerApiMock = await mockApiRequest(page, "PUT", "servers/1", {
         status: 422,
         json: {
           message: "The name field is required.",
@@ -461,16 +465,13 @@ test.describe("Admin servers edit", () => {
         },
       });
       await page.getByTestId("servers-save-button").click();
-      await nthRequest(saveRequest);
+      await putServerApiMock.waitForRequest();
       await expectToastAndClose(page, "The name field is required.");
       await expect(page.getByTestId("name-field")).toContainText(
         "The name field is required.",
       );
 
-      await mockMethod(page, "PUT", "**/api/v1/servers/1", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "PUT", "servers/1", serverError());
       await page.getByTestId("servers-save-button").click();
 
       await expectToastAndClose(page, [
@@ -493,11 +494,11 @@ test.describe("Admin servers edit", () => {
         connection_status_always_online: true,
       };
 
-      test.beforeEach(async ({ page, server }) => {
-        await mockMethod(page, "PUT", "**/api/v1/servers/1", {
+      test.beforeEach(async ({ page, serverResponse }) => {
+        await mockApiRequest(page, "PUT", "servers/1", {
           status: 428,
           json: {
-            new_model: { ...server.data, ...staleValues },
+            new_model: { ...serverResponse.data, ...staleValues },
             message: "stale_model",
           },
         });
@@ -560,16 +561,16 @@ test.describe("Admin servers edit", () => {
 
       test("a second stale error shows the dialog again", async ({
         page,
-        server,
+        serverResponse,
       }) => {
         await page.getByTestId("stale-dialog-reject-button").click();
         await expect(page.getByTestId("stale-server-dialog")).toBeHidden();
 
-        await mockMethod(page, "PUT", "**/api/v1/servers/1", {
+        await mockApiRequest(page, "PUT", "servers/1", {
           status: 428,
           json: {
             new_model: {
-              ...server.data,
+              ...serverResponse.data,
               name: "Server 04",
               status: 10,
               connection_status_always_online: false,
@@ -595,35 +596,35 @@ test.describe("Admin servers edit", () => {
 
       test("overwrite sends the data of the server again and redirects", async ({
         page,
-        server,
+        serverResponse,
       }) => {
         await page.getByTestId("stale-dialog-reject-button").click();
         await expect(page.getByTestId("stale-server-dialog")).toBeHidden();
 
-        await mockMethod(page, "PUT", "**/api/v1/servers/1", {
+        await mockApiRequest(page, "PUT", "servers/1", {
           status: 428,
           json: {
-            new_model: { ...server.data, name: "Server 04" },
+            new_model: { ...serverResponse.data, name: "Server 04" },
             message: "stale_model",
           },
         });
         await page.getByTestId("servers-save-button").click();
         await expect(page.getByTestId("stale-server-dialog")).toBeVisible();
 
-        Object.assign(server.data, staleValues);
-        const saveRequest = await mockMethod(
+        Object.assign(serverResponse.data, staleValues);
+        const putServerApiMock = await mockApiRequest(
           page,
           "PUT",
-          "**/api/v1/servers/1",
+          "servers/1",
           {
-            json: server,
+            json: serverResponse,
           },
         );
 
         await page.getByTestId("stale-dialog-accept-button").click();
 
-        const request = await nthRequest(saveRequest);
-        expect(request.postDataJSON()).toEqual(server.data);
+        const request = await putServerApiMock.waitForRequest();
+        expect(request.postDataJSON()).toEqual(serverResponse.data);
 
         await expect(page).toHaveURL(/\/admin\/servers\/1$/);
         await expectAdminBreadcrumbs(
@@ -637,13 +638,15 @@ test.describe("Admin servers edit", () => {
     test("model not found (404) redirects to the servers index", async ({
       page,
     }) => {
-      const saveRequest = await mockMethod(page, "PUT", "**/api/v1/servers/1", {
-        status: 404,
-        json: { message: "model_not_found", model: "server", ids: [1] },
-      });
+      const putServerApiMock = await mockApiRequest(
+        page,
+        "PUT",
+        "servers/1",
+        modelNotFound("server", [1]),
+      );
 
       await page.getByTestId("servers-save-button").click();
-      await nthRequest(saveRequest);
+      await putServerApiMock.waitForRequest();
 
       await expect(page).toHaveURL(/\/admin\/servers$/);
       await expectToastAndClose(page, [
@@ -653,20 +656,20 @@ test.describe("Admin servers edit", () => {
     });
 
     test("unauthenticated (401) redirects to the login", async ({ page }) => {
-      const saveRequest = await mockMethod(page, "PUT", "**/api/v1/servers/1", {
+      const putServerApiMock = await mockApiRequest(page, "PUT", "servers/1", {
         status: 401,
       });
 
       await page.getByTestId("servers-save-button").click();
-      await nthRequest(saveRequest);
+      await putServerApiMock.waitForRequest();
 
       await expectLoginRedirect(page, "/admin/servers/1/edit");
     });
   });
 
   test.describe("buttons without delete permission", () => {
-    test.beforeEach(({ currentUser }) => {
-      currentUser.data.permissions = [
+    test.beforeEach(({ currentUserResponse }) => {
+      currentUserResponse.data.permissions = [
         "admin.view",
         "servers.viewAny",
         "servers.view",
@@ -680,8 +683,8 @@ test.describe("Admin servers edit", () => {
       ["draining", 0],
       ["disabled", -1],
     ]) {
-      test(`server ${name}`, async ({ page, server, serverForm }) => {
-        server.data.status = status;
+      test(`server ${name}`, async ({ page, serverResponse, serverForm }) => {
+        serverResponse.data.status = status;
 
         await page.goto("/admin/servers/1/edit");
 
@@ -709,13 +712,10 @@ test.describe("Admin servers edit", () => {
   test.describe("load server errors", () => {
     test("server error (500) shows the overlay and allows to reload", async ({
       page,
-      server,
+      serverResponse,
       serverForm,
     }) => {
-      await mockMethod(page, "GET", "**/api/v1/servers/1", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "GET", "servers/1", serverError());
 
       await page.goto("/admin/servers/1/edit");
 
@@ -725,7 +725,7 @@ test.describe("Admin servers edit", () => {
         'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
 
-      await mockMethod(page, "GET", "**/api/v1/servers/1", { json: server });
+      await mockApiRequest(page, "GET", "servers/1", { json: serverResponse });
 
       const retryButton = page.getByTestId("loading-retry-button");
       await expect(retryButton).toBeVisible();
@@ -739,10 +739,12 @@ test.describe("Admin servers edit", () => {
     test("model not found (404) redirects to the servers index", async ({
       page,
     }) => {
-      await mockMethod(page, "GET", "**/api/v1/servers/1", {
-        status: 404,
-        json: { message: "model_not_found", model: "server", ids: [1] },
-      });
+      await mockApiRequest(
+        page,
+        "GET",
+        "servers/1",
+        modelNotFound("server", [1]),
+      );
 
       await page.goto("/admin/servers/1/edit");
 
@@ -754,7 +756,7 @@ test.describe("Admin servers edit", () => {
     });
 
     test("unauthenticated (401) redirects to the login", async ({ page }) => {
-      await mockMethod(page, "GET", "**/api/v1/servers/1", { status: 401 });
+      await mockApiRequest(page, "GET", "servers/1", { status: 401 });
 
       await page.goto("/admin/servers/1/edit");
 

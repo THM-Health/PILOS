@@ -1,18 +1,32 @@
+import { mergeTests } from "@playwright/test";
+import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
+import { test as roomControllerTest } from "../support/fixtures/roomController.js";
+import { test as roomFileControllerTest } from "../support/fixtures/roomFileController.js";
+import { test as postMessageToAppTest } from "../support/fixtures/postMessageToApp.js";
 import { readFileSync } from "node:fs";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { test } from "../support/fixtures/roomsFilesRecordings.js";
 import {
-  mockMethod,
-  nthRequest,
-  parseFormData,
-  queryOf,
+  mockApiRequest,
+  getRequestFormData,
+  getRequestQuery,
   readFixture,
+  validationErrors,
+  serverError,
+  modelNotFound,
+  unauthorized,
 } from "../support/utils.js";
 import { interceptRoomIndexRequests } from "../support/mocks.js";
 import {
   checkRoomAuthErrors,
   setValidRememberedParticipantName,
 } from "../support/room.js";
+
+const test = mergeTests(
+  roomControllerTest,
+  roomFileControllerTest,
+  postMessageToAppTest,
+  participantNameCheckTest,
+);
 
 test.use({ authenticated: true });
 
@@ -78,15 +92,15 @@ test.describe("Rooms view files file actions", () => {
 
       test("shows the loading state while uploading", async ({
         page,
-        roomFiles,
+        roomFilesResponse,
       }) => {
-        const upload = await mockMethod(
+        const postRoomFilesApiMock = await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/rooms/abc-def-123/files",
+          "rooms/abc-def-123/files",
           { status: 204, hold: true },
         );
-        roomFiles.data.push({
+        roomFilesResponse.data.push({
           id: 4,
           filename: "testFile.txt",
           download: false,
@@ -94,10 +108,10 @@ test.describe("Rooms view files file actions", () => {
           is_start_file: false,
           uploaded: "2020-09-21T07:10:00.000000Z",
         });
-        roomFiles.meta.per_page = 4;
-        roomFiles.meta.to = 4;
-        roomFiles.meta.total = 4;
-        roomFiles.meta.total_no_filter = 4;
+        roomFilesResponse.meta.per_page = 4;
+        roomFilesResponse.meta.to = 4;
+        roomFilesResponse.meta.total = 4;
+        roomFilesResponse.meta.total_no_filter = 4;
 
         await page
           .locator("#file")
@@ -112,7 +126,7 @@ test.describe("Rooms view files file actions", () => {
         await expect(dropZone).toHaveText("testFile.txt");
         await expect(dialog.getByTestId("progress-bar")).toBeVisible();
 
-        upload.release();
+        postRoomFilesApiMock.release();
 
         await expect(dialog.getByTestId("uploaded-file-message")).toHaveCount(
           1,
@@ -120,15 +134,19 @@ test.describe("Rooms view files file actions", () => {
       });
 
       for (const name of ["testFile.txt", "testFile2.txt"]) {
-        test(`uploads ${name}`, async ({ page, roomFiles }) => {
+        test(`uploads ${name}`, async ({
+          page,
+          roomFilesResponse,
+          getRoomFilesApiMock,
+        }) => {
           // The request is held while the body is read, the browser releases the file after the response
-          const upload = await mockMethod(
+          const postRoomFilesApiMock = await mockApiRequest(
             page,
             "POST",
-            "**/api/v1/rooms/abc-def-123/files",
+            "rooms/abc-def-123/files",
             { status: 204, hold: true },
           );
-          roomFiles.data.push({
+          roomFilesResponse.data.push({
             id: 4,
             filename: name,
             download: false,
@@ -136,16 +154,12 @@ test.describe("Rooms view files file actions", () => {
             is_start_file: false,
             uploaded: "2020-09-21T07:10:00.000000Z",
           });
-          roomFiles.meta.per_page = 4;
-          roomFiles.meta.to = 4;
-          roomFiles.meta.total = 4;
-          roomFiles.meta.total_no_filter = 4;
-          const files = await mockMethod(
-            page,
-            "GET",
-            "**/api/v1/rooms/abc-def-123/files*",
-            { json: roomFiles },
-          );
+          roomFilesResponse.meta.per_page = 4;
+          roomFilesResponse.meta.to = 4;
+          roomFilesResponse.meta.total = 4;
+          roomFilesResponse.meta.total_no_filter = 4;
+          const getRoomFilesRequestsAfterChange =
+            getRoomFilesApiMock.respondWith({ json: roomFilesResponse });
 
           const uploadRequest = page.waitForRequest(
             (request) =>
@@ -158,18 +172,18 @@ test.describe("Rooms view files file actions", () => {
             buffer: readFileSync(`tests/Playwright/fixtures/files/${name}`),
           });
 
-          const formData = await parseFormData(await uploadRequest);
-          const uploadedFile = formData.get("file");
+          const requestFormData = await getRequestFormData(await uploadRequest);
+          const uploadedFile = requestFormData.get("file");
           expect(uploadedFile.name).toBe(name);
           expect(uploadedFile.type).toBe("text/plain");
           expect(await uploadedFile.text()).toBe(
             readFileSync(`tests/Playwright/fixtures/files/${name}`, "utf8"),
           );
 
-          upload.release();
+          postRoomFilesApiMock.release();
 
           // Files are reloaded
-          await nthRequest(files, 1);
+          await getRoomFilesRequestsAfterChange.waitForRequest(1);
 
           // Dialog stays open, loading is finished and the success message is shown
           const dialog = page.getByTestId("room-files-upload-dialog");
@@ -192,12 +206,12 @@ test.describe("Rooms view files file actions", () => {
 
       test("keeps the messages of all uploaded files", async ({
         page,
-        roomFiles,
+        roomFilesResponse,
       }) => {
-        await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/files", {
+        await mockApiRequest(page, "POST", "rooms/abc-def-123/files", {
           status: 204,
         });
-        roomFiles.data.push({
+        roomFilesResponse.data.push({
           id: 4,
           filename: "testFile.txt",
           download: false,
@@ -205,10 +219,10 @@ test.describe("Rooms view files file actions", () => {
           is_start_file: false,
           uploaded: "2020-09-21T07:10:00.000000Z",
         });
-        roomFiles.meta.per_page = 4;
-        roomFiles.meta.to = 4;
-        roomFiles.meta.total = 4;
-        roomFiles.meta.total_no_filter = 4;
+        roomFilesResponse.meta.per_page = 4;
+        roomFilesResponse.meta.to = 4;
+        roomFilesResponse.meta.total = 4;
+        roomFilesResponse.meta.total_no_filter = 4;
 
         const dialog = page.getByTestId("room-files-upload-dialog");
         await page
@@ -218,7 +232,7 @@ test.describe("Rooms view files file actions", () => {
           1,
         );
 
-        roomFiles.data.push({
+        roomFilesResponse.data.push({
           id: 5,
           filename: "testFile2.txt",
           download: false,
@@ -226,10 +240,10 @@ test.describe("Rooms view files file actions", () => {
           is_start_file: false,
           uploaded: "2020-09-21T07:10:00.000000Z",
         });
-        roomFiles.meta.per_page = 5;
-        roomFiles.meta.to = 5;
-        roomFiles.meta.total = 5;
-        roomFiles.meta.total_no_filter = 5;
+        roomFilesResponse.meta.per_page = 5;
+        roomFilesResponse.meta.to = 5;
+        roomFilesResponse.meta.total = 5;
+        roomFilesResponse.meta.total_no_filter = 5;
         await page
           .locator("#file")
           .setInputFiles("tests/Playwright/fixtures/files/testFile2.txt");
@@ -246,16 +260,16 @@ test.describe("Rooms view files file actions", () => {
 
       test("shows the uploaded files after closing the dialog", async ({
         page,
-        roomFiles,
+        roomFilesResponse,
       }) => {
-        await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/files", {
+        await mockApiRequest(page, "POST", "rooms/abc-def-123/files", {
           status: 204,
         });
         for (const [index, name] of [
           "testFile.txt",
           "testFile2.txt",
         ].entries()) {
-          roomFiles.data.push({
+          roomFilesResponse.data.push({
             id: 4 + index,
             filename: name,
             download: false,
@@ -264,10 +278,10 @@ test.describe("Rooms view files file actions", () => {
             uploaded: "2020-09-21T07:10:00.000000Z",
           });
         }
-        roomFiles.meta.per_page = 5;
-        roomFiles.meta.to = 5;
-        roomFiles.meta.total = 5;
-        roomFiles.meta.total_no_filter = 5;
+        roomFilesResponse.meta.per_page = 5;
+        roomFilesResponse.meta.to = 5;
+        roomFilesResponse.meta.total = 5;
+        roomFilesResponse.meta.total_no_filter = 5;
 
         const dialog = page.getByTestId("room-files-upload-dialog");
         await page
@@ -303,7 +317,7 @@ test.describe("Rooms view files file actions", () => {
 
       test.describe("errors", () => {
         test("shows an error if the file is too large", async ({ page }) => {
-          await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/files", {
+          await mockApiRequest(page, "POST", "rooms/abc-def-123/files", {
             status: 413,
           });
 
@@ -317,13 +331,15 @@ test.describe("Rooms view files file actions", () => {
         });
 
         test("shows validation errors", async ({ page }) => {
-          await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/files", {
-            status: 422,
-            json: {
-              message: "The File must be a file of type: pdf, doc.",
-              errors: { file: ["The File must be a file of type: pdf, doc."] },
-            },
-          });
+          await mockApiRequest(
+            page,
+            "POST",
+            "rooms/abc-def-123/files",
+            validationErrors(
+              { file: ["The File must be a file of type: pdf, doc."] },
+              "The File must be a file of type: pdf, doc.",
+            ),
+          );
 
           await page
             .locator("#file")
@@ -337,10 +353,12 @@ test.describe("Rooms view files file actions", () => {
         });
 
         test("shows a toast on a server error", async ({ page }) => {
-          await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/files", {
-            status: 500,
-            json: { message: "Test" },
-          });
+          await mockApiRequest(
+            page,
+            "POST",
+            "rooms/abc-def-123/files",
+            serverError(),
+          );
 
           await page
             .locator("#file")
@@ -359,13 +377,15 @@ test.describe("Rooms view files file actions", () => {
           page,
         }) => {
           const dialog = page.getByTestId("room-files-upload-dialog");
-          await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/files", {
-            status: 422,
-            json: {
-              message: "The File must be a file of type: pdf, doc.",
-              errors: { file: ["The File must be a file of type: pdf, doc."] },
-            },
-          });
+          await mockApiRequest(
+            page,
+            "POST",
+            "rooms/abc-def-123/files",
+            validationErrors(
+              { file: ["The File must be a file of type: pdf, doc."] },
+              "The File must be a file of type: pdf, doc.",
+            ),
+          );
           await page
             .locator("#file")
             .setInputFiles("tests/Playwright/fixtures/files/testFile.txt");
@@ -373,10 +393,12 @@ test.describe("Rooms view files file actions", () => {
             "The File must be a file of type: pdf, doc.",
           );
 
-          await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/files", {
-            status: 500,
-            json: { message: "Test" },
-          });
+          await mockApiRequest(
+            page,
+            "POST",
+            "rooms/abc-def-123/files",
+            serverError(),
+          );
           await page
             .locator("#file")
             .setInputFiles("tests/Playwright/fixtures/files/testFile.txt");
@@ -416,14 +438,12 @@ test.describe("Rooms view files file actions", () => {
         page,
       }) => {
         await interceptRoomIndexRequests(page);
-        await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/files", {
-          status: 404,
-          json: {
-            message: "model_not_found",
-            model: "room",
-            ids: ["abc-def-123"],
-          },
-        });
+        await mockApiRequest(
+          page,
+          "POST",
+          "rooms/abc-def-123/files",
+          modelNotFound("room", ["abc-def-123"]),
+        );
 
         await page.getByTestId("room-files-upload-button").click();
         await expect(
@@ -471,18 +491,18 @@ test.describe("Rooms view files file actions", () => {
 
     test("shows the loading state while deleting", async ({
       page,
-      roomFiles,
+      roomFilesResponse,
     }) => {
-      const remove = await mockMethod(
+      const deleteRoomFileApiMock = await mockApiRequest(
         page,
         "DELETE",
-        "**/api/v1/rooms/abc-def-123/files/1",
+        "rooms/abc-def-123/files/1",
         { status: 204, hold: true },
       );
-      roomFiles.data.shift();
-      roomFiles.meta.to = 2;
-      roomFiles.meta.total = 2;
-      roomFiles.meta.total_no_filter = 2;
+      roomFilesResponse.data.shift();
+      roomFilesResponse.meta.to = 2;
+      roomFilesResponse.meta.total = 2;
+      roomFilesResponse.meta.total_no_filter = 2;
 
       await page
         .getByTestId("room-file-item")
@@ -502,28 +522,29 @@ test.describe("Rooms view files file actions", () => {
       );
       await expect(dialog.getByTestId("dialog-cancel-button")).toBeDisabled();
 
-      remove.release();
+      deleteRoomFileApiMock.release();
 
       await expect(dialog).toBeHidden();
     });
 
-    test("deletes the file", async ({ page, roomFiles }) => {
-      const remove = await mockMethod(
+    test("deletes the file", async ({
+      page,
+      roomFilesResponse,
+      getRoomFilesApiMock,
+    }) => {
+      const deleteRoomFileApiMock = await mockApiRequest(
         page,
         "DELETE",
-        "**/api/v1/rooms/abc-def-123/files/1",
+        "rooms/abc-def-123/files/1",
         { status: 204 },
       );
-      roomFiles.data.shift();
-      roomFiles.meta.to = 2;
-      roomFiles.meta.total = 2;
-      roomFiles.meta.total_no_filter = 2;
-      const files = await mockMethod(
-        page,
-        "GET",
-        "**/api/v1/rooms/abc-def-123/files*",
-        { json: roomFiles },
-      );
+      roomFilesResponse.data.shift();
+      roomFilesResponse.meta.to = 2;
+      roomFilesResponse.meta.total = 2;
+      roomFilesResponse.meta.total_no_filter = 2;
+      const getRoomFilesRequestsAfterChange = getRoomFilesApiMock.respondWith({
+        json: roomFilesResponse,
+      });
 
       await page
         .getByTestId("room-file-item")
@@ -535,8 +556,8 @@ test.describe("Rooms view files file actions", () => {
         .getByTestId("dialog-continue-button")
         .click();
 
-      await nthRequest(remove);
-      await nthRequest(files);
+      await deleteRoomFileApiMock.waitForRequest();
+      await getRoomFilesRequestsAfterChange.waitForRequest();
 
       await expect(page.getByTestId("room-file-item")).toHaveCount(2);
       await expect(page.getByTestId("room-files-delete-dialog")).toBeHidden();
@@ -545,30 +566,21 @@ test.describe("Rooms view files file actions", () => {
     test.describe("errors", () => {
       test("reloads the files if the file is not found", async ({
         page,
-        roomFiles,
+        roomFilesResponse,
+        getRoomFilesApiMock,
       }) => {
-        await mockMethod(
+        await mockApiRequest(
           page,
           "DELETE",
-          "**/api/v1/rooms/abc-def-123/files/3",
-          {
-            status: 404,
-            json: {
-              message: "model_not_found",
-              model: "room_file",
-              ids: [3],
-            },
-          },
+          "rooms/abc-def-123/files/3",
+          modelNotFound("room_file", [3]),
         );
-        roomFiles.data.pop();
-        roomFiles.meta.to = 2;
-        roomFiles.meta.total = 2;
-        roomFiles.meta.total_no_filter = 2;
-        const files = await mockMethod(
-          page,
-          "GET",
-          "**/api/v1/rooms/abc-def-123/files*",
-          { json: roomFiles },
+        roomFilesResponse.data.pop();
+        roomFilesResponse.meta.to = 2;
+        roomFilesResponse.meta.total = 2;
+        roomFilesResponse.meta.total_no_filter = 2;
+        const getRoomFilesRequestsAfterChange = getRoomFilesApiMock.respondWith(
+          { json: roomFilesResponse },
         );
 
         await page
@@ -581,7 +593,7 @@ test.describe("Rooms view files file actions", () => {
           .getByTestId("dialog-continue-button")
           .click();
 
-        await nthRequest(files);
+        await getRoomFilesRequestsAfterChange.waitForRequest();
 
         await expectToastAndClose(page, "rooms.flash.file_gone");
         await expect(page.getByTestId("room-files-delete-dialog")).toBeHidden();
@@ -589,14 +601,11 @@ test.describe("Rooms view files file actions", () => {
       });
 
       test("keeps the dialog open on a server error", async ({ page }) => {
-        await mockMethod(
+        await mockApiRequest(
           page,
           "DELETE",
-          "**/api/v1/rooms/abc-def-123/files/2",
-          {
-            status: 500,
-            json: { message: "Test" },
-          },
+          "rooms/abc-def-123/files/2",
+          serverError(),
         );
 
         await page
@@ -646,18 +655,11 @@ test.describe("Rooms view files file actions", () => {
         page,
       }) => {
         await interceptRoomIndexRequests(page);
-        await mockMethod(
+        await mockApiRequest(
           page,
           "DELETE",
-          "**/api/v1/rooms/abc-def-123/files/1",
-          {
-            status: 404,
-            json: {
-              message: "model_not_found",
-              model: "room",
-              ids: ["abc-def-123"],
-            },
-          },
+          "rooms/abc-def-123/files/1",
+          modelNotFound("room", ["abc-def-123"]),
         );
 
         await page
@@ -719,20 +721,20 @@ test.describe("Rooms view files file actions", () => {
 
       test("shows the loading state while saving", async ({
         page,
-        roomFiles,
+        roomFilesResponse,
       }) => {
         const dialog = page.getByTestId("room-files-configure-dialog");
         await dialog.locator("#download").click();
         await dialog.locator("#use_in_meeting").click();
 
-        const edit = await mockMethod(
+        const patchRoomFileApiMock = await mockApiRequest(
           page,
           "PATCH",
-          "**/api/v1/rooms/abc-def-123/files/1",
+          "rooms/abc-def-123/files/1",
           { status: 204, hold: true },
         );
-        roomFiles.data[0].download = false;
-        roomFiles.data[0].use_in_meeting = true;
+        roomFilesResponse.data[0].download = false;
+        roomFilesResponse.data[0].use_in_meeting = true;
 
         await expect(dialog.getByTestId("dialog-save-button")).toHaveText(
           "app.save",
@@ -747,39 +749,40 @@ test.describe("Rooms view files file actions", () => {
         );
         await expect(dialog.getByTestId("dialog-cancel-button")).toBeDisabled();
 
-        edit.release();
+        patchRoomFileApiMock.release();
 
         await expect(dialog).toBeHidden();
       });
 
-      test("saves the changed settings", async ({ page, roomFiles }) => {
+      test("saves the changed settings", async ({
+        page,
+        roomFilesResponse,
+        getRoomFilesApiMock,
+      }) => {
         const dialog = page.getByTestId("room-files-configure-dialog");
         await dialog.locator("#download").click();
         await dialog.locator("#use_in_meeting").click();
 
-        const edit = await mockMethod(
+        const patchRoomFileApiMock = await mockApiRequest(
           page,
           "PATCH",
-          "**/api/v1/rooms/abc-def-123/files/1",
+          "rooms/abc-def-123/files/1",
           { status: 204 },
         );
-        roomFiles.data[0].download = false;
-        roomFiles.data[0].use_in_meeting = true;
-        const files = await mockMethod(
-          page,
-          "GET",
-          "**/api/v1/rooms/abc-def-123/files*",
-          { json: roomFiles },
+        roomFilesResponse.data[0].download = false;
+        roomFilesResponse.data[0].use_in_meeting = true;
+        const getRoomFilesRequestsAfterChange = getRoomFilesApiMock.respondWith(
+          { json: roomFilesResponse },
         );
 
         await dialog.getByTestId("dialog-save-button").click();
 
-        const request = await nthRequest(edit);
+        const request = await patchRoomFileApiMock.waitForRequest();
         expect(request.postDataJSON()).toEqual({
           download: false,
           use_in_meeting: true,
         });
-        await nthRequest(files);
+        await getRoomFilesRequestsAfterChange.waitForRequest();
 
         await expect(dialog).toBeHidden();
 
@@ -799,25 +802,21 @@ test.describe("Rooms view files file actions", () => {
     test.describe("errors", () => {
       test("reloads the files if the file is not found", async ({
         page,
-        roomFiles,
+        roomFilesResponse,
+        getRoomFilesApiMock,
       }) => {
-        await mockMethod(page, "PATCH", "**/api/v1/rooms/abc-def-123/files/3", {
-          status: 404,
-          json: {
-            message: "model_not_found",
-            model: "room_file",
-            ids: [3],
-          },
-        });
-        roomFiles.data.pop();
-        roomFiles.meta.to = 2;
-        roomFiles.meta.total = 2;
-        roomFiles.meta.total_no_filter = 2;
-        const files = await mockMethod(
+        await mockApiRequest(
           page,
-          "GET",
-          "**/api/v1/rooms/abc-def-123/files*",
-          { json: roomFiles },
+          "PATCH",
+          "rooms/abc-def-123/files/3",
+          modelNotFound("room_file", [3]),
+        );
+        roomFilesResponse.data.pop();
+        roomFilesResponse.meta.to = 2;
+        roomFilesResponse.meta.total = 2;
+        roomFilesResponse.meta.total_no_filter = 2;
+        const getRoomFilesRequestsAfterChange = getRoomFilesApiMock.respondWith(
+          { json: roomFilesResponse },
         );
 
         await page
@@ -830,7 +829,7 @@ test.describe("Rooms view files file actions", () => {
           .getByTestId("dialog-save-button")
           .click();
 
-        await nthRequest(files);
+        await getRoomFilesRequestsAfterChange.waitForRequest();
 
         await expectToastAndClose(page, "rooms.flash.file_gone");
         await expect(
@@ -852,23 +851,19 @@ test.describe("Rooms view files file actions", () => {
         });
 
         test("shows validation errors", async ({ page }) => {
-          await mockMethod(
+          await mockApiRequest(
             page,
             "PATCH",
-            "**/api/v1/rooms/abc-def-123/files/2",
-            {
-              status: 422,
-              json: {
-                message:
-                  "The Downloadable field is required. (and 2 more errors)",
-                errors: {
-                  download: ["The Downloadable field is required."],
-                  use_in_meeting: [
-                    "The Use in the next meeting field is required.",
-                  ],
-                },
+            "rooms/abc-def-123/files/2",
+            validationErrors(
+              {
+                download: ["The Downloadable field is required."],
+                use_in_meeting: [
+                  "The Use in the next meeting field is required.",
+                ],
               },
-            },
+              "The Downloadable field is required. (and 2 more errors)",
+            ),
           );
 
           const dialog = page.getByTestId("room-files-configure-dialog");
@@ -888,37 +883,30 @@ test.describe("Rooms view files file actions", () => {
         }) => {
           const dialog = page.getByTestId("room-files-configure-dialog");
 
-          await mockMethod(
+          await mockApiRequest(
             page,
             "PATCH",
-            "**/api/v1/rooms/abc-def-123/files/2",
-            {
-              status: 422,
-              json: {
-                message:
-                  "The Downloadable field is required. (and 2 more errors)",
-                errors: {
-                  download: ["The Downloadable field is required."],
-                  use_in_meeting: [
-                    "The Use in the next meeting field is required.",
-                  ],
-                },
+            "rooms/abc-def-123/files/2",
+            validationErrors(
+              {
+                download: ["The Downloadable field is required."],
+                use_in_meeting: [
+                  "The Use in the next meeting field is required.",
+                ],
               },
-            },
+              "The Downloadable field is required. (and 2 more errors)",
+            ),
           );
           await dialog.getByTestId("dialog-save-button").click();
           await expect(dialog).toContainText(
             "The Downloadable field is required.",
           );
 
-          await mockMethod(
+          await mockApiRequest(
             page,
             "PATCH",
-            "**/api/v1/rooms/abc-def-123/files/2",
-            {
-              status: 500,
-              json: { message: "Test" },
-            },
+            "rooms/abc-def-123/files/2",
+            serverError(),
           );
           await dialog.getByTestId("dialog-save-button").click();
 
@@ -962,14 +950,12 @@ test.describe("Rooms view files file actions", () => {
         page,
       }) => {
         await interceptRoomIndexRequests(page);
-        await mockMethod(page, "PATCH", "**/api/v1/rooms/abc-def-123/files/1", {
-          status: 404,
-          json: {
-            message: "model_not_found",
-            model: "room",
-            ids: ["abc-def-123"],
-          },
-        });
+        await mockApiRequest(
+          page,
+          "PATCH",
+          "rooms/abc-def-123/files/1",
+          modelNotFound("room", ["abc-def-123"]),
+        );
 
         await page
           .getByTestId("room-file-item")
@@ -1023,10 +1009,10 @@ test.describe("Rooms view files file actions", () => {
     });
 
     test("shows the loading state while saving", async ({ page }) => {
-      const patch = await mockMethod(
+      const patchRoomFileApiMock = await mockApiRequest(
         page,
         "PATCH",
-        "**/api/v1/rooms/abc-def-123/files/1",
+        "rooms/abc-def-123/files/1",
         { status: 204, hold: true },
       );
 
@@ -1037,33 +1023,37 @@ test.describe("Rooms view files file actions", () => {
       await startFileButton.click();
 
       await expect(startFileButton).toBeDisabled();
-      patch.release();
+      patchRoomFileApiMock.release();
     });
 
-    test("sets the file as start file", async ({ page, roomFiles }) => {
-      const patch = await mockMethod(
+    test("sets the file as start file", async ({
+      page,
+      roomFilesResponse,
+      getRoomFilesApiMock,
+    }) => {
+      const patchRoomFileApiMock = await mockApiRequest(
         page,
         "PATCH",
-        "**/api/v1/rooms/abc-def-123/files/1",
+        "rooms/abc-def-123/files/1",
         { status: 204 },
       );
-      roomFiles.data[0].is_start_file = true;
-      roomFiles.data[0].use_in_meeting = true;
-      roomFiles.data[1].is_start_file = false;
-      roomFiles.start_file = { ...roomFiles.data[0], room_id: "abc-def-123" };
-      const files = await mockMethod(
-        page,
-        "GET",
-        "**/api/v1/rooms/abc-def-123/files*",
-        { json: roomFiles },
-      );
+      roomFilesResponse.data[0].is_start_file = true;
+      roomFilesResponse.data[0].use_in_meeting = true;
+      roomFilesResponse.data[1].is_start_file = false;
+      roomFilesResponse.start_file = {
+        ...roomFilesResponse.data[0],
+        room_id: "abc-def-123",
+      };
+      const getRoomFilesRequestsAfterChange = getRoomFilesApiMock.respondWith({
+        json: roomFilesResponse,
+      });
 
       const first = page.getByTestId("room-file-item").nth(0);
       await first.getByTestId("room-files-start-file-button").click();
 
-      const request = await nthRequest(patch);
+      const request = await patchRoomFileApiMock.waitForRequest();
       expect(request.postDataJSON()).toEqual({ is_start_file: true });
-      await nthRequest(files);
+      await getRoomFilesRequestsAfterChange.waitForRequest();
 
       // The file is the start file now
       await expect(first).toContainText("rooms.files.start_file");
@@ -1088,25 +1078,21 @@ test.describe("Rooms view files file actions", () => {
     test.describe("errors", () => {
       test("reloads the files if the file is not found", async ({
         page,
-        roomFiles,
+        roomFilesResponse,
+        getRoomFilesApiMock,
       }) => {
-        await mockMethod(page, "PATCH", "**/api/v1/rooms/abc-def-123/files/3", {
-          status: 404,
-          json: {
-            message: "model_not_found",
-            model: "room_file",
-            ids: [3],
-          },
-        });
-        roomFiles.data.pop();
-        roomFiles.meta.to = 2;
-        roomFiles.meta.total = 2;
-        roomFiles.meta.total_no_filter = 2;
-        const files = await mockMethod(
+        await mockApiRequest(
           page,
-          "GET",
-          "**/api/v1/rooms/abc-def-123/files*",
-          { json: roomFiles },
+          "PATCH",
+          "rooms/abc-def-123/files/3",
+          modelNotFound("room_file", [3]),
+        );
+        roomFilesResponse.data.pop();
+        roomFilesResponse.meta.to = 2;
+        roomFilesResponse.meta.total = 2;
+        roomFilesResponse.meta.total_no_filter = 2;
+        const getRoomFilesRequestsAfterChange = getRoomFilesApiMock.respondWith(
+          { json: roomFilesResponse },
         );
 
         await page
@@ -1114,17 +1100,19 @@ test.describe("Rooms view files file actions", () => {
           .nth(2)
           .getByTestId("room-files-start-file-button")
           .click();
-        await nthRequest(files);
+        await getRoomFilesRequestsAfterChange.waitForRequest();
 
         await expectToastAndClose(page, "rooms.flash.file_gone");
         await expect(page.getByTestId("room-file-item")).toHaveCount(2);
       });
 
       test("shows a server error", async ({ page }) => {
-        await mockMethod(page, "PATCH", "**/api/v1/rooms/abc-def-123/files/1", {
-          status: 500,
-          json: { message: "Test" },
-        });
+        await mockApiRequest(
+          page,
+          "PATCH",
+          "rooms/abc-def-123/files/1",
+          serverError(),
+        );
 
         await page
           .getByTestId("room-file-item")
@@ -1158,14 +1146,12 @@ test.describe("Rooms view files file actions", () => {
         page,
       }) => {
         await interceptRoomIndexRequests(page);
-        await mockMethod(page, "PATCH", "**/api/v1/rooms/abc-def-123/files/1", {
-          status: 404,
-          json: {
-            message: "model_not_found",
-            model: "room",
-            ids: ["abc-def-123"],
-          },
-        });
+        await mockApiRequest(
+          page,
+          "PATCH",
+          "rooms/abc-def-123/files/1",
+          modelNotFound("room", ["abc-def-123"]),
+        );
 
         await page
           .getByTestId("room-file-item")
@@ -1211,10 +1197,10 @@ test.describe("Rooms view files file actions", () => {
     });
 
     test("shows the loading state while saving", async ({ page }) => {
-      const patch = await mockMethod(
+      const patchRoomFilesSystemDefaultApiMock = await mockApiRequest(
         page,
         "PATCH",
-        "**/api/v1/rooms/abc-def-123/files/system_default",
+        "rooms/abc-def-123/files/system_default",
         { status: 204, hold: true },
       );
 
@@ -1224,26 +1210,24 @@ test.describe("Rooms view files file actions", () => {
       await systemDefaultButton.click();
 
       await expect(systemDefaultButton).toBeDisabled();
-      patch.release();
+      patchRoomFilesSystemDefaultApiMock.release();
     });
 
     test("sets the system default as start file", async ({
       page,
-      roomFiles,
+      roomFilesResponse,
+      getRoomFilesApiMock,
     }) => {
-      const patch = await mockMethod(
+      const patchRoomFilesSystemDefaultApiMock = await mockApiRequest(
         page,
         "PATCH",
-        "**/api/v1/rooms/abc-def-123/files/system_default",
+        "rooms/abc-def-123/files/system_default",
         { status: 204 },
       );
-      roomFiles.system_default.prefer_as_start = true;
-      const files = await mockMethod(
-        page,
-        "GET",
-        "**/api/v1/rooms/abc-def-123/files*",
-        { json: roomFiles },
-      );
+      roomFilesResponse.system_default.prefer_as_start = true;
+      const getRoomFilesRequestsAfterChange = getRoomFilesApiMock.respondWith({
+        json: roomFilesResponse,
+      });
 
       const systemDefault = page.getByTestId("room-file-system-default");
       const systemDefaultButton = systemDefault.getByTestId(
@@ -1251,9 +1235,9 @@ test.describe("Rooms view files file actions", () => {
       );
       await systemDefaultButton.click();
 
-      const request = await nthRequest(patch);
+      const request = await patchRoomFilesSystemDefaultApiMock.waitForRequest();
       expect(request.postDataJSON()).toEqual({ prefer_as_start: true });
-      await nthRequest(files);
+      await getRoomFilesRequestsAfterChange.waitForRequest();
 
       // The system default is the start file now
       await expect(systemDefault).toContainText("rooms.files.start_file");
@@ -1274,28 +1258,26 @@ test.describe("Rooms view files file actions", () => {
     test.describe("errors", () => {
       test("hides the system default if it is not set anymore", async ({
         page,
-        roomFiles,
+        roomFilesResponse,
+        getRoomFilesApiMock,
       }) => {
-        await mockMethod(
+        await mockApiRequest(
           page,
           "PATCH",
-          "**/api/v1/rooms/abc-def-123/files/system_default",
+          "rooms/abc-def-123/files/system_default",
           {
             status: 404,
             json: { message: "system_default_presentation_not_set" },
           },
         );
-        roomFiles.system_default.file = null;
-        const files = await mockMethod(
-          page,
-          "GET",
-          "**/api/v1/rooms/abc-def-123/files*",
-          { json: roomFiles },
+        roomFilesResponse.system_default.file = null;
+        const getRoomFilesRequestsAfterChange = getRoomFilesApiMock.respondWith(
+          { json: roomFilesResponse },
         );
 
         const systemDefault = page.getByTestId("room-file-system-default");
         await systemDefault.getByTestId("room-files-start-file-button").click();
-        await nthRequest(files);
+        await getRoomFilesRequestsAfterChange.waitForRequest();
 
         await expect(systemDefault).toHaveCount(0);
         await expectToastAndClose(
@@ -1312,11 +1294,11 @@ test.describe("Rooms view files file actions", () => {
       });
 
       test("shows a server error", async ({ page }) => {
-        await mockMethod(
+        await mockApiRequest(
           page,
           "PATCH",
-          "**/api/v1/rooms/abc-def-123/files/system_default",
-          { status: 500, json: { message: "Test" } },
+          "rooms/abc-def-123/files/system_default",
+          serverError(),
         );
 
         await page
@@ -1349,18 +1331,11 @@ test.describe("Rooms view files file actions", () => {
         page,
       }) => {
         await interceptRoomIndexRequests(page);
-        await mockMethod(
+        await mockApiRequest(
           page,
           "PATCH",
-          "**/api/v1/rooms/abc-def-123/files/system_default",
-          {
-            status: 404,
-            json: {
-              message: "model_not_found",
-              model: "room",
-              ids: ["abc-def-123"],
-            },
-          },
+          "rooms/abc-def-123/files/system_default",
+          modelNotFound("room", ["abc-def-123"]),
         );
 
         await page
@@ -1384,9 +1359,9 @@ test.describe("Rooms view files file actions", () => {
   test.describe("download file with terms of use", () => {
     test.use({ authenticated: false });
 
-    test.beforeEach(async ({ page, config, room }) => {
-      config.data.room.file_terms_of_use = "Test terms of use";
-      room.data.current_user = null;
+    test.beforeEach(async ({ page, configResponse, roomResponse }) => {
+      configResponse.data.room.file_terms_of_use = "Test terms of use";
+      roomResponse.data.current_user = null;
 
       await page.goto("/rooms/abc-def-123#tab=files");
       await expect(page.getByTestId("room-file-item")).toHaveCount(3);
@@ -1478,12 +1453,12 @@ test.describe("Rooms view files file actions", () => {
   test.describe("download file with access code errors", () => {
     test.use({ roomFilesFixtureName: "roomFilesNoDetails.json" });
 
-    test.beforeEach(async ({ page, room }) => {
-      await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/auth", {
+    test.beforeEach(async ({ page, roomResponse, postRoomAuthApiMock }) => {
+      postRoomAuthApiMock.respondWith({
         status: 201,
         json: { data: { id: "roomAuthToken", type: 0 } },
       });
-      room.data.owner = { id: 2, name: "Max Doe" };
+      roomResponse.data.owner = { id: 2, name: "Max Doe" };
 
       await page.goto("/rooms/abc-def-123#accessCode=123456789");
       await expect(page.getByTestId("room-file-item")).toHaveCount(2);
@@ -1491,23 +1466,23 @@ test.describe("Rooms view files file actions", () => {
 
     test("resets the room auth token on an invalid auth token", async ({
       page,
-      room,
-      postMessage,
+      roomResponse,
+      postMessageToApp,
+      getRoomApiMock,
     }) => {
-      const roomRequests = await mockMethod(
-        page,
-        "GET",
-        (url) => url.pathname === "/api/v1/rooms/abc-def-123",
-        { json: room },
-      );
+      const getRoomRequestsAfterChange = getRoomApiMock.respondWith({
+        json: roomResponse,
+      });
 
-      room.data.authenticated = false;
-      await postMessage({ type: "invalid_auth_token" });
+      roomResponse.data.authenticated = false;
+      await postMessageToApp({ type: "invalid_auth_token" });
 
       // Check that room auth token is reset
-      const request = await nthRequest(roomRequests);
-      expect(queryOf(request)).not.toHaveProperty("room_auth_token");
-      expect(queryOf(request)).not.toHaveProperty("room_auth_token_type");
+      const request = await getRoomRequestsAfterChange.waitForRequest();
+      expect(getRequestQuery(request)).not.toHaveProperty("room_auth_token");
+      expect(getRequestQuery(request)).not.toHaveProperty(
+        "room_auth_token_type",
+      );
 
       await expectToastAndClose(page, "rooms.flash.access_code_invalid");
       await expect(
@@ -1517,65 +1492,61 @@ test.describe("Rooms view files file actions", () => {
 
     test("reloads the room without the room auth token after an invalid auth token", async ({
       page,
-      room,
-      postMessage,
+      roomResponse,
+      postMessageToApp,
+      getRoomApiMock,
+      getRoomFilesApiMock,
     }) => {
-      const roomRequests = await mockMethod(
-        page,
-        "GET",
-        (url) => url.pathname === "/api/v1/rooms/abc-def-123",
-        { json: room },
-      );
-      const files = await mockMethod(
-        page,
-        "GET",
-        "**/api/v1/rooms/abc-def-123/files*",
-        { json: readFixture("roomFilesNoDetails.json") },
-      );
+      const getRoomRequestsAfterChange = getRoomApiMock.respondWith({
+        json: roomResponse,
+      });
+      const getRoomFilesRequestsAfterChange = getRoomFilesApiMock.respondWith({
+        json: readFixture("roomFilesNoDetails.json"),
+      });
 
-      room.data.authenticated = false;
-      await postMessage({ type: "invalid_auth_token" });
-      await nthRequest(roomRequests, 1);
+      roomResponse.data.authenticated = false;
+      await postMessageToApp({ type: "invalid_auth_token" });
+      await getRoomRequestsAfterChange.waitForRequest(1);
       await expectToastAndClose(page, "rooms.flash.access_code_invalid");
 
       // Reload room (but without setting room auth token)
-      room.data.authenticated = true;
+      roomResponse.data.authenticated = true;
       await page.getByTestId("reload-room-button").click();
 
-      const request = await nthRequest(roomRequests, 2);
-      expect(queryOf(request)).not.toHaveProperty("room_auth_token");
-      await nthRequest(files, 1);
+      const request = await getRoomRequestsAfterChange.waitForRequest(2);
+      expect(getRequestQuery(request)).not.toHaveProperty("room_auth_token");
+      await getRoomFilesRequestsAfterChange.waitForRequest(1);
     });
 
     test("resets the room auth token if a code is required", async ({
       page,
-      room,
-      postMessage,
+      roomResponse,
+      postMessageToApp,
+      getRoomApiMock,
     }) => {
-      const roomRequests = await mockMethod(
-        page,
-        "GET",
-        (url) => url.pathname === "/api/v1/rooms/abc-def-123",
-        { json: room },
-      );
+      const getRoomRequestsAfterChange = getRoomApiMock.respondWith({
+        json: roomResponse,
+      });
 
       // The room auth token was reset by an invalid auth token
-      room.data.authenticated = false;
-      await postMessage({ type: "invalid_auth_token" });
-      await nthRequest(roomRequests, 1);
+      roomResponse.data.authenticated = false;
+      await postMessageToApp({ type: "invalid_auth_token" });
+      await getRoomRequestsAfterChange.waitForRequest(1);
       await expectToastAndClose(page, "rooms.flash.access_code_invalid");
 
-      room.data.authenticated = true;
+      roomResponse.data.authenticated = true;
       await page.getByTestId("reload-room-button").click();
-      await nthRequest(roomRequests, 2);
+      await getRoomRequestsAfterChange.waitForRequest(2);
 
-      room.data.authenticated = false;
-      await postMessage({ type: "require_code" });
+      roomResponse.data.authenticated = false;
+      await postMessageToApp({ type: "require_code" });
 
       // Check that room auth token is not set
-      const request = await nthRequest(roomRequests, 3);
-      expect(queryOf(request)).not.toHaveProperty("room_auth_token");
-      expect(queryOf(request)).not.toHaveProperty("room_auth_token_type");
+      const request = await getRoomRequestsAfterChange.waitForRequest(3);
+      expect(getRequestQuery(request)).not.toHaveProperty("room_auth_token");
+      expect(getRequestQuery(request)).not.toHaveProperty(
+        "room_auth_token_type",
+      );
 
       await expectToastAndClose(page, "rooms.require_access_code");
 
@@ -1590,16 +1561,17 @@ test.describe("Rooms view files file actions", () => {
   test.describe("download file with personalized link errors", () => {
     test.use({ authenticated: false });
 
-    test.beforeEach(async ({ room }) => {
-      room.data.username = "Max Doe";
-      room.data.current_user = null;
+    test.beforeEach(async ({ roomResponse }) => {
+      roomResponse.data.username = "Max Doe";
+      roomResponse.data.current_user = null;
     });
 
     test("removes the personalized link on an invalid auth token", async ({
       page,
-      postMessage,
+      postMessageToApp,
+      postRoomAuthApiMock,
     }) => {
-      await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/auth", {
+      postRoomAuthApiMock.respondWith({
         status: 201,
         json: { data: { id: "roomAuthToken", type: 1 } },
       });
@@ -1609,14 +1581,11 @@ test.describe("Rooms view files file actions", () => {
       );
       await expect(page.getByTestId("room-file-item")).toHaveCount(3);
 
-      const auth = await mockMethod(
-        page,
-        "POST",
-        "**/api/v1/rooms/abc-def-123/auth",
-        { status: 401, json: { message: "invalid_personalized_link" } },
+      const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith(
+        unauthorized("invalid_personalized_link"),
       );
-      await postMessage({ type: "invalid_auth_token" });
-      await nthRequest(auth);
+      await postMessageToApp({ type: "invalid_auth_token" });
+      await postRoomAuthRequestsAfterChange.waitForRequest();
 
       // Check that sessionStorage is cleared
       await expect
@@ -1639,9 +1608,10 @@ test.describe("Rooms view files file actions", () => {
 
     test("redirects to the home page if only guests are allowed", async ({
       page,
-      postMessage,
+      postMessageToApp,
+      postRoomAuthApiMock,
     }) => {
-      await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/auth", {
+      postRoomAuthApiMock.respondWith({
         status: 201,
         json: { data: { id: "roomAuthToken", type: 1 } },
       });
@@ -1651,7 +1621,7 @@ test.describe("Rooms view files file actions", () => {
       );
       await expect(page.getByTestId("room-file-item")).toHaveCount(3);
 
-      await postMessage({ type: "guests_only" });
+      await postMessageToApp({ type: "guests_only" });
 
       await expectToastAndClose(page, "app.flash.guests_only");
 
@@ -1661,54 +1631,50 @@ test.describe("Rooms view files file actions", () => {
   });
 
   test.describe("download file errors", () => {
-    test.beforeEach(async ({ page, config }) => {
-      config.data.room.file_terms_of_use = "Test terms of use";
+    test.beforeEach(async ({ page, configResponse }) => {
+      configResponse.data.room.file_terms_of_use = "Test terms of use";
       await page.goto("/rooms/abc-def-123#tab=files");
       await expect(page.getByTestId("room-file-item")).toHaveCount(3);
     });
 
     test("reloads the files if the file is not found", async ({
       page,
-      roomFiles,
-      postMessage,
+      roomFilesResponse,
+      postMessageToApp,
+      getRoomFilesApiMock,
     }) => {
-      roomFiles.data.shift();
-      roomFiles.meta.to = 2;
-      roomFiles.meta.total = 2;
-      roomFiles.meta.total_no_filter = 2;
-      const files = await mockMethod(
-        page,
-        "GET",
-        "**/api/v1/rooms/abc-def-123/files*",
-        { json: roomFiles },
-      );
+      roomFilesResponse.data.shift();
+      roomFilesResponse.meta.to = 2;
+      roomFilesResponse.meta.total = 2;
+      roomFilesResponse.meta.total_no_filter = 2;
+      const getRoomFilesRequestsAfterChange = getRoomFilesApiMock.respondWith({
+        json: roomFilesResponse,
+      });
 
-      await postMessage({ type: "file_not_found" });
+      await postMessageToApp({ type: "file_not_found" });
 
-      await nthRequest(files);
+      await getRoomFilesRequestsAfterChange.waitForRequest();
       await expectToastAndClose(page, "rooms.flash.file_gone");
       await expect(page.getByTestId("room-file-item")).toHaveCount(2);
     });
 
     test("reloads the files if the file is not found (not_found)", async ({
       page,
-      roomFiles,
-      postMessage,
+      roomFilesResponse,
+      postMessageToApp,
+      getRoomFilesApiMock,
     }) => {
-      roomFiles.data = [roomFiles.data[1]];
-      roomFiles.meta.to = 1;
-      roomFiles.meta.total = 1;
-      roomFiles.meta.total_no_filter = 1;
-      const files = await mockMethod(
-        page,
-        "GET",
-        "**/api/v1/rooms/abc-def-123/files*",
-        { json: roomFiles },
-      );
+      roomFilesResponse.data = [roomFilesResponse.data[1]];
+      roomFilesResponse.meta.to = 1;
+      roomFilesResponse.meta.total = 1;
+      roomFilesResponse.meta.total_no_filter = 1;
+      const getRoomFilesRequestsAfterChange = getRoomFilesApiMock.respondWith({
+        json: roomFilesResponse,
+      });
 
-      await postMessage({ type: "not_found" });
+      await postMessageToApp({ type: "not_found" });
 
-      await nthRequest(files);
+      await getRoomFilesRequestsAfterChange.waitForRequest();
       await expectToastAndClose(page, "rooms.flash.file_gone");
       await expect(page.getByTestId("room-file-item")).toHaveCount(1);
     });
@@ -1716,23 +1682,23 @@ test.describe("Rooms view files file actions", () => {
     test.describe("forbidden", () => {
       test("reloads only the files first", async ({
         page,
-        room,
-        postMessage,
+        roomResponse,
+        postMessageToApp,
+        getRoomApiMock,
+        getRoomFilesApiMock,
       }) => {
-        await mockMethod(page, "GET", "**/api/v1/rooms/abc-def-123/files*", {
+        getRoomFilesApiMock.respondWith({
           json: readFixture("roomFilesNoDetails.json"),
         });
 
         // The room is only reloaded after the files, to check the intermediate state
-        room.data.current_user = null;
-        await mockMethod(
-          page,
-          "GET",
-          (url) => url.pathname === "/api/v1/rooms/abc-def-123",
-          { json: room, hold: true },
-        );
+        roomResponse.data.current_user = null;
+        getRoomApiMock.respondWith({
+          json: roomResponse,
+          hold: true,
+        });
 
-        await postMessage({ type: "forbidden" });
+        await postMessageToApp({ type: "forbidden" });
 
         await expectToastAndClose(page, "rooms.flash.file_forbidden");
         await expect(page.getByTestId("room-file-item")).toHaveCount(2);
@@ -1743,33 +1709,27 @@ test.describe("Rooms view files file actions", () => {
 
       test("reloads the room and the files afterwards", async ({
         page,
-        room,
-        postMessage,
+        roomResponse,
+        postMessageToApp,
+        getRoomApiMock,
+        postParticipantNameCheckApiMock,
+        getRoomFilesApiMock,
       }) => {
         const filesWithoutDetails = readFixture("roomFilesNoDetails.json");
-        const files = await mockMethod(
-          page,
-          "GET",
-          "**/api/v1/rooms/abc-def-123/files*",
+        const getRoomFilesRequestsAfterChange = getRoomFilesApiMock.respondWith(
           { json: filesWithoutDetails },
         );
 
         // The room is only reloaded after the files, to check the intermediate state
-        room.data.current_user = null;
-        const reloadRoom = await mockMethod(
-          page,
-          "GET",
-          (url) => url.pathname === "/api/v1/rooms/abc-def-123",
-          { json: room, hold: true },
-        );
+        roomResponse.data.current_user = null;
+        const getRoomRequestsAfterChange = getRoomApiMock.respondWith({
+          json: roomResponse,
+          hold: true,
+        });
 
-        const check = await mockMethod(
-          page,
-          "POST",
-          "**/api/v1/participantName/check",
-          { status: 204 },
-        );
-        await postMessage({ type: "forbidden" });
+        const postParticipantNameCheckRequestsAfterChange =
+          postParticipantNameCheckApiMock.respondWith({ status: 204 });
+        await postMessageToApp({ type: "forbidden" });
 
         await expectToastAndClose(page, "rooms.flash.file_forbidden");
         await expect(page.getByTestId("room-file-item")).toHaveCount(2);
@@ -1779,12 +1739,12 @@ test.describe("Rooms view files file actions", () => {
         filesWithoutDetails.meta.to = 1;
         filesWithoutDetails.meta.total = 1;
         filesWithoutDetails.meta.total_no_filter = 1;
-        reloadRoom.release();
-        await nthRequest(reloadRoom);
-        await nthRequest(check);
+        getRoomApiMock.release();
+        await getRoomRequestsAfterChange.waitForRequest();
+        await postParticipantNameCheckRequestsAfterChange.waitForRequest();
 
         await expect(page.getByTestId("room-access-overlay")).toBeHidden();
-        await nthRequest(files, 2);
+        await getRoomFilesRequestsAfterChange.waitForRequest(2);
 
         // Check that file list was updated again
         await expect(page.getByTestId("room-file-item")).toHaveCount(1);
@@ -1812,9 +1772,9 @@ test.describe("Rooms view files file actions", () => {
 
     test("shows an error if guests are not allowed", async ({
       page,
-      postMessage,
+      postMessageToApp,
     }) => {
-      await postMessage({ type: "guests_not_allowed" });
+      await postMessageToApp({ type: "guests_not_allowed" });
 
       await expect(
         page.getByText("rooms.only_used_by_authenticated_users").first(),
@@ -1829,51 +1789,47 @@ test.describe("Rooms view files file actions", () => {
     ]) {
       test(`ignores messages ${name}`, async ({
         page,
-        roomFiles,
-        postMessage,
+        roomFilesResponse,
+        postMessageToApp,
+        getRoomFilesApiMock,
       }) => {
-        const files = await mockMethod(
-          page,
-          "GET",
-          "**/api/v1/rooms/abc-def-123/files*",
-          { json: roomFiles },
+        const getRoomFilesRequestsAfterChange = getRoomFilesApiMock.respondWith(
+          { json: roomFilesResponse },
         );
 
-        await postMessage(message);
+        await postMessageToApp(message);
 
         // Check that files are still there, toast message is not shown and files are not reloaded
         await expect(page.getByTestId("room-file-item")).toHaveCount(3);
         await expect(page.locator(".p-toast-message")).toHaveCount(0);
-        expect(files.requests).toHaveLength(0);
+        expect(getRoomFilesRequestsAfterChange.requests).toHaveLength(0);
       });
     }
   });
 
   test.describe("download file errors with different base url", () => {
-    test.beforeEach(async ({ page, config }) => {
-      config.data.room.file_terms_of_use = "Test terms of use";
-      config.data.general.base_url = "";
+    test.beforeEach(async ({ page, configResponse }) => {
+      configResponse.data.room.file_terms_of_use = "Test terms of use";
+      configResponse.data.general.base_url = "";
       await page.goto("/rooms/abc-def-123#tab=files");
       await expect(page.getByTestId("room-file-item")).toHaveCount(3);
     });
 
     test("ignores messages from the app url", async ({
       page,
-      roomFiles,
-      postMessage,
+      roomFilesResponse,
+      postMessageToApp,
+      getRoomFilesApiMock,
     }) => {
-      const files = await mockMethod(
-        page,
-        "GET",
-        "**/api/v1/rooms/abc-def-123/files*",
-        { json: roomFiles },
-      );
+      const getRoomFilesRequestsAfterChange = getRoomFilesApiMock.respondWith({
+        json: roomFilesResponse,
+      });
 
-      await postMessage({ type: "file_not_found" });
+      await postMessageToApp({ type: "file_not_found" });
 
       await expect(page.getByTestId("room-file-item")).toHaveCount(3);
       await expect(page.locator(".p-toast-message")).toHaveCount(0);
-      expect(files.requests).toHaveLength(0);
+      expect(getRoomFilesRequestsAfterChange.requests).toHaveLength(0);
     });
   });
 });

@@ -1,14 +1,30 @@
+import { mergeTests } from "@playwright/test";
+import { test as userControllerTest } from "../support/fixtures/userController.js";
+import { test as roleControllerTest } from "../support/fixtures/roleController.js";
+import { test as timezonesTest } from "../support/fixtures/timezones.js";
+import { test as sessionControllerTest } from "../support/fixtures/sessionController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { test } from "../support/fixtures/adminUsersEdit.js";
 import { interceptAdminUsersIndexRequests } from "../support/mocks.js";
 import { expectLoginRedirect } from "../support/general.js";
-import { mockMethod, nthRequest } from "../support/utils.js";
+import {
+  mockApiRequest,
+  validationErrors,
+  serverError,
+  modelNotFound,
+} from "../support/utils.js";
+
+const test = mergeTests(
+  userControllerTest,
+  roleControllerTest,
+  timezonesTest,
+  sessionControllerTest,
+);
 
 test.use({ authenticated: true });
 
 test.describe("Admin users edit others", () => {
-  test.beforeEach(async ({ currentUser, config }) => {
-    currentUser.data.permissions = [
+  test.beforeEach(async ({ currentUserResponse, configResponse }) => {
+    currentUserResponse.data.permissions = [
       "admin.view",
       "users.viewAny",
       "users.view",
@@ -17,7 +33,7 @@ test.describe("Admin users edit others", () => {
       "users.delete",
       "roles.viewAny",
     ];
-    config.data.auth.local = true;
+    configResponse.data.auth.local = true;
   });
 
   test("view others tab and set the tab hash", async ({ page }) => {
@@ -43,16 +59,16 @@ test.describe("Admin users edit others", () => {
 
     test("loading state disables tabs, header buttons and form", async ({
       page,
-      user,
+      userResponse,
     }) => {
-      user.data.bbb_skip_check_audio = true;
-      const save = await mockMethod(page, "POST", "**/api/v1/users/2", {
-        json: user,
+      userResponse.data.bbb_skip_check_audio = true;
+      const postUserApiMock = await mockApiRequest(page, "POST", "users/2", {
+        json: userResponse,
         hold: true,
       });
 
       await page.getByTestId("user-tab-others-save-button").click();
-      await nthRequest(save);
+      await postUserApiMock.waitForRequest();
 
       for (const tab of ["base", "email", "security", "others"]) {
         await expect(page.getByTestId(`${tab}-tab-button`)).toBeDisabled();
@@ -74,16 +90,16 @@ test.describe("Admin users edit others", () => {
         page.getByTestId("user-tab-others-save-button"),
       ).toBeDisabled();
 
-      save.release();
+      postUserApiMock.release();
     });
 
     test("save changes and redirect to the user view", async ({
       page,
-      user,
+      userResponse,
     }) => {
-      user.data.bbb_skip_check_audio = true;
-      const save = await mockMethod(page, "POST", "**/api/v1/users/2", {
-        json: user,
+      userResponse.data.bbb_skip_check_audio = true;
+      const postUserApiMock = await mockApiRequest(page, "POST", "users/2", {
+        json: userResponse,
       });
 
       const userRequest = page.waitForRequest(
@@ -93,7 +109,7 @@ test.describe("Admin users edit others", () => {
       );
       await page.getByTestId("user-tab-others-save-button").click();
 
-      const request = await nthRequest(save);
+      const request = await postUserApiMock.waitForRequest();
       expect(request.postDataJSON()).toMatchObject({
         bbb_skip_check_audio: true,
       });
@@ -104,17 +120,19 @@ test.describe("Admin users edit others", () => {
     });
 
     test("validation error (422) is shown in the field", async ({ page }) => {
-      await mockMethod(page, "POST", "**/api/v1/users/2", {
-        status: 422,
-        json: {
-          message: "The bbb skip check audio field is required.",
-          errors: {
+      await mockApiRequest(
+        page,
+        "POST",
+        "users/2",
+        validationErrors(
+          {
             bbb_skip_check_audio: [
               "The bbb skip check audio field is required.",
             ],
           },
-        },
-      });
+          "The bbb skip check audio field is required.",
+        ),
+      );
 
       await page.getByTestId("user-tab-others-save-button").click();
 
@@ -131,17 +149,19 @@ test.describe("Admin users edit others", () => {
     test("server error (500) shows a toast and hides previous field errors", async ({
       page,
     }) => {
-      const save = await mockMethod(page, "POST", "**/api/v1/users/2", {
-        status: 422,
-        json: {
-          message: "The bbb skip check audio field is required.",
-          errors: {
+      const postUserApiMock = await mockApiRequest(
+        page,
+        "POST",
+        "users/2",
+        validationErrors(
+          {
             bbb_skip_check_audio: [
               "The bbb skip check audio field is required.",
             ],
           },
-        },
-      });
+          "The bbb skip check audio field is required.",
+        ),
+      );
       const field = page.getByTestId("bbb-skip-check-audio-field");
 
       await page.getByTestId("user-tab-others-save-button").click();
@@ -152,12 +172,9 @@ test.describe("Admin users edit others", () => {
       await expect(field).toContainText(
         "The bbb skip check audio field is required.",
       );
-      expect(save.requests).toHaveLength(1);
+      expect(postUserApiMock.requests).toHaveLength(1);
 
-      await mockMethod(page, "POST", "**/api/v1/users/2", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "POST", "users/2", serverError());
       await page.getByTestId("user-tab-others-save-button").click();
 
       await expectToastAndClose(page, [
@@ -171,12 +188,12 @@ test.describe("Admin users edit others", () => {
 
     test("stale model (428) shows the stale dialog and reloads", async ({
       page,
-      user,
+      userResponse,
     }) => {
-      user.data.bbb_skip_check_audio = true;
-      await mockMethod(page, "POST", "**/api/v1/users/2", {
+      userResponse.data.bbb_skip_check_audio = true;
+      await mockApiRequest(page, "POST", "users/2", {
         status: 428,
-        json: { message: "stale_model", new_model: user.data },
+        json: { message: "stale_model", new_model: userResponse.data },
       });
 
       await expect(page.getByTestId("stale-user-dialog")).toHaveCount(0);
@@ -209,10 +226,7 @@ test.describe("Admin users edit others", () => {
           request.method() === "GET" &&
           new URL(request.url()).pathname === "/api/v1/users",
       );
-      await mockMethod(page, "POST", "**/api/v1/users/2", {
-        status: 404,
-        json: { message: "model_not_found", model: "user", ids: [2] },
-      });
+      await mockApiRequest(page, "POST", "users/2", modelNotFound("user", [2]));
 
       await page.getByTestId("user-tab-others-save-button").click();
 
@@ -229,7 +243,7 @@ test.describe("Admin users edit others", () => {
     test("unauthenticated (401) redirects to the login page", async ({
       page,
     }) => {
-      await mockMethod(page, "POST", "**/api/v1/users/2", {
+      await mockApiRequest(page, "POST", "users/2", {
         status: 401,
         json: {},
       });

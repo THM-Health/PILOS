@@ -1,23 +1,38 @@
+import { mergeTests } from "@playwright/test";
+import { test as userControllerTest } from "../support/fixtures/userController.js";
+import { test as roleControllerTest } from "../support/fixtures/roleController.js";
+import { test as timezonesTest } from "../support/fixtures/timezones.js";
+import { test as sessionControllerTest } from "../support/fixtures/sessionController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { test } from "../support/fixtures/adminUsersOther.js";
 import {
   expectLoginRedirect,
   testVisitWithoutCurrentUser,
 } from "../support/general.js";
-import { mockMethod, nthRequest } from "../support/utils.js";
+import {
+  mockApiRequest,
+  serverError,
+  modelNotFound,
+} from "../support/utils.js";
+
+const test = mergeTests(
+  userControllerTest,
+  roleControllerTest,
+  timezonesTest,
+  sessionControllerTest,
+);
 
 test.use({ authenticated: true });
 
 test.describe("Admin users view", () => {
-  test.beforeEach(async ({ currentUser, config }) => {
-    currentUser.data.permissions = [
+  test.beforeEach(async ({ currentUserResponse, configResponse }) => {
+    currentUserResponse.data.permissions = [
       "admin.view",
       "users.viewAny",
       "users.view",
       "users.create",
       "roles.viewAny",
     ];
-    config.data.auth.local = true;
+    configResponse.data.auth.local = true;
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
@@ -26,9 +41,9 @@ test.describe("Admin users view", () => {
 
   test("visit with user without permission to view users", async ({
     page,
-    currentUser,
+    currentUserResponse,
   }) => {
-    currentUser.data.permissions = [
+    currentUserResponse.data.permissions = [
       "admin.view",
       "users.viewAny",
       "users.create",
@@ -45,10 +60,13 @@ test.describe("Admin users view", () => {
   });
 
   test.describe("view user", () => {
-    test("loading state hides buttons and tabs", async ({ page, user }) => {
-      const userRequest = await mockMethod(page, "GET", "**/api/v1/users/2", {
+    test("loading state hides buttons and tabs", async ({
+      page,
+      userResponse,
+    }) => {
+      const getUserApiMock = await mockApiRequest(page, "GET", "users/2", {
         hold: true,
-        json: user,
+        json: userResponse,
       });
 
       await page.goto("/admin/users/2");
@@ -72,7 +90,7 @@ test.describe("Admin users view", () => {
         await expect(page.getByTestId(id)).toHaveCount(0);
       }
 
-      userRequest.release();
+      getUserApiMock.release();
       await expect(page.getByTestId("base-tab-button")).toBeVisible();
       await expect(page.getByTestId("overlay")).toBeHidden();
     });
@@ -245,9 +263,9 @@ test.describe("Admin users view", () => {
   });
 
   test.describe("ldap user", () => {
-    test.beforeEach(async ({ page, user }) => {
-      user.data.authenticator = "ldap";
-      user.data.external_id = "lwr";
+    test.beforeEach(async ({ page, userResponse }) => {
+      userResponse.data.authenticator = "ldap";
+      userResponse.data.external_id = "lwr";
 
       await page.goto("/admin/users/2");
       await expect(page.locator("#firstname")).toBeVisible();
@@ -313,8 +331,8 @@ test.describe("Admin users view", () => {
   });
 
   test.describe("button visibility", () => {
-    test("with update permission", async ({ page, currentUser }) => {
-      currentUser.data.permissions = [
+    test("with update permission", async ({ page, currentUserResponse }) => {
+      currentUserResponse.data.permissions = [
         "admin.view",
         "users.viewAny",
         "users.view",
@@ -342,8 +360,8 @@ test.describe("Admin users view", () => {
       await expect(page.getByTestId("users-delete-button")).toHaveCount(0);
     });
 
-    test("with delete permission", async ({ page, currentUser }) => {
-      currentUser.data.permissions = [
+    test("with delete permission", async ({ page, currentUserResponse }) => {
+      currentUserResponse.data.permissions = [
         "admin.view",
         "users.viewAny",
         "users.view",
@@ -375,8 +393,8 @@ test.describe("Admin users view", () => {
     });
 
     test.describe("viewing a superuser", () => {
-      test.beforeEach(async ({ currentUser, user }) => {
-        currentUser.data.permissions = [
+      test.beforeEach(async ({ currentUserResponse, userResponse }) => {
+        currentUserResponse.data.permissions = [
           "admin.view",
           "users.viewAny",
           "users.view",
@@ -386,8 +404,8 @@ test.describe("Admin users view", () => {
           "roles.viewAny",
         ];
 
-        user.data.superuser = true;
-        user.data.roles.push({
+        userResponse.data.superuser = true;
+        userResponse.data.roles.push({
           id: 1,
           name: "Superuser",
           automatic: true,
@@ -421,9 +439,9 @@ test.describe("Admin users view", () => {
 
       test("as non superuser no action buttons are shown", async ({
         page,
-        currentUser,
+        currentUserResponse,
       }) => {
-        currentUser.data.superuser = false;
+        currentUserResponse.data.superuser = false;
 
         await page.goto("/admin/users/2");
 
@@ -444,10 +462,10 @@ test.describe("Admin users view", () => {
 
     test("non superuser sees all buttons for a normal user", async ({
       page,
-      currentUser,
+      currentUserResponse,
     }) => {
-      currentUser.data.superuser = false;
-      currentUser.data.permissions = [
+      currentUserResponse.data.superuser = false;
+      currentUserResponse.data.permissions = [
         "admin.view",
         "users.viewAny",
         "users.view",
@@ -479,8 +497,8 @@ test.describe("Admin users view", () => {
     });
   });
 
-  test("visit with invalid tab hash", async ({ page, currentUser }) => {
-    currentUser.data.permissions = [
+  test("visit with invalid tab hash", async ({ page, currentUserResponse }) => {
+    currentUserResponse.data.permissions = [
       "admin.view",
       "users.viewAny",
       "users.view",
@@ -507,12 +525,9 @@ test.describe("Admin users view", () => {
   test.describe("errors", () => {
     test("server error shows overlay with retry that loads the user", async ({
       page,
-      user,
+      userResponse,
     }) => {
-      await mockMethod(page, "GET", "**/api/v1/users/2", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "GET", "users/2", serverError());
 
       await page.goto("/admin/users/2");
 
@@ -523,8 +538,8 @@ test.describe("Admin users view", () => {
       ]);
 
       // Reload with correct data
-      await mockMethod(page, "GET", "**/api/v1/users/2", {
-        json: user,
+      await mockApiRequest(page, "GET", "users/2", {
+        json: userResponse,
       });
 
       const retryButton = page.getByTestId("loading-retry-button");
@@ -538,10 +553,7 @@ test.describe("Admin users view", () => {
     });
 
     test("404 error redirects to users index", async ({ page }) => {
-      await mockMethod(page, "GET", "**/api/v1/users/2", {
-        status: 404,
-        json: { message: "model_not_found", model: "user", ids: [2] },
-      });
+      await mockApiRequest(page, "GET", "users/2", modelNotFound("user", [2]));
 
       await page.goto("/admin/users/2");
 
@@ -553,7 +565,7 @@ test.describe("Admin users view", () => {
     });
 
     test("401 error redirects to login", async ({ page }) => {
-      await mockMethod(page, "GET", "**/api/v1/users/2", { status: 401 });
+      await mockApiRequest(page, "GET", "users/2", { status: 401 });
 
       await page.goto("/admin/users/2");
 
@@ -563,17 +575,13 @@ test.describe("Admin users view", () => {
     test.describe("timezones", () => {
       test("server error disables the dropdown and allows reload", async ({
         page,
-        timezones,
+        timezonesResponse,
       }) => {
-        const timezonesRequest = await mockMethod(
+        const getTimezonesApiMock = await mockApiRequest(
           page,
           "GET",
-          "**/api/v1/getTimezones",
-          {
-            hold: true,
-            status: 500,
-            json: { message: "Test" },
-          },
+          "getTimezones",
+          serverError({ hold: true }),
         );
 
         await page.goto("/admin/users/2");
@@ -585,8 +593,8 @@ test.describe("Admin users view", () => {
           "true",
         );
 
-        timezonesRequest.release();
-        await nthRequest(timezonesRequest);
+        getTimezonesApiMock.release();
+        await getTimezonesApiMock.waitForRequest();
 
         await expectToastAndClose(page, [
           'app.flash.server_error.message_{"message":"Test"}',
@@ -600,11 +608,16 @@ test.describe("Admin users view", () => {
         );
 
         // Reload timezones without error
-        const reload = await mockMethod(page, "GET", "**/api/v1/getTimezones", {
-          json: timezones,
-        });
+        const getTimezonesApiMock2 = await mockApiRequest(
+          page,
+          "GET",
+          "getTimezones",
+          {
+            json: timezonesResponse,
+          },
+        );
         await page.getByTestId("timezone-reload-button").click();
-        await nthRequest(reload);
+        await getTimezonesApiMock2.waitForRequest();
 
         await expect(dropdown).toHaveText("UTC");
         await expect(dropdown.locator(".p-select-label")).toHaveAttribute(
@@ -615,7 +628,7 @@ test.describe("Admin users view", () => {
       });
 
       test("401 error redirects to login", async ({ page }) => {
-        await mockMethod(page, "GET", "**/api/v1/getTimezones", {
+        await mockApiRequest(page, "GET", "getTimezones", {
           status: 401,
         });
 

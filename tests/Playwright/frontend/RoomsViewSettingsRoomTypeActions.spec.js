@@ -1,11 +1,26 @@
-import { test } from "../support/fixtures/roomsSettingsStreaming.js";
+import { mergeTests } from "@playwright/test";
+import { test as roomControllerTest } from "../support/fixtures/roomController.js";
+import { test as roomFileControllerTest } from "../support/fixtures/roomFileController.js";
+import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
+import { test as userControllerTest } from "../support/fixtures/userController.js";
+import { test as roomStreamingControllerTest } from "../support/fixtures/roomStreamingController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import {
   checkCompareRoomSettingField,
   checkDefaultRoomSettingField,
   checkRoomAuthErrors,
 } from "../support/room.js";
-import { mockMethod, nthRequest } from "../support/utils.js";
+import { mockApiRequest, serverError } from "../support/utils.js";
+
+const test = mergeTests(
+  roomControllerTest,
+  roomFileControllerTest,
+  roomTypeControllerTest,
+  userControllerTest,
+  roomStreamingControllerTest,
+);
+test.use({ roomFilesFixtureName: "roomFilesNoDetails.json" });
+test.use({ roomTypesFixtureName: "roomTypesWithSettings.json" });
 
 test.use({ authenticated: true });
 
@@ -1190,11 +1205,11 @@ test.describe("Rooms view settings room type actions", () => {
   test.describe("features", () => {
     test("shows the streaming feature of the room types", async ({
       page,
-      config,
-      roomTypes,
+      configResponse,
+      getRoomTypesApiMock,
     }) => {
-      config.data.streaming.enabled = true;
-      roomTypes.data[0].features.streaming.enabled = true;
+      configResponse.data.streaming.enabled = true;
+      getRoomTypesApiMock.json.data[0].features.streaming.enabled = true;
       const changeDialog = page.getByTestId("room-type-change-dialog");
       const details = changeDialog.getByTestId("room-type-details");
 
@@ -1232,13 +1247,13 @@ test.describe("Rooms view settings room type actions", () => {
 
     test("shows the streaming feature if the current room type has it enabled", async ({
       page,
-      config,
-      roomTypes,
-      roomSettings,
+      configResponse,
+      getRoomTypesApiMock,
+      roomSettingsResponse,
     }) => {
-      config.data.streaming.enabled = true;
-      roomTypes.data[1].features.streaming.enabled = true;
-      roomSettings.data.room_type.features.streaming.enabled = true;
+      configResponse.data.streaming.enabled = true;
+      getRoomTypesApiMock.json.data[1].features.streaming.enabled = true;
+      roomSettingsResponse.data.room_type.features.streaming.enabled = true;
       const changeDialog = page.getByTestId("room-type-change-dialog");
       const details = changeDialog.getByTestId("room-type-details");
 
@@ -1280,11 +1295,11 @@ test.describe("Rooms view settings room type actions", () => {
 
     test("hides the features if streaming is disabled", async ({
       page,
-      config,
-      roomTypes,
+      configResponse,
+      getRoomTypesApiMock,
     }) => {
-      config.data.streaming.enabled = false;
-      roomTypes.data[0].features.streaming.enabled = true;
+      configResponse.data.streaming.enabled = false;
+      getRoomTypesApiMock.json.data[0].features.streaming.enabled = true;
       const changeDialog = page.getByTestId("room-type-change-dialog");
 
       await page.goto("/rooms/abc-def-123#tab=settings");
@@ -1311,15 +1326,15 @@ test.describe("Rooms view settings room type actions", () => {
 
     test("shows disabled features if streaming is disabled and hiding disabled features is off", async ({
       page,
-      config,
-      roomTypes,
-      roomSettings,
+      configResponse,
+      getRoomTypesApiMock,
+      roomSettingsResponse,
     }) => {
-      config.data.general.hide_disabled_features = false;
-      config.data.streaming.enabled = false;
-      roomSettings.data.room_type.features.streaming.enabled = true;
-      roomTypes.data[0].features.streaming.enabled = true;
-      roomTypes.data[1].features.streaming.enabled = true;
+      configResponse.data.general.hide_disabled_features = false;
+      configResponse.data.streaming.enabled = false;
+      roomSettingsResponse.data.room_type.features.streaming.enabled = true;
+      getRoomTypesApiMock.json.data[0].features.streaming.enabled = true;
+      getRoomTypesApiMock.json.data[1].features.streaming.enabled = true;
       const changeDialog = page.getByTestId("room-type-change-dialog");
       const details = changeDialog.getByTestId("room-type-details");
 
@@ -1355,24 +1370,28 @@ test.describe("Rooms view settings room type actions", () => {
   });
 
   test.describe("without expert mode", () => {
-    test.beforeEach(async ({ page, roomTypes, roomSettings }) => {
-      roomTypes.data[4] = { ...roomTypes.data[2] };
-      roomTypes.data[4].id = 5;
-      roomTypes.data[4].name = "Exam 2";
-      roomTypes.data[4].everyone_can_start_default = false;
-      roomTypes.data[4].allow_guests_default = true;
+    test.beforeEach(
+      async ({ page, getRoomTypesApiMock, roomSettingsResponse }) => {
+        getRoomTypesApiMock.json.data[4] = {
+          ...getRoomTypesApiMock.json.data[2],
+        };
+        getRoomTypesApiMock.json.data[4].id = 5;
+        getRoomTypesApiMock.json.data[4].name = "Exam 2";
+        getRoomTypesApiMock.json.data[4].everyone_can_start_default = false;
+        getRoomTypesApiMock.json.data[4].allow_guests_default = true;
 
-      roomSettings.data.expert_mode = false;
-      roomSettings.data.welcome = "";
+        roomSettingsResponse.data.expert_mode = false;
+        roomSettingsResponse.data.welcome = "";
 
-      await page.goto("/rooms/abc-def-123#tab=settings");
-      await expect(page.locator("#room-setting-room_type")).toHaveValue(
-        "Meeting",
-      );
-      await expect(page.locator("#room-setting-access_code")).toHaveValue(
-        "123456789",
-      );
-    });
+        await page.goto("/rooms/abc-def-123#tab=settings");
+        await expect(page.locator("#room-setting-room_type")).toHaveValue(
+          "Meeting",
+        );
+        await expect(page.locator("#room-setting-access_code")).toHaveValue(
+          "123456789",
+        );
+      },
+    );
 
     test("shows the comparison of the room type change", async ({ page }) => {
       const changeDialog = page.getByTestId("room-type-change-dialog");
@@ -1951,13 +1970,13 @@ test.describe("Rooms view settings room type actions", () => {
   test.describe("errors loading room types", () => {
     test("shows the loading error and allows to reload", async ({
       page,
-      roomTypes,
+      getRoomTypesApiMock,
     }) => {
-      const failedRoomTypes = await mockMethod(
+      const getRoomTypesApiMock2 = await mockApiRequest(
         page,
         "GET",
-        "**/api/v1/roomTypes*",
-        { status: 500, json: { message: "Test" }, hold: true },
+        "roomTypes*",
+        serverError({ hold: true }),
       );
 
       await page.goto("/rooms/abc-def-123#tab=settings");
@@ -1977,7 +1996,7 @@ test.describe("Rooms view settings room type actions", () => {
       await expect(dialog.getByTestId("dialog-save-button")).toBeVisible();
       await expect(dialog.getByTestId("dialog-save-button")).toBeDisabled();
 
-      failedRoomTypes.release();
+      getRoomTypesApiMock2.release();
 
       // Check error message
       const toast = page.locator(".p-toast-message");
@@ -2003,16 +2022,18 @@ test.describe("Rooms view settings room type actions", () => {
       await expect(dialog.getByTestId("dialog-save-button")).toBeDisabled();
 
       // Reload with valid room types
-      const validRoomTypes = await mockMethod(
+      const getRoomTypesApiMock3 = await mockApiRequest(
         page,
         "GET",
-        "**/api/v1/roomTypes*",
-        { json: roomTypes },
+        "roomTypes*",
+        {
+          json: getRoomTypesApiMock.json,
+        },
       );
       const reloadButton = dialog.getByTestId("reload-room-types-button");
       await expect(reloadButton).toBeVisible();
       await reloadButton.click();
-      await nthRequest(validRoomTypes);
+      await getRoomTypesApiMock3.waitForRequest();
 
       await expect(dialog.getByTestId("room-type-select-option")).toHaveText([
         "Lecture",

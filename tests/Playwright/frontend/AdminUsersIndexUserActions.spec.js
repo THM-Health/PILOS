@@ -1,13 +1,29 @@
+import { mergeTests } from "@playwright/test";
+import { test as userControllerTest } from "../support/fixtures/userController.js";
+import { test as roleControllerTest } from "../support/fixtures/roleController.js";
+import { test as timezonesTest } from "../support/fixtures/timezones.js";
+import { test as sessionControllerTest } from "../support/fixtures/sessionController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { test } from "../support/fixtures/adminUsersOther.js";
 import { expectLoginRedirect } from "../support/general.js";
-import { mockMethod, nthRequest, readFixture } from "../support/utils.js";
+import {
+  mockApiRequest,
+  readFixture,
+  serverError,
+  modelNotFound,
+} from "../support/utils.js";
+
+const test = mergeTests(
+  userControllerTest,
+  roleControllerTest,
+  timezonesTest,
+  sessionControllerTest,
+);
 
 test.use({ authenticated: true });
 
 test.describe("Admin users index user actions", () => {
-  test.beforeEach(async ({ currentUser, config }) => {
-    currentUser.data.permissions = [
+  test.beforeEach(async ({ currentUserResponse, configResponse }) => {
+    currentUserResponse.data.permissions = [
       "admin.view",
       "users.viewAny",
       "users.view",
@@ -16,7 +32,7 @@ test.describe("Admin users index user actions", () => {
       "users.delete",
       "roles.viewAny",
     ];
-    config.data.auth.local = true;
+    configResponse.data.auth.local = true;
   });
 
   test.describe("delete user", () => {
@@ -48,14 +64,23 @@ test.describe("Admin users index user actions", () => {
 
     test("confirm deletes the user and reloads the list", async ({
       page,
-      users,
+      usersResponse,
     }) => {
-      const deleteMock = await mockMethod(page, "DELETE", "**/api/v1/users/3", {
-        status: 204,
-        hold: true,
+      const deleteUserApiMock = await mockApiRequest(
+        page,
+        "DELETE",
+        "users/3",
+        {
+          status: 204,
+          hold: true,
+        },
+      );
+      usersResponse.data = usersResponse.data.filter((user) => user.id !== 3);
+      Object.assign(usersResponse.meta, {
+        to: 3,
+        total: 3,
+        total_no_filter: 3,
       });
-      users.data = users.data.filter((user) => user.id !== 3);
-      Object.assign(users.meta, { to: 3, total: 3, total_no_filter: 3 });
 
       await expect(page.getByTestId("dialog-continue-button")).toHaveText(
         "app.yes",
@@ -70,8 +95,8 @@ test.describe("Admin users index user actions", () => {
       await expect(page.getByTestId("dialog-continue-button")).toBeDisabled();
 
       const reload = page.waitForRequest("**/api/v1/users*");
-      await nthRequest(deleteMock);
-      deleteMock.release();
+      await deleteUserApiMock.waitForRequest();
+      deleteUserApiMock.release();
       await reload;
 
       // Check that user was deleted and the dialog is closed
@@ -81,11 +106,15 @@ test.describe("Admin users index user actions", () => {
 
     test("dialog of another user shows its name after a delete", async ({
       page,
-      users,
+      usersResponse,
     }) => {
-      await mockMethod(page, "DELETE", "**/api/v1/users/3", { status: 204 });
-      users.data = users.data.filter((user) => user.id !== 3);
-      Object.assign(users.meta, { to: 3, total: 3, total_no_filter: 3 });
+      await mockApiRequest(page, "DELETE", "users/3", { status: 204 });
+      usersResponse.data = usersResponse.data.filter((user) => user.id !== 3);
+      Object.assign(usersResponse.meta, {
+        to: 3,
+        total: 3,
+        total_no_filter: 3,
+      });
 
       await page.getByTestId("dialog-continue-button").click();
       await expect(page.getByTestId("user-item")).toHaveCount(3);
@@ -108,13 +137,15 @@ test.describe("Admin users index user actions", () => {
     });
 
     test("server error (500) keeps the dialog open", async ({ page }) => {
-      const deleteMock = await mockMethod(page, "DELETE", "**/api/v1/users/3", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      const deleteUserApiMock = await mockApiRequest(
+        page,
+        "DELETE",
+        "users/3",
+        serverError(),
+      );
 
       await page.getByTestId("dialog-continue-button").click();
-      await nthRequest(deleteMock);
+      await deleteUserApiMock.waitForRequest();
 
       await expect(page.getByTestId("users-delete-dialog")).toBeVisible();
       await expectToastAndClose(page, [
@@ -125,18 +156,24 @@ test.describe("Admin users index user actions", () => {
 
     test("user not found (404) reloads the list and closes the dialog", async ({
       page,
-      users,
+      usersResponse,
     }) => {
-      users.data = users.data.filter((user) => user.id !== 3);
-      Object.assign(users.meta, { to: 3, total: 3, total_no_filter: 3 });
-      const deleteMock = await mockMethod(page, "DELETE", "**/api/v1/users/3", {
-        status: 404,
-        json: { message: "model_not_found", model: "user", ids: [3] },
+      usersResponse.data = usersResponse.data.filter((user) => user.id !== 3);
+      Object.assign(usersResponse.meta, {
+        to: 3,
+        total: 3,
+        total_no_filter: 3,
       });
+      const deleteUserApiMock = await mockApiRequest(
+        page,
+        "DELETE",
+        "users/3",
+        modelNotFound("user", [3]),
+      );
 
       const reload = page.waitForRequest("**/api/v1/users*");
       await page.getByTestId("dialog-continue-button").click();
-      await nthRequest(deleteMock);
+      await deleteUserApiMock.waitForRequest();
       await reload;
 
       await expect(page.getByTestId("users-delete-dialog")).toHaveCount(0);
@@ -151,14 +188,20 @@ test.describe("Admin users index user actions", () => {
 
     test("the dialog can be opened for another user after a 404", async ({
       page,
-      users,
+      usersResponse,
     }) => {
-      users.data = users.data.filter((user) => user.id !== 3);
-      Object.assign(users.meta, { to: 3, total: 3, total_no_filter: 3 });
-      await mockMethod(page, "DELETE", "**/api/v1/users/3", {
-        status: 404,
-        json: { message: "model_not_found", model: "user", ids: [3] },
+      usersResponse.data = usersResponse.data.filter((user) => user.id !== 3);
+      Object.assign(usersResponse.meta, {
+        to: 3,
+        total: 3,
+        total_no_filter: 3,
       });
+      await mockApiRequest(
+        page,
+        "DELETE",
+        "users/3",
+        modelNotFound("user", [3]),
+      );
 
       await page.getByTestId("dialog-continue-button").click();
       await expectToastAndClose(page, "app.flash.model_not_found.title_");
@@ -175,12 +218,17 @@ test.describe("Admin users index user actions", () => {
     test("unauthenticated (401) redirects to the login page", async ({
       page,
     }) => {
-      const deleteMock = await mockMethod(page, "DELETE", "**/api/v1/users/3", {
-        status: 401,
-      });
+      const deleteUserApiMock = await mockApiRequest(
+        page,
+        "DELETE",
+        "users/3",
+        {
+          status: 401,
+        },
+      );
 
       await page.getByTestId("dialog-continue-button").click();
-      await nthRequest(deleteMock);
+      await deleteUserApiMock.waitForRequest();
 
       await expectLoginRedirect(page, "/admin/users");
     });
@@ -212,10 +260,10 @@ test.describe("Admin users index user actions", () => {
     });
 
     test("confirm resets the password", async ({ page }) => {
-      const resetMock = await mockMethod(
+      const postUserResetPasswordApiMock = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/users/2/resetPassword",
+        "users/2/resetPassword",
         { status: 204, hold: true },
       );
 
@@ -231,8 +279,8 @@ test.describe("Admin users index user actions", () => {
       await expect(page.getByTestId("dialog-cancel-button")).toBeDisabled();
       await expect(page.getByTestId("dialog-continue-button")).toBeDisabled();
 
-      await nthRequest(resetMock);
-      resetMock.release();
+      await postUserResetPasswordApiMock.waitForRequest();
+      postUserResetPasswordApiMock.release();
 
       // Check that toast message is shown and the dialog is closed
       await expectToastAndClose(
@@ -245,15 +293,15 @@ test.describe("Admin users index user actions", () => {
     });
 
     test("server error (500) keeps the dialog open", async ({ page }) => {
-      const resetMock = await mockMethod(
+      const postUserResetPasswordApiMock = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/users/2/resetPassword",
-        { status: 500, json: { message: "Test" } },
+        "users/2/resetPassword",
+        serverError(),
       );
 
       await page.getByTestId("dialog-continue-button").click();
-      await nthRequest(resetMock);
+      await postUserResetPasswordApiMock.waitForRequest();
 
       await expect(
         page.getByTestId("users-reset-password-dialog"),
@@ -267,15 +315,15 @@ test.describe("Admin users index user actions", () => {
     test("unauthenticated (401) redirects to the login page", async ({
       page,
     }) => {
-      const resetMock = await mockMethod(
+      const postUserResetPasswordApiMock = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/users/2/resetPassword",
+        "users/2/resetPassword",
         { status: 401 },
       );
 
       await page.getByTestId("dialog-continue-button").click();
-      await nthRequest(resetMock);
+      await postUserResetPasswordApiMock.waitForRequest();
 
       await expectLoginRedirect(page, "/admin/users");
     });
@@ -315,13 +363,13 @@ test.describe("Admin users index user actions", () => {
   });
 
   test.describe("navigation without update and view permission", () => {
-    test.beforeEach(async ({ page, currentUser }) => {
-      currentUser.data.permissions = [
+    test.beforeEach(async ({ page, currentUserResponse }) => {
+      currentUserResponse.data.permissions = [
         "admin.view",
         "users.viewAny",
         "roles.viewAny",
       ];
-      await mockMethod(page, "GET", "**/api/v1/users/1", {
+      await mockApiRequest(page, "GET", "users/1", {
         json: readFixture("userDataCurrentUser.json"),
       });
       await page.goto("/admin/users");

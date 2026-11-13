@@ -1,11 +1,22 @@
-import { test } from "../support/fixtures/roomsAccess.js";
+import {
+  validationErrors,
+  unauthorized,
+  serverError,
+  forbidden,
+  modelNotFound,
+  errorResponse,
+} from "../support/utils.js";
+import { mergeTests } from "@playwright/test";
+import { test as roomControllerTest } from "../support/fixtures/roomController.js";
+import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import {
   interceptRoomFilesRequest,
   interceptRoomIndexRequests,
 } from "../support/mocks.js";
 import { expectAuthToken } from "../support/room.js";
-import { mockMethod, nthRequest } from "../support/utils.js";
+
+const test = mergeTests(roomControllerTest, participantNameCheckTest);
 
 test.beforeEach(async ({ page }) => {
   await interceptRoomFilesRequest(page);
@@ -20,17 +31,19 @@ test.describe("saved access parameter priority", () => {
 
   test("personalized link from hash wins over all saved access parameters", async ({
     page,
-    room,
-    roomAuth,
-    roomRequests,
+    roomResponse,
+    getRoomApiMock,
+    postRoomAuthApiMock,
   }) => {
-    roomAuth.status = 200;
-    roomAuth.json = { data: { id: "roomAuthToken", type: 1 } };
+    const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith({
+      status: 200,
+      json: { data: { id: "roomAuthToken", type: 1 } },
+    });
 
-    room.data.allow_membership = true;
-    room.data.current_user = null;
-    room.data.is_member = true;
-    room.data.username = "Max Doe";
+    roomResponse.data.allow_membership = true;
+    roomResponse.data.current_user = null;
+    roomResponse.data.is_member = true;
+    roomResponse.data.username = "Max Doe";
 
     await page.addInitScript(
       (items) => {
@@ -52,13 +65,15 @@ test.describe("saved access parameter priority", () => {
       "/rooms/abc-def-123#accessCode=987654321&personalizedLink=RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
     );
 
-    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
-      personalized_link_token:
-        "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
-      type: 1,
+    await expect(postRoomAuthRequestsAfterChange).toHaveReceivedRequest({
+      json: {
+        personalized_link_token:
+          "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
+        type: 1,
+      },
     });
 
-    expectAuthToken(await nthRequest(roomRequests), "1");
+    expectAuthToken(await getRoomApiMock.waitForRequest(), "1");
 
     await expect(page.getByText("Meeting One").first()).toBeVisible();
     await expect(
@@ -97,17 +112,19 @@ test.describe("saved access parameter priority", () => {
 
   test("removed access code hash cannot win on a later reload", async ({
     page,
-    room,
-    roomAuth,
-    roomRequests,
+    roomResponse,
+    getRoomApiMock,
+    postRoomAuthApiMock,
   }) => {
-    roomAuth.status = 200;
-    roomAuth.json = { data: { id: "roomAuthToken", type: 1 } };
+    const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith({
+      status: 200,
+      json: { data: { id: "roomAuthToken", type: 1 } },
+    });
 
-    room.data.allow_membership = true;
-    room.data.current_user = null;
-    room.data.is_member = true;
-    room.data.username = "Max Doe";
+    roomResponse.data.allow_membership = true;
+    roomResponse.data.current_user = null;
+    roomResponse.data.is_member = true;
+    roomResponse.data.username = "Max Doe";
 
     await page.addInitScript(
       (items) => {
@@ -149,13 +166,18 @@ test.describe("saved access parameter priority", () => {
     );
     await page.reload();
 
-    expect((await nthRequest(roomAuth, 2)).postDataJSON()).toEqual({
-      personalized_link_token:
-        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      type: 1,
-    });
+    await expect(postRoomAuthRequestsAfterChange).toHaveReceivedRequest(
+      {
+        json: {
+          personalized_link_token:
+            "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+          type: 1,
+        },
+      },
+      { nth: 2 },
+    );
 
-    expectAuthToken(await nthRequest(roomRequests, 2), "1");
+    expectAuthToken(await getRoomApiMock.waitForRequest(2), "1");
 
     await expect(page.getByText("Meeting One").first()).toBeVisible();
     await expect(
@@ -170,13 +192,16 @@ test.describe("saved access parameter priority", () => {
 
   test("access code from hash wins over saved access parameters", async ({
     page,
-    room,
-    roomAuth,
-    roomRequests,
+    roomResponse,
+    getRoomApiMock,
+    postRoomAuthApiMock,
   }) => {
-    roomAuth.status = 200;
-    room.data.allow_membership = true;
-    room.data.current_user = null;
+    const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith({
+      status: 200,
+      json: { data: { id: "roomAuthToken", type: 0 } },
+    });
+    roomResponse.data.allow_membership = true;
+    roomResponse.data.current_user = null;
     await page.addInitScript(
       (items) => {
         if (!window.localStorage.getItem("pw_session_seeded")) {
@@ -195,12 +220,14 @@ test.describe("saved access parameter priority", () => {
 
     await page.goto("/rooms/abc-def-123#accessCode=987654321");
 
-    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
-      access_code: "987654321",
-      type: 0,
+    await expect(postRoomAuthRequestsAfterChange).toHaveReceivedRequest({
+      json: {
+        access_code: "987654321",
+        type: 0,
+      },
     });
 
-    expectAuthToken(await nthRequest(roomRequests), "0");
+    expectAuthToken(await getRoomApiMock.waitForRequest(), "0");
 
     await expect(page.getByText("Meeting One").first()).toBeVisible();
     await expect(
@@ -232,13 +259,16 @@ test.describe("saved access parameter priority", () => {
 
   test("saved access code is used on reload without hash", async ({
     page,
-    room,
-    roomAuth,
-    roomRequests,
+    roomResponse,
+    getRoomApiMock,
+    postRoomAuthApiMock,
   }) => {
-    roomAuth.status = 200;
-    room.data.allow_membership = true;
-    room.data.current_user = null;
+    const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith({
+      status: 200,
+      json: { data: { id: "roomAuthToken", type: 0 } },
+    });
+    roomResponse.data.allow_membership = true;
+    roomResponse.data.current_user = null;
     await page.addInitScript(
       (items) => {
         if (!window.localStorage.getItem("pw_session_seeded")) {
@@ -253,12 +283,14 @@ test.describe("saved access parameter priority", () => {
 
     await page.goto("/rooms/abc-def-123");
 
-    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
-      access_code: "987654321",
-      type: 0,
+    await expect(postRoomAuthRequestsAfterChange).toHaveReceivedRequest({
+      json: {
+        access_code: "987654321",
+        type: 0,
+      },
     });
 
-    expectAuthToken(await nthRequest(roomRequests), "0");
+    expectAuthToken(await getRoomApiMock.waitForRequest(), "0");
 
     await expect(page.getByText("Meeting One").first()).toBeVisible();
     await expect(
@@ -273,14 +305,14 @@ test.describe("saved access parameter priority", () => {
 });
 
 test.describe("hash change with no saved access parameters", () => {
-  test.beforeEach(async ({ page, room }) => {
+  test.beforeEach(async ({ page, roomResponse }) => {
     await page.addInitScript(() => {
       window.localStorage.setItem("pilos_guest_name", "Laura Rivera");
     });
 
-    room.data.allow_membership = true;
-    room.data.current_user = null;
-    room.data.authenticated = false;
+    roomResponse.data.allow_membership = true;
+    roomResponse.data.current_user = null;
+    roomResponse.data.authenticated = false;
 
     await page.goto("/rooms/abc-def-123");
 
@@ -288,19 +320,19 @@ test.describe("hash change with no saved access parameters", () => {
     await expect(page.getByTestId("room-access-overlay")).toBeVisible();
   });
 
-  test("access code in hash", async ({ page, room, roomRequests }) => {
-    const auth = await mockMethod(
-      page,
-      "POST",
-      "**/api/v1/rooms/abc-def-123/auth*",
-      {
-        status: 201,
-        json: { data: { id: "roomAuthToken", type: 0 } },
-        hold: true,
-      },
-    );
-    room.data.description = "<p>Test</p>";
-    room.data.authenticated = true;
+  test("access code in hash", async ({
+    page,
+    roomResponse,
+    getRoomApiMock,
+    postRoomAuthApiMock,
+  }) => {
+    const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith({
+      status: 201,
+      json: { data: { id: "roomAuthToken", type: 0 } },
+      hold: true,
+    });
+    roomResponse.data.description = "<p>Test</p>";
+    roomResponse.data.authenticated = true;
 
     await page.evaluate(() => {
       window.location.hash = "accessCode=987654321";
@@ -308,14 +340,16 @@ test.describe("hash change with no saved access parameters", () => {
 
     // Check loading state
     await expect(page.getByTestId("room-loading-spinner")).toBeVisible();
-    auth.release();
+    postRoomAuthApiMock.release();
 
-    expect((await nthRequest(auth, 1)).postDataJSON()).toEqual({
-      access_code: "987654321",
-      type: 0,
+    await expect(postRoomAuthRequestsAfterChange).toHaveReceivedRequest({
+      json: {
+        access_code: "987654321",
+        type: 0,
+      },
     });
 
-    expectAuthToken(await nthRequest(roomRequests, 2), "0");
+    expectAuthToken(await getRoomApiMock.waitForRequest(2), "0");
 
     // Check that url was cleared and access code was saved to sessionStorage
     await expect(page).toHaveURL((url) => !url.href.includes("accessCode"));
@@ -338,22 +372,22 @@ test.describe("hash change with no saved access parameters", () => {
     ).toBeVisible();
   });
 
-  test("personalized link in hash", async ({ page, room, roomRequests }) => {
-    const auth = await mockMethod(
-      page,
-      "POST",
-      "**/api/v1/rooms/abc-def-123/auth*",
-      {
-        status: 201,
-        json: { data: { id: "roomAuthToken", type: 1 } },
-        hold: true,
-      },
-    );
-    room.data.authenticated = true;
-    room.data.allow_membership = true;
-    room.data.current_user = null;
-    room.data.is_member = true;
-    room.data.username = "Max Doe";
+  test("personalized link in hash", async ({
+    page,
+    roomResponse,
+    getRoomApiMock,
+    postRoomAuthApiMock,
+  }) => {
+    const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith({
+      status: 201,
+      json: { data: { id: "roomAuthToken", type: 1 } },
+      hold: true,
+    });
+    roomResponse.data.authenticated = true;
+    roomResponse.data.allow_membership = true;
+    roomResponse.data.current_user = null;
+    roomResponse.data.is_member = true;
+    roomResponse.data.username = "Max Doe";
 
     await page.evaluate(() => {
       window.location.hash =
@@ -362,15 +396,17 @@ test.describe("hash change with no saved access parameters", () => {
 
     // Check loading state
     await expect(page.getByTestId("room-loading-spinner")).toBeVisible();
-    auth.release();
+    postRoomAuthApiMock.release();
 
-    expect((await nthRequest(auth, 1)).postDataJSON()).toEqual({
-      personalized_link_token:
-        "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
-      type: 1,
+    await expect(postRoomAuthRequestsAfterChange).toHaveReceivedRequest({
+      json: {
+        personalized_link_token:
+          "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
+        type: 1,
+      },
     });
 
-    expectAuthToken(await nthRequest(roomRequests, 2), "1");
+    expectAuthToken(await getRoomApiMock.waitForRequest(2), "1");
 
     // Check that url was cleared and personalized link was saved to sessionStorage
     await expect(page).toHaveURL(
@@ -400,30 +436,35 @@ test.describe("hash change with no saved access parameters", () => {
 
   test("personalized link and access code in hash", async ({
     page,
-    room,
-    roomAuth,
-    roomRequests,
+    roomResponse,
+    getRoomApiMock,
+    postRoomAuthApiMock,
   }) => {
-    roomAuth.json = { data: { id: "roomAuthToken", type: 1 } };
+    const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith({
+      status: 201,
+      json: { data: { id: "roomAuthToken", type: 1 } },
+    });
 
-    room.data.authenticated = true;
-    room.data.allow_membership = true;
-    room.data.current_user = null;
-    room.data.is_member = true;
-    room.data.username = "Max Doe";
+    roomResponse.data.authenticated = true;
+    roomResponse.data.allow_membership = true;
+    roomResponse.data.current_user = null;
+    roomResponse.data.is_member = true;
+    roomResponse.data.username = "Max Doe";
 
     await page.evaluate(() => {
       window.location.hash =
         "personalizedLink=RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx&accessCode=987654321";
     });
 
-    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
-      personalized_link_token:
-        "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
-      type: 1,
+    await expect(postRoomAuthRequestsAfterChange).toHaveReceivedRequest({
+      json: {
+        personalized_link_token:
+          "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
+        type: 1,
+      },
     });
 
-    expectAuthToken(await nthRequest(roomRequests, 2), "1");
+    expectAuthToken(await getRoomApiMock.waitForRequest(2), "1");
 
     // Check that url was cleared and personalized link was saved to sessionStorage
     await expect(page).toHaveURL(
@@ -475,22 +516,24 @@ test.describe("hash change with saved access code", () => {
 
   test("saved access code is used", async ({
     page,
-    room,
-    roomAuth,
-    roomRequests,
+    roomResponse,
+    postRoomAuthApiMock,
+    getRoomApiMock,
   }) => {
-    room.data.allow_membership = true;
-    room.data.current_user = null;
-    room.data.description = "<p>Test</p>";
+    roomResponse.data.allow_membership = true;
+    roomResponse.data.current_user = null;
+    roomResponse.data.description = "<p>Test</p>";
 
     await page.goto("/rooms/abc-def-123");
 
-    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
-      access_code: "987654321",
-      type: 0,
+    await expect(postRoomAuthApiMock).toHaveReceivedRequest({
+      json: {
+        access_code: "987654321",
+        type: 0,
+      },
     });
 
-    expectAuthToken(await nthRequest(roomRequests), "0");
+    expectAuthToken(await getRoomApiMock.waitForRequest(), "0");
 
     await expect(page.getByText("Meeting One").first()).toBeVisible();
     await expect(
@@ -504,13 +547,13 @@ test.describe("hash change with saved access code", () => {
 
   test("different access code in hash", async ({
     page,
-    room,
-    roomAuth,
-    roomRequests,
+    roomResponse,
+    postRoomAuthApiMock,
+    getRoomApiMock,
   }) => {
-    room.data.allow_membership = true;
-    room.data.current_user = null;
-    room.data.description = "<p>Test</p>";
+    roomResponse.data.allow_membership = true;
+    roomResponse.data.current_user = null;
+    roomResponse.data.description = "<p>Test</p>";
 
     await page.goto("/rooms/abc-def-123");
     await expect(page.getByText("Meeting One").first()).toBeVisible();
@@ -522,19 +565,24 @@ test.describe("hash change with saved access code", () => {
       page.getByTestId("change-participant-name-button"),
     ).toBeVisible();
 
-    await nthRequest(roomAuth);
+    await postRoomAuthApiMock.waitForRequest();
 
     await page.evaluate(() => {
       window.location.hash = "accessCode=123456789";
     });
 
-    await expect.poll(() => roomAuth.requests.length).toBe(2);
-    expect((await nthRequest(roomAuth, 2)).postDataJSON()).toEqual({
-      access_code: "123456789",
-      type: 0,
-    });
+    await expect.poll(() => postRoomAuthApiMock.requests.length).toBe(2);
+    await expect(postRoomAuthApiMock).toHaveReceivedRequest(
+      {
+        json: {
+          access_code: "123456789",
+          type: 0,
+        },
+      },
+      { nth: 2 },
+    );
 
-    expectAuthToken(await nthRequest(roomRequests, 2), "0");
+    expectAuthToken(await getRoomApiMock.waitForRequest(2), "0");
 
     // Check that url was cleared and access code was updated in sessionStorage
     await expect(page).toHaveURL((url) => !url.href.includes("accessCode"));
@@ -559,13 +607,13 @@ test.describe("hash change with saved access code", () => {
 
   test("personalized link in hash", async ({
     page,
-    room,
-    roomAuth,
-    roomRequests,
+    roomResponse,
+    postRoomAuthApiMock,
+    getRoomApiMock,
   }) => {
-    room.data.allow_membership = true;
-    room.data.current_user = null;
-    room.data.description = "<p>Test</p>";
+    roomResponse.data.allow_membership = true;
+    roomResponse.data.current_user = null;
+    roomResponse.data.description = "<p>Test</p>";
 
     await page.goto("/rooms/abc-def-123");
     await expect(page.getByText("Meeting One").first()).toBeVisible();
@@ -577,27 +625,31 @@ test.describe("hash change with saved access code", () => {
       page.getByTestId("change-participant-name-button"),
     ).toBeVisible();
 
-    await nthRequest(roomAuth);
+    await postRoomAuthApiMock.waitForRequest();
 
-    roomAuth.json = { data: { id: "roomAuthToken", type: 1 } };
-
-    room.data.allow_membership = true;
-    room.data.current_user = null;
-    room.data.is_member = true;
-    room.data.username = "Max Doe";
+    const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith({
+      status: 201,
+      json: { data: { id: "roomAuthToken", type: 1 } },
+    });
+    roomResponse.data.allow_membership = true;
+    roomResponse.data.current_user = null;
+    roomResponse.data.is_member = true;
+    roomResponse.data.username = "Max Doe";
 
     await page.evaluate(() => {
       window.location.hash =
         "personalizedLink=RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx";
     });
 
-    expect((await nthRequest(roomAuth, 2)).postDataJSON()).toEqual({
-      personalized_link_token:
-        "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
-      type: 1,
+    await expect(postRoomAuthRequestsAfterChange).toHaveReceivedRequest({
+      json: {
+        personalized_link_token:
+          "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
+        type: 1,
+      },
     });
 
-    expectAuthToken(await nthRequest(roomRequests, 2), "1");
+    expectAuthToken(await getRoomApiMock.waitForRequest(2), "1");
 
     await expect(page).toHaveURL(
       (url) => !url.href.includes("personalizedLink"),
@@ -626,13 +678,13 @@ test.describe("hash change with saved access code", () => {
 
   test("personalized link and access code in hash", async ({
     page,
-    room,
-    roomAuth,
-    roomRequests,
+    roomResponse,
+    postRoomAuthApiMock,
+    getRoomApiMock,
   }) => {
-    room.data.allow_membership = true;
-    room.data.current_user = null;
-    room.data.description = "<p>Test</p>";
+    roomResponse.data.allow_membership = true;
+    roomResponse.data.current_user = null;
+    roomResponse.data.description = "<p>Test</p>";
 
     await page.goto("/rooms/abc-def-123");
     await expect(page.getByText("Meeting One").first()).toBeVisible();
@@ -644,27 +696,31 @@ test.describe("hash change with saved access code", () => {
       page.getByTestId("change-participant-name-button"),
     ).toBeVisible();
 
-    await nthRequest(roomAuth);
+    await postRoomAuthApiMock.waitForRequest();
 
-    roomAuth.json = { data: { id: "roomAuthToken", type: 1 } };
-
-    room.data.allow_membership = true;
-    room.data.current_user = null;
-    room.data.is_member = true;
-    room.data.username = "Max Doe";
+    const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith({
+      status: 201,
+      json: { data: { id: "roomAuthToken", type: 1 } },
+    });
+    roomResponse.data.allow_membership = true;
+    roomResponse.data.current_user = null;
+    roomResponse.data.is_member = true;
+    roomResponse.data.username = "Max Doe";
 
     await page.evaluate(() => {
       window.location.hash =
         "personalizedLink=RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx&accessCode=987654321";
     });
 
-    expect((await nthRequest(roomAuth, 2)).postDataJSON()).toEqual({
-      personalized_link_token:
-        "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
-      type: 1,
+    await expect(postRoomAuthRequestsAfterChange).toHaveReceivedRequest({
+      json: {
+        personalized_link_token:
+          "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
+        type: 1,
+      },
     });
 
-    expectAuthToken(await nthRequest(roomRequests, 2), "1");
+    expectAuthToken(await getRoomApiMock.waitForRequest(2), "1");
 
     await expect(page).toHaveURL(
       (url) => !url.href.includes("personalizedLink"),
@@ -695,7 +751,7 @@ test.describe("hash change with saved access code", () => {
 });
 
 test.describe("hash change with saved personalized link", () => {
-  test.beforeEach(async ({ page, room, roomAuth }) => {
+  test.beforeEach(async ({ page, roomResponse, postRoomAuthApiMock }) => {
     await page.addInitScript(() => {
       window.localStorage.setItem("pilos_guest_name", "Laura Rivera");
     });
@@ -715,28 +771,33 @@ test.describe("hash change with saved personalized link", () => {
       },
     );
 
-    roomAuth.json = { data: { id: "roomAuthToken", type: 1 } };
+    postRoomAuthApiMock.respondWith({
+      status: 201,
+      json: { data: { id: "roomAuthToken", type: 1 } },
+    });
 
-    room.data.allow_membership = true;
-    room.data.current_user = null;
-    room.data.is_member = true;
-    room.data.username = "Max Doe";
+    roomResponse.data.allow_membership = true;
+    roomResponse.data.current_user = null;
+    roomResponse.data.is_member = true;
+    roomResponse.data.username = "Max Doe";
   });
 
   test("saved personalized link is used", async ({
     page,
-    roomAuth,
-    roomRequests,
+    getRoomApiMock,
+    postRoomAuthApiMock,
   }) => {
     await page.goto("/rooms/abc-def-123");
 
-    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
-      personalized_link_token:
-        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      type: 1,
+    await expect(postRoomAuthApiMock).toHaveReceivedRequest({
+      json: {
+        personalized_link_token:
+          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+        type: 1,
+      },
     });
 
-    expectAuthToken(await nthRequest(roomRequests), "1");
+    expectAuthToken(await getRoomApiMock.waitForRequest(), "1");
 
     await expect(page.getByText("Meeting One").first()).toBeVisible();
     await expect(
@@ -750,19 +811,21 @@ test.describe("hash change with saved personalized link", () => {
 
   test("access code in hash", async ({
     page,
-    room,
-    roomAuth,
-    roomRequests,
+    roomResponse,
+    getRoomApiMock,
+    postRoomAuthApiMock,
   }) => {
     await page.goto("/rooms/abc-def-123");
 
-    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
-      personalized_link_token:
-        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      type: 1,
+    await expect(postRoomAuthApiMock).toHaveReceivedRequest({
+      json: {
+        personalized_link_token:
+          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+        type: 1,
+      },
     });
 
-    expectAuthToken(await nthRequest(roomRequests), "1");
+    expectAuthToken(await getRoomApiMock.waitForRequest(), "1");
 
     await expect(page.getByText("Meeting One").first()).toBeVisible();
     await expect(
@@ -773,24 +836,28 @@ test.describe("hash change with saved personalized link", () => {
       page.getByTestId("change-participant-name-button"),
     ).toHaveCount(0);
 
-    roomAuth.json = { data: { id: "roomAuthToken", type: 0 } };
-
-    room.data.allow_membership = true;
-    room.data.current_user = null;
-    room.data.description = "<p>Test</p>";
-    room.data.is_member = false;
-    delete room.data.username;
+    const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith({
+      status: 201,
+      json: { data: { id: "roomAuthToken", type: 0 } },
+    });
+    roomResponse.data.allow_membership = true;
+    roomResponse.data.current_user = null;
+    roomResponse.data.description = "<p>Test</p>";
+    roomResponse.data.is_member = false;
+    delete roomResponse.data.username;
 
     await page.evaluate(() => {
       window.location.hash = "accessCode=987654321";
     });
 
-    expect((await nthRequest(roomAuth, 2)).postDataJSON()).toEqual({
-      access_code: "987654321",
-      type: 0,
+    await expect(postRoomAuthRequestsAfterChange).toHaveReceivedRequest({
+      json: {
+        access_code: "987654321",
+        type: 0,
+      },
     });
 
-    expectAuthToken(await nthRequest(roomRequests, 2), "0");
+    expectAuthToken(await getRoomApiMock.waitForRequest(2), "0");
 
     // Check that url was cleared and sessionStorage was updated
     await expect(page).toHaveURL((url) => !url.href.includes("accessCode"));
@@ -824,19 +891,21 @@ test.describe("hash change with saved personalized link", () => {
 
   test("different personalized link in hash", async ({
     page,
-    room,
-    roomAuth,
-    roomRequests,
+    roomResponse,
+    getRoomApiMock,
+    postRoomAuthApiMock,
   }) => {
     await page.goto("/rooms/abc-def-123");
 
-    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
-      personalized_link_token:
-        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      type: 1,
+    await expect(postRoomAuthApiMock).toHaveReceivedRequest({
+      json: {
+        personalized_link_token:
+          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+        type: 1,
+      },
     });
 
-    expectAuthToken(await nthRequest(roomRequests), "1");
+    expectAuthToken(await getRoomApiMock.waitForRequest(), "1");
 
     await expect(page.getByText("Meeting One").first()).toBeVisible();
     await expect(
@@ -847,19 +916,24 @@ test.describe("hash change with saved personalized link", () => {
       page.getByTestId("change-participant-name-button"),
     ).toHaveCount(0);
 
-    room.data.username = "Angela Jones";
+    roomResponse.data.username = "Angela Jones";
     await page.evaluate(() => {
       window.location.hash =
         "personalizedLink=RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx";
     });
 
-    expect((await nthRequest(roomAuth, 2)).postDataJSON()).toEqual({
-      personalized_link_token:
-        "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
-      type: 1,
-    });
+    await expect(postRoomAuthApiMock).toHaveReceivedRequest(
+      {
+        json: {
+          personalized_link_token:
+            "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
+          type: 1,
+        },
+      },
+      { nth: 2 },
+    );
 
-    expectAuthToken(await nthRequest(roomRequests, 2), "1");
+    expectAuthToken(await getRoomApiMock.waitForRequest(2), "1");
 
     // Check that url was cleared and personalized link was updated in sessionStorage
     await expect(page).toHaveURL(
@@ -889,19 +963,21 @@ test.describe("hash change with saved personalized link", () => {
 
   test("different personalized link and access code in hash", async ({
     page,
-    room,
-    roomAuth,
-    roomRequests,
+    roomResponse,
+    getRoomApiMock,
+    postRoomAuthApiMock,
   }) => {
     await page.goto("/rooms/abc-def-123");
 
-    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
-      personalized_link_token:
-        "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      type: 1,
+    await expect(postRoomAuthApiMock).toHaveReceivedRequest({
+      json: {
+        personalized_link_token:
+          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+        type: 1,
+      },
     });
 
-    expectAuthToken(await nthRequest(roomRequests), "1");
+    expectAuthToken(await getRoomApiMock.waitForRequest(), "1");
 
     await expect(page.getByText("Meeting One").first()).toBeVisible();
     await expect(
@@ -912,19 +988,24 @@ test.describe("hash change with saved personalized link", () => {
       page.getByTestId("change-participant-name-button"),
     ).toHaveCount(0);
 
-    room.data.username = "Angela Jones";
+    roomResponse.data.username = "Angela Jones";
     await page.evaluate(() => {
       window.location.hash =
         "personalizedLink=RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx&accessCode=987654321";
     });
 
-    expect((await nthRequest(roomAuth, 2)).postDataJSON()).toEqual({
-      personalized_link_token:
-        "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
-      type: 1,
-    });
+    await expect(postRoomAuthApiMock).toHaveReceivedRequest(
+      {
+        json: {
+          personalized_link_token:
+            "RQPyP56Fcg2gWNLSWEgEABAfENfEbJRPly2ZPWP56FcBghsHsHfBH4Atn1z22UFkSltkBEAgWFpof23fW65UgPFn3tzft1syMcTVveCDWx",
+          type: 1,
+        },
+      },
+      { nth: 2 },
+    );
 
-    expectAuthToken(await nthRequest(roomRequests, 2), "1");
+    expectAuthToken(await getRoomApiMock.waitForRequest(2), "1");
 
     // Check that url was cleared, the access code was not saved and the personalized link was updated
     await expect(page).toHaveURL(
@@ -966,11 +1047,11 @@ test.describe("hash change with saved personalized link", () => {
 test.describe("hash change with access code errors", () => {
   test.use({ authenticated: true });
 
-  test.beforeEach(async ({ page, room }) => {
-    room.data.owner = { id: 2, name: "Max Doe" };
-    room.data.authenticated = false;
-    room.data.description = "<p>Test</p>";
-    room.data.allow_membership = true;
+  test.beforeEach(async ({ page, roomResponse }) => {
+    roomResponse.data.owner = { id: 2, name: "Max Doe" };
+    roomResponse.data.authenticated = false;
+    roomResponse.data.description = "<p>Test</p>";
+    roomResponse.data.allow_membership = true;
 
     await page.goto("/rooms/abc-def-123");
 
@@ -978,19 +1059,20 @@ test.describe("hash change with access code errors", () => {
     await expect(page.getByTestId("room-access-overlay")).toBeVisible();
   });
 
-  test("422 error", async ({ page, roomAuth, roomRequests }) => {
-    roomAuth.status = 422;
-    roomAuth.json = {
-      message: "The Access code field is required.",
-      errors: { access_code: ["The Access code field is required."] },
-    };
+  test("422 error", async ({ page, getRoomApiMock, postRoomAuthApiMock }) => {
+    const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith(
+      validationErrors(
+        { access_code: ["The Access code field is required."] },
+        "The Access code field is required.",
+      ),
+    );
 
     await page.evaluate(() => {
       window.location.hash = "accessCode=123456789";
     });
 
-    await nthRequest(roomAuth);
-    await nthRequest(roomRequests, 2);
+    await postRoomAuthRequestsAfterChange.waitForRequest();
+    await getRoomApiMock.waitForRequest(2);
     await expect
       .poll(() =>
         page.evaluate(() =>
@@ -1007,20 +1089,27 @@ test.describe("hash change with access code errors", () => {
     ).toBeVisible();
   });
 
-  test("invalid code error", async ({ page, roomAuth, roomRequests }) => {
-    roomAuth.status = 401;
-    roomAuth.json = { message: "invalid_code" };
+  test("invalid code error", async ({
+    page,
+    getRoomApiMock,
+    postRoomAuthApiMock,
+  }) => {
+    const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith(
+      unauthorized("invalid_code"),
+    );
 
     await page.evaluate(() => {
       window.location.hash = "accessCode=987654321";
     });
 
-    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
-      access_code: "987654321",
-      type: 0,
+    await expect(postRoomAuthRequestsAfterChange).toHaveReceivedRequest({
+      json: {
+        access_code: "987654321",
+        type: 0,
+      },
     });
 
-    await nthRequest(roomRequests, 2);
+    await getRoomApiMock.waitForRequest(2);
     await expect
       .poll(() =>
         page.evaluate(() =>
@@ -1041,9 +1130,15 @@ test.describe("hash change with access code errors", () => {
     ).toHaveValue("987-654-321");
   });
 
-  test("rate limit error", async ({ page, roomAuth, roomRequests }) => {
-    roomAuth.status = 429;
-    roomAuth.json = { limit: "room_auth", retry_after: 5 };
+  test("rate limit error", async ({
+    page,
+    getRoomApiMock,
+    postRoomAuthApiMock,
+  }) => {
+    const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith({
+      status: 429,
+      json: { limit: "room_auth", retry_after: 5 },
+    });
 
     await page.clock.install();
     await page.clock.pauseAt(new Date(Date.now() + 1000));
@@ -1052,12 +1147,14 @@ test.describe("hash change with access code errors", () => {
       window.location.hash = "accessCode=987654321";
     });
 
-    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
-      access_code: "987654321",
-      type: 0,
+    await expect(postRoomAuthRequestsAfterChange).toHaveReceivedRequest({
+      json: {
+        access_code: "987654321",
+        type: 0,
+      },
     });
 
-    await nthRequest(roomRequests, 2);
+    await getRoomApiMock.waitForRequest(2);
     await expect
       .poll(() =>
         page.evaluate(() =>
@@ -1088,15 +1185,15 @@ test.describe("hash change with access code errors", () => {
     await expect(page.getByTestId("reload-room-button")).toBeEnabled();
   });
 
-  test("server error", async ({ page, roomAuth }) => {
-    roomAuth.status = 500;
-    roomAuth.json = { message: "Test" };
+  test("server error", async ({ page, postRoomAuthApiMock }) => {
+    const postRoomAuthRequestsAfterChange =
+      postRoomAuthApiMock.respondWith(serverError());
 
     await page.evaluate(() => {
       window.location.hash = "accessCode=987654321";
     });
 
-    await nthRequest(roomAuth);
+    await postRoomAuthRequestsAfterChange.waitForRequest();
     await expect
       .poll(() =>
         page.evaluate(() =>
@@ -1112,9 +1209,8 @@ test.describe("hash change with access code errors", () => {
     await expect(page.getByTestId("reload-button")).toBeVisible();
   });
 
-  test("guests not allowed error", async ({ page, roomAuth }) => {
-    roomAuth.status = 403;
-    roomAuth.json = { message: "guests_not_allowed" };
+  test("guests not allowed error", async ({ page, postRoomAuthApiMock }) => {
+    postRoomAuthApiMock.respondWith(forbidden("guests_not_allowed"));
 
     await page.evaluate(() => {
       window.location.hash = "accessCode=987654321";
@@ -1135,21 +1231,18 @@ test.describe("hash change with access code errors", () => {
 
   test("room not found error as authenticated user", async ({
     page,
-    roomAuth,
+    postRoomAuthApiMock,
   }) => {
     await interceptRoomIndexRequests(page);
-    roomAuth.status = 404;
-    roomAuth.json = {
-      message: "model_not_found",
-      model: "room",
-      ids: ["abc-def-123"],
-    };
+    const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith(
+      modelNotFound("room", ["abc-def-123"]),
+    );
 
     await page.evaluate(() => {
       window.location.hash = "accessCode=987654321";
     });
 
-    await nthRequest(roomAuth);
+    await postRoomAuthRequestsAfterChange.waitForRequest();
 
     // Check that redirect to room index page worked
     await expect(page).toHaveURL(
@@ -1166,19 +1259,21 @@ test.describe("hash change with access code errors", () => {
 });
 
 test.describe("hash change with access code errors as guest", () => {
-  test("room not found error", async ({ page, room, roomAuth, nameCheck }) => {
+  test("room not found error", async ({
+    page,
+    roomResponse,
+    postParticipantNameCheckApiMock,
+    postRoomAuthApiMock,
+  }) => {
     await page.addInitScript(() => {
       window.localStorage.setItem("pilos_guest_name", "Angela Jones");
     });
 
-    room.data.current_user = null;
-    room.data.authenticated = false;
-    roomAuth.status = 404;
-    roomAuth.json = {
-      message: "model_not_found",
-      model: "room",
-      ids: ["abc-def-123"],
-    };
+    roomResponse.data.current_user = null;
+    roomResponse.data.authenticated = false;
+    const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith(
+      modelNotFound("room", ["abc-def-123"]),
+    );
 
     await page.goto("/rooms/abc-def-123");
     await expect(page.getByTestId("room-access-overlay")).toBeVisible();
@@ -1187,8 +1282,8 @@ test.describe("hash change with access code errors as guest", () => {
       window.location.hash = "accessCode=987654321";
     });
 
-    await nthRequest(nameCheck);
-    await nthRequest(roomAuth);
+    await postParticipantNameCheckApiMock.waitForRequest();
+    await postRoomAuthRequestsAfterChange.waitForRequest();
 
     // Check that redirect to 404 page worked
     await expect(page).toHaveURL((url) => url.href.includes("/404"));
@@ -1205,28 +1300,34 @@ test.describe("hash change with access code errors as guest", () => {
 });
 
 test.describe("hash change with personalized link errors", () => {
-  test.beforeEach(async ({ page, room }) => {
-    room.data.allow_membership = true;
-    room.data.current_user = null;
-    room.data.authenticated = false;
+  test.beforeEach(async ({ page, roomResponse }) => {
+    roomResponse.data.allow_membership = true;
+    roomResponse.data.current_user = null;
+    roomResponse.data.authenticated = false;
 
     await page.goto("/rooms/abc-def-123");
     await expect(page.getByTestId("room-access-overlay")).toBeVisible();
   });
 
-  test("invalid personalized link (401)", async ({ page, roomAuth }) => {
-    roomAuth.status = 401;
-    roomAuth.json = { message: "invalid_personalized_link" };
+  test("invalid personalized link (401)", async ({
+    page,
+    postRoomAuthApiMock,
+  }) => {
+    const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith(
+      unauthorized("invalid_personalized_link"),
+    );
 
     await page.evaluate(() => {
       window.location.hash =
         "personalizedLink=E401evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR&accessCode=987654321";
     });
 
-    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
-      personalized_link_token:
-        "E401evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      type: 1,
+    await expect(postRoomAuthRequestsAfterChange).toHaveReceivedRequest({
+      json: {
+        personalized_link_token:
+          "E401evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+        type: 1,
+      },
     });
 
     await expect
@@ -1246,24 +1347,30 @@ test.describe("hash change with personalized link errors", () => {
     );
   });
 
-  test("invalid personalized link (422)", async ({ page, roomAuth }) => {
-    roomAuth.status = 422;
-    roomAuth.json = {
-      message: "The Access token field is required.",
-      errors: {
-        personalized_link_token: ["The Access token field is required."],
-      },
-    };
+  test("invalid personalized link (422)", async ({
+    page,
+    postRoomAuthApiMock,
+  }) => {
+    const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith(
+      validationErrors(
+        {
+          personalized_link_token: ["The Access token field is required."],
+        },
+        "The Access token field is required.",
+      ),
+    );
 
     await page.evaluate(() => {
       window.location.hash =
         "personalizedLink=E422evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR&accessCode=987654321";
     });
 
-    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
-      personalized_link_token:
-        "E422evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      type: 1,
+    await expect(postRoomAuthRequestsAfterChange).toHaveReceivedRequest({
+      json: {
+        personalized_link_token:
+          "E422evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+        type: 1,
+      },
     });
 
     await expect
@@ -1283,19 +1390,22 @@ test.describe("hash change with personalized link errors", () => {
     );
   });
 
-  test("guests only error", async ({ page, roomAuth }) => {
-    roomAuth.status = 420;
-    roomAuth.json = { message: "guests_only" };
+  test("guests only error", async ({ page, postRoomAuthApiMock }) => {
+    const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith(
+      errorResponse(420, "guests_only"),
+    );
 
     await page.evaluate(() => {
       window.location.hash =
         "personalizedLink=E420evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR&accessCode=987654321";
     });
 
-    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
-      personalized_link_token:
-        "E420evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      type: 1,
+    await expect(postRoomAuthRequestsAfterChange).toHaveReceivedRequest({
+      json: {
+        personalized_link_token:
+          "E420evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+        type: 1,
+      },
     });
 
     await expect
@@ -1312,19 +1422,21 @@ test.describe("hash change with personalized link errors", () => {
     await expect(page).toHaveURL((url) => !url.href.includes("/rooms"));
   });
 
-  test("server error", async ({ page, roomAuth }) => {
-    roomAuth.status = 500;
-    roomAuth.json = { message: "Test" };
+  test("server error", async ({ page, postRoomAuthApiMock }) => {
+    const postRoomAuthRequestsAfterChange =
+      postRoomAuthApiMock.respondWith(serverError());
 
     await page.evaluate(() => {
       window.location.hash =
         "personalizedLink=E500evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR&accessCode=987654321";
     });
 
-    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
-      personalized_link_token:
-        "E500evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      type: 1,
+    await expect(postRoomAuthRequestsAfterChange).toHaveReceivedRequest({
+      json: {
+        personalized_link_token:
+          "E500evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+        type: 1,
+      },
     });
 
     await expect
@@ -1344,23 +1456,22 @@ test.describe("hash change with personalized link errors", () => {
     await expect(page.getByTestId("reload-button")).toBeVisible();
   });
 
-  test("room not found error", async ({ page, roomAuth }) => {
-    roomAuth.status = 404;
-    roomAuth.json = {
-      message: "model_not_found",
-      model: "room",
-      ids: ["abc-def-123"],
-    };
+  test("room not found error", async ({ page, postRoomAuthApiMock }) => {
+    const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith(
+      modelNotFound("room", ["abc-def-123"]),
+    );
 
     await page.evaluate(() => {
       window.location.hash =
         "personalizedLink=E404evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR&accessCode=987654321";
     });
 
-    expect((await nthRequest(roomAuth, 1)).postDataJSON()).toEqual({
-      personalized_link_token:
-        "E404evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-      type: 1,
+    await expect(postRoomAuthRequestsAfterChange).toHaveReceivedRequest({
+      json: {
+        personalized_link_token:
+          "E404evVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+        type: 1,
+      },
     });
 
     // Check that redirect to 404 page worked and error message is shown

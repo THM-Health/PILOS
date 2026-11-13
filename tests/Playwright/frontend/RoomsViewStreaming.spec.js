@@ -1,17 +1,32 @@
-import { test } from "../support/fixtures/roomsSettingsStreaming.js";
+import { mergeTests } from "@playwright/test";
+import { test as roomControllerTest } from "../support/fixtures/roomController.js";
+import { test as roomFileControllerTest } from "../support/fixtures/roomFileController.js";
+import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
+import { test as userControllerTest } from "../support/fixtures/userController.js";
+import { test as roomStreamingControllerTest } from "../support/fixtures/roomStreamingController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import { interceptRoomIndexRequests } from "../support/mocks.js";
-import { mockMethod } from "../support/utils.js";
+import { mockApiRequest, modelNotFound } from "../support/utils.js";
+
+const test = mergeTests(
+  roomControllerTest,
+  roomFileControllerTest,
+  roomTypeControllerTest,
+  userControllerTest,
+  roomStreamingControllerTest,
+);
+test.use({ roomFilesFixtureName: "roomFilesNoDetails.json" });
+test.use({ roomTypesFixtureName: "roomTypesWithSettings.json" });
 
 test.use({ authenticated: true });
 
 test.describe("Rooms view streaming", () => {
-  test.beforeEach(async ({ config, room }) => {
-    config.data.general.hide_disabled_features = true;
-    config.data.streaming.enabled = true;
+  test.beforeEach(async ({ configResponse, roomResponse }) => {
+    configResponse.data.general.hide_disabled_features = true;
+    configResponse.data.streaming.enabled = true;
 
-    room.data.type.features.streaming.enabled = true;
-    room.data.last_meeting = {
+    roomResponse.data.type.features.streaming.enabled = true;
+    roomResponse.data.last_meeting = {
       start: "2023-08-21T08:18:28.000000Z",
       end: null,
     };
@@ -20,9 +35,9 @@ test.describe("Rooms view streaming", () => {
   test.describe("buttons and status", () => {
     test("no running meeting, room was never started", async ({
       page,
-      room,
+      roomResponse,
     }) => {
-      room.data.last_meeting = null;
+      roomResponse.data.last_meeting = null;
 
       await page.goto("/rooms/abc-def-123");
       await page.locator("#tab-streaming").click();
@@ -37,8 +52,11 @@ test.describe("Rooms view streaming", () => {
       }
     });
 
-    test("no running meeting, meeting ended", async ({ page, room }) => {
-      room.data.last_meeting = {
+    test("no running meeting, meeting ended", async ({
+      page,
+      roomResponse,
+    }) => {
+      roomResponse.data.last_meeting = {
         start: "2023-08-21T08:18:28.000000Z",
         end: "2023-08-21T08:20:00.000000Z",
       };
@@ -58,9 +76,9 @@ test.describe("Rooms view streaming", () => {
 
     test("running meeting, streaming disabled", async ({
       page,
-      roomStreamingStatus,
+      roomStreamingStatusResponse,
     }) => {
-      roomStreamingStatus.data.enabled_for_current_meeting = false;
+      roomStreamingStatusResponse.data.enabled_for_current_meeting = false;
 
       await page.goto("/rooms/abc-def-123");
       await page.locator("#tab-streaming").click();
@@ -95,8 +113,11 @@ test.describe("Rooms view streaming", () => {
       { status: "stopped", enabledButtons: ["start"] },
       { status: "failed", enabledButtons: ["start"] },
     ]) {
-      test(`status ${status}`, async ({ page, roomStreamingStatus }) => {
-        Object.assign(roomStreamingStatus.data, { status, fps: 30 });
+      test(`status ${status}`, async ({
+        page,
+        roomStreamingStatusResponse,
+      }) => {
+        Object.assign(roomStreamingStatusResponse.data, { status, fps: 30 });
 
         await page.goto("/rooms/abc-def-123");
         await page.locator("#tab-streaming").click();
@@ -116,11 +137,11 @@ test.describe("Rooms view streaming", () => {
   test.describe("fps counter", () => {
     test("fps counter is shown", async ({
       page,
-      config,
-      roomStreamingStatus,
+      configResponse,
+      roomStreamingStatusResponse,
     }) => {
-      config.data.streaming.show_fps = true;
-      Object.assign(roomStreamingStatus.data, {
+      configResponse.data.streaming.show_fps = true;
+      Object.assign(roomStreamingStatusResponse.data, {
         enabled_for_current_meeting: false,
         fps: 30,
       });
@@ -135,11 +156,11 @@ test.describe("Rooms view streaming", () => {
 
     test("fps counter is hidden if disabled in the global config", async ({
       page,
-      config,
-      roomStreamingStatus,
+      configResponse,
+      roomStreamingStatusResponse,
     }) => {
-      config.data.streaming.show_fps = false;
-      Object.assign(roomStreamingStatus.data, {
+      configResponse.data.streaming.show_fps = false;
+      Object.assign(roomStreamingStatusResponse.data, {
         enabled_for_current_meeting: false,
         fps: 30,
       });
@@ -165,20 +186,15 @@ test.describe("Rooms view streaming", () => {
     });
 
     test("start streaming", async ({ page }) => {
-      await mockMethod(
-        page,
-        "POST",
-        "**/api/v1/rooms/abc-def-123/streaming/start",
-        {
-          json: {
-            data: {
-              enabled_for_current_meeting: true,
-              status: "queued",
-              fps: null,
-            },
+      await mockApiRequest(page, "POST", "rooms/abc-def-123/streaming/start", {
+        json: {
+          data: {
+            enabled_for_current_meeting: true,
+            status: "queued",
+            fps: null,
           },
         },
-      );
+      });
       await page.getByTestId("streaming-start-button").click();
 
       await expect(page.getByTestId("streaming-stop-button")).toBeEnabled();
@@ -193,20 +209,15 @@ test.describe("Rooms view streaming", () => {
     });
 
     test("start streaming fails", async ({ page }) => {
-      await mockMethod(
-        page,
-        "POST",
-        "**/api/v1/rooms/abc-def-123/streaming/start",
-        {
-          json: {
-            data: {
-              enabled_for_current_meeting: true,
-              status: "failed",
-              fps: null,
-            },
+      await mockApiRequest(page, "POST", "rooms/abc-def-123/streaming/start", {
+        json: {
+          data: {
+            enabled_for_current_meeting: true,
+            status: "failed",
+            fps: null,
           },
         },
-      );
+      });
       await page.getByTestId("streaming-start-button").click();
 
       await expect(page.getByTestId("streaming-status")).toContainText(
@@ -222,29 +233,24 @@ test.describe("Rooms view streaming", () => {
 
     test("reload status after starting", async ({
       page,
-      roomStreamingStatus,
+      roomStreamingStatusResponse,
     }) => {
-      await mockMethod(
-        page,
-        "POST",
-        "**/api/v1/rooms/abc-def-123/streaming/start",
-        {
-          json: {
-            data: {
-              enabled_for_current_meeting: true,
-              status: "queued",
-              fps: null,
-            },
+      await mockApiRequest(page, "POST", "rooms/abc-def-123/streaming/start", {
+        json: {
+          data: {
+            enabled_for_current_meeting: true,
+            status: "queued",
+            fps: null,
           },
         },
-      );
+      });
       await page.getByTestId("streaming-start-button").click();
       await expect(page.getByTestId("streaming-status")).toContainText(
         "rooms.streaming.queued",
       );
 
       // queued -> starting
-      roomStreamingStatus.data.status = "starting";
+      roomStreamingStatusResponse.data.status = "starting";
       const startingRequest = page.waitForRequest(
         "**/api/v1/rooms/abc-def-123/streaming/status",
       );
@@ -260,7 +266,10 @@ test.describe("Rooms view streaming", () => {
       }
 
       // starting -> running
-      Object.assign(roomStreamingStatus.data, { status: "running", fps: 30 });
+      Object.assign(roomStreamingStatusResponse.data, {
+        status: "running",
+        fps: 30,
+      });
       const runningRequest = page.waitForRequest(
         "**/api/v1/rooms/abc-def-123/streaming/status",
       );
@@ -277,8 +286,11 @@ test.describe("Rooms view streaming", () => {
     });
 
     test.describe("running streaming", () => {
-      test.beforeEach(async ({ page, roomStreamingStatus }) => {
-        Object.assign(roomStreamingStatus.data, { status: "running", fps: 30 });
+      test.beforeEach(async ({ page, roomStreamingStatusResponse }) => {
+        Object.assign(roomStreamingStatusResponse.data, {
+          status: "running",
+          fps: 30,
+        });
         await page.getByTestId("streaming-reload-button").click();
         for (const button of ["start", "stop", "pause", "resume"]) {
           await expect(
@@ -288,10 +300,10 @@ test.describe("Rooms view streaming", () => {
       });
 
       test("pause streaming", async ({ page }) => {
-        await mockMethod(
+        await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/rooms/abc-def-123/streaming/pause",
+          "rooms/abc-def-123/streaming/pause",
           {
             json: {
               data: {
@@ -316,20 +328,15 @@ test.describe("Rooms view streaming", () => {
       });
 
       test("stop streaming", async ({ page }) => {
-        await mockMethod(
-          page,
-          "POST",
-          "**/api/v1/rooms/abc-def-123/streaming/stop",
-          {
-            json: {
-              data: {
-                enabled_for_current_meeting: true,
-                status: "stopping",
-                fps: 30,
-              },
+        await mockApiRequest(page, "POST", "rooms/abc-def-123/streaming/stop", {
+          json: {
+            data: {
+              enabled_for_current_meeting: true,
+              status: "stopping",
+              fps: 30,
             },
           },
-        );
+        });
         await page.getByTestId("streaming-stop-button").click();
 
         for (const button of ["start", "stop", "pause", "resume"]) {
@@ -344,28 +351,23 @@ test.describe("Rooms view streaming", () => {
 
       test("reload status after stopping", async ({
         page,
-        roomStreamingStatus,
+        roomStreamingStatusResponse,
       }) => {
-        await mockMethod(
-          page,
-          "POST",
-          "**/api/v1/rooms/abc-def-123/streaming/stop",
-          {
-            json: {
-              data: {
-                enabled_for_current_meeting: true,
-                status: "stopping",
-                fps: 30,
-              },
+        await mockApiRequest(page, "POST", "rooms/abc-def-123/streaming/stop", {
+          json: {
+            data: {
+              enabled_for_current_meeting: true,
+              status: "stopping",
+              fps: 30,
             },
           },
-        );
+        });
         await page.getByTestId("streaming-stop-button").click();
         await expect(page.getByTestId("streaming-status")).toContainText(
           "rooms.streaming.stopping",
         );
 
-        roomStreamingStatus.data.status = "stopped";
+        roomStreamingStatusResponse.data.status = "stopped";
         const statusRequest = page.waitForRequest(
           "**/api/v1/rooms/abc-def-123/streaming/status",
         );
@@ -385,8 +387,11 @@ test.describe("Rooms view streaming", () => {
     });
 
     test.describe("paused streaming", () => {
-      test.beforeEach(async ({ page, roomStreamingStatus }) => {
-        Object.assign(roomStreamingStatus.data, { status: "paused", fps: 30 });
+      test.beforeEach(async ({ page, roomStreamingStatusResponse }) => {
+        Object.assign(roomStreamingStatusResponse.data, {
+          status: "paused",
+          fps: 30,
+        });
         await page.getByTestId("streaming-reload-button").click();
         for (const button of ["start", "stop", "pause", "resume"]) {
           await expect(
@@ -396,10 +401,10 @@ test.describe("Rooms view streaming", () => {
       });
 
       test("resume streaming", async ({ page }) => {
-        await mockMethod(
+        await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/rooms/abc-def-123/streaming/resume",
+          "rooms/abc-def-123/streaming/resume",
           {
             json: {
               data: {
@@ -425,12 +430,12 @@ test.describe("Rooms view streaming", () => {
 
       test("reload status after resuming", async ({
         page,
-        roomStreamingStatus,
+        roomStreamingStatusResponse,
       }) => {
-        await mockMethod(
+        await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/rooms/abc-def-123/streaming/resume",
+          "rooms/abc-def-123/streaming/resume",
           {
             json: {
               data: {
@@ -446,7 +451,10 @@ test.describe("Rooms view streaming", () => {
           "rooms.streaming.resuming",
         );
 
-        Object.assign(roomStreamingStatus.data, { status: "running", fps: 30 });
+        Object.assign(roomStreamingStatusResponse.data, {
+          status: "running",
+          fps: 30,
+        });
         const statusRequest = page.waitForRequest(
           "**/api/v1/rooms/abc-def-123/streaming/status",
         );
@@ -466,14 +474,17 @@ test.describe("Rooms view streaming", () => {
   });
 
   test.describe("permissions", () => {
-    test.beforeEach(async ({ roomStreamingStatus }) => {
-      Object.assign(roomStreamingStatus.data, { status: "running", fps: 30 });
+    test.beforeEach(async ({ roomStreamingStatusResponse }) => {
+      Object.assign(roomStreamingStatusResponse.data, {
+        status: "running",
+        fps: 30,
+      });
     });
 
-    test("co-owner sees buttons and status", async ({ page, room }) => {
-      room.data.owner = { id: 2, name: "Max Doe" };
-      room.data.is_member = true;
-      room.data.is_co_owner = true;
+    test("co-owner sees buttons and status", async ({ page, roomResponse }) => {
+      roomResponse.data.owner = { id: 2, name: "Max Doe" };
+      roomResponse.data.is_member = true;
+      roomResponse.data.is_co_owner = true;
 
       await page.goto("/rooms/abc-def-123");
       await page.locator("#tab-streaming").click();
@@ -489,12 +500,12 @@ test.describe("Rooms view streaming", () => {
 
     test("rooms.viewAll sees the status only", async ({
       page,
-      currentUser,
-      room,
+      currentUserResponse,
+      roomResponse,
     }) => {
-      currentUser.data.permissions = ["rooms.viewAll"];
-      room.data.owner = { id: 2, name: "Max Doe" };
-      room.data.current_user.permissions = ["rooms.viewAll"];
+      currentUserResponse.data.permissions = ["rooms.viewAll"];
+      roomResponse.data.owner = { id: 2, name: "Max Doe" };
+      roomResponse.data.current_user.permissions = ["rooms.viewAll"];
 
       await page.goto("/rooms/abc-def-123");
       await page.locator("#tab-streaming").click();
@@ -510,13 +521,13 @@ test.describe("Rooms view streaming", () => {
 
     test("rooms.manage sees buttons and status", async ({
       page,
-      currentUser,
-      room,
+      currentUserResponse,
+      roomResponse,
     }) => {
       const permissions = ["rooms.create", "rooms.viewAll", "rooms.manage"];
-      currentUser.data.permissions = permissions;
-      room.data.owner = { id: 2, name: "Max Doe" };
-      room.data.current_user.permissions = permissions;
+      currentUserResponse.data.permissions = permissions;
+      roomResponse.data.owner = { id: 2, name: "Max Doe" };
+      roomResponse.data.current_user.permissions = permissions;
 
       await page.goto("/rooms/abc-def-123");
       await page.locator("#tab-streaming").click();
@@ -531,9 +542,16 @@ test.describe("Rooms view streaming", () => {
     });
   });
 
-  test("auto reloading", async ({ page, config, roomStreamingStatus }) => {
-    config.data.streaming.refresh_interval = 30;
-    Object.assign(roomStreamingStatus.data, { status: "queued", fps: 30 });
+  test("auto reloading", async ({
+    page,
+    configResponse,
+    roomStreamingStatusResponse,
+  }) => {
+    configResponse.data.streaming.refresh_interval = 30;
+    Object.assign(roomStreamingStatusResponse.data, {
+      status: "queued",
+      fps: 30,
+    });
 
     await page.clock.install();
     const firstRequest = page.waitForRequest(
@@ -546,7 +564,10 @@ test.describe("Rooms view streaming", () => {
       "rooms.streaming.queued",
     );
 
-    Object.assign(roomStreamingStatus.data, { status: "running", fps: 30 });
+    Object.assign(roomStreamingStatusResponse.data, {
+      status: "running",
+      fps: 30,
+    });
     const secondRequest = page.waitForRequest(
       "**/api/v1/rooms/abc-def-123/streaming/status",
     );
@@ -571,12 +592,10 @@ test.describe("Rooms view streaming", () => {
     });
 
     test("general error on reload", async ({ page }) => {
-      await mockMethod(
-        page,
-        "GET",
-        "**/api/v1/rooms/abc-def-123/streaming/status",
-        { status: 500, json: { message: "Internal Server Error" } },
-      );
+      await mockApiRequest(page, "GET", "rooms/abc-def-123/streaming/status", {
+        status: 500,
+        json: { message: "Internal Server Error" },
+      });
       await page.getByTestId("streaming-reload-button").click();
 
       await expectToastAndClose(page, [
@@ -586,12 +605,10 @@ test.describe("Rooms view streaming", () => {
     });
 
     test("general error on start streaming", async ({ page }) => {
-      await mockMethod(
-        page,
-        "POST",
-        "**/api/v1/rooms/abc-def-123/streaming/start",
-        { status: 500, json: { message: "Internal Server Error" } },
-      );
+      await mockApiRequest(page, "POST", "rooms/abc-def-123/streaming/start", {
+        status: 500,
+        json: { message: "Internal Server Error" },
+      });
       await page.getByTestId("streaming-start-button").click();
 
       await expectToastAndClose(page, [
@@ -602,20 +619,15 @@ test.describe("Rooms view streaming", () => {
 
     test("streaming not enabled for current meeting", async ({
       page,
-      roomStreamingStatus,
+      roomStreamingStatusResponse,
     }) => {
-      await mockMethod(
-        page,
-        "POST",
-        "**/api/v1/rooms/abc-def-123/streaming/start",
-        {
-          status: 412,
-          json: {
-            message: "Streaming is not enabled for the current meeting.",
-          },
+      await mockApiRequest(page, "POST", "rooms/abc-def-123/streaming/start", {
+        status: 412,
+        json: {
+          message: "Streaming is not enabled for the current meeting.",
         },
-      );
-      roomStreamingStatus.data.enabled_for_current_meeting = false;
+      });
+      roomStreamingStatusResponse.data.enabled_for_current_meeting = false;
       const statusRequest = page.waitForRequest(
         "**/api/v1/rooms/abc-def-123/streaming/status",
       );
@@ -638,14 +650,12 @@ test.describe("Rooms view streaming", () => {
       );
     });
 
-    test("meeting not running", async ({ page, room }) => {
-      await mockMethod(
-        page,
-        "POST",
-        "**/api/v1/rooms/abc-def-123/streaming/start",
-        { status: 460, json: { message: "The meeting is not running." } },
-      );
-      room.data.last_meeting = {
+    test("meeting not running", async ({ page, roomResponse }) => {
+      await mockApiRequest(page, "POST", "rooms/abc-def-123/streaming/start", {
+        status: 460,
+        json: { message: "The meeting is not running." },
+      });
+      roomResponse.data.last_meeting = {
         start: "2023-08-21T08:18:28.000000Z",
         end: "2023-08-21T08:20:00.000000Z",
       };
@@ -675,18 +685,11 @@ test.describe("Rooms view streaming", () => {
 
     test("room not found on reload", async ({ page }) => {
       await interceptRoomIndexRequests(page);
-      await mockMethod(
+      await mockApiRequest(
         page,
         "GET",
-        "**/api/v1/rooms/abc-def-123/streaming/status",
-        {
-          status: 404,
-          json: {
-            message: "model_not_found",
-            model: "room",
-            ids: ["abc-def-123"],
-          },
-        },
+        "rooms/abc-def-123/streaming/status",
+        modelNotFound("room", ["abc-def-123"]),
       );
       await page.getByTestId("streaming-reload-button").click();
 

@@ -1,19 +1,5 @@
 import { test as base } from "../test.js";
-import { readFixture } from "../utils.js";
-
-/**
- * Serves a GET request of the given url with the (mutable) body, other methods fall through to the next route.
- * @param {import("@playwright/test").Page} page
- * @param {string} url
- * @param {object} body
- */
-async function serveGet(page, url, body) {
-  await page.route(url, (route) =>
-    route.request().method() === "GET"
-      ? route.fulfill({ json: body })
-      : route.fallback(),
-  );
-}
+import { mockApiRequest, readFixture } from "../utils.js";
 
 /** [test id of the field, keys of the validation errors that are shown inside of it] */
 const fieldErrorKeys = [
@@ -101,107 +87,54 @@ const requiredMessage = (key) =>
   `The ${key.replaceAll("_", " ")} field is required.`;
 
 /**
- * Fixtures of the admin room types pages (list, single room type, and the server pools and roles that the room type
- * form loads). They are mocked for every test. A test changes the object before `page.goto()` (or before the action
- * that triggers the request) and the route serves the current state.
+ * Mocks of the `RoomTypeController`, automatic fixtures served in every test.
+ *
+ * - `roomTypesFixtureName` (option): fixture file of the room types, `roomTypesWithSettings.json` for the room types
+ *   with default room settings and features (shown in the room type change dialog of a room).
+ * - `getRoomTypesApiMock`: the room types (GET /api/v1/roomTypes) with `{ requests, status, json }`, `json` is the
+ *   fixture of `roomTypesFixtureName`. `respondWithSettings()` answers with the room types with default room settings
+ *   and features.
+ * - `roomTypeResponse`: the room type with the id 3 (GET /api/v1/roomTypes/3)
+ * - `roomTypeFieldsAfterEditingEverySetting`: fields of the room type that are changed when every setting of the form is changed (edit page)
+ * - `roomTypeValidationErrorsResponse`: response body of a 422 when every field of the room type form is invalid,
+ *   `roomTypeErrorFieldMessages` are the test ids of the fields with the messages that are shown inside of them
  */
 export const test = base.extend({
-  roomTypes: [
-    // mockApp: the routes must be registered after the fallback that blocks unmocked requests
-    // eslint-disable-next-line no-unused-vars
-    async ({ page, mockApp }, use) => {
-      const roomTypes = readFixture("roomTypes.json");
-      await serveGet(page, "**/api/v1/roomTypes*", roomTypes);
-      await use(roomTypes);
-    },
-    { auto: true },
-  ],
-
-  roomType: [
-    // mockApp: the routes must be registered after the fallback that blocks unmocked requests
-    // eslint-disable-next-line no-unused-vars
-    async ({ page, mockApp }, use) => {
-      const roomType = readFixture("roomType.json");
-      await serveGet(page, "**/api/v1/roomTypes/3", roomType);
-      await use(roomType);
-    },
-    { auto: true },
-  ],
-
-  serverPools: [
-    // mockApp: the routes must be registered after the fallback that blocks unmocked requests
-    // eslint-disable-next-line no-unused-vars
-    async ({ page, mockApp }, use) => {
-      const serverPools = readFixture("serverPools.json");
-      await serveGet(page, "**/api/v1/serverPools*", serverPools);
-      await use(serverPools);
-    },
-    { auto: true },
-  ],
-
-  roles: [
-    // mockApp: the routes must be registered after the fallback that blocks unmocked requests
-    // eslint-disable-next-line no-unused-vars
-    async ({ page, mockApp }, use) => {
-      const roles = readFixture("roles.json");
-      await serveGet(page, "**/api/v1/roles*", roles);
-      await use(roles);
-    },
-    { auto: true },
-  ],
-
-  /** Second page of the roles (the fixture roles are the first page). */
-  rolesSecondPage: async ({}, use) => {
-    await use({
-      data: [
-        {
-          id: 4,
-          name: "Dean",
-          default: false,
-          updated_at: "2021-01-08T15:51:08.000000Z",
-          model_name: "Role",
-          room_limit: 20,
+  roomTypesFixtureName: ["roomTypes.json", { option: true }],
+  getRoomTypesApiMock: [
+    async ({ page, roomTypesFixtureName }, use) => {
+      const getRoomTypesApiMock = {
+        status: 200,
+        json: readFixture(roomTypesFixtureName),
+        respondWithSettings() {
+          getRoomTypesApiMock.json = readFixture("roomTypesWithSettings.json");
         },
-        {
-          id: 5,
-          name: "Faculty",
-          default: false,
-          updated_at: "2021-03-19T09:12:44.000000Z",
-          model_name: "Role",
-          room_limit: 20,
-        },
-        {
-          id: 6,
-          name: "Manager",
-          default: false,
-          updated_at: "2021-05-22T11:55:21.000000Z",
-          model_name: "Role",
-          room_limit: -1,
-        },
-      ],
-      meta: {
-        current_page: 2,
-        from: 4,
-        last_page: 2,
-        per_page: 3,
-        to: 6,
-        total: 6,
-      },
-    });
-  },
+      };
+      Object.assign(
+        getRoomTypesApiMock,
+        await mockApiRequest(page, "GET", "roomTypes*", () => ({
+          status: getRoomTypesApiMock.status,
+          json: getRoomTypesApiMock.json,
+        })),
+      );
+      await use(getRoomTypesApiMock);
+    },
+    { auto: true },
+  ],
 
-  /** First of two pages of the server pools (the fixture server pools are one page). */
-  serverPoolsFirstPage: async ({}, use) => {
-    const serverPools = readFixture("serverPools.json");
-    serverPools.data = serverPools.data.slice(0, 1);
-    serverPools.meta.last_page = 2;
-    serverPools.meta.per_page = 1;
-    serverPools.meta.to = 1;
-    await use(serverPools);
-  },
+  roomTypeResponse: [
+    async ({ page }, use) => {
+      const roomTypeResponse = readFixture("roomType.json");
+      await mockApiRequest(page, "GET", "roomTypes/3", {
+        json: roomTypeResponse,
+      });
+      await use(roomTypeResponse);
+    },
+    { auto: true },
+  ],
 
   /** Fields of the room type that are changed when every setting of the form is changed (edit page). */
-  editedRoomType: async ({}, use) => {
+  roomTypeFieldsAfterEditingEverySetting: async ({}, use) => {
     await use({
       name: "Exam 01",
       description: "New room type description for room type Exam 01",
@@ -260,7 +193,7 @@ export const test = base.extend({
   },
 
   /** Response body of a 422 when every field of the room type form is invalid. */
-  validationErrors: async ({}, use) => {
+  roomTypeValidationErrorsResponse: async ({}, use) => {
     await use(
       Object.fromEntries(
         fieldErrorKeys
@@ -270,8 +203,8 @@ export const test = base.extend({
     );
   },
 
-  /** [test id of the field, messages that are shown inside of it] for the errors of `validationErrors`. */
-  errorFields: async ({}, use) => {
+  /** [test id of the field, messages that are shown inside of it] for the errors of `roomTypeValidationErrorsResponse`. */
+  roomTypeErrorFieldMessages: async ({}, use) => {
     await use(
       fieldErrorKeys.map(([testId, keys]) => [
         testId,
@@ -280,5 +213,3 @@ export const test = base.extend({
     );
   },
 });
-
-export { expect, expectToastAndClose } from "../test.js";

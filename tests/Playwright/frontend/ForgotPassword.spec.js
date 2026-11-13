@@ -1,18 +1,18 @@
 import { test } from "../support/fixtures/authGeneral.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import { interceptRoomIndexRequests } from "../support/mocks.js";
-import { holdRequest } from "../support/utils.js";
+import { holdApiRequest, validationErrors } from "../support/utils.js";
 
 test.describe("Forgot password", () => {
-  test.beforeEach(async ({ config }) => {
-    config.data.auth.local = true;
+  test.beforeEach(async ({ configResponse }) => {
+    configResponse.data.auth.local = true;
   });
 
   test("redirects to 404 with local auth disabled", async ({
     page,
-    config,
+    configResponse,
   }) => {
-    config.data.auth.local = false;
+    configResponse.data.auth.local = false;
 
     await page.goto("/forgot_password");
 
@@ -22,9 +22,9 @@ test.describe("Forgot password", () => {
 
   test("redirects to 404 with password change forbidden", async ({
     page,
-    config,
+    configResponse,
   }) => {
-    config.data.user.password_change_allowed = false;
+    configResponse.data.user.password_change_allowed = false;
 
     await page.goto("/forgot_password");
 
@@ -62,7 +62,7 @@ test.describe("Forgot password", () => {
     });
 
     test("disables form while request is pending", async ({ page }) => {
-      const release = await holdRequest(page, "**/api/v1/password/email", {
+      const release = await holdApiRequest(page, "password/email", {
         json: { message: "Success!" },
       });
 
@@ -113,13 +113,12 @@ test.describe("Forgot password", () => {
 
     test("shows validation error on 422", async ({ page }) => {
       await page.route("**/api/v1/password/email", (route) =>
-        route.fulfill({
-          status: 422,
-          json: {
-            message: "The email field is required",
-            errors: { email: ["The email field is required."] },
-          },
-        }),
+        route.fulfill(
+          validationErrors(
+            { email: ["The email field is required."] },
+            "The email field is required",
+          ),
+        ),
       );
 
       await page.locator("#email").fill("JohnDoe@domain.tld");

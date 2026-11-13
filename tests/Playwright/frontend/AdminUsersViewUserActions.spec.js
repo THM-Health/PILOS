@@ -1,17 +1,29 @@
+import { mergeTests } from "@playwright/test";
+import { test as userControllerTest } from "../support/fixtures/userController.js";
+import { test as roleControllerTest } from "../support/fixtures/roleController.js";
+import { test as timezonesTest } from "../support/fixtures/timezones.js";
+import { test as sessionControllerTest } from "../support/fixtures/sessionController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { test } from "../support/fixtures/adminUsersOther.js";
 import { expectLoginRedirect } from "../support/general.js";
 import {
-  mockMethod,
-  nthRequest,
+  mockApiRequest,
   expectImageToMatchScreenshot,
+  serverError,
+  modelNotFound,
 } from "../support/utils.js";
+
+const test = mergeTests(
+  userControllerTest,
+  roleControllerTest,
+  timezonesTest,
+  sessionControllerTest,
+);
 
 test.use({ authenticated: true });
 
 test.describe("Admin users view user actions", () => {
-  test.beforeEach(async ({ currentUser, config }) => {
-    currentUser.data.permissions = [
+  test.beforeEach(async ({ currentUserResponse, configResponse }) => {
+    currentUserResponse.data.permissions = [
       "admin.view",
       "users.viewAny",
       "users.view",
@@ -20,7 +32,7 @@ test.describe("Admin users view user actions", () => {
       "users.delete",
       "roles.viewAny",
     ];
-    config.data.auth.local = true;
+    configResponse.data.auth.local = true;
   });
 
   test.describe("delete user", () => {
@@ -42,28 +54,32 @@ test.describe("Admin users view user actions", () => {
 
     test("loading state, redirect to the index and removed user", async ({
       page,
-      users,
+      usersResponse,
     }) => {
       const dialog = page.getByTestId("users-delete-dialog");
       await expect(dialog).toBeVisible();
 
-      const deleteRequest = await mockMethod(
+      const deleteUserApiMock = await mockApiRequest(
         page,
         "DELETE",
-        "**/api/v1/users/2",
+        "users/2",
         {
           status: 204,
           hold: true,
         },
       );
-      users.data = users.data.slice(0, 2);
-      Object.assign(users.meta, { to: 2, total: 2, total_no_filter: 2 });
+      usersResponse.data = usersResponse.data.slice(0, 2);
+      Object.assign(usersResponse.meta, {
+        to: 2,
+        total: 2,
+        total_no_filter: 2,
+      });
 
       await expect(page.getByTestId("dialog-continue-button")).toHaveText(
         "app.yes",
       );
       await page.getByTestId("dialog-continue-button").click();
-      await nthRequest(deleteRequest);
+      await deleteUserApiMock.waitForRequest();
 
       await expect(page.getByTestId("dialog-cancel-button")).toHaveText(
         "app.no",
@@ -71,7 +87,7 @@ test.describe("Admin users view user actions", () => {
       await expect(page.getByTestId("dialog-cancel-button")).toBeDisabled();
       await expect(page.getByTestId("dialog-continue-button")).toBeDisabled();
 
-      deleteRequest.release();
+      deleteUserApiMock.release();
 
       await expect(page).toHaveURL(/\/admin\/users(\?.*)?$/);
       await expect(page).not.toHaveURL(/\/admin\/users\/2/);
@@ -80,10 +96,7 @@ test.describe("Admin users view user actions", () => {
     });
 
     test("server error keeps the dialog open", async ({ page }) => {
-      await mockMethod(page, "DELETE", "**/api/v1/users/2", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "DELETE", "users/2", serverError());
 
       await expect(page.getByTestId("users-delete-dialog")).toBeVisible();
       await page.getByTestId("dialog-continue-button").click();
@@ -96,10 +109,12 @@ test.describe("Admin users view user actions", () => {
     });
 
     test("user not found redirects to the index", async ({ page }) => {
-      await mockMethod(page, "DELETE", "**/api/v1/users/2", {
-        status: 404,
-        json: { message: "model_not_found", model: "user", ids: [2] },
-      });
+      await mockApiRequest(
+        page,
+        "DELETE",
+        "users/2",
+        modelNotFound("user", [2]),
+      );
 
       await page.getByTestId("dialog-continue-button").click();
 
@@ -112,7 +127,7 @@ test.describe("Admin users view user actions", () => {
     });
 
     test("unauthenticated redirects to the login", async ({ page }) => {
-      await mockMethod(page, "DELETE", "**/api/v1/users/2", { status: 401 });
+      await mockApiRequest(page, "DELETE", "users/2", { status: 401 });
 
       await expect(page.getByTestId("users-delete-dialog")).toBeVisible();
       await page.getByTestId("dialog-continue-button").click();
@@ -149,10 +164,10 @@ test.describe("Admin users view user actions", () => {
         page.getByTestId("users-reset-password-dialog"),
       ).toBeVisible();
 
-      const resetRequest = await mockMethod(
+      const postUserResetPasswordApiMock = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/users/2/resetPassword",
+        "users/2/resetPassword",
         {
           status: 204,
           hold: true,
@@ -163,7 +178,7 @@ test.describe("Admin users view user actions", () => {
         "app.yes",
       );
       await page.getByTestId("dialog-continue-button").click();
-      await nthRequest(resetRequest);
+      await postUserResetPasswordApiMock.waitForRequest();
 
       await expect(page.getByTestId("dialog-cancel-button")).toHaveText(
         "app.no",
@@ -171,7 +186,7 @@ test.describe("Admin users view user actions", () => {
       await expect(page.getByTestId("dialog-cancel-button")).toBeDisabled();
       await expect(page.getByTestId("dialog-continue-button")).toBeDisabled();
 
-      resetRequest.release();
+      postUserResetPasswordApiMock.release();
 
       await expectToastAndClose(
         page,
@@ -183,10 +198,12 @@ test.describe("Admin users view user actions", () => {
     });
 
     test("server error keeps the dialog open", async ({ page }) => {
-      await mockMethod(page, "POST", "**/api/v1/users/2/resetPassword", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(
+        page,
+        "POST",
+        "users/2/resetPassword",
+        serverError(),
+      );
 
       await expect(
         page.getByTestId("users-reset-password-dialog"),
@@ -203,10 +220,12 @@ test.describe("Admin users view user actions", () => {
     });
 
     test("user not found redirects to the index", async ({ page }) => {
-      await mockMethod(page, "POST", "**/api/v1/users/2/resetPassword", {
-        status: 404,
-        json: { message: "model_not_found", model: "user", ids: [2] },
-      });
+      await mockApiRequest(
+        page,
+        "POST",
+        "users/2/resetPassword",
+        modelNotFound("user", [2]),
+      );
 
       await page.getByTestId("dialog-continue-button").click();
 
@@ -219,7 +238,7 @@ test.describe("Admin users view user actions", () => {
     });
 
     test("unauthenticated redirects to the login", async ({ page }) => {
-      await mockMethod(page, "POST", "**/api/v1/users/2/resetPassword", {
+      await mockApiRequest(page, "POST", "users/2/resetPassword", {
         status: 401,
       });
 

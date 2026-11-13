@@ -1,7 +1,10 @@
-import { test } from "../support/fixtures/roomsAccess.js";
+import { mergeTests } from "@playwright/test";
+import { test as roomControllerTest } from "../support/fixtures/roomController.js";
+import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
 import { expect } from "../support/test.js";
 import { interceptRoomFilesRequest } from "../support/mocks.js";
-import { mockMethod, nthRequest } from "../support/utils.js";
+
+const test = mergeTests(roomControllerTest, participantNameCheckTest);
 
 test.describe("Rooms View access", () => {
   test.beforeEach(async ({ page }) => {
@@ -9,9 +12,9 @@ test.describe("Rooms View access", () => {
   });
 
   test.describe("guest", () => {
-    test.beforeEach(async ({ room }) => {
-      room.data.allow_membership = true;
-      room.data.current_user = null;
+    test.beforeEach(async ({ roomResponse }) => {
+      roomResponse.data.allow_membership = true;
+      roomResponse.data.current_user = null;
     });
 
     test("shows access overlay with login button and participant name field", async ({
@@ -60,22 +63,23 @@ test.describe("Rooms View access", () => {
 
     test("disables login button while the participant name is checked", async ({
       page,
+      postParticipantNameCheckApiMock,
     }) => {
-      const check = await mockMethod(
-        page,
-        "POST",
-        "**/api/v1/participantName/check",
-        { status: 204, hold: true },
-      );
+      const postParticipantNameCheckRequestsAfterChange =
+        postParticipantNameCheckApiMock.respondWith({
+          status: 204,
+          hold: true,
+        });
       await page.goto("/rooms/abc-def-123");
 
       await page.locator("#participant-name").fill("Laura Rivera");
       await page.getByTestId("room-login-button").click();
 
       await expect(page.getByTestId("room-login-button")).toBeDisabled();
-      const request = await nthRequest(check);
+      const request =
+        await postParticipantNameCheckRequestsAfterChange.waitForRequest();
       expect(request.postDataJSON()).toEqual({ name: "Laura Rivera" });
-      check.release();
+      postParticipantNameCheckApiMock.release();
 
       await expect(page.getByTestId("room-access-overlay")).toBeHidden();
     });
@@ -245,33 +249,35 @@ test.describe("Rooms View access", () => {
         .toBe("Laura Rivera");
     });
 
-    test("reloads the room as guest", async ({ page, room }) => {
+    test("reloads the room as guest", async ({
+      page,
+      roomResponse,
+      getRoomApiMock,
+    }) => {
       await page.goto("/rooms/abc-def-123");
       await page.locator("#participant-name").fill("Laura Rivera");
       await page.getByTestId("room-login-button").click();
       await expect(page.getByTestId("room-access-overlay")).toBeHidden();
       await expect(page.getByText("Laura Rivera")).toBeVisible();
 
-      room.data.name = "Meeting Two";
-      room.data.owner.id = 2;
-      room.data.owner.name = "Max Doe";
-      room.data.last_meeting = {
+      roomResponse.data.name = "Meeting Two";
+      roomResponse.data.owner.id = 2;
+      roomResponse.data.owner.name = "Max Doe";
+      roomResponse.data.last_meeting = {
         start: "2023-08-21T08:18:28.000000Z",
         end: null,
       };
-      room.data.description = "<p>Test</p>";
-      room.data.access_code = null;
-      const reload = await mockMethod(
-        page,
-        "GET",
-        "**/api/v1/rooms/abc-def-123*",
-        { json: room, hold: true },
-      );
+      roomResponse.data.description = "<p>Test</p>";
+      roomResponse.data.access_code = null;
+      const getRoomRequestsAfterChange = getRoomApiMock.respondWith({
+        json: roomResponse,
+        hold: true,
+      });
 
       await page.getByTestId("reload-room-button").click();
       await expect(page.getByTestId("reload-room-button")).toBeDisabled();
-      await nthRequest(reload);
-      reload.release();
+      await getRoomRequestsAfterChange.waitForRequest();
+      getRoomApiMock.release();
 
       await expect(page).toHaveTitle("Meeting Two - PILOS Test");
       await expect(page.getByText("Meeting Two")).toBeVisible();
@@ -291,7 +297,7 @@ test.describe("Rooms View access", () => {
 
     test("shows access overlay again after page reload without remembered name", async ({
       page,
-      room,
+      roomResponse,
     }) => {
       await page.goto("/rooms/abc-def-123");
       await page.locator("#participant-name").fill("Laura Rivera");
@@ -299,15 +305,15 @@ test.describe("Rooms View access", () => {
       await expect(page.getByTestId("room-access-overlay")).toBeHidden();
       await expect(page.getByText("Laura Rivera")).toBeVisible();
 
-      room.data.name = "Meeting Two";
-      room.data.owner.id = 2;
-      room.data.owner.name = "Max Doe";
-      room.data.last_meeting = {
+      roomResponse.data.name = "Meeting Two";
+      roomResponse.data.owner.id = 2;
+      roomResponse.data.owner.name = "Max Doe";
+      roomResponse.data.last_meeting = {
         start: "2023-08-21T08:18:28.000000Z",
         end: null,
       };
-      room.data.description = "<p>Test</p>";
-      room.data.access_code = null;
+      roomResponse.data.description = "<p>Test</p>";
+      roomResponse.data.access_code = null;
 
       await page.reload();
 
@@ -358,8 +364,8 @@ test.describe("Rooms View access", () => {
   test.describe("logged in status change", () => {
     test.use({ authenticated: true });
 
-    test.beforeEach(async ({ page, room }) => {
-      room.data.allow_membership = true;
+    test.beforeEach(async ({ page, roomResponse }) => {
+      roomResponse.data.allow_membership = true;
       await page.goto("/rooms/abc-def-123");
       for (const tab of [
         "description",
@@ -376,10 +382,10 @@ test.describe("Rooms View access", () => {
 
     test("logged in user becomes guest and has to enter a name", async ({
       page,
-      room,
-      nameCheck,
+      roomResponse,
+      postParticipantNameCheckApiMock,
     }) => {
-      room.data.current_user = null;
+      roomResponse.data.current_user = null;
       await page.getByTestId("reload-room-button").click();
 
       const overlay = page.getByTestId("room-access-overlay");
@@ -392,7 +398,7 @@ test.describe("Rooms View access", () => {
       await overlay.locator("#participant-name").fill("Max Doe");
       await overlay.getByTestId("room-login-button").click();
 
-      const request = await nthRequest(nameCheck);
+      const request = await postParticipantNameCheckApiMock.waitForRequest();
       expect(request.postDataJSON()).toEqual({ name: "Max Doe" });
       await expect(overlay).toBeHidden();
       await expect
@@ -415,11 +421,11 @@ test.describe("Rooms View access", () => {
 
     test("logged in user becomes co-owner and gets all tabs", async ({
       page,
-      room,
+      roomResponse,
     }) => {
-      room.data.is_member = true;
-      room.data.is_co_owner = true;
-      room.data.current_user = {
+      roomResponse.data.is_member = true;
+      roomResponse.data.is_co_owner = true;
+      roomResponse.data.current_user = {
         id: 2,
         firstname: "Max",
         lastname: "Doe",

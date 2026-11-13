@@ -1,12 +1,12 @@
 import { test } from "../support/fixtures/authGeneral.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import { interceptRoomIndexRequests } from "../support/mocks.js";
-import { mockMethod } from "../support/utils.js";
+import { mockApiRequest, validationErrors } from "../support/utils.js";
 
 test.describe("Login tabs", () => {
-  test("hide ldap login if disabled", async ({ page, config }) => {
-    config.data.auth.local = true;
-    config.data.auth.ldap = false;
+  test("hide ldap login if disabled", async ({ page, configResponse }) => {
+    configResponse.data.auth.local = true;
+    configResponse.data.auth.ldap = false;
 
     await page.goto("/login");
 
@@ -14,9 +14,9 @@ test.describe("Login tabs", () => {
     await expect(page.getByTestId("login-tab-button-ldap")).toBeHidden();
   });
 
-  test("hide local login if disabled", async ({ page, config }) => {
-    config.data.auth.local = false;
-    config.data.auth.ldap = true;
+  test("hide local login if disabled", async ({ page, configResponse }) => {
+    configResponse.data.auth.local = false;
+    configResponse.data.auth.ldap = true;
 
     await page.goto("/login");
 
@@ -24,9 +24,12 @@ test.describe("Login tabs", () => {
     await expect(page.getByTestId("login-tab-button-local")).toBeHidden();
   });
 
-  test("hide shibboleth login if disabled", async ({ page, config }) => {
-    config.data.auth.local = true;
-    config.data.auth.shibboleth = false;
+  test("hide shibboleth login if disabled", async ({
+    page,
+    configResponse,
+  }) => {
+    configResponse.data.auth.local = true;
+    configResponse.data.auth.shibboleth = false;
 
     await page.goto("/login");
 
@@ -34,9 +37,9 @@ test.describe("Login tabs", () => {
     await expect(page.getByTestId("login-tab-button-shibboleth")).toBeHidden();
   });
 
-  test("hide oidc login if disabled", async ({ page, config }) => {
-    config.data.auth.local = true;
-    config.data.auth.oidc = false;
+  test("hide oidc login if disabled", async ({ page, configResponse }) => {
+    configResponse.data.auth.local = true;
+    configResponse.data.auth.oidc = false;
 
     await page.goto("/login");
 
@@ -48,7 +51,7 @@ test.describe("Login tabs", () => {
 for (const form of [
   {
     name: "ldap",
-    loginUrl: "**/api/v1/login/ldap",
+    loginPath: "login/ldap",
     userField: "username-field",
     userLabel: "auth.ldap.username",
     userInput: "#ldap-username",
@@ -59,7 +62,7 @@ for (const form of [
   },
   {
     name: "local",
-    loginUrl: "**/api/v1/login/local",
+    loginPath: "login/local",
     userField: "email-field",
     userLabel: "app.email",
     userInput: "#local-email",
@@ -70,9 +73,9 @@ for (const form of [
   },
 ]) {
   test.describe(`Login ${form.name}`, () => {
-    test.beforeEach(async ({ page, config }) => {
-      config.data.auth[form.name] = true;
-      config.data.user.password_change_allowed = false;
+    test.beforeEach(async ({ page, configResponse }) => {
+      configResponse.data.auth[form.name] = true;
+      configResponse.data.user.password_change_allowed = false;
 
       await page.goto("/login");
       await page.getByTestId(`login-tab-button-${form.name}`).click();
@@ -94,14 +97,19 @@ for (const form of [
 
     test("shows loading state while the login request is pending", async ({
       page,
-      currentUser,
+      currentUserResponse,
     }) => {
-      const login = await mockMethod(page, "POST", form.loginUrl, {
-        status: 200,
-        hold: true,
-      });
+      const postLoginApiMock = await mockApiRequest(
+        page,
+        "POST",
+        form.loginPath,
+        {
+          status: 200,
+          hold: true,
+        },
+      );
       await page.route("**/api/v1/currentUser", (route) =>
-        route.fulfill({ json: currentUser }),
+        route.fulfill({ json: currentUserResponse }),
       );
       await interceptRoomIndexRequests(page);
 
@@ -118,22 +126,25 @@ for (const form of [
       );
 
       await cookieRequest;
-      login.release();
+      postLoginApiMock.release();
       await expectToastAndClose(page, "auth.flash.login");
     });
 
-    test("sends credentials and csrf token", async ({ page, currentUser }) => {
-      await page.route(form.loginUrl, (route) =>
+    test("sends credentials and csrf token", async ({
+      page,
+      currentUserResponse,
+    }) => {
+      await page.route(`**/api/v1/${form.loginPath}`, (route) =>
         route.fulfill({ status: 200 }),
       );
       await page.route("**/api/v1/currentUser", (route) =>
-        route.fulfill({ json: currentUser }),
+        route.fulfill({ json: currentUserResponse }),
       );
       await interceptRoomIndexRequests(page);
 
       await page.locator(form.userInput).fill(form.userValue);
       await page.locator(form.passwordInput).fill("password");
-      const loginRequest = page.waitForRequest(form.loginUrl);
+      const loginRequest = page.waitForRequest(`**/api/v1/${form.loginPath}`);
       await page.getByTestId("login-button").click();
 
       const request = await loginRequest;
@@ -148,13 +159,13 @@ for (const form of [
 
     test("redirects to the room index after login", async ({
       page,
-      currentUser,
+      currentUserResponse,
     }) => {
-      await page.route(form.loginUrl, (route) =>
+      await page.route(`**/api/v1/${form.loginPath}`, (route) =>
         route.fulfill({ status: 200 }),
       );
       await page.route("**/api/v1/currentUser", (route) =>
-        route.fulfill({ json: currentUser }),
+        route.fulfill({ json: currentUserResponse }),
       );
       await interceptRoomIndexRequests(page);
 
@@ -176,7 +187,7 @@ for (const form of [
       test("shows 422 error on the field and marks it invalid", async ({
         page,
       }) => {
-        await mockMethod(page, "POST", form.loginUrl, {
+        await mockApiRequest(page, "POST", form.loginPath, {
           status: 422,
           json: {
             message: form.wrongCredentials,
@@ -195,7 +206,7 @@ for (const form of [
       });
 
       test("replaces 422 errors of previous attempt", async ({ page }) => {
-        await mockMethod(page, "POST", form.loginUrl, {
+        await mockApiRequest(page, "POST", form.loginPath, {
           status: 422,
           json: {
             message: form.wrongCredentials,
@@ -207,13 +218,15 @@ for (const form of [
           form.wrongCredentials,
         );
 
-        await mockMethod(page, "POST", form.loginUrl, {
-          status: 422,
-          json: {
-            message: "The Password field is required",
-            errors: { password: ["The Password field is required."] },
-          },
-        });
+        await mockApiRequest(
+          page,
+          "POST",
+          form.loginPath,
+          validationErrors(
+            { password: ["The Password field is required."] },
+            "The Password field is required",
+          ),
+        );
         await page.getByTestId("login-button").click();
 
         const password = page.getByTestId("password-field");
@@ -234,7 +247,7 @@ for (const form of [
       });
 
       test("shows throttle error and hides 422 errors", async ({ page }) => {
-        await mockMethod(page, "POST", form.loginUrl, {
+        await mockApiRequest(page, "POST", form.loginPath, {
           status: 422,
           json: {
             message: form.wrongCredentials,
@@ -244,19 +257,21 @@ for (const form of [
         await page.getByTestId("login-button").click();
         await expect(page.getByText(form.wrongCredentials)).toBeVisible();
 
-        await mockMethod(page, "POST", form.loginUrl, {
-          status: 422,
-          json: {
-            message: "The Password field is required",
-            errors: { password: ["The Password field is required."] },
-          },
-        });
+        await mockApiRequest(
+          page,
+          "POST",
+          form.loginPath,
+          validationErrors(
+            { password: ["The Password field is required."] },
+            "The Password field is required",
+          ),
+        );
         await page.getByTestId("login-button").click();
         await expect(
           page.getByText("The Password field is required."),
         ).toBeVisible();
 
-        await mockMethod(page, "POST", form.loginUrl, {
+        await mockApiRequest(page, "POST", form.loginPath, {
           status: 429,
           headers: { "Retry-After": "59" },
           json: { message: "Too Many Attempts." },
@@ -278,7 +293,7 @@ for (const form of [
       test("shows server error toast and hides throttle error", async ({
         page,
       }) => {
-        await mockMethod(page, "POST", form.loginUrl, {
+        await mockApiRequest(page, "POST", form.loginPath, {
           status: 429,
           headers: { "Retry-After": "59" },
           json: { message: "Too Many Attempts." },
@@ -288,7 +303,7 @@ for (const form of [
           page.getByText('auth.throttle_{"count":59,"n":59}'),
         ).toBeVisible();
 
-        await mockMethod(page, "POST", form.loginUrl, { status: 500 });
+        await mockApiRequest(page, "POST", form.loginPath, { status: 500 });
         await page.getByTestId("login-button").click();
 
         await expectToastAndClose(page, [
@@ -303,7 +318,7 @@ for (const form of [
       test("shows guests only toast and leaves login page for 420", async ({
         page,
       }) => {
-        await mockMethod(page, "POST", form.loginUrl, { status: 420 });
+        await mockApiRequest(page, "POST", form.loginPath, { status: 420 });
         await interceptRoomIndexRequests(page);
         await page.getByTestId("login-button").click();
 
@@ -316,11 +331,11 @@ for (const form of [
   test.describe(`Login ${form.name} with redirect query`, () => {
     test("redirects to the requested page after login", async ({
       page,
-      config,
-      currentUser,
+      configResponse,
+      currentUserResponse,
     }) => {
-      config.data.auth[form.name] = true;
-      await page.route(form.loginUrl, (route) =>
+      configResponse.data.auth[form.name] = true;
+      await page.route(`**/api/v1/${form.loginPath}`, (route) =>
         route.fulfill({ status: 200 }),
       );
 
@@ -329,16 +344,16 @@ for (const form of [
       await expect(page).toHaveURL(/\/login\?redirect=\/admin/);
 
       // User that has the permission to show the admin page
-      currentUser.data.permissions = ["admin.view"];
+      currentUserResponse.data.permissions = ["admin.view"];
       await page.route("**/api/v1/currentUser", (route) =>
-        route.fulfill({ json: currentUser }),
+        route.fulfill({ json: currentUserResponse }),
       );
       await interceptRoomIndexRequests(page);
 
       await page.getByTestId(`login-tab-button-${form.name}`).click();
       await page.locator(form.userInput).fill(form.userValue);
       await page.locator(form.passwordInput).fill("password");
-      const loginRequest = page.waitForRequest(form.loginUrl);
+      const loginRequest = page.waitForRequest(`**/api/v1/${form.loginPath}`);
       await page.getByTestId("login-button").click();
       await loginRequest;
 
@@ -350,8 +365,8 @@ for (const form of [
 }
 
 test.describe("Login local forgot password", () => {
-  test.beforeEach(async ({ page, config }) => {
-    config.data.auth.local = true;
+  test.beforeEach(async ({ page, configResponse }) => {
+    configResponse.data.auth.local = true;
 
     await page.goto("/login");
     await page.getByTestId("login-tab-button-local").click();
@@ -382,10 +397,10 @@ test.describe("Login local forgot password", () => {
 test.describe("Login local without password change", () => {
   test("hides forgot password link if password change is not allowed", async ({
     page,
-    config,
+    configResponse,
   }) => {
-    config.data.auth.local = true;
-    config.data.user.password_change_allowed = false;
+    configResponse.data.auth.local = true;
+    configResponse.data.user.password_change_allowed = false;
 
     await page.goto("/login");
     await page.getByTestId("login-tab-button-local").click();
@@ -398,8 +413,8 @@ test.describe("Login local without password change", () => {
 test.describe("Login with already logged in user", () => {
   test.use({ authenticated: true });
 
-  test.beforeEach(async ({ page, currentUser }) => {
-    currentUser.data.permissions = ["admin.view"];
+  test.beforeEach(async ({ page, currentUserResponse }) => {
+    currentUserResponse.data.permissions = ["admin.view"];
     await interceptRoomIndexRequests(page);
   });
 
@@ -420,8 +435,8 @@ test.describe("Login with already logged in user", () => {
 
 for (const provider of ["shibboleth", "oidc"]) {
   test.describe(`Login ${provider}`, () => {
-    test.beforeEach(async ({ config }) => {
-      config.data.auth[provider] = true;
+    test.beforeEach(async ({ configResponse }) => {
+      configResponse.data.auth[provider] = true;
     });
 
     test("shows redirect button", async ({ page }) => {
@@ -462,8 +477,11 @@ for (const provider of ["shibboleth", "oidc"]) {
         await expect(page).not.toHaveURL(/\/login/);
       });
 
-      test("redirects to the redirect query", async ({ page, currentUser }) => {
-        currentUser.data.permissions = ["admin.view"];
+      test("redirects to the redirect query", async ({
+        page,
+        currentUserResponse,
+      }) => {
+        currentUserResponse.data.permissions = ["admin.view"];
         await page.goto("/external_login?redirect=/admin");
 
         await expect(page).toHaveURL((url) => url.pathname === "/admin");
@@ -517,8 +535,11 @@ test.describe("External login callback", () => {
   test.describe("no_message", () => {
     test.use({ authenticated: true });
 
-    test("redirects without login toast", async ({ page, currentUser }) => {
-      currentUser.data.permissions = ["admin.view"];
+    test("redirects without login toast", async ({
+      page,
+      currentUserResponse,
+    }) => {
+      currentUserResponse.data.permissions = ["admin.view"];
       await page.goto("/external_login?no_message=1&redirect=/admin");
 
       await expect(page).toHaveURL((url) => url.pathname === "/admin");

@@ -1,6 +1,10 @@
+import { test } from "../support/fixtures/roomController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { test } from "../support/fixtures/roomsGeneralMisc.js";
-import { mockMethod, nthRequest } from "../support/utils.js";
+import {
+  mockApiRequest,
+  serverError,
+  modelNotFound,
+} from "../support/utils.js";
 import { checkRoomAuthErrors } from "../support/room.js";
 
 test.use({ authenticated: true });
@@ -16,10 +20,10 @@ test.describe("Rooms view history meeting actions", () => {
     });
 
     test("show stats", async ({ page }) => {
-      const stats = await mockMethod(
+      const getMeetingStatsApiMock = await mockApiRequest(
         page,
         "GET",
-        "**/api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/stats",
+        "meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/stats",
         {
           path: "tests/Playwright/fixtures/roomHistoryStats.json",
           hold: true,
@@ -42,8 +46,8 @@ test.describe("Rooms view history meeting actions", () => {
 
       // Check loading
       await expect(dialog.getByTestId("overlay")).toBeVisible();
-      await nthRequest(stats);
-      stats.release();
+      await getMeetingStatsApiMock.waitForRequest();
+      getMeetingStatsApiMock.release();
 
       // Check that overlay is hidden
       await expect(dialog.getByTestId("overlay")).toHaveCount(0);
@@ -57,14 +61,11 @@ test.describe("Rooms view history meeting actions", () => {
     });
 
     test("server error", async ({ page }) => {
-      const stats = await mockMethod(
+      const getMeetingStatsApiMock = await mockApiRequest(
         page,
         "GET",
-        "**/api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/stats",
-        {
-          status: 500,
-          json: { message: "Test" },
-        },
+        "meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/stats",
+        serverError(),
       );
 
       await page
@@ -72,7 +73,7 @@ test.describe("Rooms view history meeting actions", () => {
         .nth(4)
         .getByTestId("room-history-statistic-button")
         .click();
-      await nthRequest(stats);
+      await getMeetingStatsApiMock.waitForRequest();
 
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
@@ -86,24 +87,24 @@ test.describe("Rooms view history meeting actions", () => {
       ).toHaveCount(0);
     });
 
-    test("feature disabled", async ({ page, roomHistory }) => {
-      const stats = await mockMethod(
+    test("feature disabled", async ({ page, getRoomMeetingsApiMock }) => {
+      const getMeetingStatsApiMock = await mockApiRequest(
         page,
         "GET",
-        "**/api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/stats",
+        "meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/stats",
         {
           status: 468,
           json: { message: "The usage data is unavailable." },
         },
       );
-      const historyCount = roomHistory.requests.length;
+      const historyCount = getRoomMeetingsApiMock.requests.length;
 
       await page
         .getByTestId("room-history-item")
         .nth(4)
         .getByTestId("room-history-statistic-button")
         .click();
-      await nthRequest(stats);
+      await getMeetingStatsApiMock.waitForRequest();
 
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"The usage data is unavailable."}',
@@ -114,31 +115,24 @@ test.describe("Rooms view history meeting actions", () => {
       await expect(
         page.getByTestId("room-history-statistic-dialog"),
       ).toHaveCount(0);
-      await nthRequest(roomHistory, historyCount + 1);
+      await getRoomMeetingsApiMock.waitForRequest(historyCount + 1);
     });
 
-    test("meeting not found", async ({ page, roomHistory }) => {
-      const stats = await mockMethod(
+    test("meeting not found", async ({ page, getRoomMeetingsApiMock }) => {
+      const getMeetingStatsApiMock = await mockApiRequest(
         page,
         "GET",
-        "**/api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/stats",
-        {
-          status: 404,
-          json: {
-            message: "model_not_found",
-            model: "meeting",
-            ids: ["3a3e504a-d2c4-431c-8ca1-a62598e66761"],
-          },
-        },
+        "meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/stats",
+        modelNotFound("meeting", ["3a3e504a-d2c4-431c-8ca1-a62598e66761"]),
       );
-      const historyCount = roomHistory.requests.length;
+      const historyCount = getRoomMeetingsApiMock.requests.length;
 
       await page
         .getByTestId("room-history-item")
         .nth(4)
         .getByTestId("room-history-statistic-button")
         .click();
-      await nthRequest(stats);
+      await getMeetingStatsApiMock.waitForRequest();
 
       await expectToastAndClose(page, [
         'app.flash.model_not_found.title_{"model":"app.model.meeting"}',
@@ -149,7 +143,7 @@ test.describe("Rooms view history meeting actions", () => {
       await expect(
         page.getByTestId("room-history-statistic-dialog"),
       ).toHaveCount(0);
-      await nthRequest(roomHistory, historyCount + 1);
+      await getRoomMeetingsApiMock.waitForRequest(historyCount + 1);
     });
 
     test("auth errors", async ({ page }) => {
@@ -178,10 +172,10 @@ test.describe("Rooms view history meeting actions", () => {
     });
 
     test("loading", async ({ page }) => {
-      const attendance = await mockMethod(
+      const getMeetingAttendanceApiMock = await mockApiRequest(
         page,
         "GET",
-        "**/api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/attendance",
+        "meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/attendance",
         {
           path: "tests/Playwright/fixtures/roomHistoryAttendance.json",
           hold: true,
@@ -207,8 +201,8 @@ test.describe("Rooms view history meeting actions", () => {
       // Check loading
       await expect(dialog.getByTestId("overlay")).toBeVisible();
       await expect(dialog.locator(".fa-solid.fa-circle-notch")).toBeVisible();
-      await nthRequest(attendance);
-      attendance.release();
+      await getMeetingAttendanceApiMock.waitForRequest();
+      getMeetingAttendanceApiMock.release();
 
       // Check that overlay is hidden
       await expect(dialog.getByTestId("overlay")).toHaveCount(0);
@@ -219,10 +213,10 @@ test.describe("Rooms view history meeting actions", () => {
 
     test.describe("with attendance", () => {
       test.beforeEach(async ({ page }) => {
-        await mockMethod(
+        await mockApiRequest(
           page,
           "GET",
-          "**/api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/attendance",
+          "meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/attendance",
           {
             path: "tests/Playwright/fixtures/roomHistoryAttendance.json",
           },
@@ -307,10 +301,10 @@ test.describe("Rooms view history meeting actions", () => {
     });
 
     test("no attendance", async ({ page }) => {
-      const attendance = await mockMethod(
+      const getMeetingAttendanceApiMock = await mockApiRequest(
         page,
         "GET",
-        "**/api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/attendance",
+        "meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/attendance",
         {
           status: 200,
           json: { data: [] },
@@ -322,7 +316,7 @@ test.describe("Rooms view history meeting actions", () => {
         .nth(4)
         .getByTestId("room-history-attendance-button")
         .click();
-      await nthRequest(attendance);
+      await getMeetingAttendanceApiMock.waitForRequest();
 
       const dialog = page.getByTestId("room-history-attendance-dialog");
       await expect(dialog).toBeVisible();
@@ -333,10 +327,10 @@ test.describe("Rooms view history meeting actions", () => {
     });
 
     test("close dialog", async ({ page }) => {
-      await mockMethod(
+      await mockApiRequest(
         page,
         "GET",
-        "**/api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/attendance",
+        "meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/attendance",
         {
           path: "tests/Playwright/fixtures/roomHistoryAttendance.json",
         },
@@ -357,14 +351,11 @@ test.describe("Rooms view history meeting actions", () => {
     });
 
     test("server error", async ({ page }) => {
-      const attendance = await mockMethod(
+      const getMeetingAttendanceApiMock = await mockApiRequest(
         page,
         "GET",
-        "**/api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/attendance",
-        {
-          status: 500,
-          json: { message: "Test" },
-        },
+        "meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/attendance",
+        serverError(),
       );
 
       await page
@@ -372,7 +363,7 @@ test.describe("Rooms view history meeting actions", () => {
         .nth(4)
         .getByTestId("room-history-attendance-button")
         .click();
-      await nthRequest(attendance);
+      await getMeetingAttendanceApiMock.waitForRequest();
 
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
@@ -399,24 +390,24 @@ test.describe("Rooms view history meeting actions", () => {
         message: "Attendance logging was not active at this meeting.",
       },
     ]) {
-      test(name, async ({ page, roomHistory }) => {
-        const attendance = await mockMethod(
+      test(name, async ({ page, getRoomMeetingsApiMock }) => {
+        const getMeetingAttendanceApiMock = await mockApiRequest(
           page,
           "GET",
-          "**/api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/attendance",
+          "meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/attendance",
           {
             status,
             json: { message },
           },
         );
-        const historyCount = roomHistory.requests.length;
+        const historyCount = getRoomMeetingsApiMock.requests.length;
 
         await page
           .getByTestId("room-history-item")
           .nth(4)
           .getByTestId("room-history-attendance-button")
           .click();
-        await nthRequest(attendance);
+        await getMeetingAttendanceApiMock.waitForRequest();
 
         await expectToastAndClose(page, [
           `app.flash.server_error.message_{"message":"${message}"}`,
@@ -427,32 +418,25 @@ test.describe("Rooms view history meeting actions", () => {
         await expect(
           page.getByTestId("room-history-attendance-dialog"),
         ).toHaveCount(0);
-        await nthRequest(roomHistory, historyCount + 1);
+        await getRoomMeetingsApiMock.waitForRequest(historyCount + 1);
       });
     }
 
-    test("meeting not found", async ({ page, roomHistory }) => {
-      const attendance = await mockMethod(
+    test("meeting not found", async ({ page, getRoomMeetingsApiMock }) => {
+      const getMeetingAttendanceApiMock = await mockApiRequest(
         page,
         "GET",
-        "**/api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/attendance",
-        {
-          status: 404,
-          json: {
-            message: "model_not_found",
-            model: "meeting",
-            ids: ["3a3e504a-d2c4-431c-8ca1-a62598e66761"],
-          },
-        },
+        "meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/attendance",
+        modelNotFound("meeting", ["3a3e504a-d2c4-431c-8ca1-a62598e66761"]),
       );
-      const historyCount = roomHistory.requests.length;
+      const historyCount = getRoomMeetingsApiMock.requests.length;
 
       await page
         .getByTestId("room-history-item")
         .nth(4)
         .getByTestId("room-history-attendance-button")
         .click();
-      await nthRequest(attendance);
+      await getMeetingAttendanceApiMock.waitForRequest();
 
       await expectToastAndClose(page, [
         'app.flash.model_not_found.title_{"model":"app.model.meeting"}',
@@ -463,7 +447,7 @@ test.describe("Rooms view history meeting actions", () => {
       await expect(
         page.getByTestId("room-history-attendance-dialog"),
       ).toHaveCount(0);
-      await nthRequest(roomHistory, historyCount + 1);
+      await getRoomMeetingsApiMock.waitForRequest(historyCount + 1);
     });
 
     test("auth errors", async ({ page }) => {

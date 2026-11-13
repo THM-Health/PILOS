@@ -1,8 +1,8 @@
-import {
-  test,
-  expect,
-  expectToastAndClose,
-} from "../support/fixtures/adminRoomTypes.js";
+import { mergeTests } from "@playwright/test";
+import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
+import { test as serverPoolControllerTest } from "../support/fixtures/serverPoolController.js";
+import { test as roleControllerTest } from "../support/fixtures/roleController.js";
+import { expect, expectToastAndClose } from "../support/test.js";
 import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
@@ -13,13 +13,24 @@ import {
   expectRoleChips,
   expectMultiselectOptions,
 } from "../support/admin.js";
-import { holdRequest, mockMethod, nthRequest } from "../support/utils.js";
+import {
+  holdApiRequest,
+  mockApiRequest,
+  serverError,
+  modelNotFound,
+} from "../support/utils.js";
+
+const test = mergeTests(
+  roomTypeControllerTest,
+  serverPoolControllerTest,
+  roleControllerTest,
+);
 
 test.describe("Admin room types edit", () => {
   test.use({ authenticated: true });
 
-  test.beforeEach(async ({ currentUser }) => {
-    currentUser.data.permissions = [
+  test.beforeEach(async ({ currentUserResponse }) => {
+    currentUserResponse.data.permissions = [
       "admin.view",
       "roles.viewAny",
       "serverPools.viewAny",
@@ -36,9 +47,9 @@ test.describe("Admin room types edit", () => {
 
   test("visit with user without permission to edit room types", async ({
     page,
-    currentUser,
+    currentUserResponse,
   }) => {
-    currentUser.data.permissions = ["admin.view", "roomTypes.view"];
+    currentUserResponse.data.permissions = ["admin.view", "roomTypes.view"];
 
     await page.goto("/admin/room_types/3/edit");
 
@@ -51,9 +62,9 @@ test.describe("Admin room types edit", () => {
 
   test("check button visibility without delete permission", async ({
     page,
-    currentUser,
+    currentUserResponse,
   }) => {
-    currentUser.data.permissions = [
+    currentUserResponse.data.permissions = [
       "admin.view",
       "roles.viewAny",
       "serverPools.viewAny",
@@ -80,10 +91,10 @@ test.describe("Admin room types edit", () => {
   test.describe("edit room type", () => {
     test("shows loading state while the room type is loaded", async ({
       page,
-      roomType,
+      roomTypeResponse,
     }) => {
-      const release = await holdRequest(page, "**/api/v1/roomTypes/3", {
-        json: roomType,
+      const release = await holdApiRequest(page, "roomTypes/3", {
+        json: roomTypeResponse,
       });
       const serverPoolsRequest = page.waitForRequest("**/api/v1/serverPools*");
       await page.goto("/admin/room_types/3/edit");
@@ -635,35 +646,46 @@ test.describe("Admin room types edit", () => {
 
       test("sends the changed data", async ({
         page,
-        roomType,
-        editedRoomType,
+        roomTypeResponse,
+        roomTypeFieldsAfterEditingEverySetting,
       }) => {
-        Object.assign(roomType.data, editedRoomType);
-        const saveMock = await mockMethod(
+        Object.assign(
+          roomTypeResponse.data,
+          roomTypeFieldsAfterEditingEverySetting,
+        );
+        const putRoomTypeApiMock = await mockApiRequest(
           page,
           "PUT",
-          "**/api/v1/roomTypes/3",
-          { status: 201, json: roomType },
+          "roomTypes/3",
+          {
+            status: 201,
+            json: roomTypeResponse,
+          },
         );
 
         await page.getByTestId("room-types-save-button").click();
 
-        expect((await nthRequest(saveMock)).postDataJSON()).toEqual({
-          ...roomType.data,
-          server_pool: roomType.data.server_pool.id,
-          roles: roomType.data.roles.map((role) => role.id),
+        await expect(putRoomTypeApiMock).toHaveReceivedRequest({
+          json: {
+            ...roomTypeResponse.data,
+            server_pool: roomTypeResponse.data.server_pool.id,
+            roles: roomTypeResponse.data.roles.map((role) => role.id),
+          },
         });
       });
 
       test("shows the room type view after saving", async ({
         page,
-        roomType,
-        editedRoomType,
+        roomTypeResponse,
+        roomTypeFieldsAfterEditingEverySetting,
       }) => {
-        Object.assign(roomType.data, editedRoomType);
-        await mockMethod(page, "PUT", "**/api/v1/roomTypes/3", {
+        Object.assign(
+          roomTypeResponse.data,
+          roomTypeFieldsAfterEditingEverySetting,
+        );
+        await mockApiRequest(page, "PUT", "roomTypes/3", {
           status: 201,
-          json: roomType,
+          json: roomTypeResponse,
         });
 
         await page.getByTestId("room-types-save-button").click();
@@ -679,15 +701,22 @@ test.describe("Admin room types edit", () => {
 
       test("disables the form while saving", async ({
         page,
-        roomType,
-        editedRoomType,
+        roomTypeResponse,
+        roomTypeFieldsAfterEditingEverySetting,
       }) => {
-        Object.assign(roomType.data, editedRoomType);
-        const saveMock = await mockMethod(
+        Object.assign(
+          roomTypeResponse.data,
+          roomTypeFieldsAfterEditingEverySetting,
+        );
+        const putRoomTypeApiMock = await mockApiRequest(
           page,
           "PUT",
-          "**/api/v1/roomTypes/3",
-          { status: 201, json: roomType, hold: true },
+          "roomTypes/3",
+          {
+            status: 201,
+            json: roomTypeResponse,
+            hold: true,
+          },
         );
         await page.getByTestId("room-types-save-button").click();
 
@@ -758,16 +787,16 @@ test.describe("Admin room types edit", () => {
         ).toBeDisabled();
         await expect(page.getByTestId("room-types-save-button")).toBeDisabled();
 
-        saveMock.release();
+        putRoomTypeApiMock.release();
         await expect(page).toHaveURL(/\/admin\/room_types\/3$/);
       });
     });
   });
 
   test.describe("roles with restriction", () => {
-    test.beforeEach(async ({ roomType }) => {
-      roomType.data.restrict = true;
-      roomType.data.roles = [
+    test.beforeEach(async ({ roomTypeResponse }) => {
+      roomTypeResponse.data.restrict = true;
+      roomTypeResponse.data.roles = [
         { id: 1, name: "Superuser" },
         { id: 2, name: "Staff" },
       ];
@@ -800,7 +829,10 @@ test.describe("Admin room types edit", () => {
       ).toContainText("admin.roles.superuser");
     });
 
-    test("loads the next page of roles", async ({ page, rolesSecondPage }) => {
+    test("loads the next page of roles", async ({
+      page,
+      rolesSecondPageResponse,
+    }) => {
       await page.goto("/admin/room_types/3/edit");
       await page.getByTestId("role-dropdown").click();
 
@@ -814,8 +846,8 @@ test.describe("Admin room types edit", () => {
       );
       await expect(content.getByTestId("next-page-button")).toBeEnabled();
 
-      const release = await holdRequest(page, "**/api/v1/roles*", {
-        json: rolesSecondPage,
+      const release = await holdApiRequest(page, "roles*", {
+        json: rolesSecondPageResponse,
       });
       await content.getByTestId("next-page-button").click();
 
@@ -841,13 +873,13 @@ test.describe("Admin room types edit", () => {
 
     test("adds, removes and saves roles", async ({
       page,
-      roomType,
-      rolesSecondPage,
+      roomTypeResponse,
+      rolesSecondPageResponse,
     }) => {
       await page.goto("/admin/room_types/3/edit");
       await page.getByTestId("role-dropdown").click();
-      await mockMethod(page, "GET", "**/api/v1/roles*", {
-        json: rolesSecondPage,
+      await mockApiRequest(page, "GET", "roles*", {
+        json: rolesSecondPageResponse,
       });
       const content = page.locator(".multiselect__content");
       await content.getByTestId("next-page-button").click();
@@ -862,15 +894,20 @@ test.describe("Admin room types edit", () => {
       await chips.nth(1).getByTestId("remove-role-button").click();
       await expectRoleChips(page, ["Staff", "Manager"]);
 
-      roomType.data.roles = [
+      roomTypeResponse.data.roles = [
         { id: 2, name: "Staff" },
         { id: 6, name: "Manager" },
       ];
-      const saveMock = await mockMethod(page, "PUT", "**/api/v1/roomTypes/3", {
-        status: 201,
-        json: roomType,
-        hold: true,
-      });
+      const putRoomTypeApiMock = await mockApiRequest(
+        page,
+        "PUT",
+        "roomTypes/3",
+        {
+          status: 201,
+          json: roomTypeResponse,
+          hold: true,
+        },
+      );
       await expect(page.getByTestId("overlay")).toBeHidden();
       await page.getByTestId("room-types-save-button").click();
 
@@ -886,12 +923,14 @@ test.describe("Admin room types edit", () => {
       await expect(page.getByTestId("room-types-delete-button")).toBeDisabled();
       await expect(page.getByTestId("room-types-save-button")).toBeDisabled();
 
-      saveMock.release();
+      putRoomTypeApiMock.release();
 
-      expect((await nthRequest(saveMock)).postDataJSON()).toEqual({
-        ...roomType.data,
-        server_pool: roomType.data.server_pool.id,
-        roles: roomType.data.roles.map((role) => role.id),
+      await expect(putRoomTypeApiMock).toHaveReceivedRequest({
+        json: {
+          ...roomTypeResponse.data,
+          server_pool: roomTypeResponse.data.server_pool.id,
+          roles: roomTypeResponse.data.roles.map((role) => role.id),
+        },
       });
 
       await expect(page).toHaveURL(/\/admin\/room_types\/3$/);
@@ -900,9 +939,9 @@ test.describe("Admin room types edit", () => {
   });
 
   test.describe("save errors", () => {
-    test.beforeEach(async ({ page, roomType }) => {
-      roomType.data.restrict = true;
-      roomType.data.roles = [
+    test.beforeEach(async ({ page, roomTypeResponse }) => {
+      roomTypeResponse.data.restrict = true;
+      roomTypeResponse.data.roles = [
         { id: 1, name: "Superuser" },
         { id: 2, name: "Staff" },
       ];
@@ -918,14 +957,14 @@ test.describe("Admin room types edit", () => {
 
     test("shows validation errors on 422", async ({
       page,
-      validationErrors,
-      errorFields,
+      roomTypeValidationErrorsResponse,
+      roomTypeErrorFieldMessages,
     }) => {
-      await mockMethod(page, "PUT", "**/api/v1/roomTypes/3", {
+      await mockApiRequest(page, "PUT", "roomTypes/3", {
         status: 422,
         json: {
           message: "The name field is required. (and 39 more errors)",
-          errors: validationErrors,
+          errors: roomTypeValidationErrorsResponse,
         },
       });
 
@@ -935,7 +974,7 @@ test.describe("Admin room types edit", () => {
         page,
         "The name field is required. (and 39 more errors)",
       );
-      for (const [field, messages] of errorFields) {
+      for (const [field, messages] of roomTypeErrorFieldMessages) {
         for (const message of messages) {
           await expect(page.getByTestId(field)).toContainText(message);
         }
@@ -944,14 +983,14 @@ test.describe("Admin room types edit", () => {
 
     test("shows server error on 500 and hides validation errors", async ({
       page,
-      validationErrors,
-      errorFields,
+      roomTypeValidationErrorsResponse,
+      roomTypeErrorFieldMessages,
     }) => {
-      await mockMethod(page, "PUT", "**/api/v1/roomTypes/3", {
+      await mockApiRequest(page, "PUT", "roomTypes/3", {
         status: 422,
         json: {
           message: "The name field is required. (and 39 more errors)",
-          errors: validationErrors,
+          errors: roomTypeValidationErrorsResponse,
         },
       });
       await page.getByTestId("room-types-save-button").click();
@@ -963,17 +1002,14 @@ test.describe("Admin room types edit", () => {
         "The name field is required.",
       );
 
-      await mockMethod(page, "PUT", "**/api/v1/roomTypes/3", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "PUT", "roomTypes/3", serverError());
       await page.getByTestId("room-types-save-button").click();
 
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
         'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
-      for (const [field, messages] of errorFields) {
+      for (const [field, messages] of roomTypeErrorFieldMessages) {
         for (const message of messages) {
           await expect(page.getByTestId(field)).not.toContainText(message);
         }
@@ -984,20 +1020,26 @@ test.describe("Admin room types edit", () => {
       // the room type as another user saved it: all settings changed, restricted to the roles
       let staleRoomType;
 
-      test.beforeEach(async ({ page, roomType, editedRoomType }) => {
-        staleRoomType = {
-          ...roomType.data,
-          ...editedRoomType,
-          restrict: true,
-          roles: roomType.data.roles,
-        };
-        await mockMethod(page, "PUT", "**/api/v1/roomTypes/3", {
-          status: 428,
-          json: { new_model: staleRoomType, message: "stale_model" },
-        });
-        await expect(page.getByTestId("stale-room-type-dialog")).toBeHidden();
-        await page.getByTestId("room-types-save-button").click();
-      });
+      test.beforeEach(
+        async ({
+          page,
+          roomTypeResponse,
+          roomTypeFieldsAfterEditingEverySetting,
+        }) => {
+          staleRoomType = {
+            ...roomTypeResponse.data,
+            ...roomTypeFieldsAfterEditingEverySetting,
+            restrict: true,
+            roles: roomTypeResponse.data.roles,
+          };
+          await mockApiRequest(page, "PUT", "roomTypes/3", {
+            status: 428,
+            json: { new_model: staleRoomType, message: "stale_model" },
+          });
+          await expect(page.getByTestId("stale-room-type-dialog")).toBeHidden();
+          await page.getByTestId("room-types-save-button").click();
+        },
+      );
 
       test("shows the stale dialog", async ({ page }) => {
         const dialog = page.getByTestId("stale-room-type-dialog");
@@ -1108,16 +1150,16 @@ test.describe("Admin room types edit", () => {
 
       test("shows the stale dialog again after a reload", async ({
         page,
-        roomType,
+        roomTypeResponse,
       }) => {
         await page.getByTestId("stale-dialog-reject-button").click();
         await expect(page.getByTestId("stale-room-type-dialog")).toBeHidden();
         await expect(page.locator("#room-type-name")).toHaveValue("Exam 01");
 
-        await mockMethod(page, "PUT", "**/api/v1/roomTypes/3", {
+        await mockApiRequest(page, "PUT", "roomTypes/3", {
           status: 428,
           json: {
-            new_model: { ...roomType.data, name: "Exam 02" },
+            new_model: { ...roomTypeResponse.data, name: "Exam 02" },
             message: "stale_model",
           },
         });
@@ -1139,36 +1181,41 @@ test.describe("Admin room types edit", () => {
 
       test("overwrite sends the current form data and shows the view", async ({
         page,
-        roomType,
+        roomTypeResponse,
       }) => {
         // Reload to get the new model, then run into the stale error again
         await page.getByTestId("stale-dialog-reject-button").click();
         await expect(page.getByTestId("stale-room-type-dialog")).toBeHidden();
         await expect(page.locator("#room-type-name")).toHaveValue("Exam 01");
 
-        await mockMethod(page, "PUT", "**/api/v1/roomTypes/3", {
+        await mockApiRequest(page, "PUT", "roomTypes/3", {
           status: 428,
           json: {
-            new_model: { ...roomType.data, name: "Exam 02" },
+            new_model: { ...roomTypeResponse.data, name: "Exam 02" },
             message: "stale_model",
           },
         });
         await page.getByTestId("room-types-save-button").click();
         await expect(page.getByTestId("stale-room-type-dialog")).toBeVisible();
 
-        Object.assign(roomType.data, staleRoomType);
-        const saveMock = await mockMethod(
+        Object.assign(roomTypeResponse.data, staleRoomType);
+        const putRoomTypeApiMock = await mockApiRequest(
           page,
           "PUT",
-          "**/api/v1/roomTypes/3",
-          { status: 200, json: roomType },
+          "roomTypes/3",
+          {
+            status: 200,
+            json: roomTypeResponse,
+          },
         );
         await page.getByTestId("stale-dialog-accept-button").click();
 
-        expect((await nthRequest(saveMock)).postDataJSON()).toEqual({
-          ...roomType.data,
-          server_pool: roomType.data.server_pool.id,
-          roles: roomType.data.roles.map((role) => role.id),
+        await expect(putRoomTypeApiMock).toHaveReceivedRequest({
+          json: {
+            ...roomTypeResponse.data,
+            server_pool: roomTypeResponse.data.server_pool.id,
+            roles: roomTypeResponse.data.roles.map((role) => role.id),
+          },
         });
 
         await expect(page).toHaveURL(/\/admin\/room_types\/3$/);
@@ -1183,10 +1230,12 @@ test.describe("Admin room types edit", () => {
     test("redirects to the index page if the room type was deleted", async ({
       page,
     }) => {
-      await mockMethod(page, "PUT", "**/api/v1/roomTypes/3", {
-        status: 404,
-        json: { message: "model_not_found", model: "room_type", ids: [3] },
-      });
+      await mockApiRequest(
+        page,
+        "PUT",
+        "roomTypes/3",
+        modelNotFound("room_type", [3]),
+      );
 
       const indexRequest = page.waitForRequest(/\/api\/v1\/roomTypes(\?|$)/);
       await page.getByTestId("room-types-save-button").click();
@@ -1200,7 +1249,7 @@ test.describe("Admin room types edit", () => {
     });
 
     test("redirects to the login page if unauthenticated", async ({ page }) => {
-      await mockMethod(page, "PUT", "**/api/v1/roomTypes/3", { status: 401 });
+      await mockApiRequest(page, "PUT", "roomTypes/3", { status: 401 });
 
       await page.getByTestId("room-types-save-button").click();
 
@@ -1211,12 +1260,9 @@ test.describe("Admin room types edit", () => {
   test.describe("load room type errors", () => {
     test("shows the error and allows to reload on 500", async ({
       page,
-      roomType,
+      roomTypeResponse,
     }) => {
-      await mockMethod(page, "GET", "**/api/v1/roomTypes/3", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "GET", "roomTypes/3", serverError());
       await page.goto("/admin/room_types/3/edit");
 
       await expect(page.getByTestId("overlay")).toBeVisible();
@@ -1226,8 +1272,8 @@ test.describe("Admin room types edit", () => {
       ]);
 
       // Reload with correct data
-      await mockMethod(page, "GET", "**/api/v1/roomTypes/3", {
-        json: roomType,
+      await mockApiRequest(page, "GET", "roomTypes/3", {
+        json: roomTypeResponse,
       });
       const retryButton = page.getByTestId("loading-retry-button");
       await expect(retryButton).toBeVisible();
@@ -1240,10 +1286,12 @@ test.describe("Admin room types edit", () => {
     });
 
     test("redirects to the index page on 404", async ({ page }) => {
-      await mockMethod(page, "GET", "**/api/v1/roomTypes/3", {
-        status: 404,
-        json: { message: "model_not_found", model: "room_type", ids: [3] },
-      });
+      await mockApiRequest(
+        page,
+        "GET",
+        "roomTypes/3",
+        modelNotFound("room_type", [3]),
+      );
 
       const indexRequest = page.waitForRequest(/\/api\/v1\/roomTypes(\?|$)/);
       await page.goto("/admin/room_types/3/edit");
@@ -1257,7 +1305,7 @@ test.describe("Admin room types edit", () => {
     });
 
     test("redirects to the login page on 401", async ({ page }) => {
-      await mockMethod(page, "GET", "**/api/v1/roomTypes/3", { status: 401 });
+      await mockApiRequest(page, "GET", "roomTypes/3", { status: 401 });
 
       await page.goto("/admin/room_types/3/edit");
 
@@ -1266,9 +1314,9 @@ test.describe("Admin room types edit", () => {
   });
 
   test.describe("load roles errors", () => {
-    test.beforeEach(async ({ roomType }) => {
-      roomType.data.restrict = true;
-      roomType.data.roles = [
+    test.beforeEach(async ({ roomTypeResponse }) => {
+      roomTypeResponse.data.restrict = true;
+      roomTypeResponse.data.roles = [
         { id: 1, name: "Superuser" },
         { id: 2, name: "Staff" },
       ];
@@ -1277,10 +1325,7 @@ test.describe("Admin room types edit", () => {
     test("disables the dropdown and saving while the roles are loading", async ({
       page,
     }) => {
-      const release = await holdRequest(page, "**/api/v1/roles*", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      const release = await holdApiRequest(page, "roles*", serverError());
       await page.goto("/admin/room_types/3/edit");
 
       await expect(page.getByTestId("role-dropdown")).toHaveClass(
@@ -1297,10 +1342,7 @@ test.describe("Admin room types edit", () => {
 
     test.describe("500 error", () => {
       test.beforeEach(async ({ page }) => {
-        await mockMethod(page, "GET", "**/api/v1/roles*", {
-          status: 500,
-          json: { message: "Test" },
-        });
+        await mockApiRequest(page, "GET", "roles*", serverError());
         await page.goto("/admin/room_types/3/edit");
         await expectToastAndClose(page, [
           'app.flash.server_error.message_{"message":"Test"}',
@@ -1317,9 +1359,9 @@ test.describe("Admin room types edit", () => {
         await expect(page.getByTestId("room-types-save-button")).toBeEnabled();
       });
 
-      test("reloads the roles", async ({ page, roles }) => {
-        await mockMethod(page, "GET", "**/api/v1/roles*", {
-          json: roles,
+      test("reloads the roles", async ({ page, rolesResponse }) => {
+        await mockApiRequest(page, "GET", "roles*", {
+          json: rolesResponse,
         });
         await page.getByTestId("roles-reload-button").click();
 
@@ -1346,10 +1388,7 @@ test.describe("Admin room types edit", () => {
       const content = page.locator(".multiselect__content");
       await expect(content.locator(".multiselect__option")).toHaveCount(5);
 
-      await mockMethod(page, "GET", "**/api/v1/roles*", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "GET", "roles*", serverError());
       await content.getByTestId("next-page-button").click();
 
       await expectToastAndClose(page, [
@@ -1370,7 +1409,7 @@ test.describe("Admin room types edit", () => {
       await page.goto("/admin/room_types/3/edit");
       await expectRoleChips(page, ["Superuser", "Staff"]);
 
-      await mockMethod(page, "GET", "**/api/v1/roles*", { status: 401 });
+      await mockApiRequest(page, "GET", "roles*", { status: 401 });
       await page.locator("#restrict").click();
       await page.locator("#restrict").click();
 
@@ -1386,7 +1425,7 @@ test.describe("Admin room types edit", () => {
       const content = page.locator(".multiselect__content");
       await expect(content).toBeVisible();
 
-      await mockMethod(page, "GET", "**/api/v1/roles*", { status: 401 });
+      await mockApiRequest(page, "GET", "roles*", { status: 401 });
       await content.getByTestId("next-page-button").click();
 
       await expectLoginRedirect(page, "/admin/room_types/3/edit");
@@ -1396,11 +1435,9 @@ test.describe("Admin room types edit", () => {
   test.describe("load server pools errors", () => {
     test("disables the dropdown and saving while the server pools are loading", async ({
       page,
+      getServerPoolsApiMock,
     }) => {
-      const release = await holdRequest(page, "**/api/v1/serverPools*", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      getServerPoolsApiMock.respondWith({ ...serverError(), hold: true });
       await page.goto("/admin/room_types/3/edit");
 
       await expect(page.getByTestId("server-pool-dropdown")).toHaveClass(
@@ -1408,7 +1445,7 @@ test.describe("Admin room types edit", () => {
       );
       await expect(page.getByTestId("room-types-save-button")).toBeDisabled();
 
-      release();
+      getServerPoolsApiMock.release();
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
         'app.flash.server_error.error_code_{"statusCode":500}',
@@ -1416,11 +1453,8 @@ test.describe("Admin room types edit", () => {
     });
 
     test.describe("500 error", () => {
-      test.beforeEach(async ({ page }) => {
-        await mockMethod(page, "GET", "**/api/v1/serverPools*", {
-          status: 500,
-          json: { message: "Test" },
-        });
+      test.beforeEach(async ({ page, getServerPoolsApiMock }) => {
+        getServerPoolsApiMock.respondWith(serverError());
         await page.goto("/admin/room_types/3/edit");
         await expectToastAndClose(page, [
           'app.flash.server_error.message_{"message":"Test"}',
@@ -1442,10 +1476,11 @@ test.describe("Admin room types edit", () => {
 
       test("reloads the server pools", async ({
         page,
-        serverPoolsFirstPage,
+        serverPoolsFirstPageResponse,
+        getServerPoolsApiMock,
       }) => {
-        await mockMethod(page, "GET", "**/api/v1/serverPools*", {
-          json: serverPoolsFirstPage,
+        getServerPoolsApiMock.respondWith({
+          json: serverPoolsFirstPageResponse,
         });
         await page.getByTestId("server-pools-reload-button").click();
 
@@ -1465,10 +1500,11 @@ test.describe("Admin room types edit", () => {
 
     test("shows an error if switching the page fails with 500", async ({
       page,
-      serverPoolsFirstPage,
+      serverPoolsFirstPageResponse,
+      getServerPoolsApiMock,
     }) => {
-      await mockMethod(page, "GET", "**/api/v1/serverPools*", {
-        json: serverPoolsFirstPage,
+      getServerPoolsApiMock.respondWith({
+        json: serverPoolsFirstPageResponse,
       });
       await page.goto("/admin/room_types/3/edit");
       await expect(page.locator("#room-type-name")).toHaveValue("Exam");
@@ -1476,10 +1512,7 @@ test.describe("Admin room types edit", () => {
       const content = page.locator(".multiselect__content");
       await expect(content.locator(".multiselect__option")).toHaveCount(3);
 
-      await mockMethod(page, "GET", "**/api/v1/serverPools*", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      getServerPoolsApiMock.respondWith(serverError());
       await content.getByTestId("next-page-button").click();
 
       await expectToastAndClose(page, [
@@ -1499,8 +1532,9 @@ test.describe("Admin room types edit", () => {
 
     test("redirects to the login page on 401 when loading the server pools", async ({
       page,
+      getServerPoolsApiMock,
     }) => {
-      await mockMethod(page, "GET", "**/api/v1/serverPools*", { status: 401 });
+      getServerPoolsApiMock.respondWith({ status: 401 });
 
       await page.goto("/admin/room_types/3/edit");
 
@@ -1509,17 +1543,18 @@ test.describe("Admin room types edit", () => {
 
     test("redirects to the login page on 401 when switching the page", async ({
       page,
-      serverPoolsFirstPage,
+      serverPoolsFirstPageResponse,
+      getServerPoolsApiMock,
     }) => {
-      await mockMethod(page, "GET", "**/api/v1/serverPools*", {
-        json: serverPoolsFirstPage,
+      getServerPoolsApiMock.respondWith({
+        json: serverPoolsFirstPageResponse,
       });
       await page.goto("/admin/room_types/3/edit");
       await page.getByTestId("server-pool-dropdown").click();
       const content = page.locator(".multiselect__content");
       await expect(content).toBeVisible();
 
-      await mockMethod(page, "GET", "**/api/v1/serverPools*", { status: 401 });
+      getServerPoolsApiMock.respondWith({ status: 401 });
       await content.getByTestId("next-page-button").click();
 
       await expectLoginRedirect(page, "/admin/room_types/3/edit");

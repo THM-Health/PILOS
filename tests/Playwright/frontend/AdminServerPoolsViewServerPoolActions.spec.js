@@ -1,13 +1,21 @@
-import { test } from "../support/fixtures/adminServerPools.js";
+import { mergeTests } from "@playwright/test";
+import { test as serverPoolControllerTest } from "../support/fixtures/serverPoolController.js";
+import { test as serverControllerTest } from "../support/fixtures/serverController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import { expectLoginRedirect } from "../support/general.js";
-import { mockMethod, nthRequest } from "../support/utils.js";
+import {
+  mockApiRequest,
+  serverError,
+  modelNotFound,
+} from "../support/utils.js";
+
+const test = mergeTests(serverPoolControllerTest, serverControllerTest);
 
 test.use({ authenticated: true });
 
 test.describe("Admin server pools view", () => {
-  test.beforeEach(async ({ currentUser }) => {
-    currentUser.data.permissions = [
+  test.beforeEach(async ({ currentUserResponse }) => {
+    currentUserResponse.data.permissions = [
       "admin.view",
       "servers.viewAny",
       "serverPools.viewAny",
@@ -42,20 +50,24 @@ test.describe("Admin server pools view", () => {
 
     test("delete the server pool and redirect to the index", async ({
       page,
-      serverPools,
+      serverPoolsResponse,
     }) => {
-      const deleteRequest = await mockMethod(
+      const deleteServerPoolApiMock = await mockApiRequest(
         page,
         "DELETE",
-        "**/api/v1/serverPools/1",
+        "serverPools/1",
         {
           status: 204,
           hold: true,
         },
       );
 
-      serverPools.data = serverPools.data.slice(1, 2);
-      Object.assign(serverPools.meta, { to: 1, total: 1, total_no_filter: 1 });
+      serverPoolsResponse.data = serverPoolsResponse.data.slice(1, 2);
+      Object.assign(serverPoolsResponse.meta, {
+        to: 1,
+        total: 1,
+        total_no_filter: 1,
+      });
 
       const dialog = page.getByTestId("server-pools-delete-dialog");
       await expect(dialog).toBeVisible();
@@ -71,8 +83,8 @@ test.describe("Admin server pools view", () => {
       await expect(page.getByTestId("dialog-cancel-button")).toBeDisabled();
       await expect(page.getByTestId("dialog-continue-button")).toBeDisabled();
 
-      deleteRequest.release();
-      await nthRequest(deleteRequest);
+      deleteServerPoolApiMock.release();
+      await deleteServerPoolApiMock.waitForRequest();
 
       // Check that redirect worked
       await expect(page).toHaveURL(/\/admin\/server_pools$/);
@@ -83,10 +95,10 @@ test.describe("Admin server pools view", () => {
     test("server pool attached to room types (428) shows the room types", async ({
       page,
     }) => {
-      const deleteRequest = await mockMethod(
+      const deleteServerPoolApiMock = await mockApiRequest(
         page,
         "DELETE",
-        "**/api/v1/serverPools/1",
+        "serverPools/1",
         {
           status: 428,
           json: {
@@ -115,7 +127,7 @@ test.describe("Admin server pools view", () => {
       );
 
       await page.getByTestId("dialog-continue-button").click();
-      await nthRequest(deleteRequest);
+      await deleteServerPoolApiMock.waitForRequest();
 
       const dialog = page.getByTestId("server-pools-delete-dialog");
       await expect(dialog).toBeVisible();
@@ -135,18 +147,15 @@ test.describe("Admin server pools view", () => {
     });
 
     test("server error (500) keeps the dialog open", async ({ page }) => {
-      const deleteRequest = await mockMethod(
+      const deleteServerPoolApiMock = await mockApiRequest(
         page,
         "DELETE",
-        "**/api/v1/serverPools/1",
-        {
-          status: 500,
-          json: { message: "Test" },
-        },
+        "serverPools/1",
+        serverError(),
       );
 
       await page.getByTestId("dialog-continue-button").click();
-      await nthRequest(deleteRequest);
+      await deleteServerPoolApiMock.waitForRequest();
 
       await expect(
         page.getByTestId("server-pools-delete-dialog"),
@@ -160,18 +169,15 @@ test.describe("Admin server pools view", () => {
     test("server pool not found (404) redirects to the index", async ({
       page,
     }) => {
-      const deleteRequest = await mockMethod(
+      const deleteServerPoolApiMock = await mockApiRequest(
         page,
         "DELETE",
-        "**/api/v1/serverPools/1",
-        {
-          status: 404,
-          json: { message: "model_not_found", model: "server_pool", ids: [1] },
-        },
+        "serverPools/1",
+        modelNotFound("server_pool", [1]),
       );
 
       await page.getByTestId("dialog-continue-button").click();
-      await nthRequest(deleteRequest);
+      await deleteServerPoolApiMock.waitForRequest();
 
       await expect(page).toHaveURL(/\/admin\/server_pools$/);
       await expect(page.getByTestId("server-pool-item").first()).toBeVisible();
@@ -182,17 +188,17 @@ test.describe("Admin server pools view", () => {
     });
 
     test("unauthenticated (401) redirects to the login", async ({ page }) => {
-      const deleteRequest = await mockMethod(
+      const deleteServerPoolApiMock = await mockApiRequest(
         page,
         "DELETE",
-        "**/api/v1/serverPools/1",
+        "serverPools/1",
         {
           status: 401,
         },
       );
 
       await page.getByTestId("dialog-continue-button").click();
-      await nthRequest(deleteRequest);
+      await deleteServerPoolApiMock.waitForRequest();
 
       await expectLoginRedirect(page, "/admin/server_pools/1");
     });

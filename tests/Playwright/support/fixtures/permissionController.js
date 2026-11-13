@@ -1,5 +1,5 @@
 import { test as base } from "../test.js";
-import { readFixture } from "../utils.js";
+import { mockApiRequest, readFixture } from "../utils.js";
 import { checkPermissionGroup } from "../admin.js";
 
 // Permissions in the order of the permission list of the role pages
@@ -22,61 +22,35 @@ const permissionNames = [
 ];
 
 /**
- * Serves a mutable body for all GET requests of a url, other methods fall through to later mocks.
- * @param {import("@playwright/test").Page} page
- * @param {string|Function} url
- * @param {object} body - read on every request, so tests can change it before the page requests it
- */
-async function serveGet(page, url, body) {
-  await page.route(url, (route) =>
-    route.request().method() === "GET"
-      ? route.fulfill({ json: body })
-      : route.fallback(),
-  );
-}
-
-/**
- * Mocked data of the admin roles pages, served in every test (automatic fixtures). Change the objects before `page.goto()`, the routes serve them.
+ * Mocks of the `PermissionController`.
+ * Automatic fixtures served in every test (change the objects before `page.goto()` or before the action that triggers
+ * the request, the routes serve the current state). Tests change the answer of a mock with `respondWith()`, and
+ * register a new mock with `mockApiRequest` for endpoints that have none.
  *
- * - `roles`: list of roles (GET /api/v1/roles)
- * - `role`: the role "Staff" with id 2 (GET /api/v1/roles/2)
- * - `permissionList`: all permissions (GET /api/v1/permissions), not called `permissions` because that is a Playwright option
+ * - `permissionsResponse`: all permissions (GET /api/v1/permissions)
+ * - `expectPermissions(explicit, { restrictions })`: checks the permission list of the role pages
  */
 export const test = base.extend({
-  roles: [
+  permissionsResponse: [
     async ({ page }, use) => {
-      const roles = readFixture("roles.json");
-      await serveGet(page, (url) => url.pathname === "/api/v1/roles", roles);
-      await use(roles);
+      const permissionsResponse = readFixture("permissions.json");
+      await mockApiRequest(page, "GET", "permissions", {
+        json: permissionsResponse,
+      });
+      await use(permissionsResponse);
     },
     { auto: true },
   ],
-  role: [
-    async ({ page }, use) => {
-      const role = readFixture("role.json");
-      await serveGet(page, "**/api/v1/roles/2", role);
-      await use(role);
-    },
-    { auto: true },
-  ],
-  permissionList: [
-    async ({ page }, use) => {
-      const permissionList = readFixture("permissions.json");
-      await serveGet(page, "**/api/v1/permissions", permissionList);
-      await use(permissionList);
-    },
-    { auto: true },
-  ],
-  expectPermissions: async ({ page, permissionList }, use) => {
+  expectPermissions: async ({ page, permissionsResponse }, use) => {
     await use(async (explicit, { restrictions = [] } = {}) => {
       const nameById = Object.fromEntries(
-        permissionList.data.map((permission) => [
+        permissionsResponse.data.map((permission) => [
           permission.id,
           permission.name,
         ]),
       );
       const included = new Set(explicit);
-      for (const permission of permissionList.data) {
+      for (const permission of permissionsResponse.data) {
         if (explicit.includes(permission.name)) {
           permission.included_permissions.forEach((id) =>
             included.add(nameById[id]),

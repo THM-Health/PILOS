@@ -1,4 +1,6 @@
-import { test } from "../support/fixtures/adminRoles.js";
+import { mergeTests } from "@playwright/test";
+import { test as roleControllerTest } from "../support/fixtures/roleController.js";
+import { test as permissionControllerTest } from "../support/fixtures/permissionController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import {
   checkRoomLimitHelpDialog,
@@ -8,13 +10,20 @@ import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
 } from "../support/general.js";
-import { mockMethod, nthRequest, readFixture } from "../support/utils.js";
+import {
+  mockApiRequest,
+  readFixture,
+  validationErrors,
+  serverError,
+} from "../support/utils.js";
+
+const test = mergeTests(roleControllerTest, permissionControllerTest);
 
 test.use({ authenticated: true });
 
 test.describe("Admin roles new", () => {
-  test.beforeEach(async ({ currentUser }) => {
-    currentUser.data.permissions = [
+  test.beforeEach(async ({ currentUserResponse }) => {
+    currentUserResponse.data.permissions = [
       "admin.view",
       "roles.viewAny",
       "roles.view",
@@ -30,9 +39,9 @@ test.describe("Admin roles new", () => {
 
   test("visit with user without permission to add new roles", async ({
     page,
-    currentUser,
+    currentUserResponse,
   }) => {
-    currentUser.data.permissions = [
+    currentUserResponse.data.permissions = [
       "admin.view",
       "roles.viewAny",
       "roles.view",
@@ -278,11 +287,11 @@ test.describe("Admin roles new", () => {
       role.data.id = 40;
       role.data.name = "Standard role";
       role.data.superuser = false;
-      const newRole = await mockMethod(page, "POST", "**/api/v1/roles", {
+      const postRolesApiMock = await mockApiRequest(page, "POST", "roles", {
         status: 201,
         json: role,
       });
-      await mockMethod(page, "GET", "**/api/v1/roles/40", { json: role });
+      await mockApiRequest(page, "GET", "roles/40", { json: role });
 
       for (const permission of selectionOrder) {
         await page
@@ -293,7 +302,7 @@ test.describe("Admin roles new", () => {
       }
       await page.getByTestId("roles-save-button").click();
 
-      const request = await nthRequest(newRole);
+      const request = await postRolesApiMock.waitForRequest();
       expect(request.postDataJSON()).toEqual({
         name: "Standard role",
         room_limit: null,
@@ -311,19 +320,19 @@ test.describe("Admin roles new", () => {
 
     test("loading state while saving", async ({
       page,
-      role,
-      permissionList,
+      roleResponse,
+      permissionsResponse,
     }) => {
-      role.data.id = 40;
-      role.data.name = "Standard role";
-      role.data.room_limit = 5;
-      role.data.permissions = [];
-      const newRole = await mockMethod(page, "POST", "**/api/v1/roles", {
+      roleResponse.data.id = 40;
+      roleResponse.data.name = "Standard role";
+      roleResponse.data.room_limit = 5;
+      roleResponse.data.permissions = [];
+      const postRolesApiMock = await mockApiRequest(page, "POST", "roles", {
         status: 201,
-        json: role,
+        json: roleResponse,
         hold: true,
       });
-      await mockMethod(page, "GET", "**/api/v1/roles/40", { json: role });
+      await mockApiRequest(page, "GET", "roles/40", { json: roleResponse });
 
       await page.locator("#custom").click();
       await page.locator("#room-limit").fill("5");
@@ -341,7 +350,7 @@ test.describe("Admin roles new", () => {
       // The permission checkboxes are not rendered while saving
       await expect(
         page.locator(
-          permissionList.data
+          permissionsResponse.data
             .map(
               ({ name }) =>
                 `[id="${name.replace(/([a-z])([A-Z])/g, "$1_$2").toLowerCase()}"]`,
@@ -350,9 +359,9 @@ test.describe("Admin roles new", () => {
         ),
       ).toHaveCount(0);
 
-      newRole.release();
+      postRolesApiMock.release();
 
-      const request = await nthRequest(newRole);
+      const request = await postRolesApiMock.waitForRequest();
       expect(request.postDataJSON()).toEqual({
         name: "Standard role",
         room_limit: 5,
@@ -362,37 +371,45 @@ test.describe("Admin roles new", () => {
       await expect(page.getByTestId("overlay")).toBeHidden();
     });
 
-    test("add new role with custom room limit", async ({ page, role }) => {
-      role.data.id = 40;
-      role.data.room_limit = 5;
-      role.data.permissions = [];
-      const newRole = await mockMethod(page, "POST", "**/api/v1/roles", {
+    test("add new role with custom room limit", async ({
+      page,
+      roleResponse,
+    }) => {
+      roleResponse.data.id = 40;
+      roleResponse.data.room_limit = 5;
+      roleResponse.data.permissions = [];
+      const postRolesApiMock = await mockApiRequest(page, "POST", "roles", {
         status: 201,
-        json: role,
+        json: roleResponse,
       });
-      await mockMethod(page, "GET", "**/api/v1/roles/40", { json: role });
+      await mockApiRequest(page, "GET", "roles/40", { json: roleResponse });
 
       await page.locator("#custom").click();
       await page.locator("#room-limit").fill("5");
       await page.getByTestId("roles-save-button").click();
 
-      expect((await nthRequest(newRole)).postDataJSON()).toEqual({
-        name: "Standard role",
-        room_limit: 5,
-        permissions: [],
+      await expect(postRolesApiMock).toHaveReceivedRequest({
+        json: {
+          name: "Standard role",
+          room_limit: 5,
+          permissions: [],
+        },
       });
       await expect(page).toHaveURL(/\/admin\/roles\/40$/);
     });
 
-    test("add new role with unlimited room limit", async ({ page, role }) => {
-      role.data.id = 40;
-      role.data.room_limit = -1;
-      role.data.permissions = [];
-      const newRole = await mockMethod(page, "POST", "**/api/v1/roles", {
+    test("add new role with unlimited room limit", async ({
+      page,
+      roleResponse,
+    }) => {
+      roleResponse.data.id = 40;
+      roleResponse.data.room_limit = -1;
+      roleResponse.data.permissions = [];
+      const postRolesApiMock = await mockApiRequest(page, "POST", "roles", {
         status: 201,
-        json: role,
+        json: roleResponse,
       });
-      await mockMethod(page, "GET", "**/api/v1/roles/40", { json: role });
+      await mockApiRequest(page, "GET", "roles/40", { json: roleResponse });
 
       await page.locator("#unlimited").click();
       await expect(page.locator("#default")).not.toBeChecked();
@@ -400,26 +417,28 @@ test.describe("Admin roles new", () => {
       await expect(page.locator("#room-limit")).toHaveCount(0);
       await page.getByTestId("roles-save-button").click();
 
-      expect((await nthRequest(newRole)).postDataJSON()).toEqual({
-        name: "Standard role",
-        room_limit: -1,
-        permissions: [],
+      await expect(postRolesApiMock).toHaveReceivedRequest({
+        json: {
+          name: "Standard role",
+          room_limit: -1,
+          permissions: [],
+        },
       });
       await expect(page).toHaveURL(/\/admin\/roles\/40$/);
     });
 
     test("add new role with default room limit after switching back", async ({
       page,
-      role,
+      roleResponse,
     }) => {
-      role.data.id = 40;
-      role.data.room_limit = null;
-      role.data.permissions = [];
-      const newRole = await mockMethod(page, "POST", "**/api/v1/roles", {
+      roleResponse.data.id = 40;
+      roleResponse.data.room_limit = null;
+      roleResponse.data.permissions = [];
+      const postRolesApiMock = await mockApiRequest(page, "POST", "roles", {
         status: 201,
-        json: role,
+        json: roleResponse,
       });
-      await mockMethod(page, "GET", "**/api/v1/roles/40", { json: role });
+      await mockApiRequest(page, "GET", "roles/40", { json: roleResponse });
 
       await page.locator("#unlimited").click();
       await expect(page.locator("#default")).not.toBeChecked();
@@ -428,26 +447,30 @@ test.describe("Admin roles new", () => {
       await expect(page.locator("#default")).toBeChecked();
       await page.getByTestId("roles-save-button").click();
 
-      expect((await nthRequest(newRole)).postDataJSON()).toEqual({
-        name: "Standard role",
-        room_limit: null,
-        permissions: [],
+      await expect(postRolesApiMock).toHaveReceivedRequest({
+        json: {
+          name: "Standard role",
+          room_limit: null,
+          permissions: [],
+        },
       });
       await expect(page).toHaveURL(/\/admin\/roles\/40$/);
     });
 
     test("422 error shows validation messages", async ({ page }) => {
-      await mockMethod(page, "POST", "**/api/v1/roles", {
-        status: 422,
-        json: {
-          message: "The name field is required. (and 2 more errors)",
-          errors: {
+      await mockApiRequest(
+        page,
+        "POST",
+        "roles",
+        validationErrors(
+          {
             name: ["The Name field is required."],
             room_limit: ["The Room limit must be at least -1."],
             permissions: ["The Permissions field must be present."],
           },
-        },
-      });
+          "The name field is required. (and 2 more errors)",
+        ),
+      );
 
       await page.getByTestId("roles-save-button").click();
 
@@ -469,17 +492,19 @@ test.describe("Admin roles new", () => {
     test("500 error after 422 error hides validation messages", async ({
       page,
     }) => {
-      await mockMethod(page, "POST", "**/api/v1/roles", {
-        status: 422,
-        json: {
-          message: "The name field is required. (and 2 more errors)",
-          errors: {
+      await mockApiRequest(
+        page,
+        "POST",
+        "roles",
+        validationErrors(
+          {
             name: ["The Name field is required."],
             room_limit: ["The Room limit must be at least -1."],
             permissions: ["The Permissions field must be present."],
           },
-        },
-      });
+          "The name field is required. (and 2 more errors)",
+        ),
+      );
       await page.getByTestId("roles-save-button").click();
       await expectToastAndClose(
         page,
@@ -489,10 +514,7 @@ test.describe("Admin roles new", () => {
         page.getByText("The Permissions field must be present."),
       ).toBeVisible();
 
-      await mockMethod(page, "POST", "**/api/v1/roles", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "POST", "roles", serverError());
       await page.getByTestId("roles-save-button").click();
 
       await expectToastAndClose(page, [
@@ -513,10 +535,7 @@ test.describe("Admin roles new", () => {
     });
 
     test("500 error", async ({ page }) => {
-      await mockMethod(page, "POST", "**/api/v1/roles", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "POST", "roles", serverError());
 
       await page.getByTestId("roles-save-button").click();
 
@@ -528,7 +547,7 @@ test.describe("Admin roles new", () => {
     });
 
     test("401 error redirects to login", async ({ page }) => {
-      await mockMethod(page, "POST", "**/api/v1/roles", { status: 401 });
+      await mockApiRequest(page, "POST", "roles", { status: 401 });
 
       await page.getByTestId("roles-save-button").click();
 
@@ -539,10 +558,10 @@ test.describe("Admin roles new", () => {
   test.describe("permission dependencies", () => {
     test("permissions without included permissions", async ({
       page,
-      permissionList,
+      permissionsResponse,
       expectPermissions,
     }) => {
-      permissionList.data.forEach((permission) => {
+      permissionsResponse.data.forEach((permission) => {
         permission.included_permissions = [];
       });
 
@@ -556,10 +575,10 @@ test.describe("Admin roles new", () => {
 
     test("selecting the highest permissions without dependencies", async ({
       page,
-      permissionList,
+      permissionsResponse,
       expectPermissions,
     }) => {
-      permissionList.data.forEach((permission) => {
+      permissionsResponse.data.forEach((permission) => {
         permission.included_permissions = [];
       });
 
@@ -596,10 +615,10 @@ test.describe("Admin roles new", () => {
 
     test("restricted servers, system and server pools are disabled", async ({
       page,
-      permissionList,
+      permissionsResponse,
       expectPermissions,
     }) => {
-      permissionList.meta.restrictions = restrictedServers;
+      permissionsResponse.meta.restrictions = restrictedServers;
 
       await page.goto("/admin/roles/new");
       await expect(page.getByTestId("permission-list")).toBeVisible();
@@ -610,10 +629,10 @@ test.describe("Admin roles new", () => {
 
     test("selecting a permission that includes a restricted permission", async ({
       page,
-      permissionList,
+      permissionsResponse,
       expectPermissions,
     }) => {
-      permissionList.meta.restrictions = restrictedServers;
+      permissionsResponse.meta.restrictions = restrictedServers;
 
       await page.goto("/admin/roles/new");
       await expect(page.getByTestId("permission-list")).toBeVisible();
@@ -627,7 +646,7 @@ test.describe("Admin roles new", () => {
 
     test("different restrictions are applied", async ({
       page,
-      permissionList,
+      permissionsResponse,
       expectPermissions,
     }) => {
       const restrictions = [
@@ -639,7 +658,7 @@ test.describe("Admin roles new", () => {
         "roles.*",
         "roomTypes.*",
       ];
-      permissionList.meta.restrictions = restrictions;
+      permissionsResponse.meta.restrictions = restrictions;
 
       await page.goto("/admin/roles/new");
       await expect(page.getByTestId("permission-list")).toBeVisible();
@@ -651,11 +670,11 @@ test.describe("Admin roles new", () => {
 
   test.describe("load permissions errors", () => {
     test("loading state", async ({ page }) => {
-      const permissionsRequest = await mockMethod(
+      const getPermissionsApiMock = await mockApiRequest(
         page,
         "GET",
-        "**/api/v1/permissions",
-        { status: 500, json: { message: "Test" }, hold: true },
+        "permissions",
+        serverError({ hold: true }),
       );
 
       await page.goto("/admin/roles/new");
@@ -667,7 +686,7 @@ test.describe("Admin roles new", () => {
       await expect(page.getByTestId("roles-save-button")).toBeVisible();
       await expect(page.getByTestId("roles-save-button")).toBeDisabled();
 
-      permissionsRequest.release();
+      getPermissionsApiMock.release();
 
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
@@ -676,10 +695,7 @@ test.describe("Admin roles new", () => {
     });
 
     test("error keeps overlay and hides buttons", async ({ page }) => {
-      await mockMethod(page, "GET", "**/api/v1/permissions", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "GET", "permissions", serverError());
 
       await page.goto("/admin/roles/new");
 
@@ -703,12 +719,9 @@ test.describe("Admin roles new", () => {
 
     test("reload after error loads the permissions", async ({
       page,
-      permissionList,
+      permissionsResponse,
     }) => {
-      await mockMethod(page, "GET", "**/api/v1/permissions", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "GET", "permissions", serverError());
 
       await page.goto("/admin/roles/new");
       await expectToastAndClose(page, [
@@ -716,8 +729,8 @@ test.describe("Admin roles new", () => {
         'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
 
-      await mockMethod(page, "GET", "**/api/v1/permissions", {
-        json: permissionList,
+      await mockApiRequest(page, "GET", "permissions", {
+        json: permissionsResponse,
       });
       const reloaded = page.waitForRequest(
         (request) =>
@@ -733,7 +746,7 @@ test.describe("Admin roles new", () => {
     });
 
     test("401 error redirects to login", async ({ page }) => {
-      await mockMethod(page, "GET", "**/api/v1/permissions", { status: 401 });
+      await mockApiRequest(page, "GET", "permissions", { status: 401 });
 
       await page.goto("/admin/roles/new");
 

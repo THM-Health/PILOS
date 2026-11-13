@@ -1,18 +1,23 @@
 import { test } from "../support/fixtures/authGeneral.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import { interceptRoomIndexRequests } from "../support/mocks.js";
-import { holdRequest } from "../support/utils.js";
+import {
+  holdApiRequest,
+  validationErrors,
+  serverError,
+  errorResponse,
+} from "../support/utils.js";
 
 test.describe("Password reset", () => {
-  test.beforeEach(async ({ config }) => {
-    config.data.auth.local = true;
+  test.beforeEach(async ({ configResponse }) => {
+    configResponse.data.auth.local = true;
   });
 
   test("redirects to 404 if local auth is disabled", async ({
     page,
-    config,
+    configResponse,
   }) => {
-    config.data.auth.local = false;
+    configResponse.data.auth.local = false;
 
     await page.goto("/reset_password");
 
@@ -68,15 +73,15 @@ test.describe("Password reset", () => {
     test.describe("submit", () => {
       let releaseReset;
 
-      test.beforeEach(async ({ page, currentUser }) => {
+      test.beforeEach(async ({ page, currentUserResponse }) => {
         // The initial current user request must be finished before the user is mocked as logged in
         await expect(page.locator("#new_password")).toBeVisible();
         await page.route("**/api/v1/currentUser", (route) =>
-          route.fulfill({ json: currentUser }),
+          route.fulfill({ json: currentUserResponse }),
         );
         await interceptRoomIndexRequests(page);
 
-        releaseReset = await holdRequest(page, "**/api/v1/password/reset", {
+        releaseReset = await holdApiRequest(page, "password/reset", {
           status: 200,
           json: { message: "Success!" },
         });
@@ -153,18 +158,17 @@ test.describe("Password reset", () => {
 
     test("shows 422 field errors and toast", async ({ page }) => {
       await page.route("**/api/v1/password/reset", (route) =>
-        route.fulfill({
-          status: 422,
-          json: {
-            message: "The New password field is required. (and 1 more error)",
-            errors: {
+        route.fulfill(
+          validationErrors(
+            {
               password: ["The New password field is required."],
               password_confirmation: [
                 "The New password confirmation field is required.",
               ],
             },
-          },
-        }),
+            "The New password field is required. (and 1 more error)",
+          ),
+        ),
       );
 
       await page.getByTestId("reset-password-button").click();
@@ -183,18 +187,17 @@ test.describe("Password reset", () => {
 
     test("replaces previous 422 errors with new ones", async ({ page }) => {
       await page.route("**/api/v1/password/reset", (route) =>
-        route.fulfill({
-          status: 422,
-          json: {
-            message: "The New password field is required. (and 1 more error)",
-            errors: {
+        route.fulfill(
+          validationErrors(
+            {
               password: ["The New password field is required."],
               password_confirmation: [
                 "The New password confirmation field is required.",
               ],
             },
-          },
-        }),
+            "The New password field is required. (and 1 more error)",
+          ),
+        ),
       );
       await page.getByTestId("reset-password-button").click();
       await expectToastAndClose(
@@ -203,16 +206,15 @@ test.describe("Password reset", () => {
       );
 
       await page.route("**/api/v1/password/reset", (route) =>
-        route.fulfill({
-          status: 422,
-          json: {
-            message: "The Email field is required. (and 1 more error)",
-            errors: {
+        route.fulfill(
+          validationErrors(
+            {
               email: ["The Email field is required."],
               token: ["The Token field is required."],
             },
-          },
-        }),
+            "The Email field is required. (and 1 more error)",
+          ),
+        ),
       );
       await page.locator("#new_password").fill("newSecretPassword123#");
       await page.getByTestId("reset-password-button").click();
@@ -237,16 +239,15 @@ test.describe("Password reset", () => {
 
     test("hides 422 errors after a 500 error", async ({ page }) => {
       await page.route("**/api/v1/password/reset", (route) =>
-        route.fulfill({
-          status: 422,
-          json: {
-            message: "The Email field is required. (and 1 more error)",
-            errors: {
+        route.fulfill(
+          validationErrors(
+            {
               email: ["The Email field is required."],
               token: ["The Token field is required."],
             },
-          },
-        }),
+            "The Email field is required. (and 1 more error)",
+          ),
+        ),
       );
       await page.getByTestId("reset-password-button").click();
       await expect(
@@ -258,7 +259,7 @@ test.describe("Password reset", () => {
       );
 
       await page.route("**/api/v1/password/reset", (route) =>
-        route.fulfill({ status: 500, json: { message: "Test" } }),
+        route.fulfill(serverError()),
       );
       await page.getByTestId("reset-password-button").click();
 
@@ -276,7 +277,7 @@ test.describe("Password reset", () => {
 
     test("shows too many requests error", async ({ page }) => {
       await page.route("**/api/v1/password/reset", (route) =>
-        route.fulfill({ status: 429, json: { message: "Too many requests" } }),
+        route.fulfill(errorResponse(429, "Too many requests")),
       );
 
       await page.getByTestId("reset-password-button").click();

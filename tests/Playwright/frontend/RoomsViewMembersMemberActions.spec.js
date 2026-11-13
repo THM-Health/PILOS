@@ -1,8 +1,26 @@
-import { test } from "../support/fixtures/roomsMembersLinks.js";
+import { mergeTests } from "@playwright/test";
+import { test as roomControllerTest } from "../support/fixtures/roomController.js";
+import { test as roomFileControllerTest } from "../support/fixtures/roomFileController.js";
+import { test as roomMemberControllerTest } from "../support/fixtures/roomMemberController.js";
+import { test as roomPersonalizedLinkControllerTest } from "../support/fixtures/roomPersonalizedLinkController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { mockMethod, nthRequest, queryOf } from "../support/utils.js";
+import {
+  mockApiRequest,
+  getRequestQuery,
+  validationErrors,
+  serverError,
+  modelNotFound,
+} from "../support/utils.js";
 import { interceptRoomIndexRequests } from "../support/mocks.js";
 import { checkRoomAuthErrors } from "../support/room.js";
+
+const test = mergeTests(
+  roomControllerTest,
+  roomFileControllerTest,
+  roomMemberControllerTest,
+  roomPersonalizedLinkControllerTest,
+);
+test.use({ roomFilesFixtureName: "roomFilesNoDetails.json" });
 
 test.use({ authenticated: true });
 
@@ -60,9 +78,9 @@ test.describe("Rooms view members member actions", () => {
 
     test("shows the email only prompt if search by name is disabled", async ({
       page,
-      config,
+      configResponse,
     }) => {
-      config.data.user.search_by_name = false;
+      configResponse.data.user.search_by_name = false;
       await page.reload();
       await expect(page.getByTestId("room-member-item")).toHaveCount(3);
 
@@ -97,15 +115,24 @@ test.describe("Rooms view members member actions", () => {
         page.getByTestId("room-members-add-single-dialog"),
       ).toBeVisible();
 
-      const search = await mockMethod(page, "GET", "**/api/v1/users/search*", {
-        status: 204,
-      });
+      const getUsersSearchApiMock = await mockApiRequest(
+        page,
+        "GET",
+        "users/search*",
+        {
+          status: 204,
+        },
+      );
 
       const input = page.getByTestId("select-user-dropdown").locator("input");
       await input.click();
       await input.pressSequentially("L");
 
-      expect(queryOf(await nthRequest(search))).toMatchObject({ query: "L" });
+      expect(
+        getRequestQuery(await getUsersSearchApiMock.waitForRequest()),
+      ).toMatchObject({
+        query: "L",
+      });
 
       const options = page.locator(".multiselect__option");
       await expect(page.locator(".multiselect__content")).toBeVisible();
@@ -130,33 +157,40 @@ test.describe("Rooms view members member actions", () => {
         page.getByTestId("room-members-add-single-dialog"),
       ).toBeVisible();
 
-      const search = await mockMethod(page, "GET", "**/api/v1/users/search*", {
-        status: 200,
-        json: {
-          data: [
-            {
-              id: 5,
-              firstname: "Laura",
-              lastname: "Rivera",
-              email: "LauraWRivera@domain.tld",
-              image: null,
-            },
-            {
-              id: 10,
-              firstname: "Laura",
-              lastname: "Walter",
-              email: "LauraMWalter@domain.tld",
-              image: null,
-            },
-          ],
+      const getUsersSearchApiMock = await mockApiRequest(
+        page,
+        "GET",
+        "users/search*",
+        {
+          status: 200,
+          json: {
+            data: [
+              {
+                id: 5,
+                firstname: "Laura",
+                lastname: "Rivera",
+                email: "LauraWRivera@domain.tld",
+                image: null,
+              },
+              {
+                id: 10,
+                firstname: "Laura",
+                lastname: "Walter",
+                email: "LauraMWalter@domain.tld",
+                image: null,
+              },
+            ],
+          },
         },
-      });
+      );
 
       const input = page.getByTestId("select-user-dropdown").locator("input");
       await input.click();
       await input.pressSequentially("Laura");
 
-      expect(queryOf(await nthRequest(search))).toMatchObject({
+      expect(
+        getRequestQuery(await getUsersSearchApiMock.waitForRequest()),
+      ).toMatchObject({
         query: "Laura",
       });
 
@@ -190,10 +224,10 @@ test.describe("Rooms view members member actions", () => {
           page.getByTestId("room-members-add-single-dialog"),
         ).toBeVisible();
 
-        const search = await mockMethod(
+        const getUsersSearchApiMock = await mockApiRequest(
           page,
           "GET",
-          "**/api/v1/users/search*",
+          "users/search*",
           {
             status: 200,
             json: {
@@ -220,7 +254,7 @@ test.describe("Rooms view members member actions", () => {
         const input = page.getByTestId("select-user-dropdown").locator("input");
         await input.click();
         await input.pressSequentially("L");
-        await nthRequest(search);
+        await getUsersSearchApiMock.waitForRequest();
 
         await expect(page.locator(".multiselect__content")).toBeVisible();
         await page.locator(".multiselect__option").nth(1).click();
@@ -241,21 +275,21 @@ test.describe("Rooms view members member actions", () => {
 
       test("adds the member with the selected role", async ({
         page,
-        roomMembers,
+        roomMembersResponse,
       }) => {
         await page.locator("#moderator-role").click();
         await expect(page.locator("#moderator-role")).toBeChecked();
 
-        const addMember = await mockMethod(
+        const postRoomMemberApiMock = await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/rooms/abc-def-123/member",
+          "rooms/abc-def-123/member",
           {
             status: 204,
             hold: true,
           },
         );
-        roomMembers.data.push({
+        roomMembersResponse.data.push({
           id: 10,
           firstname: "Laura",
           lastname: "Walter",
@@ -263,10 +297,10 @@ test.describe("Rooms view members member actions", () => {
           role: 2,
           image: null,
         });
-        roomMembers.meta.per_page = 4;
-        roomMembers.meta.to = 4;
-        roomMembers.meta.total = 4;
-        roomMembers.meta.total_no_filter = 4;
+        roomMembersResponse.meta.per_page = 4;
+        roomMembersResponse.meta.to = 4;
+        roomMembersResponse.meta.total = 4;
+        roomMembersResponse.meta.total_no_filter = 4;
 
         await expect(page.getByTestId("dialog-save-button")).toHaveText(
           "rooms.members.modals.add.add",
@@ -286,11 +320,13 @@ test.describe("Rooms view members member actions", () => {
         await expect(page.getByTestId("dialog-cancel-button")).toBeDisabled();
         await expect(page.getByTestId("dialog-save-button")).toBeDisabled();
 
-        addMember.release();
+        postRoomMemberApiMock.release();
 
-        expect((await nthRequest(addMember)).postDataJSON()).toEqual({
-          user: 10,
-          role: 2,
+        await expect(postRoomMemberApiMock).toHaveReceivedRequest({
+          json: {
+            user: 10,
+            role: 2,
+          },
         });
 
         await expect(
@@ -310,26 +346,30 @@ test.describe("Rooms view members member actions", () => {
         const dialog = page.getByTestId("room-members-add-single-dialog");
 
         // The role is missing
-        await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/member", {
-          status: 422,
-          json: {
-            message: "The Role field is required.",
-            errors: { role: ["The Role field is required."] },
-          },
-        });
+        await mockApiRequest(
+          page,
+          "POST",
+          "rooms/abc-def-123/member",
+          validationErrors(
+            { role: ["The Role field is required."] },
+            "The Role field is required.",
+          ),
+        );
         await page.getByTestId("dialog-save-button").click();
 
         await expect(dialog).toContainText("The Role field is required.");
 
         // The user is already a member, the previous error is replaced
         await page.locator("#participant-role").click();
-        await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/member", {
-          status: 422,
-          json: {
-            message: "The user is already member of the room.",
-            errors: { user: ["The user is already member of the room."] },
-          },
-        });
+        await mockApiRequest(
+          page,
+          "POST",
+          "rooms/abc-def-123/member",
+          validationErrors(
+            { user: ["The user is already member of the room."] },
+            "The user is already member of the room.",
+          ),
+        );
         await page.getByTestId("dialog-save-button").click();
 
         await expect(dialog).toContainText(
@@ -343,33 +383,39 @@ test.describe("Rooms view members member actions", () => {
       }) => {
         const dialog = page.getByTestId("room-members-add-single-dialog");
 
-        await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/member", {
-          status: 422,
-          json: {
-            message: "The Role field is required.",
-            errors: { role: ["The Role field is required."] },
-          },
-        });
+        await mockApiRequest(
+          page,
+          "POST",
+          "rooms/abc-def-123/member",
+          validationErrors(
+            { role: ["The Role field is required."] },
+            "The Role field is required.",
+          ),
+        );
         await page.getByTestId("dialog-save-button").click();
         await expect(dialog).toContainText("The Role field is required.");
 
         await page.locator("#participant-role").click();
-        await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/member", {
-          status: 422,
-          json: {
-            message: "The user is already member of the room.",
-            errors: { user: ["The user is already member of the room."] },
-          },
-        });
+        await mockApiRequest(
+          page,
+          "POST",
+          "rooms/abc-def-123/member",
+          validationErrors(
+            { user: ["The user is already member of the room."] },
+            "The user is already member of the room.",
+          ),
+        );
         await page.getByTestId("dialog-save-button").click();
         await expect(dialog).toContainText(
           "The user is already member of the room.",
         );
 
-        await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/member", {
-          status: 500,
-          json: { message: "Test" },
-        });
+        await mockApiRequest(
+          page,
+          "POST",
+          "rooms/abc-def-123/member",
+          serverError(),
+        );
         await page.getByTestId("dialog-save-button").click();
 
         await expectToastAndClose(page, [
@@ -397,10 +443,7 @@ test.describe("Rooms view members member actions", () => {
         page.getByTestId("room-members-add-single-dialog"),
       ).toBeVisible();
 
-      await mockMethod(page, "GET", "**/api/v1/users/search*", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "GET", "users/search*", serverError());
 
       const input = page.getByTestId("select-user-dropdown").locator("input");
       await input.click();
@@ -477,14 +520,12 @@ test.describe("Rooms view members member actions", () => {
         page.getByTestId("room-members-add-single-dialog"),
       ).toBeVisible();
 
-      await mockMethod(page, "POST", "**/api/v1/rooms/abc-def-123/member", {
-        status: 404,
-        json: {
-          message: "model_not_found",
-          model: "room",
-          ids: ["abc-def-123"],
-        },
-      });
+      await mockApiRequest(
+        page,
+        "POST",
+        "rooms/abc-def-123/member",
+        modelNotFound("room", ["abc-def-123"]),
+      );
       await page.getByTestId("dialog-save-button").click();
 
       await expect(page).toHaveURL((url) => url.pathname === "/rooms");
@@ -524,7 +565,10 @@ test.describe("Rooms view members member actions", () => {
       }
     });
 
-    test("changes the role of the member", async ({ page, roomMembers }) => {
+    test("changes the role of the member", async ({
+      page,
+      roomMembersResponse,
+    }) => {
       await page
         .getByTestId("room-member-item")
         .first()
@@ -536,16 +580,16 @@ test.describe("Rooms view members member actions", () => {
       await expect(page.locator("#participant-role")).not.toBeChecked();
       await expect(page.locator("#moderator-role")).toBeChecked();
 
-      const editMember = await mockMethod(
+      const putRoomMemberApiMock = await mockApiRequest(
         page,
         "PUT",
-        "**/api/v1/rooms/abc-def-123/member/5",
+        "rooms/abc-def-123/member/5",
         {
           status: 204,
           hold: true,
         },
       );
-      roomMembers.data[0].role = 2;
+      roomMembersResponse.data[0].role = 2;
 
       await expect(page.getByTestId("dialog-save-button")).toHaveText(
         "app.save",
@@ -559,10 +603,12 @@ test.describe("Rooms view members member actions", () => {
       await expect(page.getByTestId("dialog-cancel-button")).toBeDisabled();
       await expect(page.getByTestId("dialog-save-button")).toBeDisabled();
 
-      editMember.release();
+      putRoomMemberApiMock.release();
 
-      expect((await nthRequest(editMember)).postDataJSON()).toEqual({
-        role: 2,
+      await expect(putRoomMemberApiMock).toHaveReceivedRequest({
+        json: {
+          role: 2,
+        },
       });
 
       await expect(page.getByTestId("room-members-edit-dialog")).toHaveCount(0);
@@ -573,7 +619,7 @@ test.describe("Rooms view members member actions", () => {
 
     test("reloads the members if the member is gone", async ({
       page,
-      roomMembers,
+      roomMembersResponse,
     }) => {
       await page
         .getByTestId("room-member-item")
@@ -582,14 +628,16 @@ test.describe("Rooms view members member actions", () => {
         .click();
       await expect(page.getByTestId("room-members-edit-dialog")).toBeVisible();
 
-      await mockMethod(page, "PUT", "**/api/v1/rooms/abc-def-123/member/5", {
-        status: 404,
-        json: { message: "model_not_found", model: "user", ids: [5] },
-      });
-      roomMembers.data = roomMembers.data.slice(1, 3);
-      roomMembers.meta.to = 2;
-      roomMembers.meta.total = 2;
-      roomMembers.meta.total_no_filter = 2;
+      await mockApiRequest(
+        page,
+        "PUT",
+        "rooms/abc-def-123/member/5",
+        modelNotFound("user", [5]),
+      );
+      roomMembersResponse.data = roomMembersResponse.data.slice(1, 3);
+      roomMembersResponse.meta.to = 2;
+      roomMembersResponse.meta.total = 2;
+      roomMembersResponse.meta.total_no_filter = 2;
 
       await page.getByTestId("dialog-save-button").click();
 
@@ -606,13 +654,15 @@ test.describe("Rooms view members member actions", () => {
         .click();
       await expect(page.getByTestId("room-members-edit-dialog")).toBeVisible();
 
-      await mockMethod(page, "PUT", "**/api/v1/rooms/abc-def-123/member/5", {
-        status: 422,
-        json: {
-          message: "The selected role is invalid.",
-          errors: { role: ["The selected role is invalid."] },
-        },
-      });
+      await mockApiRequest(
+        page,
+        "PUT",
+        "rooms/abc-def-123/member/5",
+        validationErrors(
+          { role: ["The selected role is invalid."] },
+          "The selected role is invalid.",
+        ),
+      );
       await page.getByTestId("dialog-save-button").click();
 
       await expect(page.getByTestId("room-members-edit-dialog")).toContainText(
@@ -631,20 +681,24 @@ test.describe("Rooms view members member actions", () => {
         .click();
       await expect(page.getByTestId("room-members-edit-dialog")).toBeVisible();
 
-      await mockMethod(page, "PUT", "**/api/v1/rooms/abc-def-123/member/5", {
-        status: 422,
-        json: {
-          message: "The selected role is invalid.",
-          errors: { role: ["The selected role is invalid."] },
-        },
-      });
+      await mockApiRequest(
+        page,
+        "PUT",
+        "rooms/abc-def-123/member/5",
+        validationErrors(
+          { role: ["The selected role is invalid."] },
+          "The selected role is invalid.",
+        ),
+      );
       await page.getByTestId("dialog-save-button").click();
       await expect(dialog).toContainText("The selected role is invalid.");
 
-      await mockMethod(page, "PUT", "**/api/v1/rooms/abc-def-123/member/5", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(
+        page,
+        "PUT",
+        "rooms/abc-def-123/member/5",
+        serverError(),
+      );
       await page.getByTestId("dialog-save-button").click();
 
       await expectToastAndClose(page, [
@@ -689,14 +743,12 @@ test.describe("Rooms view members member actions", () => {
         .click();
       await expect(page.getByTestId("room-members-edit-dialog")).toBeVisible();
 
-      await mockMethod(page, "PUT", "**/api/v1/rooms/abc-def-123/member/5", {
-        status: 404,
-        json: {
-          message: "model_not_found",
-          model: "room",
-          ids: ["abc-def-123"],
-        },
-      });
+      await mockApiRequest(
+        page,
+        "PUT",
+        "rooms/abc-def-123/member/5",
+        modelNotFound("room", ["abc-def-123"]),
+      );
       await page.getByTestId("dialog-save-button").click();
 
       await expect(page).toHaveURL((url) => url.pathname === "/rooms");
@@ -728,7 +780,7 @@ test.describe("Rooms view members member actions", () => {
       );
     });
 
-    test("deletes the member", async ({ page, roomMembers }) => {
+    test("deletes the member", async ({ page, roomMembersResponse }) => {
       await page
         .getByTestId("room-member-item")
         .first()
@@ -738,19 +790,19 @@ test.describe("Rooms view members member actions", () => {
         page.getByTestId("room-members-delete-dialog"),
       ).toBeVisible();
 
-      const deleteMember = await mockMethod(
+      const deleteRoomMemberApiMock = await mockApiRequest(
         page,
         "DELETE",
-        "**/api/v1/rooms/abc-def-123/member/5",
+        "rooms/abc-def-123/member/5",
         {
           status: 204,
           hold: true,
         },
       );
-      roomMembers.data = roomMembers.data.slice(1, 3);
-      roomMembers.meta.to = 2;
-      roomMembers.meta.total = 2;
-      roomMembers.meta.total_no_filter = 2;
+      roomMembersResponse.data = roomMembersResponse.data.slice(1, 3);
+      roomMembersResponse.meta.to = 2;
+      roomMembersResponse.meta.total = 2;
+      roomMembersResponse.meta.total_no_filter = 2;
 
       await expect(page.getByTestId("dialog-continue-button")).toHaveText(
         "app.yes",
@@ -764,8 +816,8 @@ test.describe("Rooms view members member actions", () => {
       await expect(page.getByTestId("dialog-cancel-button")).toBeDisabled();
       await expect(page.getByTestId("dialog-continue-button")).toBeDisabled();
 
-      deleteMember.release();
-      await nthRequest(deleteMember);
+      deleteRoomMemberApiMock.release();
+      await deleteRoomMemberApiMock.waitForRequest();
 
       await expect(page.getByTestId("room-member-item")).toHaveCount(2);
       await expect(page.getByTestId("room-members-delete-dialog")).toHaveCount(
@@ -775,7 +827,7 @@ test.describe("Rooms view members member actions", () => {
 
     test("reloads the members if the member is gone", async ({
       page,
-      roomMembers,
+      roomMembersResponse,
     }) => {
       await page
         .getByTestId("room-member-item")
@@ -786,14 +838,16 @@ test.describe("Rooms view members member actions", () => {
         page.getByTestId("room-members-delete-dialog"),
       ).toBeVisible();
 
-      await mockMethod(page, "DELETE", "**/api/v1/rooms/abc-def-123/member/5", {
-        status: 404,
-        json: { message: "model_not_found", model: "user", ids: [5] },
-      });
-      roomMembers.data = roomMembers.data.slice(1, 3);
-      roomMembers.meta.to = 2;
-      roomMembers.meta.total = 2;
-      roomMembers.meta.total_no_filter = 2;
+      await mockApiRequest(
+        page,
+        "DELETE",
+        "rooms/abc-def-123/member/5",
+        modelNotFound("user", [5]),
+      );
+      roomMembersResponse.data = roomMembersResponse.data.slice(1, 3);
+      roomMembersResponse.meta.to = 2;
+      roomMembersResponse.meta.total = 2;
+      roomMembersResponse.meta.total_no_filter = 2;
 
       await page.getByTestId("dialog-continue-button").click();
 
@@ -814,10 +868,12 @@ test.describe("Rooms view members member actions", () => {
         page.getByTestId("room-members-delete-dialog"),
       ).toBeVisible();
 
-      await mockMethod(page, "DELETE", "**/api/v1/rooms/abc-def-123/member/5", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(
+        page,
+        "DELETE",
+        "rooms/abc-def-123/member/5",
+        serverError(),
+      );
       await page.getByTestId("dialog-continue-button").click();
 
       await expectToastAndClose(page, [
@@ -867,14 +923,12 @@ test.describe("Rooms view members member actions", () => {
         page.getByTestId("room-members-delete-dialog"),
       ).toBeVisible();
 
-      await mockMethod(page, "DELETE", "**/api/v1/rooms/abc-def-123/member/5", {
-        status: 404,
-        json: {
-          message: "model_not_found",
-          model: "room",
-          ids: ["abc-def-123"],
-        },
-      });
+      await mockApiRequest(
+        page,
+        "DELETE",
+        "rooms/abc-def-123/member/5",
+        modelNotFound("room", ["abc-def-123"]),
+      );
       await page.getByTestId("dialog-continue-button").click();
 
       await expect(page).toHaveURL((url) => url.pathname === "/rooms");

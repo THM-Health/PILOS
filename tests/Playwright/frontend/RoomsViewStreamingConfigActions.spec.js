@@ -1,23 +1,39 @@
+import { mergeTests } from "@playwright/test";
+import { test as roomControllerTest } from "../support/fixtures/roomController.js";
+import { test as roomFileControllerTest } from "../support/fixtures/roomFileController.js";
+import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
+import { test as userControllerTest } from "../support/fixtures/userController.js";
+import { test as roomStreamingControllerTest } from "../support/fixtures/roomStreamingController.js";
 import { readFileSync } from "node:fs";
-import { test } from "../support/fixtures/roomsSettingsStreaming.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import {
-  mockMethod,
-  nthRequest,
-  parseFormData,
-  _arrayBufferToBase64,
+  mockApiRequest,
+  getRequestFormData,
+  arrayBufferToBase64,
   readFixture,
+  modelNotFound,
+  validationErrors,
 } from "../support/utils.js";
 import { interceptRoomIndexRequests } from "../support/mocks.js";
 import { checkSettingsFileSelector } from "../support/admin.js";
 
+const test = mergeTests(
+  roomControllerTest,
+  roomFileControllerTest,
+  roomTypeControllerTest,
+  userControllerTest,
+  roomStreamingControllerTest,
+);
+test.use({ roomFilesFixtureName: "roomFilesNoDetails.json" });
+test.use({ roomTypesFixtureName: "roomTypesWithSettings.json" });
+
 test.use({ authenticated: true });
 
 test.describe("Rooms view streaming config actions", () => {
-  test.beforeEach(async ({ page, config, room }) => {
-    config.data.general.hide_disabled_features = true;
-    config.data.streaming.enabled = true;
-    room.data.type.features.streaming.enabled = true;
+  test.beforeEach(async ({ page, configResponse, roomResponse }) => {
+    configResponse.data.general.hide_disabled_features = true;
+    configResponse.data.streaming.enabled = true;
+    roomResponse.data.type.features.streaming.enabled = true;
 
     await page.goto("/rooms/abc-def-123");
     await page.locator("#tab-streaming").click();
@@ -55,10 +71,10 @@ test.describe("Rooms view streaming config actions", () => {
     test("enabled with url and pause image", async ({
       page,
       baseURL,
-      roomStreamingConfig,
+      roomStreamingConfigResponse,
     }) => {
       await page.getByTestId("dialog-cancel-button").click();
-      Object.assign(roomStreamingConfig.data, {
+      Object.assign(roomStreamingConfigResponse.data, {
         enabled: true,
         url: "rtmps://streaming.example.com/stream/bbb",
         pause_image: baseURL + "/pause_image.jpg",
@@ -94,10 +110,10 @@ test.describe("Rooms view streaming config actions", () => {
     test("room type default pause image", async ({
       page,
       baseURL,
-      roomStreamingConfig,
+      roomStreamingConfigResponse,
     }) => {
       await page.getByTestId("dialog-cancel-button").click();
-      Object.assign(roomStreamingConfig.data, {
+      Object.assign(roomStreamingConfigResponse.data, {
         room_type_default_pause_image: baseURL + "/room_type_pause_image.jpg",
         system_default_pause_image: baseURL + "/system_pause_image.jpg",
       });
@@ -120,10 +136,10 @@ test.describe("Rooms view streaming config actions", () => {
     test("system default pause image", async ({
       page,
       baseURL,
-      roomStreamingConfig,
+      roomStreamingConfigResponse,
     }) => {
       await page.getByTestId("dialog-cancel-button").click();
-      roomStreamingConfig.data.system_default_pause_image =
+      roomStreamingConfigResponse.data.system_default_pause_image =
         baseURL + "/system_pause_image.jpg";
       await page.getByTestId("streaming-config-button").click();
 
@@ -145,12 +161,10 @@ test.describe("Rooms view streaming config actions", () => {
   test.describe("load with error", () => {
     test.beforeEach(async ({ page }) => {
       await page.getByTestId("dialog-cancel-button").click();
-      await mockMethod(
-        page,
-        "GET",
-        "**/api/v1/rooms/abc-def-123/streaming/config",
-        { status: 500, json: { message: "Internal server error" } },
-      );
+      await mockApiRequest(page, "GET", "rooms/abc-def-123/streaming/config", {
+        status: 500,
+        json: { message: "Internal server error" },
+      });
       await page.getByTestId("streaming-config-button").click();
     });
 
@@ -176,17 +190,17 @@ test.describe("Rooms view streaming config actions", () => {
       ]);
     });
 
-    test("retry enables the form", async ({ page, roomStreamingConfig }) => {
+    test("retry enables the form", async ({
+      page,
+      roomStreamingConfigResponse,
+    }) => {
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Internal server error"}',
         'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
-      await mockMethod(
-        page,
-        "GET",
-        "**/api/v1/rooms/abc-def-123/streaming/config",
-        { json: roomStreamingConfig },
-      );
+      await mockApiRequest(page, "GET", "rooms/abc-def-123/streaming/config", {
+        json: roomStreamingConfigResponse,
+      });
 
       const dialog = page.getByTestId("room-streaming-config-dialog");
       await dialog.getByTestId("loading-retry-button").click();
@@ -208,22 +222,15 @@ test.describe("Rooms view streaming config actions", () => {
   }) => {
     await page.getByTestId("dialog-cancel-button").click();
     await interceptRoomIndexRequests(page);
-    const configMock = await mockMethod(
+    const getRoomStreamingConfigApiMock = await mockApiRequest(
       page,
       "GET",
-      "**/api/v1/rooms/abc-def-123/streaming/config",
-      {
-        status: 404,
-        json: {
-          message: "model_not_found",
-          model: "room",
-          ids: ["abc-def-123"],
-        },
-      },
+      "rooms/abc-def-123/streaming/config",
+      modelNotFound("room", ["abc-def-123"]),
     );
 
     await page.getByTestId("streaming-config-button").click();
-    await nthRequest(configMock);
+    await getRoomStreamingConfigApiMock.waitForRequest();
 
     await expect(page).toHaveURL(
       (url) =>
@@ -239,7 +246,7 @@ test.describe("Rooms view streaming config actions", () => {
   test.describe("edit settings", () => {
     test("upload pause image shows loading state while saving", async ({
       page,
-      roomStreamingConfig,
+      roomStreamingConfigResponse,
     }) => {
       const dialog = page.getByTestId("room-streaming-config-dialog");
       await expect(dialog.locator("#streaming-enabled")).not.toBeChecked();
@@ -251,11 +258,11 @@ test.describe("Rooms view streaming config actions", () => {
       const field = dialog.getByTestId("streaming-pause-image-field");
       await checkSettingsFileSelector(page, field, "", "pause.jpg", true);
 
-      const saveMock = await mockMethod(
+      const postRoomStreamingConfigApiMock = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/rooms/abc-def-123/streaming/config",
-        { json: roomStreamingConfig, hold: true },
+        "rooms/abc-def-123/streaming/config",
+        { json: roomStreamingConfigResponse, hold: true },
       );
 
       const saveButton = dialog.getByTestId("dialog-save-button");
@@ -271,14 +278,14 @@ test.describe("Rooms view streaming config actions", () => {
       ).toBeDisabled();
       await expect(saveButton).toBeDisabled();
 
-      saveMock.release();
-      await nthRequest(saveMock);
+      postRoomStreamingConfigApiMock.release();
+      await postRoomStreamingConfigApiMock.waitForRequest();
       await expect(dialog).toHaveCount(0);
     });
 
     test("upload pause image sends the new settings", async ({
       page,
-      roomStreamingConfig,
+      roomStreamingConfigResponse,
     }) => {
       const dialog = page.getByTestId("room-streaming-config-dialog");
       await dialog.locator("#streaming-enabled").check();
@@ -299,23 +306,25 @@ test.describe("Rooms view streaming config actions", () => {
         buffer: readFileSync("tests/Playwright/fixtures/files/pause.jpg"),
       });
 
-      const saveMock = await mockMethod(
+      const postRoomStreamingConfigApiMock = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/rooms/abc-def-123/streaming/config",
-        { json: roomStreamingConfig },
+        "rooms/abc-def-123/streaming/config",
+        { json: roomStreamingConfigResponse },
       );
       await dialog.getByTestId("dialog-save-button").click();
 
-      const formData = await parseFormData(await nthRequest(saveMock));
-      const uploadedPauseImage = formData.get("pause_image");
+      const requestFormData = await getRequestFormData(
+        await postRoomStreamingConfigApiMock.waitForRequest(),
+      );
+      const uploadedPauseImage = requestFormData.get("pause_image");
       expect(uploadedPauseImage.name).toBe("pause.jpg");
       expect(uploadedPauseImage.type).toBe("image/jpeg");
-      expect(_arrayBufferToBase64(await uploadedPauseImage.arrayBuffer())).toBe(
+      expect(arrayBufferToBase64(await uploadedPauseImage.arrayBuffer())).toBe(
         readFileSync("tests/Playwright/fixtures/files/pause.jpg", "base64"),
       );
-      expect(formData.get("enabled")).toBe("1");
-      expect(formData.get("url")).toBe(
+      expect(requestFormData.get("enabled")).toBe("1");
+      expect(requestFormData.get("url")).toBe(
         "rtmps://streaming.example.com/stream/bbb",
       );
 
@@ -323,24 +332,26 @@ test.describe("Rooms view streaming config actions", () => {
     });
 
     test.describe("with existing settings", () => {
-      test.beforeEach(async ({ page, baseURL, roomStreamingConfig }) => {
-        await page.getByTestId("dialog-cancel-button").click();
-        Object.assign(roomStreamingConfig.data, {
-          enabled: true,
-          url: "rtmps://streaming.example.com/stream/bbb",
-          pause_image: baseURL + "/pause_image.jpg",
-        });
-        await page.getByTestId("streaming-config-button").click();
-      });
+      test.beforeEach(
+        async ({ page, baseURL, roomStreamingConfigResponse }) => {
+          await page.getByTestId("dialog-cancel-button").click();
+          Object.assign(roomStreamingConfigResponse.data, {
+            enabled: true,
+            url: "rtmps://streaming.example.com/stream/bbb",
+            pause_image: baseURL + "/pause_image.jpg",
+          });
+          await page.getByTestId("streaming-config-button").click();
+        },
+      );
 
       test("save without changes does not send the pause image", async ({
         page,
       }) => {
         const dialog = page.getByTestId("room-streaming-config-dialog");
-        const saveMock = await mockMethod(
+        const postRoomStreamingConfigApiMock = await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/rooms/abc-def-123/streaming/config",
+          "rooms/abc-def-123/streaming/config",
           { json: readFixture("roomStreamingConfig.json") },
         );
 
@@ -348,10 +359,12 @@ test.describe("Rooms view streaming config actions", () => {
         await expect(saveButton).toContainText("app.save");
         await saveButton.click();
 
-        const formData = await parseFormData(await nthRequest(saveMock));
-        expect(formData.has("pause_image")).toBe(false);
-        expect(formData.get("enabled")).toBe("1");
-        expect(formData.get("url")).toBe(
+        const requestFormData = await getRequestFormData(
+          await postRoomStreamingConfigApiMock.waitForRequest(),
+        );
+        expect(requestFormData.has("pause_image")).toBe(false);
+        expect(requestFormData.get("enabled")).toBe("1");
+        expect(requestFormData.get("url")).toBe(
           "rtmps://streaming.example.com/stream/bbb",
         );
 
@@ -370,10 +383,10 @@ test.describe("Rooms view streaming config actions", () => {
         const field = dialog.getByTestId("streaming-pause-image-field");
         await field.getByTestId("settings-file-delete-button").click();
 
-        const saveMock = await mockMethod(
+        const postRoomStreamingConfigApiMock = await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/rooms/abc-def-123/streaming/config",
+          "rooms/abc-def-123/streaming/config",
           { json: readFixture("roomStreamingConfig.json"), hold: true },
         );
         const saveButton = dialog.getByTestId("dialog-save-button");
@@ -388,8 +401,8 @@ test.describe("Rooms view streaming config actions", () => {
         ).toBeDisabled();
         await expect(saveButton).toBeDisabled();
 
-        saveMock.release();
-        await nthRequest(saveMock);
+        postRoomStreamingConfigApiMock.release();
+        await postRoomStreamingConfigApiMock.waitForRequest();
         await expect(dialog).toHaveCount(0);
       });
 
@@ -402,19 +415,21 @@ test.describe("Rooms view streaming config actions", () => {
           .getByTestId("settings-file-delete-button")
           .click();
 
-        const saveMock = await mockMethod(
+        const postRoomStreamingConfigApiMock = await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/rooms/abc-def-123/streaming/config",
+          "rooms/abc-def-123/streaming/config",
           { json: readFixture("roomStreamingConfig.json") },
         );
         await dialog.getByTestId("dialog-save-button").click();
 
-        const formData = await parseFormData(await nthRequest(saveMock));
-        expect(formData.has("pause_image")).toBe(true);
-        expect(formData.get("pause_image")).toBe("");
-        expect(formData.get("enabled")).toBe("0");
-        expect(formData.get("url")).toBe("");
+        const requestFormData = await getRequestFormData(
+          await postRoomStreamingConfigApiMock.waitForRequest(),
+        );
+        expect(requestFormData.has("pause_image")).toBe(true);
+        expect(requestFormData.get("pause_image")).toBe("");
+        expect(requestFormData.get("enabled")).toBe("0");
+        expect(requestFormData.get("url")).toBe("");
 
         await expect(dialog).toHaveCount(0);
       });
@@ -440,31 +455,27 @@ test.describe("Rooms view streaming config actions", () => {
     test("validation errors are shown and the dialog stays open", async ({
       page,
     }) => {
-      const saveMock = await mockMethod(
+      const postRoomStreamingConfigApiMock = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/rooms/abc-def-123/streaming/config",
-        {
-          status: 422,
-          json: {
-            message:
-              "The RTMP(S) URL must be a RTMP or RTMPS URL. (and 2 more errors)",
-            errors: {
-              url: ["The RTMP(S) URL must be a RTMP or RTMPS URL."],
-              pause_image: [
-                "The Pause image must not be greater than 5000 kilobytes.",
-                "The Pause image must have a resolution of 1920x1080 pixels.",
-              ],
-            },
+        "rooms/abc-def-123/streaming/config",
+        validationErrors(
+          {
+            url: ["The RTMP(S) URL must be a RTMP or RTMPS URL."],
+            pause_image: [
+              "The Pause image must not be greater than 5000 kilobytes.",
+              "The Pause image must have a resolution of 1920x1080 pixels.",
+            ],
           },
-        },
+          "The RTMP(S) URL must be a RTMP or RTMPS URL. (and 2 more errors)",
+        ),
       );
 
       const dialog = page.getByTestId("room-streaming-config-dialog");
       const saveButton = dialog.getByTestId("dialog-save-button");
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
-      await nthRequest(saveMock);
+      await postRoomStreamingConfigApiMock.waitForRequest();
 
       await expect(dialog).toBeVisible();
       await expect(dialog.getByTestId("streaming-url-field")).toContainText(
@@ -485,37 +496,34 @@ test.describe("Rooms view streaming config actions", () => {
       const dialog = page.getByTestId("room-streaming-config-dialog");
       const saveButton = dialog.getByTestId("dialog-save-button");
 
-      const validationMock = await mockMethod(
+      const postRoomStreamingConfigApiMock = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/rooms/abc-def-123/streaming/config",
-        {
-          status: 422,
-          json: {
-            message: "The RTMP(S) URL must be a RTMP or RTMPS URL.",
-            errors: {
-              url: ["The RTMP(S) URL must be a RTMP or RTMPS URL."],
-              pause_image: [
-                "The Pause image must not be greater than 5000 kilobytes.",
-              ],
-            },
+        "rooms/abc-def-123/streaming/config",
+        validationErrors(
+          {
+            url: ["The RTMP(S) URL must be a RTMP or RTMPS URL."],
+            pause_image: [
+              "The Pause image must not be greater than 5000 kilobytes.",
+            ],
           },
-        },
+          "The RTMP(S) URL must be a RTMP or RTMPS URL.",
+        ),
       );
       await saveButton.click();
-      await nthRequest(validationMock);
+      await postRoomStreamingConfigApiMock.waitForRequest();
       await expect(dialog.getByTestId("streaming-url-field")).toContainText(
         "The RTMP(S) URL must be a RTMP or RTMPS URL.",
       );
 
-      const errorMock = await mockMethod(
+      const postRoomStreamingConfigApiMock2 = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/rooms/abc-def-123/streaming/config",
+        "rooms/abc-def-123/streaming/config",
         { status: 500, json: { message: "Internal server error" } },
       );
       await saveButton.click();
-      await nthRequest(errorMock);
+      await postRoomStreamingConfigApiMock2.waitForRequest();
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Internal server error"}',
         'app.flash.server_error.error_code_{"statusCode":500}',
@@ -534,18 +542,11 @@ test.describe("Rooms view streaming config actions", () => {
 
     test("room not found redirects to the room index", async ({ page }) => {
       await interceptRoomIndexRequests(page);
-      const saveMock = await mockMethod(
+      const postRoomStreamingConfigApiMock = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/rooms/abc-def-123/streaming/config",
-        {
-          status: 404,
-          json: {
-            message: "model_not_found",
-            model: "room",
-            ids: ["abc-def-123"],
-          },
-        },
+        "rooms/abc-def-123/streaming/config",
+        modelNotFound("room", ["abc-def-123"]),
       );
 
       const saveButton = page
@@ -553,7 +554,7 @@ test.describe("Rooms view streaming config actions", () => {
         .getByTestId("dialog-save-button");
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
-      await nthRequest(saveMock);
+      await postRoomStreamingConfigApiMock.waitForRequest();
 
       await expect(page).toHaveURL(
         (url) =>
@@ -568,10 +569,10 @@ test.describe("Rooms view streaming config actions", () => {
   });
 
   test.describe("permissions", () => {
-    test("co-owner can edit", async ({ page, room }) => {
-      room.data.owner = { id: 2, name: "Max Doe" };
-      room.data.is_member = true;
-      room.data.is_co_owner = true;
+    test("co-owner can edit", async ({ page, roomResponse }) => {
+      roomResponse.data.owner = { id: 2, name: "Max Doe" };
+      roomResponse.data.is_member = true;
+      roomResponse.data.is_co_owner = true;
 
       await page.reload();
       await page.locator("#tab-streaming").click();
@@ -590,11 +591,15 @@ test.describe("Rooms view streaming config actions", () => {
       await expect(dialog.getByTestId("dialog-save-button")).toHaveCount(1);
     });
 
-    test("rooms.viewAll can only view", async ({ page, currentUser, room }) => {
-      currentUser.data.permissions = ["rooms.viewAll"];
-      room.data.owner = { id: 2, name: "Max Doe" };
-      room.data.current_user.permissions = ["rooms.viewAll"];
-      room.data.last_meeting = {
+    test("rooms.viewAll can only view", async ({
+      page,
+      currentUserResponse,
+      roomResponse,
+    }) => {
+      currentUserResponse.data.permissions = ["rooms.viewAll"];
+      roomResponse.data.owner = { id: 2, name: "Max Doe" };
+      roomResponse.data.current_user.permissions = ["rooms.viewAll"];
+      roomResponse.data.last_meeting = {
         start: "2023-08-21T08:18:28.000000Z",
         end: null,
       };
@@ -616,12 +621,16 @@ test.describe("Rooms view streaming config actions", () => {
       await expect(dialog.getByTestId("dialog-save-button")).toHaveCount(0);
     });
 
-    test("rooms.manage can edit", async ({ page, currentUser, room }) => {
+    test("rooms.manage can edit", async ({
+      page,
+      currentUserResponse,
+      roomResponse,
+    }) => {
       const permissions = ["rooms.create", "rooms.viewAll", "rooms.manage"];
-      currentUser.data.permissions = permissions;
-      room.data.owner = { id: 2, name: "Max Doe" };
-      room.data.current_user.permissions = permissions;
-      room.data.last_meeting = {
+      currentUserResponse.data.permissions = permissions;
+      roomResponse.data.owner = { id: 2, name: "Max Doe" };
+      roomResponse.data.current_user.permissions = permissions;
+      roomResponse.data.last_meeting = {
         start: "2023-08-21T08:18:28.000000Z",
         end: null,
       };

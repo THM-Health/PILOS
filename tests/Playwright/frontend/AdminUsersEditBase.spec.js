@@ -1,21 +1,34 @@
+import { mergeTests } from "@playwright/test";
+import { test as userControllerTest } from "../support/fixtures/userController.js";
+import { test as roleControllerTest } from "../support/fixtures/roleController.js";
+import { test as timezonesTest } from "../support/fixtures/timezones.js";
+import { test as sessionControllerTest } from "../support/fixtures/sessionController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { test } from "../support/fixtures/adminUsersEdit.js";
 import { interceptAdminUsersIndexRequests } from "../support/mocks.js";
 import { expectLoginRedirect } from "../support/general.js";
 import { expectAdminBreadcrumbs } from "../support/admin.js";
 import {
-  mockMethod,
-  nthRequest,
-  parseFormData,
+  mockApiRequest,
+  getRequestFormData,
   expectImageToMatchScreenshot,
   IMAGE_SNAPSHOT_OPTIONS,
+  validationErrors,
+  serverError,
+  modelNotFound,
 } from "../support/utils.js";
+
+const test = mergeTests(
+  userControllerTest,
+  roleControllerTest,
+  timezonesTest,
+  sessionControllerTest,
+);
 
 test.use({ authenticated: true });
 
 test.describe("Admin users edit base", () => {
-  test.beforeEach(async ({ currentUser, config }) => {
-    currentUser.data.permissions = [
+  test.beforeEach(async ({ currentUserResponse, configResponse }) => {
+    currentUserResponse.data.permissions = [
       "admin.view",
       "users.viewAny",
       "users.view",
@@ -24,7 +37,7 @@ test.describe("Admin users edit base", () => {
       "users.delete",
       "roles.viewAny",
     ];
-    config.data.auth.local = true;
+    configResponse.data.auth.local = true;
   });
 
   test("view base data", async ({ page }) => {
@@ -296,8 +309,12 @@ test.describe("Admin users edit base", () => {
       await expect(page.getByTestId("crop-image-dialog")).toHaveCount(0);
     });
 
-    test("loading state while saving", async ({ page, user, baseURL }) => {
-      Object.assign(user.data, {
+    test("loading state while saving", async ({
+      page,
+      userResponse,
+      baseURL,
+    }) => {
+      Object.assign(userResponse.data, {
         firstname: "Juan",
         lastname: "Walter",
         user_locale: "de",
@@ -305,15 +322,15 @@ test.describe("Admin users edit base", () => {
         image: baseURL + "/test.jpg",
         updated_at: "2024-09-13T14:22:26.000000Z",
       });
-      const save = await mockMethod(page, "POST", "**/api/v1/users/2", {
-        json: user,
+      const postUserApiMock = await mockApiRequest(page, "POST", "users/2", {
+        json: userResponse,
         hold: true,
       });
 
       const saveButton = page.getByTestId("user-tab-profile-save-button");
       await expect(saveButton).toHaveText("app.save");
       await saveButton.click();
-      await nthRequest(save);
+      await postUserApiMock.waitForRequest();
 
       for (const tab of ["base", "email", "security", "others"]) {
         await expect(page.getByTestId(`${tab}-tab-button`)).toBeDisabled();
@@ -341,16 +358,16 @@ test.describe("Admin users edit base", () => {
 
       await expect(saveButton).toBeDisabled();
 
-      save.release();
+      postUserApiMock.release();
       await expect(page).toHaveURL(/\/admin\/users\/2#tab=base/);
     });
 
     test("sends the changes and redirects to the view page", async ({
       page,
-      user,
+      userResponse,
       baseURL,
     }) => {
-      Object.assign(user.data, {
+      Object.assign(userResponse.data, {
         firstname: "Juan",
         lastname: "Walter",
         user_locale: "de",
@@ -358,21 +375,25 @@ test.describe("Admin users edit base", () => {
         image: baseURL + "/test.jpg",
         updated_at: "2024-09-13T14:22:26.000000Z",
       });
-      const save = await mockMethod(page, "POST", "**/api/v1/users/2", {
-        json: user,
+      const postUserApiMock = await mockApiRequest(page, "POST", "users/2", {
+        json: userResponse,
       });
 
       await page.getByTestId("user-tab-profile-save-button").click();
 
-      const formData = await parseFormData(await nthRequest(save));
-      expect(formData.get("user_locale")).toEqual("de");
-      expect(formData.get("timezone")).toEqual("Europe/Berlin");
-      expect(formData.get("firstname")).toEqual("Juan");
-      expect(formData.get("lastname")).toEqual("Walter");
-      expect(formData.get("_method")).toEqual("PUT");
-      expect(formData.get("updated_at")).toEqual("2024-09-13T14:20:26.000000Z");
+      const requestFormData = await getRequestFormData(
+        await postUserApiMock.waitForRequest(),
+      );
+      expect(requestFormData.get("user_locale")).toEqual("de");
+      expect(requestFormData.get("timezone")).toEqual("Europe/Berlin");
+      expect(requestFormData.get("firstname")).toEqual("Juan");
+      expect(requestFormData.get("lastname")).toEqual("Walter");
+      expect(requestFormData.get("_method")).toEqual("PUT");
+      expect(requestFormData.get("updated_at")).toEqual(
+        "2024-09-13T14:20:26.000000Z",
+      );
 
-      const uploadedFile = formData.get("image");
+      const uploadedFile = requestFormData.get("image");
       expect(uploadedFile.name).toEqual("image.jpg");
       expect(uploadedFile.type).toEqual("image/jpeg");
       expect(Buffer.from(await uploadedFile.arrayBuffer())).toMatchSnapshot(
@@ -391,8 +412,8 @@ test.describe("Admin users edit base", () => {
   });
 
   test.describe("saved user", () => {
-    test.beforeEach(async ({ page, user, baseURL }) => {
-      Object.assign(user.data, {
+    test.beforeEach(async ({ page, userResponse, baseURL }) => {
+      Object.assign(userResponse.data, {
         firstname: "Juan",
         lastname: "Walter",
         user_locale: "de",
@@ -469,25 +490,29 @@ test.describe("Admin users edit base", () => {
       ).toHaveAttribute("src", baseURL + "/test.jpg");
     });
 
-    test("save with deleted profile image", async ({ page, user }) => {
+    test("save with deleted profile image", async ({ page, userResponse }) => {
       await page.getByTestId("delete-image-button").click();
 
-      user.data.image = null;
-      user.data.updated_at = "2024-09-13T14:24:26.000000Z";
-      const save = await mockMethod(page, "POST", "**/api/v1/users/2", {
-        json: user,
+      userResponse.data.image = null;
+      userResponse.data.updated_at = "2024-09-13T14:24:26.000000Z";
+      const postUserApiMock = await mockApiRequest(page, "POST", "users/2", {
+        json: userResponse,
       });
 
       await page.getByTestId("user-tab-profile-save-button").click();
 
-      const formData = await parseFormData(await nthRequest(save));
-      expect(formData.get("user_locale")).toEqual("de");
-      expect(formData.get("timezone")).toEqual("Europe/Berlin");
-      expect(formData.get("firstname")).toEqual("Juan");
-      expect(formData.get("lastname")).toEqual("Walter");
-      expect(formData.get("_method")).toEqual("PUT");
-      expect(formData.get("updated_at")).toEqual("2024-09-13T14:22:26.000000Z");
-      expect(formData.get("image")).toEqual("");
+      const requestFormData = await getRequestFormData(
+        await postUserApiMock.waitForRequest(),
+      );
+      expect(requestFormData.get("user_locale")).toEqual("de");
+      expect(requestFormData.get("timezone")).toEqual("Europe/Berlin");
+      expect(requestFormData.get("firstname")).toEqual("Juan");
+      expect(requestFormData.get("lastname")).toEqual("Walter");
+      expect(requestFormData.get("_method")).toEqual("PUT");
+      expect(requestFormData.get("updated_at")).toEqual(
+        "2024-09-13T14:22:26.000000Z",
+      );
+      expect(requestFormData.get("image")).toEqual("");
 
       await expect(page).toHaveURL(/\/admin\/users\/2#tab=base/);
       await expect(page).not.toHaveURL(/\/edit/);
@@ -505,18 +530,20 @@ test.describe("Admin users edit base", () => {
     });
 
     test("validation errors (422)", async ({ page }) => {
-      await mockMethod(page, "POST", "**/api/v1/users/2", {
-        status: 422,
-        json: {
-          message: "The firstname field is required. (and 3 more errors)",
-          errors: {
+      await mockApiRequest(
+        page,
+        "POST",
+        "users/2",
+        validationErrors(
+          {
             firstname: ["The firstname field is required."],
             lastname: ["The lastname field is required."],
             user_locale: ["The user locale field is required."],
             timezone: ["The timezone field is required."],
           },
-        },
-      });
+          "The firstname field is required. (and 3 more errors)",
+        ),
+      );
 
       await page.getByTestId("user-tab-profile-save-button").click();
 
@@ -541,18 +568,20 @@ test.describe("Admin users edit base", () => {
     test("server error (500) hides previous validation errors", async ({
       page,
     }) => {
-      await mockMethod(page, "POST", "**/api/v1/users/2", {
-        status: 422,
-        json: {
-          message: "The firstname field is required. (and 3 more errors)",
-          errors: {
+      await mockApiRequest(
+        page,
+        "POST",
+        "users/2",
+        validationErrors(
+          {
             firstname: ["The firstname field is required."],
             lastname: ["The lastname field is required."],
             user_locale: ["The user locale field is required."],
             timezone: ["The timezone field is required."],
           },
-        },
-      });
+          "The firstname field is required. (and 3 more errors)",
+        ),
+      );
       await page.getByTestId("user-tab-profile-save-button").click();
       await expectToastAndClose(
         page,
@@ -562,10 +591,7 @@ test.describe("Admin users edit base", () => {
         "The firstname field is required.",
       );
 
-      await mockMethod(page, "POST", "**/api/v1/users/2", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "POST", "users/2", serverError());
       await page.getByTestId("user-tab-profile-save-button").click();
 
       await expectToastAndClose(page, [
@@ -588,10 +614,7 @@ test.describe("Admin users edit base", () => {
     });
 
     test("server error (500)", async ({ page }) => {
-      await mockMethod(page, "POST", "**/api/v1/users/2", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "POST", "users/2", serverError());
       await page.getByTestId("user-tab-profile-save-button").click();
 
       await expectToastAndClose(page, [
@@ -603,16 +626,16 @@ test.describe("Admin users edit base", () => {
 
     test("stale model (428) shows the stale dialog and reloads", async ({
       page,
-      user,
+      userResponse,
     }) => {
-      user.data.firstname = "Juan";
-      user.data.lastname = "Walter";
-      user.data.user_locale = "de";
-      user.data.timezone = "Europe/Berlin";
+      userResponse.data.firstname = "Juan";
+      userResponse.data.lastname = "Walter";
+      userResponse.data.user_locale = "de";
+      userResponse.data.timezone = "Europe/Berlin";
 
-      await mockMethod(page, "POST", "**/api/v1/users/2", {
+      await mockApiRequest(page, "POST", "users/2", {
         status: 428,
-        json: { message: "stale_model", new_model: user.data },
+        json: { message: "stale_model", new_model: userResponse.data },
       });
 
       await expect(page.getByTestId("stale-user-dialog")).toHaveCount(0);
@@ -644,10 +667,7 @@ test.describe("Admin users edit base", () => {
           new URL(request.url()).pathname === "/api/v1/users" &&
           request.method() === "GET",
       );
-      await mockMethod(page, "POST", "**/api/v1/users/2", {
-        status: 404,
-        json: { message: "model_not_found", model: "user", ids: [2] },
-      });
+      await mockApiRequest(page, "POST", "users/2", modelNotFound("user", [2]));
 
       await page.getByTestId("user-tab-profile-save-button").click();
 
@@ -664,7 +684,7 @@ test.describe("Admin users edit base", () => {
     test("unauthenticated (401) redirects to the login page", async ({
       page,
     }) => {
-      await mockMethod(page, "POST", "**/api/v1/users/2", {
+      await mockApiRequest(page, "POST", "users/2", {
         status: 401,
         json: {},
       });
@@ -675,9 +695,9 @@ test.describe("Admin users edit base", () => {
     });
   });
 
-  test("view as external user", async ({ page, user }) => {
-    user.data.authenticator = "ldap";
-    user.data.external_id = "lwr";
+  test("view as external user", async ({ page, userResponse }) => {
+    userResponse.data.authenticator = "ldap";
+    userResponse.data.external_id = "lwr";
 
     await page.goto("/admin/users/2/edit");
 
@@ -720,19 +740,15 @@ test.describe("Admin users edit base", () => {
 
   test.describe("load timezones error", () => {
     test("loading state and server error (500)", async ({ page }) => {
-      const timezones = await mockMethod(
+      const getTimezonesApiMock = await mockApiRequest(
         page,
         "GET",
-        "**/api/v1/getTimezones",
-        {
-          status: 500,
-          json: { message: "Test" },
-          hold: true,
-        },
+        "getTimezones",
+        serverError({ hold: true }),
       );
 
       await page.goto("/admin/users/2/edit");
-      await nthRequest(timezones);
+      await getTimezonesApiMock.waitForRequest();
 
       await expect(
         page.getByTestId("user-tab-profile-save-button"),
@@ -742,7 +758,7 @@ test.describe("Admin users edit base", () => {
         .locator(".p-select-label");
       await expect(label).toHaveAttribute("aria-disabled", "true");
 
-      timezones.release();
+      getTimezonesApiMock.release();
 
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
@@ -756,10 +772,7 @@ test.describe("Admin users edit base", () => {
     });
 
     test("reload timezones", async ({ page }) => {
-      await mockMethod(page, "GET", "**/api/v1/getTimezones", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "GET", "getTimezones", serverError());
 
       await page.goto("/admin/users/2/edit");
       await expectToastAndClose(page, [
@@ -767,7 +780,7 @@ test.describe("Admin users edit base", () => {
         'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
 
-      await mockMethod(page, "GET", "**/api/v1/getTimezones", {
+      await mockApiRequest(page, "GET", "getTimezones", {
         path: "tests/Playwright/fixtures/timezones.json",
       });
       await page.getByTestId("timezone-reload-button").click();
@@ -794,7 +807,7 @@ test.describe("Admin users edit base", () => {
     test("unauthenticated (401) redirects to the login page", async ({
       page,
     }) => {
-      await mockMethod(page, "GET", "**/api/v1/getTimezones", {
+      await mockApiRequest(page, "GET", "getTimezones", {
         status: 401,
         json: {},
       });

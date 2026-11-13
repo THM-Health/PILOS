@@ -1,11 +1,27 @@
+import { mergeTests } from "@playwright/test";
+import { test as roomControllerTest } from "../support/fixtures/roomController.js";
+import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
+import { test as browserApisTest } from "../support/fixtures/browserApis.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { test } from "../support/fixtures/roomsGeneralMisc.js";
 import {
   interceptRoomFilesRequest,
   interceptRoomIndexRequests,
 } from "../support/mocks.js";
 import { expectAuthToken, expectNoAuthToken } from "../support/room.js";
-import { mockMethod, nthRequest, readFixture } from "../support/utils.js";
+import {
+  mockApiRequest,
+  readFixture,
+  unauthorized,
+  forbidden,
+  modelNotFound,
+  serverError,
+} from "../support/utils.js";
+
+const test = mergeTests(
+  roomControllerTest,
+  participantNameCheckTest,
+  browserApisTest,
+);
 
 test.describe("Room View general", () => {
   test.use({ authenticated: true });
@@ -115,12 +131,12 @@ test.describe("Room View general", () => {
 
     for (const role of ROLES) {
       test.describe(role.name, () => {
-        test.beforeEach(async ({ page, room, currentUser }) => {
+        test.beforeEach(async ({ page, roomResponse, currentUserResponse }) => {
           if (role.permissions) {
-            currentUser.data.permissions = role.permissions;
-            room.data.current_user.permissions = role.permissions;
+            currentUserResponse.data.permissions = role.permissions;
+            roomResponse.data.current_user.permissions = role.permissions;
           }
-          Object.assign(room.data, role.roomData);
+          Object.assign(roomResponse.data, role.roomData);
           await page.goto("/rooms/abc-def-123");
           await expect(page.getByTestId("reload-room-button")).toBeVisible();
         });
@@ -188,9 +204,9 @@ test.describe("Room View general", () => {
     }
   });
 
-  test("room view with invalid tab hash", async ({ page, room }) => {
-    room.data.short_description = "Room short description";
-    room.data.allow_membership = true;
+  test("room view with invalid tab hash", async ({ page, roomResponse }) => {
+    roomResponse.data.short_description = "Room short description";
+    roomResponse.data.allow_membership = true;
 
     await page.goto("/rooms/abc-def-123#tab=invalid");
 
@@ -208,17 +224,19 @@ test.describe("Room View general", () => {
   });
 
   test.describe("streaming tab", () => {
-    test.beforeEach(async ({ config, currentUser, room }) => {
-      config.data.general.hide_disabled_features = true;
-      config.data.streaming.enabled = true;
-      currentUser.data.permissions = ["rooms.viewAll"];
-      room.data.owner = { id: 2, name: "Max Doe" };
-      room.data.allow_membership = true;
-      room.data.current_user.permissions = ["rooms.viewAll"];
-    });
+    test.beforeEach(
+      async ({ configResponse, currentUserResponse, roomResponse }) => {
+        configResponse.data.general.hide_disabled_features = true;
+        configResponse.data.streaming.enabled = true;
+        currentUserResponse.data.permissions = ["rooms.viewAll"];
+        roomResponse.data.owner = { id: 2, name: "Max Doe" };
+        roomResponse.data.allow_membership = true;
+        roomResponse.data.current_user.permissions = ["rooms.viewAll"];
+      },
+    );
 
-    test("enabled", async ({ page, room }) => {
-      room.data.type.features.streaming.enabled = true;
+    test("enabled", async ({ page, roomResponse }) => {
+      roomResponse.data.type.features.streaming.enabled = true;
       await page.goto("/rooms/abc-def-123");
 
       await expect(page).toHaveTitle("Meeting One - PILOS Test");
@@ -227,8 +245,8 @@ test.describe("Room View general", () => {
       await expect(tab).toHaveAttribute("data-feature-disabled", "false");
     });
 
-    test("disabled and hidden", async ({ page, room }) => {
-      room.data.type.features.streaming.enabled = false;
+    test("disabled and hidden", async ({ page, roomResponse }) => {
+      roomResponse.data.type.features.streaming.enabled = false;
       await page.goto("/rooms/abc-def-123");
 
       await expect(page).toHaveTitle("Meeting One - PILOS Test");
@@ -238,11 +256,11 @@ test.describe("Room View general", () => {
 
     test("disabled for the room type and shown", async ({
       page,
-      config,
-      room,
+      configResponse,
+      roomResponse,
     }) => {
-      config.data.general.hide_disabled_features = false;
-      room.data.type.features.streaming.enabled = false;
+      configResponse.data.general.hide_disabled_features = false;
+      roomResponse.data.type.features.streaming.enabled = false;
       await page.goto("/rooms/abc-def-123");
 
       const tab = page.locator("#tab-streaming");
@@ -262,10 +280,14 @@ test.describe("Room View general", () => {
       await expect(dialog).toBeHidden();
     });
 
-    test("disabled system wide and shown", async ({ page, config, room }) => {
-      config.data.general.hide_disabled_features = false;
-      config.data.streaming.enabled = false;
-      room.data.type.features.streaming.enabled = false;
+    test("disabled system wide and shown", async ({
+      page,
+      configResponse,
+      roomResponse,
+    }) => {
+      configResponse.data.general.hide_disabled_features = false;
+      configResponse.data.streaming.enabled = false;
+      roomResponse.data.type.features.streaming.enabled = false;
       await page.goto("/rooms/abc-def-123");
 
       const tab = page.locator("#tab-streaming");
@@ -290,12 +312,12 @@ test.describe("Room View general", () => {
     test.use({ permissions: ["clipboard-read", "clipboard-write"] });
 
     test.describe("with access code", () => {
-      test.beforeEach(async ({ page, room }) => {
-        room.data.name = 'Meeting One <script>alert("XSS")</script>';
-        room.data.short_description = "Room short description";
-        room.data.allow_membership = true;
-        room.data.legacy_code = false;
-        room.data.access_code = "508307005";
+      test.beforeEach(async ({ page, roomResponse }) => {
+        roomResponse.data.name = 'Meeting One <script>alert("XSS")</script>';
+        roomResponse.data.short_description = "Room short description";
+        roomResponse.data.allow_membership = true;
+        roomResponse.data.legacy_code = false;
+        roomResponse.data.access_code = "508307005";
         await page.goto("/rooms/abc-def-123");
         await expect(page).toHaveTitle(
           'Meeting One <script>alert("XSS")</script> - PILOS Test',
@@ -357,11 +379,11 @@ test.describe("Room View general", () => {
 
     for (const code of ["012345", "012abc"]) {
       test.describe(`with legacy access code ${code}`, () => {
-        test.beforeEach(async ({ page, room }) => {
-          room.data.short_description = "Room short description";
-          room.data.allow_membership = true;
-          room.data.legacy_code = true;
-          room.data.access_code = code;
+        test.beforeEach(async ({ page, roomResponse }) => {
+          roomResponse.data.short_description = "Room short description";
+          roomResponse.data.allow_membership = true;
+          roomResponse.data.legacy_code = true;
+          roomResponse.data.access_code = code;
           await page.goto("/rooms/abc-def-123");
           await expect(page.getByTestId("reload-room-button")).toBeVisible();
           await page.getByTestId("room-share-button").click();
@@ -399,11 +421,11 @@ test.describe("Room View general", () => {
     }
 
     test.describe("without access code", () => {
-      test.beforeEach(async ({ page, room }) => {
-        room.data.short_description = "Room short description";
-        room.data.allow_membership = true;
-        room.data.legacy_code = false;
-        room.data.access_code = null;
+      test.beforeEach(async ({ page, roomResponse }) => {
+        roomResponse.data.short_description = "Room short description";
+        roomResponse.data.allow_membership = true;
+        roomResponse.data.legacy_code = false;
+        roomResponse.data.access_code = null;
         await page.goto("/rooms/abc-def-123");
         await expect(page.getByTestId("reload-room-button")).toBeVisible();
         await page.getByTestId("room-share-button").click();
@@ -462,34 +484,38 @@ test.describe("Room View general", () => {
   });
 
   test.describe("membership", () => {
-    test.beforeEach(async ({ room }) => {
-      room.data.owner = { id: 2, name: "Max Doe" };
-      room.data.description = "<p>Test</p>";
-      room.data.allow_membership = true;
+    test.beforeEach(async ({ roomResponse }) => {
+      roomResponse.data.owner = { id: 2, name: "Max Doe" };
+      roomResponse.data.description = "<p>Test</p>";
+      roomResponse.data.allow_membership = true;
     });
 
-    test("join membership", async ({ page, room, roomAuth }) => {
-      room.data.authenticated = false;
+    test("join membership", async ({
+      page,
+      roomResponse,
+      postRoomAuthApiMock,
+    }) => {
+      roomResponse.data.authenticated = false;
       await page.goto("/rooms/abc-def-123");
 
       // Login with the access code
       await expect(page.getByTestId("room-access-overlay")).toBeVisible();
       await page.locator("#access-code").fill("123456789");
-      room.data.authenticated = true;
+      roomResponse.data.authenticated = true;
       const loginRoomRequest = page.waitForRequest(
         "**/api/v1/rooms/abc-def-123*",
       );
       await page.getByTestId("room-login-button").click();
-      await nthRequest(roomAuth);
+      await postRoomAuthApiMock.waitForRequest();
       await loginRoomRequest;
 
-      const join = await mockMethod(
+      const postRoomMembershipApiMock = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/rooms/abc-def-123/membership*",
+        "rooms/abc-def-123/membership*",
         { status: 204, hold: true },
       );
-      room.data.is_member = true;
+      roomResponse.data.is_member = true;
 
       const joinButton = page.getByTestId("room-join-membership-button");
       await expect(joinButton).toBeVisible();
@@ -499,9 +525,9 @@ test.describe("Room View general", () => {
       const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
       await joinButton.click();
       await expect(joinButton).toBeDisabled();
-      join.release();
+      postRoomMembershipApiMock.release();
 
-      expectAuthToken(await nthRequest(join));
+      expectAuthToken(await postRoomMembershipApiMock.waitForRequest());
       expectNoAuthToken(await roomRequest);
 
       await expect(joinButton).toHaveCount(0);
@@ -510,47 +536,51 @@ test.describe("Room View general", () => {
       ).toBeVisible();
     });
 
-    test("end membership", async ({ page, room, roomAuth }) => {
-      room.data.authenticated = false;
+    test("end membership", async ({
+      page,
+      roomResponse,
+      postRoomAuthApiMock,
+    }) => {
+      roomResponse.data.authenticated = false;
       await page.goto("/rooms/abc-def-123");
 
       // Login with the access code
       await expect(page.getByTestId("room-access-overlay")).toBeVisible();
       await page.locator("#access-code").fill("123456789");
-      room.data.authenticated = true;
+      roomResponse.data.authenticated = true;
       const loginRoomRequest = page.waitForRequest(
         "**/api/v1/rooms/abc-def-123*",
       );
       await page.getByTestId("room-login-button").click();
-      await nthRequest(roomAuth);
+      await postRoomAuthApiMock.waitForRequest();
       await loginRoomRequest;
 
       // join the room, afterwards the access code is not sent anymore
-      const join = await mockMethod(
+      const postRoomMembershipApiMock = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/rooms/abc-def-123/membership*",
+        "rooms/abc-def-123/membership*",
         { status: 204 },
       );
-      room.data.is_member = true;
+      roomResponse.data.is_member = true;
       const memberRoomRequest = page.waitForRequest(
         "**/api/v1/rooms/abc-def-123*",
       );
       await page.getByTestId("room-join-membership-button").click();
-      await nthRequest(join);
+      await postRoomMembershipApiMock.waitForRequest();
       await memberRoomRequest;
       await expect(
         page.getByTestId("room-end-membership-button"),
       ).toBeVisible();
 
-      const end = await mockMethod(
+      const deleteRoomMembershipApiMock = await mockApiRequest(
         page,
         "DELETE",
-        "**/api/v1/rooms/abc-def-123/membership*",
+        "rooms/abc-def-123/membership*",
         { status: 204, hold: true },
       );
-      room.data.is_member = false;
-      room.data.authenticated = false;
+      roomResponse.data.is_member = false;
+      roomResponse.data.authenticated = false;
 
       await page.getByTestId("room-end-membership-button").click();
       await expect(page.getByTestId("end-membership-dialog")).toBeVisible();
@@ -558,9 +588,9 @@ test.describe("Room View general", () => {
       const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
       await continueButton.click();
       await expect(continueButton).toBeDisabled();
-      end.release();
+      deleteRoomMembershipApiMock.release();
 
-      expectNoAuthToken(await nthRequest(end));
+      expectNoAuthToken(await deleteRoomMembershipApiMock.waitForRequest());
       expectNoAuthToken(await roomRequest);
 
       await expect(page.getByTestId("room-access-overlay")).toBeVisible();
@@ -578,60 +608,68 @@ test.describe("Room View general", () => {
         ).toBeVisible();
       });
 
-      test("general error", async ({ page, room, roomAuth }) => {
+      test("general error", async ({
+        page,
+        roomResponse,
+        postRoomAuthApiMock,
+      }) => {
         // use the access code flow to check that the token is sent
-        room.data.authenticated = false;
+        roomResponse.data.authenticated = false;
         await page.reload();
         await expect(page.getByTestId("room-access-overlay")).toBeVisible();
         await page.locator("#access-code").fill("123456789");
-        room.data.authenticated = true;
+        roomResponse.data.authenticated = true;
         const loginRoomRequest = page.waitForRequest(
           "**/api/v1/rooms/abc-def-123*",
         );
         await page.getByTestId("room-login-button").click();
-        await nthRequest(roomAuth);
+        await postRoomAuthApiMock.waitForRequest();
         await loginRoomRequest;
 
-        const join = await mockMethod(
+        const postRoomMembershipApiMock = await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/rooms/abc-def-123/membership*",
+          "rooms/abc-def-123/membership*",
           { status: 500, json: { message: "Test join membership error" } },
         );
         await page.getByTestId("room-join-membership-button").click();
 
-        expectAuthToken(await nthRequest(join));
+        expectAuthToken(await postRoomMembershipApiMock.waitForRequest());
         await expectToastAndClose(page, [
           'app.flash.server_error.message_{"message":"Test join membership error"}',
           'app.flash.server_error.error_code_{"statusCode":500}',
         ]);
       });
 
-      test("invalid access code", async ({ page, room, roomAuth }) => {
-        room.data.authenticated = false;
+      test("invalid access code", async ({
+        page,
+        roomResponse,
+        postRoomAuthApiMock,
+      }) => {
+        roomResponse.data.authenticated = false;
         await page.reload();
         await expect(page.getByTestId("room-access-overlay")).toBeVisible();
         await page.locator("#access-code").fill("123456789");
-        room.data.authenticated = true;
+        roomResponse.data.authenticated = true;
         const loginRoomRequest = page.waitForRequest(
           "**/api/v1/rooms/abc-def-123*",
         );
         await page.getByTestId("room-login-button").click();
-        await nthRequest(roomAuth);
+        await postRoomAuthApiMock.waitForRequest();
         await loginRoomRequest;
 
-        const join = await mockMethod(
+        const postRoomMembershipApiMock = await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/rooms/abc-def-123/membership*",
-          { status: 401, json: { message: "invalid_auth_token" } },
+          "rooms/abc-def-123/membership*",
+          unauthorized("invalid_auth_token"),
         );
-        room.data.authenticated = false;
+        roomResponse.data.authenticated = false;
         const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
         await page.getByTestId("room-join-membership-button").click();
 
         // access code is still set in the membership request, but reset in the following room request
-        expectAuthToken(await nthRequest(join));
+        expectAuthToken(await postRoomMembershipApiMock.waitForRequest());
         expectNoAuthToken(await roomRequest);
 
         await expect(page.getByTestId("room-access-overlay")).toBeVisible();
@@ -641,34 +679,30 @@ test.describe("Room View general", () => {
         ).toBeVisible();
 
         // Login with the access code is possible again
-        room.data.authenticated = true;
+        roomResponse.data.authenticated = true;
         const reloadedRoomRequest = page.waitForRequest(
           "**/api/v1/rooms/abc-def-123*",
         );
         await page.getByTestId("room-login-button").click();
-        await nthRequest(roomAuth, 2);
+        await postRoomAuthApiMock.waitForRequest(2);
         await reloadedRoomRequest;
         await expect(page.getByTestId("room-access-overlay")).toBeHidden();
       });
 
-      test("membership not available", async ({ page, room }) => {
-        const join = await mockMethod(
+      test("membership not available", async ({ page, roomResponse }) => {
+        const postRoomMembershipApiMock = await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/rooms/abc-def-123/membership*",
-          {
-            status: 403,
-            json: {
-              message:
-                "Membership failed! Membership for this room is currently not available.",
-            },
-          },
+          "rooms/abc-def-123/membership*",
+          forbidden(
+            "Membership failed! Membership for this room is currently not available.",
+          ),
         );
-        room.data.allow_membership = false;
+        roomResponse.data.allow_membership = false;
         const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
         await page.getByTestId("room-join-membership-button").click();
 
-        await nthRequest(join);
+        await postRoomMembershipApiMock.waitForRequest();
         await roomRequest;
 
         await expectToastAndClose(page, [
@@ -680,14 +714,14 @@ test.describe("Room View general", () => {
         ).toHaveCount(0);
       });
 
-      test("unauthenticated", async ({ page, room }) => {
-        const join = await mockMethod(
+      test("unauthenticated", async ({ page, roomResponse }) => {
+        const postRoomMembershipApiMock = await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/rooms/abc-def-123/membership*",
+          "rooms/abc-def-123/membership*",
           { status: 401 },
         );
-        room.data = {
+        roomResponse.data = {
           ...readFixture("room.json").data,
           current_user: null,
           description: "<p>Test</p>",
@@ -695,7 +729,7 @@ test.describe("Room View general", () => {
         const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
         await page.getByTestId("room-join-membership-button").click();
 
-        await nthRequest(join);
+        await postRoomMembershipApiMock.waitForRequest();
         await roomRequest;
 
         await expect(page).toHaveURL(
@@ -709,22 +743,15 @@ test.describe("Room View general", () => {
 
       test("room not found", async ({ page }) => {
         await interceptRoomIndexRequests(page);
-        const join = await mockMethod(
+        const postRoomMembershipApiMock = await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/rooms/abc-def-123/membership*",
-          {
-            status: 404,
-            json: {
-              message: "model_not_found",
-              model: "room",
-              ids: ["abc-def-123"],
-            },
-          },
+          "rooms/abc-def-123/membership*",
+          modelNotFound("room", ["abc-def-123"]),
         );
         await page.getByTestId("room-join-membership-button").click();
 
-        await nthRequest(join);
+        await postRoomMembershipApiMock.waitForRequest();
         await expect(page).toHaveURL(
           (url) =>
             url.href.includes("/rooms") &&
@@ -738,23 +765,23 @@ test.describe("Room View general", () => {
     });
 
     test.describe("end membership errors", () => {
-      test.beforeEach(async ({ page, room }) => {
-        room.data.is_member = true;
+      test.beforeEach(async ({ page, roomResponse }) => {
+        roomResponse.data.is_member = true;
         await page.goto("/rooms/abc-def-123");
         await page.getByTestId("room-end-membership-button").click();
         await expect(page.getByTestId("end-membership-dialog")).toBeVisible();
       });
 
       test("general error", async ({ page }) => {
-        const end = await mockMethod(
+        const deleteRoomMembershipApiMock = await mockApiRequest(
           page,
           "DELETE",
-          "**/api/v1/rooms/abc-def-123/membership*",
+          "rooms/abc-def-123/membership*",
           { status: 500, json: { message: "Test end membership error" } },
         );
         await page.getByTestId("dialog-continue-button").click();
 
-        expectNoAuthToken(await nthRequest(end));
+        expectNoAuthToken(await deleteRoomMembershipApiMock.waitForRequest());
         await expectToastAndClose(page, [
           'app.flash.server_error.message_{"message":"Test end membership error"}',
           'app.flash.server_error.error_code_{"statusCode":500}',
@@ -766,14 +793,14 @@ test.describe("Room View general", () => {
         await expect(page.getByTestId("end-membership-dialog")).toBeHidden();
       });
 
-      test("unauthenticated", async ({ page, room }) => {
-        const end = await mockMethod(
+      test("unauthenticated", async ({ page, roomResponse }) => {
+        const deleteRoomMembershipApiMock = await mockApiRequest(
           page,
           "DELETE",
-          "**/api/v1/rooms/abc-def-123/membership*",
+          "rooms/abc-def-123/membership*",
           { status: 401 },
         );
-        room.data = {
+        roomResponse.data = {
           ...readFixture("room.json").data,
           current_user: null,
           authenticated: false,
@@ -783,7 +810,7 @@ test.describe("Room View general", () => {
         const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
         await page.getByTestId("dialog-continue-button").click();
 
-        expectNoAuthToken(await nthRequest(end));
+        expectNoAuthToken(await deleteRoomMembershipApiMock.waitForRequest());
         await roomRequest;
 
         await expect(page).toHaveURL(
@@ -800,22 +827,15 @@ test.describe("Room View general", () => {
 
       test("room not found", async ({ page }) => {
         await interceptRoomIndexRequests(page);
-        const end = await mockMethod(
+        const deleteRoomMembershipApiMock = await mockApiRequest(
           page,
           "DELETE",
-          "**/api/v1/rooms/abc-def-123/membership*",
-          {
-            status: 404,
-            json: {
-              message: "model_not_found",
-              model: "room",
-              ids: ["abc-def-123"],
-            },
-          },
+          "rooms/abc-def-123/membership*",
+          modelNotFound("room", ["abc-def-123"]),
         );
         await page.getByTestId("dialog-continue-button").click();
 
-        await nthRequest(end);
+        await deleteRoomMembershipApiMock.waitForRequest();
         await expect(page).toHaveURL(
           (url) =>
             url.href.includes("/rooms") &&
@@ -830,23 +850,27 @@ test.describe("Room View general", () => {
   });
 
   test.describe("favorites button", () => {
-    test.beforeEach(async ({ room }) => {
-      room.data.owner = { id: 2, name: "Max Doe" };
-      room.data.description = "<p>Test</p>";
-      room.data.allow_membership = true;
+    test.beforeEach(async ({ roomResponse }) => {
+      roomResponse.data.owner = { id: 2, name: "Max Doe" };
+      roomResponse.data.description = "<p>Test</p>";
+      roomResponse.data.allow_membership = true;
     });
 
-    test("add room to favorites", async ({ page, room, roomRequests }) => {
+    test("add room to favorites", async ({
+      page,
+      roomResponse,
+      getRoomApiMock,
+    }) => {
       await page.goto("/rooms/abc-def-123");
-      await nthRequest(roomRequests);
+      await getRoomApiMock.waitForRequest();
 
-      const add = await mockMethod(
+      const postRoomFavoritesApiMock = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/rooms/abc-def-123/favorites*",
+        "rooms/abc-def-123/favorites*",
         { status: 204, hold: true },
       );
-      room.data.is_favorite = true;
+      roomResponse.data.is_favorite = true;
 
       const button = page.getByTestId("room-favorites-button");
       await expect(button).toHaveAttribute(
@@ -856,9 +880,9 @@ test.describe("Room View general", () => {
       const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
       await button.click();
       await expect(button).toBeDisabled();
-      add.release();
+      postRoomFavoritesApiMock.release();
 
-      await nthRequest(add);
+      await postRoomFavoritesApiMock.waitForRequest();
       await roomRequest;
 
       await expect(button).toHaveAttribute(
@@ -867,18 +891,22 @@ test.describe("Room View general", () => {
       );
     });
 
-    test("remove room from favorites", async ({ page, room, roomRequests }) => {
-      room.data.is_favorite = true;
+    test("remove room from favorites", async ({
+      page,
+      roomResponse,
+      getRoomApiMock,
+    }) => {
+      roomResponse.data.is_favorite = true;
       await page.goto("/rooms/abc-def-123");
-      await nthRequest(roomRequests);
+      await getRoomApiMock.waitForRequest();
 
-      const remove = await mockMethod(
+      const deleteRoomFavoritesApiMock = await mockApiRequest(
         page,
         "DELETE",
-        "**/api/v1/rooms/abc-def-123/favorites*",
+        "rooms/abc-def-123/favorites*",
         { status: 204, hold: true },
       );
-      room.data.is_favorite = false;
+      roomResponse.data.is_favorite = false;
 
       const button = page.getByTestId("room-favorites-button");
       await expect(button).toHaveAttribute(
@@ -888,9 +916,9 @@ test.describe("Room View general", () => {
       const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
       await button.click();
       await expect(button).toBeDisabled();
-      remove.release();
+      deleteRoomFavoritesApiMock.release();
 
-      await nthRequest(remove);
+      await deleteRoomFavoritesApiMock.waitForRequest();
       await roomRequest;
 
       await expect(button).toHaveAttribute(
@@ -909,16 +937,16 @@ test.describe("Room View general", () => {
       });
 
       test("general error", async ({ page }) => {
-        const add = await mockMethod(
+        const postRoomFavoritesApiMock = await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/rooms/abc-def-123/favorites*",
+          "rooms/abc-def-123/favorites*",
           { status: 500, json: { message: "Test add favorite error" } },
         );
         const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
         await page.getByTestId("room-favorites-button").click();
 
-        await nthRequest(add);
+        await postRoomFavoritesApiMock.waitForRequest();
         await roomRequest;
 
         // Check that error message is shown and button stayed the same
@@ -932,14 +960,14 @@ test.describe("Room View general", () => {
         );
       });
 
-      test("unauthenticated", async ({ page, room }) => {
-        const add = await mockMethod(
+      test("unauthenticated", async ({ page, roomResponse }) => {
+        const postRoomFavoritesApiMock = await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/rooms/abc-def-123/favorites*",
+          "rooms/abc-def-123/favorites*",
           { status: 401 },
         );
-        room.data = {
+        roomResponse.data = {
           ...readFixture("room.json").data,
           current_user: null,
           description: "<p>Test</p>",
@@ -947,7 +975,7 @@ test.describe("Room View general", () => {
         const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
         await page.getByTestId("room-favorites-button").click();
 
-        await nthRequest(add);
+        await postRoomFavoritesApiMock.waitForRequest();
         await roomRequest;
 
         await expect(page).toHaveURL(
@@ -961,22 +989,15 @@ test.describe("Room View general", () => {
 
       test("room not found", async ({ page }) => {
         await interceptRoomIndexRequests(page);
-        const add = await mockMethod(
+        const postRoomFavoritesApiMock = await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/rooms/abc-def-123/favorites*",
-          {
-            status: 404,
-            json: {
-              message: "model_not_found",
-              model: "room",
-              ids: ["abc-def-123"],
-            },
-          },
+          "rooms/abc-def-123/favorites*",
+          modelNotFound("room", ["abc-def-123"]),
         );
         await page.getByTestId("room-favorites-button").click();
 
-        await nthRequest(add);
+        await postRoomFavoritesApiMock.waitForRequest();
         await expect(page).toHaveURL(
           (url) =>
             url.href.includes("/rooms") &&
@@ -990,8 +1011,8 @@ test.describe("Room View general", () => {
     });
 
     test.describe("errors when removing", () => {
-      test.beforeEach(async ({ page, room }) => {
-        room.data.is_favorite = true;
+      test.beforeEach(async ({ page, roomResponse }) => {
+        roomResponse.data.is_favorite = true;
         await page.goto("/rooms/abc-def-123");
         await expect(page.getByTestId("room-favorites-button")).toHaveAttribute(
           "aria-label",
@@ -1000,16 +1021,16 @@ test.describe("Room View general", () => {
       });
 
       test("general error", async ({ page }) => {
-        const remove = await mockMethod(
+        const deleteRoomFavoritesApiMock = await mockApiRequest(
           page,
           "DELETE",
-          "**/api/v1/rooms/abc-def-123/favorites*",
+          "rooms/abc-def-123/favorites*",
           { status: 500, json: { message: "Test remove favorite error" } },
         );
         const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
         await page.getByTestId("room-favorites-button").click();
 
-        await nthRequest(remove);
+        await deleteRoomFavoritesApiMock.waitForRequest();
         await roomRequest;
 
         // Check that error message is shown and button stayed the same
@@ -1023,14 +1044,14 @@ test.describe("Room View general", () => {
         );
       });
 
-      test("unauthenticated", async ({ page, room }) => {
-        const remove = await mockMethod(
+      test("unauthenticated", async ({ page, roomResponse }) => {
+        const deleteRoomFavoritesApiMock = await mockApiRequest(
           page,
           "DELETE",
-          "**/api/v1/rooms/abc-def-123/favorites*",
+          "rooms/abc-def-123/favorites*",
           { status: 401 },
         );
-        room.data = {
+        roomResponse.data = {
           ...readFixture("room.json").data,
           current_user: null,
           authenticated: false,
@@ -1040,7 +1061,7 @@ test.describe("Room View general", () => {
         const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
         await page.getByTestId("room-favorites-button").click();
 
-        await nthRequest(remove);
+        await deleteRoomFavoritesApiMock.waitForRequest();
         await roomRequest;
 
         await expect(page).toHaveURL(
@@ -1057,22 +1078,15 @@ test.describe("Room View general", () => {
 
       test("room not found", async ({ page }) => {
         await interceptRoomIndexRequests(page);
-        const remove = await mockMethod(
+        const deleteRoomFavoritesApiMock = await mockApiRequest(
           page,
           "DELETE",
-          "**/api/v1/rooms/abc-def-123/favorites*",
-          {
-            status: 404,
-            json: {
-              message: "model_not_found",
-              model: "room",
-              ids: ["abc-def-123"],
-            },
-          },
+          "rooms/abc-def-123/favorites*",
+          modelNotFound("room", ["abc-def-123"]),
         );
         await page.getByTestId("room-favorites-button").click();
 
-        await nthRequest(remove);
+        await deleteRoomFavoritesApiMock.waitForRequest();
         await expect(page).toHaveURL(
           (url) =>
             url.href.includes("/rooms") &&
@@ -1086,11 +1100,8 @@ test.describe("Room View general", () => {
     });
   });
 
-  test("visit with guest forbidden", async ({ page }) => {
-    await mockMethod(page, "GET", "**/api/v1/rooms/abc-def-123*", {
-      status: 403,
-      json: { message: "guests_not_allowed" },
-    });
+  test("visit with guest forbidden", async ({ page, getRoomApiMock }) => {
+    getRoomApiMock.respondWith(forbidden("guests_not_allowed"));
     await page.goto("/rooms/abc-def-123");
 
     // Check that the error message is shown
@@ -1105,11 +1116,8 @@ test.describe("Room View general", () => {
   });
 
   test.describe("visit with general error", () => {
-    test.beforeEach(async ({ page }) => {
-      await mockMethod(page, "GET", "**/api/v1/rooms/abc-def-123*", {
-        status: 500,
-        json: { message: "Test" },
-      });
+    test.beforeEach(async ({ page, getRoomApiMock }) => {
+      getRoomApiMock.respondWith(serverError());
       await page.goto("/rooms/abc-def-123");
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
@@ -1121,20 +1129,22 @@ test.describe("Room View general", () => {
       await expect(page.getByTestId("no-room-overlay")).toBeVisible();
     });
 
-    test("reload without error", async ({ page, room }) => {
+    test("reload without error", async ({
+      page,
+      roomResponse,
+      getRoomApiMock,
+    }) => {
       await expect(page.getByTestId("no-room-overlay")).toBeVisible();
 
-      const roomMock = await mockMethod(
-        page,
-        "GET",
-        "**/api/v1/rooms/abc-def-123*",
-        { status: 200, json: room },
-      );
+      const getRoomRequestsAfterChange = getRoomApiMock.respondWith({
+        status: 200,
+        json: roomResponse,
+      });
       const reloadButton = page.getByTestId("reload-button").first();
       await expect(reloadButton).toHaveText("app.reload");
       await reloadButton.click();
 
-      await nthRequest(roomMock);
+      await getRoomRequestsAfterChange.waitForRequest();
       await expect(page.getByText("Meeting One").first()).toBeVisible();
 
       // Check that overlay is hidden
@@ -1142,12 +1152,12 @@ test.describe("Room View general", () => {
     });
   });
 
-  test("visit with room not found as logged in user", async ({ page }) => {
+  test("visit with room not found as logged in user", async ({
+    page,
+    getRoomApiMock,
+  }) => {
     await interceptRoomIndexRequests(page);
-    await mockMethod(page, "GET", "**/api/v1/rooms/abc-def-123*", {
-      status: 404,
-      json: { message: "model_not_found", model: "room", ids: ["abc-def-123"] },
-    });
+    getRoomApiMock.respondWith(modelNotFound("room", ["abc-def-123"]));
 
     await page.goto("/rooms/abc-def-123");
 
@@ -1165,15 +1175,8 @@ test.describe("Room View general", () => {
   test.describe("as guest", () => {
     test.use({ authenticated: false });
 
-    test("visit with room not found", async ({ page }) => {
-      await mockMethod(page, "GET", "**/api/v1/rooms/abc-def-123*", {
-        status: 404,
-        json: {
-          message: "model_not_found",
-          model: "room",
-          ids: ["abc-def-123"],
-        },
-      });
+    test("visit with room not found", async ({ page, getRoomApiMock }) => {
+      getRoomApiMock.respondWith(modelNotFound("room", ["abc-def-123"]));
 
       await page.goto("/rooms/abc-def-123");
 
@@ -1188,33 +1191,39 @@ test.describe("Room View general", () => {
       ]);
     });
 
-    test("auto-reload", async ({ page, config, room, roomRequests }) => {
-      config.data.room.refresh_rate = 60;
-      room.data.allow_membership = true;
-      room.data.current_user = null;
+    test("auto-reload", async ({
+      page,
+      configResponse,
+      roomResponse,
+      getRoomApiMock,
+    }) => {
+      configResponse.data.room.refresh_rate = 60;
+      roomResponse.data.allow_membership = true;
+      roomResponse.data.current_user = null;
 
       await page.clock.install();
       await page.goto("/rooms/abc-def-123");
-      await nthRequest(roomRequests);
+      await getRoomApiMock.waitForRequest();
       await expect(page.getByText("Meeting One").first()).toBeVisible();
 
       // Wait more than 60 seconds (due to reload randomness) for a auto-reload
       await page.clock.runFor(100000);
-      await expect.poll(() => roomRequests.requests.length).toBe(2);
+      await expect.poll(() => getRoomApiMock.requests.length).toBe(2);
     });
 
-    test("auto-reload disabled on error", async ({ page, config }) => {
-      config.data.room.refresh_rate = 60;
-      const roomMock = await mockMethod(
-        page,
-        "GET",
-        "**/api/v1/rooms/abc-def-123*",
-        { status: 403, json: { message: "guests_not_allowed" } },
+    test("auto-reload disabled on error", async ({
+      page,
+      configResponse,
+      getRoomApiMock,
+    }) => {
+      configResponse.data.room.refresh_rate = 60;
+      const getRoomRequestsAfterChange = getRoomApiMock.respondWith(
+        forbidden("guests_not_allowed"),
       );
 
       await page.clock.install();
       await page.goto("/rooms/abc-def-123");
-      await nthRequest(roomMock);
+      await getRoomRequestsAfterChange.waitForRequest();
 
       // Check that the error message is shown
       await expect(
@@ -1223,65 +1232,48 @@ test.describe("Room View general", () => {
 
       // Wait more than 60 seconds (due to reload randomness) for no auto-reload
       await page.clock.runFor(100000);
-      expect(roomMock.requests).toHaveLength(1);
+      expect(getRoomRequestsAfterChange.requests).toHaveLength(1);
     });
 
     test.describe("reload with errors", () => {
-      test.beforeEach(async ({ page, room }) => {
-        room.data.allow_membership = true;
-        room.data.current_user = null;
+      test.beforeEach(async ({ page, roomResponse }) => {
+        roomResponse.data.allow_membership = true;
+        roomResponse.data.current_user = null;
         await page.goto("/rooms/abc-def-123");
         await expect(page.getByText("Meeting One").first()).toBeVisible();
       });
 
-      test("general error", async ({ page }) => {
-        const roomMock = await mockMethod(
-          page,
-          "GET",
-          "**/api/v1/rooms/abc-def-123*",
-          { status: 500, json: { message: "Test" } },
-        );
+      test("general error", async ({ page, getRoomApiMock }) => {
+        const getRoomRequestsAfterChange =
+          getRoomApiMock.respondWith(serverError());
         await page.getByTestId("reload-room-button").click();
 
-        await nthRequest(roomMock);
+        await getRoomRequestsAfterChange.waitForRequest();
         await expectToastAndClose(page, [
           'app.flash.server_error.message_{"message":"Test"}',
           'app.flash.server_error.error_code_{"statusCode":500}',
         ]);
       });
 
-      test("guests forbidden", async ({ page }) => {
-        const roomMock = await mockMethod(
-          page,
-          "GET",
-          "**/api/v1/rooms/abc-def-123*",
-          { status: 403, json: { message: "guests_not_allowed" } },
+      test("guests forbidden", async ({ page, getRoomApiMock }) => {
+        const getRoomRequestsAfterChange = getRoomApiMock.respondWith(
+          forbidden("guests_not_allowed"),
         );
         await page.getByTestId("reload-room-button").click();
 
-        await nthRequest(roomMock);
+        await getRoomRequestsAfterChange.waitForRequest();
         await expect(
           page.getByText("rooms.only_used_by_authenticated_users").first(),
         ).toBeVisible();
       });
 
-      test("room not found", async ({ page }) => {
-        const roomMock = await mockMethod(
-          page,
-          "GET",
-          "**/api/v1/rooms/abc-def-123*",
-          {
-            status: 404,
-            json: {
-              message: "model_not_found",
-              model: "room",
-              ids: ["abc-def-123"],
-            },
-          },
+      test("room not found", async ({ page, getRoomApiMock }) => {
+        const getRoomRequestsAfterChange = getRoomApiMock.respondWith(
+          modelNotFound("room", ["abc-def-123"]),
         );
         await page.getByTestId("reload-room-button").click();
 
-        await nthRequest(roomMock);
+        await getRoomRequestsAfterChange.waitForRequest();
 
         // Check redirect to 404 page worked
         await expect(page).toHaveURL(
@@ -1298,14 +1290,14 @@ test.describe("Room View general", () => {
 
     test("displays meeting ended reason", async ({
       page,
-      room,
-      roomRequests,
+      roomResponse,
+      getRoomApiMock,
     }) => {
-      room.data.allow_membership = true;
-      room.data.current_user = null;
+      roomResponse.data.allow_membership = true;
+      roomResponse.data.current_user = null;
 
       await page.goto("/rooms/abc-def-123?reason=Meeting+ended+by+John+Doe");
-      await nthRequest(roomRequests);
+      await getRoomApiMock.waitForRequest();
 
       // Reason message should be shown
       const reason = page.getByTestId("room-meeting-ended-reason");
@@ -1324,11 +1316,11 @@ test.describe("Room View general", () => {
 
     test("displays bbb error messages", async ({
       page,
-      room,
-      roomRequests,
+      roomResponse,
+      getRoomApiMock,
     }) => {
-      room.data.allow_membership = true;
-      room.data.current_user = null;
+      roomResponse.data.allow_membership = true;
+      roomResponse.data.current_user = null;
 
       const locale = readFixture("en.json");
       locale.data = {
@@ -1352,7 +1344,7 @@ test.describe("Room View general", () => {
         ]),
       );
       await page.goto(`/rooms/abc-def-123?errors=${errors}`);
-      await nthRequest(roomRequests);
+      await getRoomApiMock.waitForRequest();
 
       // Check only two error messages are shown
       const bbbErrors = page.getByTestId("room-meeting-bbb-error");
@@ -1388,28 +1380,22 @@ test.describe("Room View general", () => {
   });
 
   test.describe("reload with room not found as authenticated user", () => {
-    test("redirects to the room index", async ({ page, room }) => {
+    test("redirects to the room index", async ({
+      page,
+      roomResponse,
+      getRoomApiMock,
+    }) => {
       await interceptRoomIndexRequests(page);
-      room.data.allow_membership = true;
+      roomResponse.data.allow_membership = true;
       await page.goto("/rooms/abc-def-123");
       await expect(page.getByText("Meeting One").first()).toBeVisible();
 
-      const roomMock = await mockMethod(
-        page,
-        "GET",
-        "**/api/v1/rooms/abc-def-123*",
-        {
-          status: 404,
-          json: {
-            message: "model_not_found",
-            model: "room",
-            ids: ["abc-def-123"],
-          },
-        },
+      const getRoomRequestsAfterChange = getRoomApiMock.respondWith(
+        modelNotFound("room", ["abc-def-123"]),
       );
       await page.getByTestId("reload-room-button").click();
 
-      await nthRequest(roomMock);
+      await getRoomRequestsAfterChange.waitForRequest();
 
       // Check redirect to room index page worked
       await expect(page).toHaveURL(
@@ -1424,8 +1410,8 @@ test.describe("Room View general", () => {
     });
   });
 
-  test("hide room owner if not provided", async ({ page, room }) => {
-    delete room.data.owner;
+  test("hide room owner if not provided", async ({ page, roomResponse }) => {
+    delete roomResponse.data.owner;
 
     await page.goto("/rooms/abc-def-123");
 

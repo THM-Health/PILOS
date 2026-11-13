@@ -1,8 +1,25 @@
-import { test } from "../support/fixtures/roomsMembersLinks.js";
+import { mergeTests } from "@playwright/test";
+import { test as roomControllerTest } from "../support/fixtures/roomController.js";
+import { test as roomFileControllerTest } from "../support/fixtures/roomFileController.js";
+import { test as roomMemberControllerTest } from "../support/fixtures/roomMemberController.js";
+import { test as roomPersonalizedLinkControllerTest } from "../support/fixtures/roomPersonalizedLinkController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { mockMethod, nthRequest } from "../support/utils.js";
+import {
+  mockApiRequest,
+  validationErrors,
+  serverError,
+  modelNotFound,
+} from "../support/utils.js";
 import { interceptRoomIndexRequests } from "../support/mocks.js";
 import { checkRoomAuthErrors } from "../support/room.js";
+
+const test = mergeTests(
+  roomControllerTest,
+  roomFileControllerTest,
+  roomMemberControllerTest,
+  roomPersonalizedLinkControllerTest,
+);
+test.use({ roomFilesFixtureName: "roomFilesNoDetails.json" });
 
 test.use({ authenticated: true });
 
@@ -77,7 +94,10 @@ test.describe("Rooms view members bulk actions", () => {
       }
     });
 
-    test("changes the role of one member", async ({ page, roomMembers }) => {
+    test("changes the role of one member", async ({
+      page,
+      roomMembersResponse,
+    }) => {
       const items = page.getByTestId("room-member-item");
       await items.nth(0).locator("input").click();
       await page.getByTestId("room-members-bulk-edit-button").click();
@@ -85,13 +105,13 @@ test.describe("Rooms view members bulk actions", () => {
       const dialog = page.getByTestId("room-members-bulk-edit-dialog");
       await dialog.locator("#moderator-role").click();
 
-      const bulkEdit = await mockMethod(
+      const putRoomMemberBulkApiMock = await mockApiRequest(
         page,
         "PUT",
-        "**/api/v1/rooms/abc-def-123/member/bulk",
+        "rooms/abc-def-123/member/bulk",
         { status: 204, hold: true },
       );
-      roomMembers.data[0].role = 2;
+      roomMembersResponse.data[0].role = 2;
 
       await dialog.getByTestId("dialog-save-button").click();
 
@@ -108,11 +128,13 @@ test.describe("Rooms view members bulk actions", () => {
         "app.cancel",
       );
 
-      bulkEdit.release();
+      putRoomMemberBulkApiMock.release();
 
-      expect((await nthRequest(bulkEdit)).postDataJSON()).toEqual({
-        role: 2,
-        users: [5],
+      await expect(putRoomMemberBulkApiMock).toHaveReceivedRequest({
+        json: {
+          role: 2,
+          users: [5],
+        },
       });
 
       // Dialog is closed, selection is reset and the new roles are shown
@@ -126,7 +148,10 @@ test.describe("Rooms view members bulk actions", () => {
       await expect(items.nth(2)).toContainText("rooms.roles.co_owner");
     });
 
-    test("changes the role of all members", async ({ page, roomMembers }) => {
+    test("changes the role of all members", async ({
+      page,
+      roomMembersResponse,
+    }) => {
       const items = page.getByTestId("room-member-item");
       await page.getByTestId("room-members-select-all-checkbox").click();
 
@@ -142,21 +167,23 @@ test.describe("Rooms view members bulk actions", () => {
       );
       await dialog.locator("#participant-role").click();
 
-      const bulkEdit = await mockMethod(
+      const putRoomMemberBulkApiMock = await mockApiRequest(
         page,
         "PUT",
-        "**/api/v1/rooms/abc-def-123/member/bulk",
+        "rooms/abc-def-123/member/bulk",
         { status: 204 },
       );
-      for (const member of roomMembers.data) {
+      for (const member of roomMembersResponse.data) {
         member.role = 1;
       }
 
       await dialog.getByTestId("dialog-save-button").click();
 
-      expect((await nthRequest(bulkEdit)).postDataJSON()).toEqual({
-        role: 1,
-        users: [5, 6, 7],
+      await expect(putRoomMemberBulkApiMock).toHaveReceivedRequest({
+        json: {
+          role: 1,
+          users: [5, 6, 7],
+        },
       });
 
       await expect(dialog).toHaveCount(0);
@@ -183,17 +210,14 @@ test.describe("Rooms view members bulk actions", () => {
         page,
       }) => {
         const dialog = page.getByTestId("room-members-bulk-edit-dialog");
-        await mockMethod(
+        await mockApiRequest(
           page,
           "PUT",
-          "**/api/v1/rooms/abc-def-123/member/bulk",
-          {
-            status: 422,
-            json: {
-              message: "The Role field is required.",
-              errors: { role: ["The Role field is required."] },
-            },
-          },
+          "rooms/abc-def-123/member/bulk",
+          validationErrors(
+            { role: ["The Role field is required."] },
+            "The Role field is required.",
+          ),
         );
 
         await dialog.getByTestId("dialog-save-button").click();
@@ -216,17 +240,14 @@ test.describe("Rooms view members bulk actions", () => {
         page,
       }) => {
         const dialog = page.getByTestId("room-members-bulk-edit-dialog");
-        await mockMethod(
+        await mockApiRequest(
           page,
           "PUT",
-          "**/api/v1/rooms/abc-def-123/member/bulk",
-          {
-            status: 422,
-            json: {
-              message: "The Role field is required.",
-              errors: { role: ["The Role field is required."] },
-            },
-          },
+          "rooms/abc-def-123/member/bulk",
+          validationErrors(
+            { role: ["The Role field is required."] },
+            "The Role field is required.",
+          ),
         );
 
         await dialog.getByTestId("dialog-save-button").click();
@@ -245,19 +266,16 @@ test.describe("Rooms view members bulk actions", () => {
       }) => {
         const dialog = page.getByTestId("room-members-bulk-edit-dialog");
         await dialog.locator("#moderator-role").click();
-        await mockMethod(
+        await mockApiRequest(
           page,
           "PUT",
-          "**/api/v1/rooms/abc-def-123/member/bulk",
-          {
-            status: 422,
-            json: {
-              message: "The user 'Laura Rivera' isn't a member.",
-              errors: {
-                "users.0": ["The user 'Laura Rivera' isn't a member."],
-              },
+          "rooms/abc-def-123/member/bulk",
+          validationErrors(
+            {
+              "users.0": ["The user 'Laura Rivera' isn't a member."],
             },
-          },
+            "The user 'Laura Rivera' isn't a member.",
+          ),
         );
 
         await dialog.getByTestId("dialog-save-button").click();
@@ -273,30 +291,27 @@ test.describe("Rooms view members bulk actions", () => {
       }) => {
         const dialog = page.getByTestId("room-members-bulk-edit-dialog");
         await dialog.locator("#moderator-role").click();
-        await mockMethod(
+        await mockApiRequest(
           page,
           "PUT",
-          "**/api/v1/rooms/abc-def-123/member/bulk",
-          {
-            status: 422,
-            json: {
-              message: "The user 'Laura Rivera' isn't a member.",
-              errors: {
-                "users.0": ["The user 'Laura Rivera' isn't a member."],
-              },
+          "rooms/abc-def-123/member/bulk",
+          validationErrors(
+            {
+              "users.0": ["The user 'Laura Rivera' isn't a member."],
             },
-          },
+            "The user 'Laura Rivera' isn't a member.",
+          ),
         );
         await dialog.getByTestId("dialog-save-button").click();
         await expect(dialog).toContainText(
           "The user 'Laura Rivera' isn't a member.",
         );
 
-        await mockMethod(
+        await mockApiRequest(
           page,
           "PUT",
-          "**/api/v1/rooms/abc-def-123/member/bulk",
-          { status: 500, json: { message: "Test" } },
+          "rooms/abc-def-123/member/bulk",
+          serverError(),
         );
         await dialog.getByTestId("dialog-save-button").click();
 
@@ -347,14 +362,12 @@ test.describe("Rooms view members bulk actions", () => {
       page,
     }) => {
       await interceptRoomIndexRequests(page);
-      await mockMethod(page, "PUT", "**/api/v1/rooms/abc-def-123/member/bulk", {
-        status: 404,
-        json: {
-          message: "model_not_found",
-          model: "room",
-          ids: ["abc-def-123"],
-        },
-      });
+      await mockApiRequest(
+        page,
+        "PUT",
+        "rooms/abc-def-123/member/bulk",
+        modelNotFound("room", ["abc-def-123"]),
+      );
 
       await page.getByTestId("room-members-select-all-checkbox").click();
       await page.getByTestId("room-members-bulk-edit-button").click();
@@ -405,7 +418,7 @@ test.describe("Rooms view members bulk actions", () => {
       );
     });
 
-    test("deletes one member", async ({ page, roomMembers }) => {
+    test("deletes one member", async ({ page, roomMembersResponse }) => {
       await page
         .getByTestId("room-member-item")
         .nth(0)
@@ -416,15 +429,15 @@ test.describe("Rooms view members bulk actions", () => {
       const dialog = page.getByTestId("room-members-bulk-delete-dialog");
       await expect(dialog).toBeVisible();
 
-      const bulkDelete = await mockMethod(
+      const deleteRoomMemberBulkApiMock = await mockApiRequest(
         page,
         "DELETE",
-        "**/api/v1/rooms/abc-def-123/member/bulk",
+        "rooms/abc-def-123/member/bulk",
         { status: 204, hold: true },
       );
-      roomMembers.data = roomMembers.data.slice(1, 3);
-      roomMembers.meta.total = 2;
-      roomMembers.meta.total_no_filter = 2;
+      roomMembersResponse.data = roomMembersResponse.data.slice(1, 3);
+      roomMembersResponse.meta.total = 2;
+      roomMembersResponse.meta.total_no_filter = 2;
 
       await expect(dialog.getByTestId("dialog-continue-button")).toHaveText(
         "app.yes",
@@ -438,10 +451,12 @@ test.describe("Rooms view members bulk actions", () => {
       );
       await expect(dialog.getByTestId("dialog-continue-button")).toBeDisabled();
 
-      bulkDelete.release();
+      deleteRoomMemberBulkApiMock.release();
 
-      expect((await nthRequest(bulkDelete)).postDataJSON()).toEqual({
-        users: [5],
+      await expect(deleteRoomMemberBulkApiMock).toHaveReceivedRequest({
+        json: {
+          users: [5],
+        },
       });
 
       await expect(dialog).toHaveCount(0);
@@ -451,11 +466,11 @@ test.describe("Rooms view members bulk actions", () => {
       await expect(page.getByTestId("room-member-item")).toHaveCount(2);
     });
 
-    test("deletes several members", async ({ page, roomMembers }) => {
+    test("deletes several members", async ({ page, roomMembersResponse }) => {
       // Only two members left
-      roomMembers.data = roomMembers.data.slice(1, 3);
-      roomMembers.meta.total = 2;
-      roomMembers.meta.total_no_filter = 2;
+      roomMembersResponse.data = roomMembersResponse.data.slice(1, 3);
+      roomMembersResponse.meta.total = 2;
+      roomMembersResponse.meta.total_no_filter = 2;
       await page.getByTestId("room-members-reload-button").click();
 
       const items = page.getByTestId("room-member-item");
@@ -479,23 +494,25 @@ test.describe("Rooms view members bulk actions", () => {
         'rooms.members.modals.remove.confirm_bulk_{"count":2,"n":2}',
       );
 
-      const bulkDelete = await mockMethod(
+      const deleteRoomMemberBulkApiMock = await mockApiRequest(
         page,
         "DELETE",
-        "**/api/v1/rooms/abc-def-123/member/bulk",
+        "rooms/abc-def-123/member/bulk",
         { status: 204 },
       );
-      roomMembers.data = [];
-      roomMembers.meta.total = 0;
-      roomMembers.meta.total_no_filter = 0;
+      roomMembersResponse.data = [];
+      roomMembersResponse.meta.total = 0;
+      roomMembersResponse.meta.total_no_filter = 0;
 
       await expect(dialog.getByTestId("dialog-continue-button")).toHaveText(
         "app.yes",
       );
       await dialog.getByTestId("dialog-continue-button").click();
 
-      expect((await nthRequest(bulkDelete)).postDataJSON()).toEqual({
-        users: [6, 7],
+      await expect(deleteRoomMemberBulkApiMock).toHaveReceivedRequest({
+        json: {
+          users: [6, 7],
+        },
       });
 
       await expect(dialog).toHaveCount(0);
@@ -519,19 +536,16 @@ test.describe("Rooms view members bulk actions", () => {
         page,
       }) => {
         const dialog = page.getByTestId("room-members-bulk-delete-dialog");
-        await mockMethod(
+        await mockApiRequest(
           page,
           "DELETE",
-          "**/api/v1/rooms/abc-def-123/member/bulk",
-          {
-            status: 422,
-            json: {
-              message: "The user 'Laura Rivera' isn't a member.",
-              errors: {
-                "users.0": ["The user 'Laura Rivera' isn't a member."],
-              },
+          "rooms/abc-def-123/member/bulk",
+          validationErrors(
+            {
+              "users.0": ["The user 'Laura Rivera' isn't a member."],
             },
-          },
+            "The user 'Laura Rivera' isn't a member.",
+          ),
         );
 
         await dialog.getByTestId("dialog-continue-button").click();
@@ -546,30 +560,27 @@ test.describe("Rooms view members bulk actions", () => {
         page,
       }) => {
         const dialog = page.getByTestId("room-members-bulk-delete-dialog");
-        await mockMethod(
+        await mockApiRequest(
           page,
           "DELETE",
-          "**/api/v1/rooms/abc-def-123/member/bulk",
-          {
-            status: 422,
-            json: {
-              message: "The user 'Laura Rivera' isn't a member.",
-              errors: {
-                "users.0": ["The user 'Laura Rivera' isn't a member."],
-              },
+          "rooms/abc-def-123/member/bulk",
+          validationErrors(
+            {
+              "users.0": ["The user 'Laura Rivera' isn't a member."],
             },
-          },
+            "The user 'Laura Rivera' isn't a member.",
+          ),
         );
         await dialog.getByTestId("dialog-continue-button").click();
         await expect(dialog).toContainText(
           "The user 'Laura Rivera' isn't a member.",
         );
 
-        await mockMethod(
+        await mockApiRequest(
           page,
           "DELETE",
-          "**/api/v1/rooms/abc-def-123/member/bulk",
-          { status: 500, json: { message: "Test" } },
+          "rooms/abc-def-123/member/bulk",
+          serverError(),
         );
         await dialog.getByTestId("dialog-continue-button").click();
 
@@ -620,18 +631,11 @@ test.describe("Rooms view members bulk actions", () => {
       page,
     }) => {
       await interceptRoomIndexRequests(page);
-      await mockMethod(
+      await mockApiRequest(
         page,
         "DELETE",
-        "**/api/v1/rooms/abc-def-123/member/bulk",
-        {
-          status: 404,
-          json: {
-            message: "model_not_found",
-            model: "room",
-            ids: ["abc-def-123"],
-          },
-        },
+        "rooms/abc-def-123/member/bulk",
+        modelNotFound("room", ["abc-def-123"]),
       );
 
       await page.getByTestId("room-members-select-all-checkbox").click();
@@ -688,7 +692,7 @@ test.describe("Rooms view members bulk actions", () => {
       }
     });
 
-    test("imports valid users", async ({ page, roomMembers }) => {
+    test("imports valid users", async ({ page, roomMembersResponse }) => {
       await page.getByTestId("room-members-add-button").click();
       await page.locator("#overlay_menu_1").click();
       const dialog = page.getByTestId("room-members-bulk-import-dialog");
@@ -699,14 +703,14 @@ test.describe("Rooms view members bulk actions", () => {
         .fill("LauraWRivera@domain.tld\nLauraMWalter@domain.tld");
       await dialog.locator("#moderator-role").click();
 
-      const bulkImport = await mockMethod(
+      const postRoomMemberBulkApiMock = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/rooms/abc-def-123/member/bulk",
+        "rooms/abc-def-123/member/bulk",
         { status: 204, hold: true },
       );
-      roomMembers.data = [
-        { ...roomMembers.data[0], role: 2 },
+      roomMembersResponse.data = [
+        { ...roomMembersResponse.data[0], role: 2 },
         {
           id: 10,
           firstname: "Laura",
@@ -716,8 +720,8 @@ test.describe("Rooms view members bulk actions", () => {
           image: null,
         },
       ];
-      roomMembers.meta.total = 2;
-      roomMembers.meta.total_no_filter = 2;
+      roomMembersResponse.meta.total = 2;
+      roomMembersResponse.meta.total_no_filter = 2;
 
       await dialog.getByTestId("dialog-continue-button").click();
 
@@ -728,11 +732,13 @@ test.describe("Rooms view members bulk actions", () => {
       await expect(dialog.getByTestId("dialog-continue-button")).toBeDisabled();
       await expect(dialog.locator("#user-emails")).toBeDisabled();
 
-      bulkImport.release();
+      postRoomMemberBulkApiMock.release();
 
-      expect((await nthRequest(bulkImport)).postDataJSON()).toEqual({
-        role: 2,
-        user_emails: ["laurawrivera@domain.tld", "lauramwalter@domain.tld"],
+      await expect(postRoomMemberBulkApiMock).toHaveReceivedRequest({
+        json: {
+          role: 2,
+          user_emails: ["laurawrivera@domain.tld", "lauramwalter@domain.tld"],
+        },
       });
 
       const lists = dialog.getByTestId("room-members-bulk-import-list");
@@ -772,14 +778,14 @@ test.describe("Rooms view members bulk actions", () => {
       await dialog.locator("#user-emails").fill("LauraWRivera@domain.tld");
       await dialog.locator("#moderator-role").click();
 
-      const bulkImport = await mockMethod(
+      const postRoomMemberBulkApiMock = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/rooms/abc-def-123/member/bulk",
+        "rooms/abc-def-123/member/bulk",
         { status: 204 },
       );
       await dialog.getByTestId("dialog-continue-button").click();
-      await nthRequest(bulkImport);
+      await postRoomMemberBulkApiMock.waitForRequest();
       await dialog.getByTestId("dialog-close-button").click();
       await expect(dialog).toHaveCount(0);
 
@@ -791,7 +797,7 @@ test.describe("Rooms view members bulk actions", () => {
     });
 
     test.describe("valid and invalid users", () => {
-      let bulkImport;
+      let postRoomMemberBulkApiMock;
 
       test.beforeEach(async ({ page }) => {
         await page.getByTestId("room-members-add-button").click();
@@ -806,19 +812,14 @@ test.describe("Rooms view members bulk actions", () => {
           );
         await dialog.locator("#co_owner-role").click();
 
-        bulkImport = await mockMethod(
+        postRoomMemberBulkApiMock = await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/rooms/abc-def-123/member/bulk",
-          {
-            status: 422,
-            json: {
-              errors: {
-                "user_emails.2": ["notanemail must be a valid email address."],
-                "user_emails.3": ["No user was found with this e-mail"],
-              },
-            },
-          },
+          "rooms/abc-def-123/member/bulk",
+          validationErrors({
+            "user_emails.2": ["notanemail must be a valid email address."],
+            "user_emails.3": ["No user was found with this e-mail"],
+          }),
         );
 
         await dialog.getByTestId("dialog-continue-button").click();
@@ -828,14 +829,16 @@ test.describe("Rooms view members bulk actions", () => {
         page,
       }) => {
         const dialog = page.getByTestId("room-members-bulk-import-dialog");
-        expect((await nthRequest(bulkImport)).postDataJSON()).toEqual({
-          role: 3,
-          user_emails: [
-            "juanmwalter@domain.tld",
-            "tammyglaw@domain.tld",
-            "notanemail",
-            "invalidemail@domain.tld",
-          ],
+        await expect(postRoomMemberBulkApiMock).toHaveReceivedRequest({
+          json: {
+            role: 3,
+            user_emails: [
+              "juanmwalter@domain.tld",
+              "tammyglaw@domain.tld",
+              "notanemail",
+              "invalidemail@domain.tld",
+            ],
+          },
         });
 
         await expect(dialog.getByTestId("dialog-back-button")).toHaveText(
@@ -905,21 +908,21 @@ test.describe("Rooms view members bulk actions", () => {
       test.describe("import the importable users", () => {
         test.use({ permissions: ["clipboard-read", "clipboard-write"] });
 
-        test.beforeEach(async ({ page, roomMembers }) => {
+        test.beforeEach(async ({ page, roomMembersResponse }) => {
           const dialog = page.getByTestId("room-members-bulk-import-dialog");
           await expect(
             dialog.getByTestId("room-members-bulk-import-list"),
           ).toHaveCount(2);
 
-          bulkImport = await mockMethod(
+          postRoomMemberBulkApiMock = await mockApiRequest(
             page,
             "POST",
-            "**/api/v1/rooms/abc-def-123/member/bulk",
+            "rooms/abc-def-123/member/bulk",
             { status: 204 },
           );
-          roomMembers.data[0].role = 2;
-          roomMembers.data[1].role = 3;
-          roomMembers.data.push({
+          roomMembersResponse.data[0].role = 2;
+          roomMembersResponse.data[1].role = 3;
+          roomMembersResponse.data.push({
             id: 10,
             firstname: "Laura",
             lastname: "Walter",
@@ -927,9 +930,9 @@ test.describe("Rooms view members bulk actions", () => {
             role: 2,
             image: null,
           });
-          roomMembers.meta.per_page = 4;
-          roomMembers.meta.total = 4;
-          roomMembers.meta.total_no_filter = 4;
+          roomMembersResponse.meta.per_page = 4;
+          roomMembersResponse.meta.total = 4;
+          roomMembersResponse.meta.total_no_filter = 4;
 
           await expect(dialog.getByTestId("dialog-continue-button")).toHaveText(
             'rooms.members.modals.bulk_import.import_importable_button_{"count":2,"n":2}',
@@ -939,9 +942,11 @@ test.describe("Rooms view members bulk actions", () => {
 
         test("shows the imported and not imported users", async ({ page }) => {
           const dialog = page.getByTestId("room-members-bulk-import-dialog");
-          expect((await nthRequest(bulkImport)).postDataJSON()).toEqual({
-            role: 3,
-            user_emails: ["juanmwalter@domain.tld", "tammyglaw@domain.tld"],
+          await expect(postRoomMemberBulkApiMock).toHaveReceivedRequest({
+            json: {
+              role: 3,
+              user_emails: ["juanmwalter@domain.tld", "tammyglaw@domain.tld"],
+            },
           });
 
           const lists = dialog.getByTestId("room-members-bulk-import-list");
@@ -1004,7 +1009,7 @@ test.describe("Rooms view members bulk actions", () => {
           page,
         }) => {
           const dialog = page.getByTestId("room-members-bulk-import-dialog");
-          await nthRequest(bulkImport);
+          await postRoomMemberBulkApiMock.waitForRequest();
 
           const copyButton = dialog.getByTestId(
             "room-members-copy-and-close-button",
@@ -1029,7 +1034,7 @@ test.describe("Rooms view members bulk actions", () => {
     });
 
     test.describe("only invalid users", () => {
-      let bulkImport;
+      let postRoomMemberBulkApiMock;
 
       test.beforeEach(async ({ page }) => {
         await page.getByTestId("room-members-add-button").click();
@@ -1042,19 +1047,14 @@ test.describe("Rooms view members bulk actions", () => {
           .fill("invalidEmail@domain.tld\nnotAnEmail");
         await dialog.locator("#participant-role").click();
 
-        bulkImport = await mockMethod(
+        postRoomMemberBulkApiMock = await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/rooms/abc-def-123/member/bulk",
-          {
-            status: 422,
-            json: {
-              errors: {
-                "user_emails.0": ["No user was found with this e-mail"],
-                "user_emails.1": ["notanemail must be a valid email adress."],
-              },
-            },
-          },
+          "rooms/abc-def-123/member/bulk",
+          validationErrors({
+            "user_emails.0": ["No user was found with this e-mail"],
+            "user_emails.1": ["notanemail must be a valid email adress."],
+          }),
         );
 
         await dialog.getByTestId("dialog-continue-button").click();
@@ -1064,9 +1064,11 @@ test.describe("Rooms view members bulk actions", () => {
         page,
       }) => {
         const dialog = page.getByTestId("room-members-bulk-import-dialog");
-        expect((await nthRequest(bulkImport)).postDataJSON()).toEqual({
-          role: 1,
-          user_emails: ["invalidemail@domain.tld", "notanemail"],
+        await expect(postRoomMemberBulkApiMock).toHaveReceivedRequest({
+          json: {
+            role: 1,
+            user_emails: ["invalidemail@domain.tld", "notanemail"],
+          },
         });
 
         await expect(dialog.getByTestId("dialog-back-button")).toHaveText(
@@ -1121,7 +1123,7 @@ test.describe("Rooms view members bulk actions", () => {
 
       test("imports a valid user after going back", async ({
         page,
-        roomMembers,
+        roomMembersResponse,
       }) => {
         const dialog = page.getByTestId("room-members-bulk-import-dialog");
         await expect(
@@ -1132,15 +1134,15 @@ test.describe("Rooms view members bulk actions", () => {
         await dialog.locator("#user-emails").clear();
         await dialog.locator("#user-emails").fill("maxdoe@domain.tld");
 
-        bulkImport = await mockMethod(
+        postRoomMemberBulkApiMock = await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/rooms/abc-def-123/member/bulk",
+          "rooms/abc-def-123/member/bulk",
           { status: 204 },
         );
-        roomMembers.data[0].role = 2;
-        roomMembers.data[1].role = 3;
-        roomMembers.data.unshift({
+        roomMembersResponse.data[0].role = 2;
+        roomMembersResponse.data[1].role = 3;
+        roomMembersResponse.data.unshift({
           id: 2,
           firstname: "Max",
           lastname: "Doe",
@@ -1148,7 +1150,7 @@ test.describe("Rooms view members bulk actions", () => {
           role: 1,
           image: null,
         });
-        roomMembers.data.push({
+        roomMembersResponse.data.push({
           id: 10,
           firstname: "Laura",
           lastname: "Walter",
@@ -1156,15 +1158,17 @@ test.describe("Rooms view members bulk actions", () => {
           role: 2,
           image: null,
         });
-        roomMembers.meta.per_page = 5;
-        roomMembers.meta.total = 5;
-        roomMembers.meta.total_no_filter = 5;
+        roomMembersResponse.meta.per_page = 5;
+        roomMembersResponse.meta.total = 5;
+        roomMembersResponse.meta.total_no_filter = 5;
 
         await dialog.getByTestId("dialog-continue-button").click();
 
-        expect((await nthRequest(bulkImport)).postDataJSON()).toEqual({
-          role: 1,
-          user_emails: ["maxdoe@domain.tld"],
+        await expect(postRoomMemberBulkApiMock).toHaveReceivedRequest({
+          json: {
+            role: 1,
+            user_emails: ["maxdoe@domain.tld"],
+          },
         });
 
         const lists = dialog.getByTestId("room-members-bulk-import-list");
@@ -1201,17 +1205,14 @@ test.describe("Rooms view members bulk actions", () => {
       test("shows the validation error for the emails", async ({ page }) => {
         const dialog = page.getByTestId("room-members-bulk-import-dialog");
         await dialog.locator("#user-emails").fill("\n");
-        await mockMethod(
+        await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/rooms/abc-def-123/member/bulk",
-          {
-            status: 422,
-            json: {
-              message: "The user emails field is required.",
-              errors: { user_emails: ["The user emails field is required."] },
-            },
-          },
+          "rooms/abc-def-123/member/bulk",
+          validationErrors(
+            { user_emails: ["The user emails field is required."] },
+            "The user emails field is required.",
+          ),
         );
 
         await dialog.getByTestId("dialog-continue-button").click();
@@ -1225,17 +1226,14 @@ test.describe("Rooms view members bulk actions", () => {
       test("replaces the previous validation error", async ({ page }) => {
         const dialog = page.getByTestId("room-members-bulk-import-dialog");
         await dialog.locator("#user-emails").fill("\n");
-        await mockMethod(
+        await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/rooms/abc-def-123/member/bulk",
-          {
-            status: 422,
-            json: {
-              message: "The user emails field is required.",
-              errors: { user_emails: ["The user emails field is required."] },
-            },
-          },
+          "rooms/abc-def-123/member/bulk",
+          validationErrors(
+            { user_emails: ["The user emails field is required."] },
+            "The user emails field is required.",
+          ),
         );
         await dialog.getByTestId("dialog-continue-button").click();
         await expect(dialog).toContainText(
@@ -1243,17 +1241,14 @@ test.describe("Rooms view members bulk actions", () => {
         );
 
         await dialog.locator("#user-emails").fill("\nlaurawrivera@domain.tld");
-        await mockMethod(
+        await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/rooms/abc-def-123/member/bulk",
-          {
-            status: 422,
-            json: {
-              message: "The selected role is invalid.",
-              errors: { role: ["The selected role is invalid."] },
-            },
-          },
+          "rooms/abc-def-123/member/bulk",
+          validationErrors(
+            { role: ["The selected role is invalid."] },
+            "The selected role is invalid.",
+          ),
         );
         await dialog.getByTestId("dialog-continue-button").click();
 
@@ -1268,26 +1263,23 @@ test.describe("Rooms view members bulk actions", () => {
       }) => {
         const dialog = page.getByTestId("room-members-bulk-import-dialog");
         await dialog.locator("#user-emails").fill("\nlaurawrivera@domain.tld");
-        await mockMethod(
+        await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/rooms/abc-def-123/member/bulk",
-          {
-            status: 422,
-            json: {
-              message: "The selected role is invalid.",
-              errors: { role: ["The selected role is invalid."] },
-            },
-          },
+          "rooms/abc-def-123/member/bulk",
+          validationErrors(
+            { role: ["The selected role is invalid."] },
+            "The selected role is invalid.",
+          ),
         );
         await dialog.getByTestId("dialog-continue-button").click();
         await expect(dialog).toContainText("The selected role is invalid.");
 
-        await mockMethod(
+        await mockApiRequest(
           page,
           "POST",
-          "**/api/v1/rooms/abc-def-123/member/bulk",
-          { status: 500, json: { message: "Test" } },
+          "rooms/abc-def-123/member/bulk",
+          serverError(),
         );
         await dialog.getByTestId("dialog-continue-button").click();
 
@@ -1331,18 +1323,11 @@ test.describe("Rooms view members bulk actions", () => {
       page,
     }) => {
       await interceptRoomIndexRequests(page);
-      await mockMethod(
+      await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/rooms/abc-def-123/member/bulk",
-        {
-          status: 404,
-          json: {
-            message: "model_not_found",
-            model: "room",
-            ids: ["abc-def-123"],
-          },
-        },
+        "rooms/abc-def-123/member/bulk",
+        modelNotFound("room", ["abc-def-123"]),
       );
 
       await page.getByTestId("room-members-add-button").click();

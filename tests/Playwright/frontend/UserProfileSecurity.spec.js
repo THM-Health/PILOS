@@ -1,7 +1,22 @@
-import { test } from "../support/fixtures/userProfile.js";
+import { mergeTests } from "@playwright/test";
+import { test as userProfileTest } from "../support/fixtures/userProfile.js";
+import { test as userControllerTest } from "../support/fixtures/userController.js";
+import { test as timezonesTest } from "../support/fixtures/timezones.js";
+import { test as sessionControllerTest } from "../support/fixtures/sessionController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import { expectLoginRedirect } from "../support/general.js";
-import { mockMethod, nthRequest } from "../support/utils.js";
+import {
+  mockApiRequest,
+  validationErrors,
+  serverError,
+} from "../support/utils.js";
+
+const test = mergeTests(
+  userProfileTest,
+  userControllerTest,
+  timezonesTest,
+  sessionControllerTest,
+);
 
 test.use({ authenticated: true });
 
@@ -94,16 +109,22 @@ test.describe("User profile security", () => {
           .fill("newSecretPassword123#");
       });
 
-      test("loading state while saving", async ({ page, profileUser }) => {
-        const save = await mockMethod(
+      test("loading state while saving", async ({
+        page,
+        profileUserResponse,
+      }) => {
+        const putUserPasswordApiMock = await mockApiRequest(
           page,
           "PUT",
-          "**/api/v1/users/1/password",
-          { json: profileUser, hold: true },
+          "users/1/password",
+          {
+            json: profileUserResponse,
+            hold: true,
+          },
         );
 
         await page.getByTestId("change-password-save-button").click();
-        await nthRequest(save);
+        await putUserPasswordApiMock.waitForRequest();
 
         for (const tabButton of [
           "base-tab-button",
@@ -123,21 +144,23 @@ test.describe("User profile security", () => {
           page.getByTestId("logout-all-sessions-button"),
         ).toBeDisabled();
 
-        save.release();
+        putUserPasswordApiMock.release();
         await expectToastAndClose(page, "auth.flash.password_changed");
       });
 
-      test("sends the passwords", async ({ page, profileUser }) => {
-        const save = await mockMethod(
+      test("sends the passwords", async ({ page, profileUserResponse }) => {
+        const putUserPasswordApiMock = await mockApiRequest(
           page,
           "PUT",
-          "**/api/v1/users/1/password",
-          { json: profileUser },
+          "users/1/password",
+          {
+            json: profileUserResponse,
+          },
         );
 
         await page.getByTestId("change-password-save-button").click();
 
-        const request = await nthRequest(save);
+        const request = await putUserPasswordApiMock.waitForRequest();
         expect(request.postDataJSON()).toEqual({
           new_password: "newSecretPassword123#",
           new_password_confirmation: "newSecretPassword123#",
@@ -148,10 +171,10 @@ test.describe("User profile security", () => {
 
       test("fields are reset and enabled after saving", async ({
         page,
-        profileUser,
+        profileUserResponse,
       }) => {
-        await mockMethod(page, "PUT", "**/api/v1/users/1/password", {
-          json: profileUser,
+        await mockApiRequest(page, "PUT", "users/1/password", {
+          json: profileUserResponse,
         });
 
         await page.getByTestId("change-password-save-button").click();
@@ -191,20 +214,21 @@ test.describe("User profile security", () => {
       });
 
       test("422 errors are shown at the fields", async ({ page }) => {
-        await mockMethod(page, "PUT", "**/api/v1/users/1/password", {
-          status: 422,
-          json: {
-            message:
-              "The Current password field is required. (and 2 more errors)",
-            errors: {
+        await mockApiRequest(
+          page,
+          "PUT",
+          "users/1/password",
+          validationErrors(
+            {
               current_password: ["The Current password field is required."],
               new_password: ["The New password field is required."],
               new_password_confirmation: [
                 "The New password confirmation field is required.",
               ],
             },
-          },
-        });
+            "The Current password field is required. (and 2 more errors)",
+          ),
+        );
 
         await page.getByTestId("change-password-save-button").click();
 
@@ -226,19 +250,21 @@ test.describe("User profile security", () => {
       test("server error hides previous 422 errors and shows a toast", async ({
         page,
       }) => {
-        await mockMethod(page, "PUT", "**/api/v1/users/1/password", {
-          status: 422,
-          json: {
-            message: "The Current password field is required.",
-            errors: {
+        await mockApiRequest(
+          page,
+          "PUT",
+          "users/1/password",
+          validationErrors(
+            {
               current_password: ["The Current password field is required."],
               new_password: ["The New password field is required."],
               new_password_confirmation: [
                 "The New password confirmation field is required.",
               ],
             },
-          },
-        });
+            "The Current password field is required.",
+          ),
+        );
         await page.getByTestId("change-password-save-button").click();
         await expectToastAndClose(
           page,
@@ -248,10 +274,7 @@ test.describe("User profile security", () => {
           page.getByTestId("security-tab-current-password-field"),
         ).toContainText("The Current password field is required.");
 
-        await mockMethod(page, "PUT", "**/api/v1/users/1/password", {
-          status: 500,
-          json: { message: "Test" },
-        });
+        await mockApiRequest(page, "PUT", "users/1/password", serverError());
         await expect(page.locator("#current_password")).toHaveValue("");
         await page.locator("#current_password").fill("secretPassword123#");
         await page.locator("#new_password").fill("newSecretPassword123#");
@@ -276,7 +299,7 @@ test.describe("User profile security", () => {
       });
 
       test("401 redirects to the login", async ({ page }) => {
-        await mockMethod(page, "PUT", "**/api/v1/users/1/password", {
+        await mockApiRequest(page, "PUT", "users/1/password", {
           status: 401,
         });
 
@@ -287,15 +310,23 @@ test.describe("User profile security", () => {
     });
 
     test.describe("logout all other sessions", () => {
-      test("loading state while logging out", async ({ page, sessions }) => {
-        const logout = await mockMethod(page, "DELETE", "**/api/v1/sessions", {
-          status: 204,
-          hold: true,
-        });
-        sessions.data = sessions.data.slice(0, 1);
+      test("loading state while logging out", async ({
+        page,
+        sessionsResponse,
+      }) => {
+        const deleteSessionsApiMock = await mockApiRequest(
+          page,
+          "DELETE",
+          "sessions",
+          {
+            status: 204,
+            hold: true,
+          },
+        );
+        sessionsResponse.data = sessionsResponse.data.slice(0, 1);
 
         await page.getByTestId("logout-all-sessions-button").click();
-        await nthRequest(logout);
+        await deleteSessionsApiMock.waitForRequest();
 
         for (const tabButton of [
           "base-tab-button",
@@ -315,21 +346,37 @@ test.describe("User profile security", () => {
           page.getByTestId("logout-all-sessions-button"),
         ).toBeDisabled();
 
-        logout.release();
+        deleteSessionsApiMock.release();
         await expectToastAndClose(page, "auth.flash.logout_all_others");
       });
 
-      test("only the current session remains", async ({ page, sessions }) => {
-        const logout = await mockMethod(page, "DELETE", "**/api/v1/sessions", {
-          status: 204,
-        });
-        const reload = await mockMethod(page, "GET", "**/api/v1/sessions", {
-          json: { ...sessions, data: sessions.data.slice(0, 1) },
-        });
+      test("only the current session remains", async ({
+        page,
+        sessionsResponse,
+      }) => {
+        const deleteSessionsApiMock = await mockApiRequest(
+          page,
+          "DELETE",
+          "sessions",
+          {
+            status: 204,
+          },
+        );
+        const getSessionsApiMock = await mockApiRequest(
+          page,
+          "GET",
+          "sessions",
+          {
+            json: {
+              ...sessionsResponse,
+              data: sessionsResponse.data.slice(0, 1),
+            },
+          },
+        );
 
         await page.getByTestId("logout-all-sessions-button").click();
-        await nthRequest(logout);
-        await nthRequest(reload);
+        await deleteSessionsApiMock.waitForRequest();
+        await getSessionsApiMock.waitForRequest();
 
         await expectToastAndClose(page, "auth.flash.logout_all_others");
 
@@ -345,10 +392,7 @@ test.describe("User profile security", () => {
       });
 
       test("server error shows a toast", async ({ page }) => {
-        await mockMethod(page, "DELETE", "**/api/v1/sessions", {
-          status: 500,
-          json: { message: "Test" },
-        });
+        await mockApiRequest(page, "DELETE", "sessions", serverError());
 
         await page.getByTestId("logout-all-sessions-button").click();
 
@@ -359,7 +403,7 @@ test.describe("User profile security", () => {
       });
 
       test("401 redirects to the login", async ({ page }) => {
-        await mockMethod(page, "DELETE", "**/api/v1/sessions", {
+        await mockApiRequest(page, "DELETE", "sessions", {
           status: 401,
         });
 
@@ -370,8 +414,11 @@ test.describe("User profile security", () => {
     });
   });
 
-  test("view without password change allowed", async ({ page, config }) => {
-    config.data.user.password_change_allowed = false;
+  test("view without password change allowed", async ({
+    page,
+    configResponse,
+  }) => {
+    configResponse.data.user.password_change_allowed = false;
 
     await page.goto("/profile#tab=security");
 
@@ -421,9 +468,9 @@ test.describe("User profile security", () => {
     await expect(page.getByTestId("logout-all-sessions-button")).toBeEnabled();
   });
 
-  test("view as external user", async ({ page, profileUser }) => {
-    profileUser.data.authenticator = "ldap";
-    profileUser.data.external_id = "jdo";
+  test("view as external user", async ({ page, profileUserResponse }) => {
+    profileUserResponse.data.authenticator = "ldap";
+    profileUserResponse.data.external_id = "jdo";
 
     await page.goto("/profile#tab=security");
 
@@ -475,20 +522,21 @@ test.describe("User profile security", () => {
 
   test.describe("load sessions error", () => {
     test("loading shows the overlay without sessions", async ({ page }) => {
-      const sessions = await mockMethod(page, "GET", "**/api/v1/sessions", {
-        status: 500,
-        json: { message: "Test" },
-        hold: true,
-      });
+      const getSessionsApiMock = await mockApiRequest(
+        page,
+        "GET",
+        "sessions",
+        serverError({ hold: true }),
+      );
 
       await page.goto("/profile#tab=security");
-      await nthRequest(sessions);
+      await getSessionsApiMock.waitForRequest();
 
       await expect(page.getByTestId("overlay")).toBeVisible();
       await expect(page.getByTestId("session-panel")).toHaveCount(0);
       await expect(page.getByTestId("loading-retry-button")).toHaveCount(0);
 
-      sessions.release();
+      getSessionsApiMock.release();
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
         'app.flash.server_error.error_code_{"statusCode":500}',
@@ -496,10 +544,7 @@ test.describe("User profile security", () => {
     });
 
     test("error shows the overlay with retry button", async ({ page }) => {
-      await mockMethod(page, "GET", "**/api/v1/sessions", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "GET", "sessions", serverError());
 
       await page.goto("/profile#tab=security");
 
@@ -514,11 +559,8 @@ test.describe("User profile security", () => {
       );
     });
 
-    test("retry loads the sessions", async ({ page, sessions }) => {
-      await mockMethod(page, "GET", "**/api/v1/sessions", {
-        status: 500,
-        json: { message: "Test" },
-      });
+    test("retry loads the sessions", async ({ page, sessionsResponse }) => {
+      await mockApiRequest(page, "GET", "sessions", serverError());
 
       await page.goto("/profile#tab=security");
       await expectToastAndClose(page, [
@@ -526,11 +568,11 @@ test.describe("User profile security", () => {
         'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
 
-      const retry = await mockMethod(page, "GET", "**/api/v1/sessions", {
-        json: sessions,
+      const getSessionsApiMock = await mockApiRequest(page, "GET", "sessions", {
+        json: sessionsResponse,
       });
       await page.getByTestId("loading-retry-button").click();
-      await nthRequest(retry);
+      await getSessionsApiMock.waitForRequest();
 
       await expect(page.getByTestId("overlay")).toBeHidden();
 

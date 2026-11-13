@@ -1,13 +1,13 @@
+import { test } from "../support/fixtures/roomController.js";
 import { expect } from "../support/test.js";
-import { test } from "../support/fixtures/roomsGeneralMisc.js";
-import { selectTiptapContent } from "../support/utils.js";
+import { RoomDescription } from "../support/pages/RoomDescription.js";
 
 test.describe("Rooms view description TipTap Editor", () => {
   test.use({ authenticated: true });
 
   test.describe("image", () => {
-    test.beforeEach(async ({ page, room }) => {
-      room.data.description = "<p>Room description</p>";
+    test.beforeEach(async ({ page, roomResponse }) => {
+      roomResponse.data.description = "<p>Room description</p>";
       await page.goto("/rooms/abc-def-123");
       await page.getByTestId("room-description-edit-button").click();
       await expect(page.getByTestId("tip-tap-editor")).toBeVisible();
@@ -94,8 +94,8 @@ test.describe("Rooms view description TipTap Editor", () => {
   });
 
   test.describe("existing image", () => {
-    test.beforeEach(async ({ page, room }) => {
-      room.data.description =
+    test.beforeEach(async ({ page, roomResponse }) => {
+      roomResponse.data.description =
         '<img src="https://localhost/test.jpg" width="250px" alt="Test image"><p>Room description</p>';
       await page.goto("/rooms/abc-def-123");
       await page.getByTestId("room-description-edit-button").click();
@@ -177,8 +177,8 @@ test.describe("Rooms view description TipTap Editor", () => {
   });
 
   test.describe("new link", () => {
-    test.beforeEach(async ({ page, room }) => {
-      room.data.description = "<p>Room description</p>";
+    test.beforeEach(async ({ page, roomResponse }) => {
+      roomResponse.data.description = "<p>Room description</p>";
       await page.goto("/rooms/abc-def-123");
       await page.getByTestId("room-description-edit-button").click();
       await expect(
@@ -190,7 +190,7 @@ test.describe("Rooms view description TipTap Editor", () => {
       await expect(page.locator(".tiptap p")).toHaveText("Room description");
       await expect(page.locator(".tiptap a")).toHaveCount(0);
 
-      await selectTiptapContent(page);
+      await new RoomDescription(page).selectContent();
     });
 
     test("cancel adding link", async ({ page }) => {
@@ -275,8 +275,8 @@ test.describe("Rooms view description TipTap Editor", () => {
   });
 
   test.describe("existing link", () => {
-    test.beforeEach(async ({ page, room }) => {
-      room.data.description =
+    test.beforeEach(async ({ page, roomResponse }) => {
+      roomResponse.data.description =
         '<a href="https://thm-health.github.io/PILOS-Redirect_Test_Pages/?foo=a&bar=b">Test Link</a>';
       await page.goto("/rooms/abc-def-123");
       await page.getByTestId("room-description-edit-button").click();
@@ -299,7 +299,7 @@ test.describe("Rooms view description TipTap Editor", () => {
         /p-button-primary/,
       );
 
-      await selectTiptapContent(page);
+      await new RoomDescription(page).selectContent();
       await expect(page.getByTestId("tip-tap-link-button")).toHaveClass(
         /p-button-primary/,
       );
@@ -376,8 +376,8 @@ test.describe("Rooms view description TipTap Editor", () => {
   });
 
   test.describe("source code", () => {
-    test.beforeEach(async ({ page, room }) => {
-      room.data.description = "<p>Room description</p>";
+    test.beforeEach(async ({ page, roomResponse }) => {
+      roomResponse.data.description = "<p>Room description</p>";
       await page.goto("/rooms/abc-def-123");
       await page.getByTestId("room-description-edit-button").click();
       await expect(page.getByTestId("tip-tap-editor")).toBeVisible();

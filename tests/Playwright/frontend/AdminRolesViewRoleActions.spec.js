@@ -1,14 +1,22 @@
-import { test } from "../support/fixtures/adminRoles.js";
+import { mergeTests } from "@playwright/test";
+import { test as roleControllerTest } from "../support/fixtures/roleController.js";
+import { test as permissionControllerTest } from "../support/fixtures/permissionController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import { checkPermissionGroup } from "../support/admin.js";
 import { expectLoginRedirect } from "../support/general.js";
-import { mockMethod } from "../support/utils.js";
+import {
+  mockApiRequest,
+  serverError,
+  modelNotFound,
+} from "../support/utils.js";
+
+const test = mergeTests(roleControllerTest, permissionControllerTest);
 
 test.describe("Admin roles view role actions", () => {
   test.use({ authenticated: true });
 
-  test.beforeEach(async ({ currentUser }) => {
-    currentUser.data.permissions = [
+  test.beforeEach(async ({ currentUserResponse }) => {
+    currentUserResponse.data.permissions = [
       "admin.view",
       "roles.viewAny",
       "roles.view",
@@ -40,12 +48,12 @@ test.describe("Admin roles view role actions", () => {
 
     test("confirm deletes the role and redirects to the index", async ({
       page,
-      roles,
+      rolesResponse,
     }) => {
-      const deleteRequest = await mockMethod(
+      const deleteRoleApiMock = await mockApiRequest(
         page,
         "DELETE",
-        "**/api/v1/roles/2",
+        "roles/2",
         {
           status: 204,
           hold: true,
@@ -53,10 +61,10 @@ test.describe("Admin roles view role actions", () => {
       );
 
       // The list after the role was deleted
-      roles.data = roles.data.filter((role) => role.id !== 2);
-      roles.meta.to = 2;
-      roles.meta.total = 2;
-      roles.meta.total_no_filter = 2;
+      rolesResponse.data = rolesResponse.data.filter((role) => role.id !== 2);
+      rolesResponse.meta.to = 2;
+      rolesResponse.meta.total = 2;
+      rolesResponse.meta.total_no_filter = 2;
 
       const dialog = page.getByTestId("roles-delete-dialog");
       await expect(page.getByTestId("dialog-continue-button")).toHaveText(
@@ -71,7 +79,7 @@ test.describe("Admin roles view role actions", () => {
       await expect(page.getByTestId("dialog-cancel-button")).toBeDisabled();
       await expect(page.getByTestId("dialog-continue-button")).toBeDisabled();
 
-      deleteRequest.release();
+      deleteRoleApiMock.release();
 
       // Check that redirect worked
       await expect(page).toHaveURL(/\/admin\/roles$/);
@@ -84,10 +92,7 @@ test.describe("Admin roles view role actions", () => {
     });
 
     test("server error keeps the dialog open", async ({ page }) => {
-      await mockMethod(page, "DELETE", "**/api/v1/roles/2", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "DELETE", "roles/2", serverError());
 
       await page.getByTestId("dialog-continue-button").click();
 
@@ -99,7 +104,7 @@ test.describe("Admin roles view role actions", () => {
     });
 
     test("role linked to users keeps the dialog open", async ({ page }) => {
-      await mockMethod(page, "DELETE", "**/api/v1/roles/2", {
+      await mockApiRequest(page, "DELETE", "roles/2", {
         status: 464,
         json: {
           message:
@@ -117,10 +122,12 @@ test.describe("Admin roles view role actions", () => {
     });
 
     test("role not found redirects to the index", async ({ page }) => {
-      await mockMethod(page, "DELETE", "**/api/v1/roles/2", {
-        status: 404,
-        json: { message: "model_not_found", model: "role", ids: [2] },
-      });
+      await mockApiRequest(
+        page,
+        "DELETE",
+        "roles/2",
+        modelNotFound("role", [2]),
+      );
 
       await page.getByTestId("dialog-continue-button").click();
 
@@ -132,7 +139,7 @@ test.describe("Admin roles view role actions", () => {
     });
 
     test("unauthenticated redirects to the login page", async ({ page }) => {
-      await mockMethod(page, "DELETE", "**/api/v1/roles/2", { status: 401 });
+      await mockApiRequest(page, "DELETE", "roles/2", { status: 401 });
 
       await page.getByTestId("dialog-continue-button").click();
 

@@ -1,8 +1,8 @@
-import {
-  test,
-  expect,
-  expectToastAndClose,
-} from "../support/fixtures/adminRoomTypes.js";
+import { mergeTests } from "@playwright/test";
+import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
+import { test as serverPoolControllerTest } from "../support/fixtures/serverPoolController.js";
+import { test as roleControllerTest } from "../support/fixtures/roleController.js";
+import { expect, expectToastAndClose } from "../support/test.js";
 import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
@@ -11,13 +11,24 @@ import {
   roomTypeCheckDefaultRoomSettingCheckboxField,
   expectAdminBreadcrumbs,
 } from "../support/admin.js";
-import { holdRequest, mockMethod } from "../support/utils.js";
+import {
+  holdApiRequest,
+  mockApiRequest,
+  serverError,
+  modelNotFound,
+} from "../support/utils.js";
+
+const test = mergeTests(
+  roomTypeControllerTest,
+  serverPoolControllerTest,
+  roleControllerTest,
+);
 
 test.describe("Admin room types view", () => {
   test.use({ authenticated: true });
 
-  test.beforeEach(async ({ currentUser }) => {
-    currentUser.data.permissions = ["admin.view", "roomTypes.view"];
+  test.beforeEach(async ({ currentUserResponse }) => {
+    currentUserResponse.data.permissions = ["admin.view", "roomTypes.view"];
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
@@ -26,9 +37,9 @@ test.describe("Admin room types view", () => {
 
   test("visit with user without permission to view room types", async ({
     page,
-    currentUser,
+    currentUserResponse,
   }) => {
-    currentUser.data.permissions = ["admin.view"];
+    currentUserResponse.data.permissions = ["admin.view"];
 
     await page.goto("/admin/room_types/3");
 
@@ -41,10 +52,10 @@ test.describe("Admin room types view", () => {
 
   test("shows loading state and hides buttons while loading and without permissions", async ({
     page,
-    roomType,
+    roomTypeResponse,
   }) => {
-    const release = await holdRequest(page, "**/api/v1/roomTypes/3", {
-      json: roomType,
+    const release = await holdApiRequest(page, "roomTypes/3", {
+      json: roomTypeResponse,
     });
 
     await page.goto("/admin/room_types/3");
@@ -413,9 +424,12 @@ test.describe("Admin room types view", () => {
     });
   });
 
-  test("shows restriction and roles read-only", async ({ page, roomType }) => {
-    roomType.data.restrict = true;
-    roomType.data.roles = [
+  test("shows restriction and roles read-only", async ({
+    page,
+    roomTypeResponse,
+  }) => {
+    roomTypeResponse.data.restrict = true;
+    roomTypeResponse.data.roles = [
       { id: 1, name: "Superuser" },
       { id: 2, name: "Staff" },
     ];
@@ -445,12 +459,9 @@ test.describe("Admin room types view", () => {
   test.describe("load errors", () => {
     test("shows the error and allows to reload on 500", async ({
       page,
-      roomType,
+      roomTypeResponse,
     }) => {
-      await mockMethod(page, "GET", "**/api/v1/roomTypes/3", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "GET", "roomTypes/3", serverError());
       await page.goto("/admin/room_types/3");
 
       // Check that overlay is shown
@@ -463,8 +474,8 @@ test.describe("Admin room types view", () => {
       ]);
 
       // Reload with correct data
-      await mockMethod(page, "GET", "**/api/v1/roomTypes/3", {
-        json: roomType,
+      await mockApiRequest(page, "GET", "roomTypes/3", {
+        json: roomTypeResponse,
       });
 
       const retryButton = page.getByTestId("loading-retry-button");
@@ -479,10 +490,12 @@ test.describe("Admin room types view", () => {
     });
 
     test("redirects to the index page on 404", async ({ page }) => {
-      await mockMethod(page, "GET", "**/api/v1/roomTypes/3", {
-        status: 404,
-        json: { message: "model_not_found", model: "room_type", ids: [3] },
-      });
+      await mockApiRequest(
+        page,
+        "GET",
+        "roomTypes/3",
+        modelNotFound("room_type", [3]),
+      );
 
       await page.goto("/admin/room_types/3");
 
@@ -497,7 +510,7 @@ test.describe("Admin room types view", () => {
     });
 
     test("redirects to the login page on 401", async ({ page }) => {
-      await mockMethod(page, "GET", "**/api/v1/roomTypes/3", { status: 401 });
+      await mockApiRequest(page, "GET", "roomTypes/3", { status: 401 });
 
       await page.goto("/admin/room_types/3");
 
@@ -507,9 +520,9 @@ test.describe("Admin room types view", () => {
 
   test("shows only the edit button with update permission", async ({
     page,
-    currentUser,
+    currentUserResponse,
   }) => {
-    currentUser.data.permissions = [
+    currentUserResponse.data.permissions = [
       "admin.view",
       "roles.viewAny",
       "serverPools.viewAny",
@@ -535,9 +548,9 @@ test.describe("Admin room types view", () => {
 
   test("shows edit and delete buttons with delete permission", async ({
     page,
-    currentUser,
+    currentUserResponse,
   }) => {
-    currentUser.data.permissions = [
+    currentUserResponse.data.permissions = [
       "admin.view",
       "roles.viewAny",
       "serverPools.viewAny",

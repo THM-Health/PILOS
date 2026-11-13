@@ -1,4 +1,6 @@
-import { test } from "../support/fixtures/adminServerPools.js";
+import { mergeTests } from "@playwright/test";
+import { test as serverPoolControllerTest } from "../support/fixtures/serverPoolController.js";
+import { test as serverControllerTest } from "../support/fixtures/serverController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import {
   testVisitWithoutCurrentUser,
@@ -8,13 +10,20 @@ import {
   expectAdminBreadcrumbs,
   expectMultiselectOptions,
 } from "../support/admin.js";
-import { mockMethod, nthRequest, readFixture } from "../support/utils.js";
+import {
+  mockApiRequest,
+  readFixture,
+  validationErrors,
+  serverError,
+} from "../support/utils.js";
+
+const test = mergeTests(serverPoolControllerTest, serverControllerTest);
 
 test.use({ authenticated: true });
 
 test.describe("Admin server pools new", () => {
-  test.beforeEach(async ({ currentUser }) => {
-    currentUser.data.permissions = [
+  test.beforeEach(async ({ currentUserResponse }) => {
+    currentUserResponse.data.permissions = [
       "admin.view",
       "servers.viewAny",
       "serverPools.viewAny",
@@ -31,9 +40,9 @@ test.describe("Admin server pools new", () => {
 
   test("visit with user without permission to add new server pools", async ({
     page,
-    currentUser,
+    currentUserResponse,
   }) => {
-    currentUser.data.permissions = [
+    currentUserResponse.data.permissions = [
       "admin.view",
       "servers.viewAny",
       "serverPools.viewAny",
@@ -146,7 +155,7 @@ test.describe("Admin server pools new", () => {
 
     test("add new server pool with 1 server", async ({
       page,
-      createdServerPool,
+      createdServerPoolResponse,
       serverSelect,
     }) => {
       await page.locator("#name").fill("Server Pool 1");
@@ -157,19 +166,22 @@ test.describe("Admin server pools new", () => {
       await serverSelect.close();
       await expect(serverSelect.content).toHaveCount(0);
 
-      createdServerPool.data.servers = readFixture(
+      createdServerPoolResponse.data.servers = readFixture(
         "serverPool.json",
       ).data.servers.slice(1, 2);
-      const createRequest = await mockMethod(
+      const postServerPoolsApiMock = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/serverPools",
-        { status: 201, json: createdServerPool },
+        "serverPools",
+        {
+          status: 201,
+          json: createdServerPoolResponse,
+        },
       );
 
       await page.getByTestId("server-pools-save-button").click();
 
-      const request = await nthRequest(createRequest);
+      const request = await postServerPoolsApiMock.waitForRequest();
       expect(request.postDataJSON()).toEqual({
         name: "Server Pool 1",
         description: "Server Pool 1 description",
@@ -182,16 +194,20 @@ test.describe("Admin server pools new", () => {
 
     test("shows loading state while saving", async ({
       page,
-      createdServerPool,
+      createdServerPoolResponse,
     }) => {
       await expect(page.getByTestId("overlay")).toBeHidden();
 
       await page.locator("#name").fill("Server Pool 1");
-      const createRequest = await mockMethod(
+      const postServerPoolsApiMock = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/serverPools",
-        { status: 201, json: createdServerPool, hold: true },
+        "serverPools",
+        {
+          status: 201,
+          json: createdServerPoolResponse,
+          hold: true,
+        },
       );
 
       await page.getByTestId("server-pools-save-button").click();
@@ -204,7 +220,7 @@ test.describe("Admin server pools new", () => {
       );
       await expect(page.getByTestId("server-pools-save-button")).toBeDisabled();
 
-      createRequest.release();
+      postServerPoolsApiMock.release();
 
       await expect(page).toHaveURL(/\/admin\/server_pools\/20$/);
       await expect(page.getByTestId("overlay")).toBeHidden();
@@ -212,8 +228,12 @@ test.describe("Admin server pools new", () => {
   });
 
   test.describe("several pages of servers", () => {
-    test.beforeEach(async ({ page, showServersPage, serverSelect }) => {
-      showServersPage(1);
+    test.beforeEach(async ({ page, serverSelect, getServersApiMock }) => {
+      getServersApiMock.respondWithPage({
+        currentPage: 1,
+        lastPage: 2,
+        perPage: 2,
+      });
       await page.goto("/admin/server_pools/new");
       await serverSelect.open();
       await expect(serverSelect.content).toBeVisible();
@@ -245,17 +265,19 @@ test.describe("Admin server pools new", () => {
 
     test("shows loading state while switching the page", async ({
       page,
-      servers,
-      showServersPage,
+      serversResponse,
       serverSelect,
+      getServersApiMock,
     }) => {
-      showServersPage(2);
-      const serversRequest = await mockMethod(
-        page,
-        "GET",
-        "**/api/v1/servers*",
-        { json: servers, hold: true },
-      );
+      getServersApiMock.respondWithPage({
+        currentPage: 2,
+        lastPage: 2,
+        perPage: 2,
+      });
+      getServersApiMock.respondWith({
+        json: serversResponse,
+        hold: true,
+      });
 
       await serverSelect.showNextPage();
 
@@ -264,7 +286,7 @@ test.describe("Admin server pools new", () => {
       await expect(serverSelect.dropdown).toHaveClass(/multiselect--disabled/);
       await expect(page.getByTestId("server-pools-save-button")).toBeDisabled();
 
-      serversRequest.release();
+      getServersApiMock.release();
 
       await expect(serverSelect.dropdown).not.toHaveClass(
         /multiselect--disabled/,
@@ -280,9 +302,9 @@ test.describe("Admin server pools new", () => {
 
     test("add new server pool with servers of several pages", async ({
       page,
-      createdServerPool,
-      showServersPage,
+      createdServerPoolResponse,
       serverSelect,
+      getServersApiMock,
     }) => {
       await page.locator("#name").fill("Server Pool 1");
       await page.locator("#description").fill("Server Pool 1 description");
@@ -293,7 +315,11 @@ test.describe("Admin server pools new", () => {
       await serverSelect.selectOption(0);
       await expect(serverSelect.content).toBeVisible();
 
-      showServersPage(2);
+      getServersApiMock.respondWithPage({
+        currentPage: 2,
+        lastPage: 2,
+        perPage: 2,
+      });
       await serverSelect.showNextPage();
       await expect(serverSelect.nextPageButton).toBeDisabled();
       await serverSelect.selectOption(1);
@@ -308,19 +334,22 @@ test.describe("Admin server pools new", () => {
       await serverSelect.close();
       await expect(serverSelect.content).toHaveCount(0);
 
-      createdServerPool.data.servers = readFixture("servers.json").data.filter(
-        (server) => server.id === 1 || server.id === 4,
-      );
-      const createRequest = await mockMethod(
+      createdServerPoolResponse.data.servers = readFixture(
+        "servers.json",
+      ).data.filter((server) => server.id === 1 || server.id === 4);
+      const postServerPoolsApiMock = await mockApiRequest(
         page,
         "POST",
-        "**/api/v1/serverPools",
-        { status: 201, json: createdServerPool },
+        "serverPools",
+        {
+          status: 201,
+          json: createdServerPoolResponse,
+        },
       );
 
       await page.getByTestId("server-pools-save-button").click();
 
-      const request = await nthRequest(createRequest);
+      const request = await postServerPoolsApiMock.waitForRequest();
       expect(request.postDataJSON()).toEqual({
         name: "Server Pool 1",
         description: "Server Pool 1 description",
@@ -344,19 +373,21 @@ test.describe("Admin server pools new", () => {
     });
 
     test("422 error shows validation errors", async ({ page }) => {
-      await mockMethod(page, "POST", "**/api/v1/serverPools", {
-        status: 422,
-        json: {
-          message: "The Name field is required. (and 2 more errors)",
-          errors: {
+      await mockApiRequest(
+        page,
+        "POST",
+        "serverPools",
+        validationErrors(
+          {
             name: ["The Name field is required."],
             description: [
               "The Description must not be greater than 255 characters.",
             ],
             servers: ["The server with the ID 1 could not be found."],
           },
-        },
-      });
+          "The Name field is required. (and 2 more errors)",
+        ),
+      );
 
       await page.getByTestId("server-pools-save-button").click();
 
@@ -378,19 +409,21 @@ test.describe("Admin server pools new", () => {
     test("500 error shows toast and hides previous validation errors", async ({
       page,
     }) => {
-      await mockMethod(page, "POST", "**/api/v1/serverPools", {
-        status: 422,
-        json: {
-          message: "The Name field is required. (and 2 more errors)",
-          errors: {
+      await mockApiRequest(
+        page,
+        "POST",
+        "serverPools",
+        validationErrors(
+          {
             name: ["The Name field is required."],
             description: [
               "The Description must not be greater than 255 characters.",
             ],
             servers: ["The server with the ID 1 could not be found."],
           },
-        },
-      });
+          "The Name field is required. (and 2 more errors)",
+        ),
+      );
       await page.getByTestId("server-pools-save-button").click();
       await expectToastAndClose(
         page,
@@ -401,10 +434,7 @@ test.describe("Admin server pools new", () => {
       );
 
       await page.locator("#name").fill("Server Pool 1");
-      await mockMethod(page, "POST", "**/api/v1/serverPools", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "POST", "serverPools", serverError());
       await page.getByTestId("server-pools-save-button").click();
 
       await expectToastAndClose(page, [
@@ -424,7 +454,7 @@ test.describe("Admin server pools new", () => {
 
     test("401 error redirects to the login page", async ({ page }) => {
       await page.locator("#name").fill("Server Pool 1");
-      await mockMethod(page, "POST", "**/api/v1/serverPools", { status: 401 });
+      await mockApiRequest(page, "POST", "serverPools", { status: 401 });
 
       await page.getByTestId("server-pools-save-button").click();
 
@@ -435,24 +465,26 @@ test.describe("Admin server pools new", () => {
   test.describe("load servers errors", () => {
     test("shows loading state while loading servers", async ({
       page,
-      servers,
-      showServersPage,
+      serversResponse,
       serverSelect,
+      getServersApiMock,
     }) => {
-      showServersPage(1);
-      const serversRequest = await mockMethod(
-        page,
-        "GET",
-        "**/api/v1/servers*",
-        { json: servers, hold: true },
-      );
+      getServersApiMock.respondWithPage({
+        currentPage: 1,
+        lastPage: 2,
+        perPage: 2,
+      });
+      getServersApiMock.respondWith({
+        json: serversResponse,
+        hold: true,
+      });
 
       await page.goto("/admin/server_pools/new");
 
       await expect(page.getByTestId("server-pools-save-button")).toBeDisabled();
       await expect(serverSelect.dropdown).toHaveClass(/multiselect--disabled/);
 
-      serversRequest.release();
+      getServersApiMock.release();
 
       await expect(serverSelect.dropdown).not.toHaveClass(
         /multiselect--disabled/,
@@ -461,11 +493,8 @@ test.describe("Admin server pools new", () => {
     });
 
     test.describe("500 error when loading", () => {
-      test.beforeEach(async ({ page }) => {
-        await mockMethod(page, "GET", "**/api/v1/servers*", {
-          status: 500,
-          json: { message: "Test" },
-        });
+      test.beforeEach(async ({ page, getServersApiMock }) => {
+        getServersApiMock.respondWith(serverError());
         await page.goto("/admin/server_pools/new");
         await expectToastAndClose(page, [
           'app.flash.server_error.message_{"message":"Test"}',
@@ -485,12 +514,18 @@ test.describe("Admin server pools new", () => {
 
       test("reload servers without errors", async ({
         page,
-        servers,
-        showServersPage,
+        serversResponse,
         serverSelect,
+        getServersApiMock,
       }) => {
-        showServersPage(1);
-        await mockMethod(page, "GET", "**/api/v1/servers*", { json: servers });
+        getServersApiMock.respondWithPage({
+          currentPage: 1,
+          lastPage: 2,
+          perPage: 2,
+        });
+        getServersApiMock.respondWith({
+          json: serversResponse,
+        });
 
         await serverSelect.reloadButton.click();
 
@@ -509,8 +544,9 @@ test.describe("Admin server pools new", () => {
 
       test("401 error when reloading redirects to the login page", async ({
         page,
+        getServersApiMock,
       }) => {
-        await mockMethod(page, "GET", "**/api/v1/servers*", { status: 401 });
+        getServersApiMock.respondWith({ status: 401 });
 
         await page.reload();
 
@@ -520,18 +556,19 @@ test.describe("Admin server pools new", () => {
 
     test("500 error when switching pages disables the form", async ({
       page,
-      showServersPage,
       serverSelect,
+      getServersApiMock,
     }) => {
-      showServersPage(1);
+      getServersApiMock.respondWithPage({
+        currentPage: 1,
+        lastPage: 2,
+        perPage: 2,
+      });
       await page.goto("/admin/server_pools/new");
       await serverSelect.open();
       await expect(serverSelect.content).toBeVisible();
 
-      await mockMethod(page, "GET", "**/api/v1/servers*", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      getServersApiMock.respondWith(serverError());
       await serverSelect.showNextPage();
 
       await expectToastAndClose(page, [
@@ -544,15 +581,19 @@ test.describe("Admin server pools new", () => {
 
     test("401 error when switching pages redirects to the login page", async ({
       page,
-      showServersPage,
       serverSelect,
+      getServersApiMock,
     }) => {
-      showServersPage(1);
+      getServersApiMock.respondWithPage({
+        currentPage: 1,
+        lastPage: 2,
+        perPage: 2,
+      });
       await page.goto("/admin/server_pools/new");
       await serverSelect.open();
       await expect(serverSelect.content).toBeVisible();
 
-      await mockMethod(page, "GET", "**/api/v1/servers*", { status: 401 });
+      getServersApiMock.respondWith({ status: 401 });
       await serverSelect.showNextPage();
 
       await expectLoginRedirect(page, "/admin/server_pools/new");

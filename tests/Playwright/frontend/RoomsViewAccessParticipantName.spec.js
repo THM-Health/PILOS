@@ -1,8 +1,16 @@
-import { test } from "../support/fixtures/roomsAccess.js";
+import { mergeTests } from "@playwright/test";
+import { test as roomControllerTest } from "../support/fixtures/roomController.js";
+import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import { interceptRoomFilesRequest } from "../support/mocks.js";
 import { setValidRememberedParticipantName } from "../support/room.js";
-import { mockMethod, nthRequest, queryOf } from "../support/utils.js";
+import {
+  getRequestQuery,
+  validationErrors,
+  serverError,
+} from "../support/utils.js";
+
+const test = mergeTests(roomControllerTest, participantNameCheckTest);
 
 test.describe("Rooms View access participant name", () => {
   test.beforeEach(async ({ page }) => {
@@ -10,9 +18,9 @@ test.describe("Rooms View access participant name", () => {
   });
 
   test.describe("participant name errors (guest)", () => {
-    test.beforeEach(async ({ room }) => {
-      room.data.allow_membership = true;
-      room.data.current_user = null;
+    test.beforeEach(async ({ roomResponse }) => {
+      roomResponse.data.allow_membership = true;
+      roomResponse.data.current_user = null;
     });
 
     test("shows participant name field without access code field", async ({
@@ -53,14 +61,17 @@ test.describe("Rooms View access participant name", () => {
 
     test("shows validation error of the participant name", async ({
       page,
-      nameCheck,
+      postParticipantNameCheckApiMock,
     }) => {
-      nameCheck.status = 422;
-      nameCheck.json = {
-        errors: {
-          name: ['Name contains the following non-permitted characters: <>";'],
-        },
-      };
+      const postParticipantNameCheckRequestsAfterChange =
+        postParticipantNameCheckApiMock.respondWith(
+          validationErrors({
+            name: [
+              'Name contains the following non-permitted characters: <>";',
+            ],
+          }),
+        );
+
       await page.goto("/rooms/abc-def-123");
 
       await page
@@ -68,7 +79,8 @@ test.describe("Rooms View access participant name", () => {
         .fill('<script>alert("HI");</script>');
       await page.getByTestId("room-login-button").click();
 
-      const request = await nthRequest(nameCheck);
+      const request =
+        await postParticipantNameCheckRequestsAfterChange.waitForRequest();
       expect(request.postDataJSON()).toEqual({
         name: '<script>alert("HI");</script>',
       });
@@ -85,16 +97,18 @@ test.describe("Rooms View access participant name", () => {
 
     test("shows error toast if the participant name check fails", async ({
       page,
-      nameCheck,
+      postParticipantNameCheckApiMock,
     }) => {
-      nameCheck.status = 500;
-      nameCheck.json = { message: "Test" };
+      const postParticipantNameCheckRequestsAfterChange =
+        postParticipantNameCheckApiMock.respondWith(serverError());
+
       await page.goto("/rooms/abc-def-123");
 
       await page.locator("#participant-name").fill("Laura Rivera");
       await page.getByTestId("room-login-button").click();
 
-      const request = await nthRequest(nameCheck);
+      const request =
+        await postParticipantNameCheckRequestsAfterChange.waitForRequest();
       expect(request.postDataJSON()).toEqual({ name: "Laura Rivera" });
 
       await expect(page.getByTestId("room-access-overlay")).toBeVisible();
@@ -106,9 +120,9 @@ test.describe("Rooms View access participant name", () => {
 
     test("shows participant name and access code field if the room requires an access code", async ({
       page,
-      room,
+      roomResponse,
     }) => {
-      room.data.authenticated = false;
+      roomResponse.data.authenticated = false;
       await page.goto("/rooms/abc-def-123");
 
       await expect(page).toHaveTitle("Meeting One - PILOS Test");
@@ -144,22 +158,27 @@ test.describe("Rooms View access participant name", () => {
 
     test("does not send the access code and shows only the name error if the room requires an access code", async ({
       page,
-      room,
-      nameCheck,
-      roomAuth,
+      roomResponse,
+      postParticipantNameCheckApiMock,
+      postRoomAuthApiMock,
     }) => {
-      room.data.authenticated = false;
-      nameCheck.status = 422;
-      nameCheck.json = {
-        errors: {
-          name: ['Name contains the following non-permitted characters: <>";'],
-        },
-      };
-      roomAuth.status = 422;
-      roomAuth.json = {
-        message: "The Access code field is required.",
-        errors: { access_code: ["The Access code field is required."] },
-      };
+      roomResponse.data.authenticated = false;
+      const postParticipantNameCheckRequestsAfterChange =
+        postParticipantNameCheckApiMock.respondWith(
+          validationErrors({
+            name: [
+              'Name contains the following non-permitted characters: <>";',
+            ],
+          }),
+        );
+
+      const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith(
+        validationErrors(
+          { access_code: ["The Access code field is required."] },
+          "The Access code field is required.",
+        ),
+      );
+
       await page.goto("/rooms/abc-def-123");
       await expect(page.getByTestId("access-code-field")).toBeVisible();
 
@@ -168,7 +187,8 @@ test.describe("Rooms View access participant name", () => {
         .fill('<script>alert("HI");</script>');
       await page.getByTestId("room-login-button").click();
 
-      const request = await nthRequest(nameCheck);
+      const request =
+        await postParticipantNameCheckRequestsAfterChange.waitForRequest();
       expect(request.postDataJSON()).toEqual({
         name: '<script>alert("HI");</script>',
       });
@@ -183,7 +203,7 @@ test.describe("Rooms View access participant name", () => {
       ).toBeVisible();
 
       // room auth request was not sent and the access code error is not shown
-      expect(roomAuth.requests).toHaveLength(0);
+      expect(postRoomAuthRequestsAfterChange.requests).toHaveLength(0);
       await expect(
         page
           .getByTestId("access-code-field")
@@ -195,8 +215,8 @@ test.describe("Rooms View access participant name", () => {
   test.describe("remembered participant name (guest)", () => {
     test("shows error and clears an invalid remembered participant name", async ({
       page,
-      room,
-      nameCheck,
+      roomResponse,
+      postParticipantNameCheckApiMock,
     }) => {
       await page.addInitScript(() => {
         window.localStorage.setItem(
@@ -204,18 +224,22 @@ test.describe("Rooms View access participant name", () => {
           '<script>alert("HI");</script>',
         );
       });
-      room.data.allow_membership = true;
-      room.data.current_user = null;
-      room.data.authenticated = false;
-      nameCheck.status = 422;
-      nameCheck.json = {
-        errors: {
-          name: ['Name contains the following non-permitted characters: <>";'],
-        },
-      };
+      roomResponse.data.allow_membership = true;
+      roomResponse.data.current_user = null;
+      roomResponse.data.authenticated = false;
+      const postParticipantNameCheckRequestsAfterChange =
+        postParticipantNameCheckApiMock.respondWith(
+          validationErrors({
+            name: [
+              'Name contains the following non-permitted characters: <>";',
+            ],
+          }),
+        );
+
       await page.goto("/rooms/abc-def-123");
 
-      const request = await nthRequest(nameCheck);
+      const request =
+        await postParticipantNameCheckRequestsAfterChange.waitForRequest();
       expect(request.postDataJSON()).toEqual({
         name: '<script>alert("HI");</script>',
       });
@@ -241,10 +265,10 @@ test.describe("Rooms View access participant name", () => {
 
     test("does not use an access code from the url if the remembered participant name is invalid", async ({
       page,
-      room,
-      roomRequests,
-      nameCheck,
-      roomAuth,
+      roomResponse,
+      getRoomApiMock,
+      postRoomAuthApiMock,
+      postParticipantNameCheckApiMock,
     }) => {
       // Seed the name only for the first load, the hash change reloads the page
       await page.addInitScript(() => {
@@ -256,15 +280,15 @@ test.describe("Rooms View access participant name", () => {
           );
         }
       });
-      room.data.allow_membership = true;
-      room.data.current_user = null;
-      room.data.authenticated = false;
-      nameCheck.status = 422;
-      nameCheck.json = {
-        errors: {
+      roomResponse.data.allow_membership = true;
+      roomResponse.data.current_user = null;
+      roomResponse.data.authenticated = false;
+      postParticipantNameCheckApiMock.respondWith(
+        validationErrors({
           name: ['Name contains the following non-permitted characters: <>";'],
-        },
-      };
+        }),
+      );
+
       await page.goto("/rooms/abc-def-123");
       await expect(
         page
@@ -279,36 +303,38 @@ test.describe("Rooms View access participant name", () => {
         )
         .toBe(null);
 
-      const roomRequestsBefore = roomRequests.requests.length;
+      const roomRequestsBefore = getRoomApiMock.requests.length;
 
       // Reinitialize with an access code
       await page.evaluate(() => {
         window.location.hash = "accessCode=123456789";
       });
 
-      await nthRequest(roomRequests, roomRequestsBefore + 1);
+      await getRoomApiMock.waitForRequest(roomRequestsBefore + 1);
       await expect(page.getByTestId("room-access-overlay")).toBeVisible();
       await expect(page.locator("#participant-name")).toHaveValue("");
       await expect(page.locator("#access-code")).toHaveValue("123-456-789");
-      expect(roomAuth.requests).toHaveLength(0);
+      expect(postRoomAuthApiMock.requests).toHaveLength(0);
     });
 
     test("keeps a valid remembered participant name if the check fails with a server error", async ({
       page,
-      room,
-      nameCheck,
+      roomResponse,
+      postParticipantNameCheckApiMock,
     }) => {
       await page.addInitScript(() => {
         window.localStorage.setItem("pilos_guest_name", "Laura Rivera");
       });
-      room.data.allow_membership = true;
-      room.data.current_user = null;
-      room.data.authenticated = false;
-      nameCheck.status = 500;
-      nameCheck.json = { message: "Test" };
+      roomResponse.data.allow_membership = true;
+      roomResponse.data.current_user = null;
+      roomResponse.data.authenticated = false;
+      const postParticipantNameCheckRequestsAfterChange =
+        postParticipantNameCheckApiMock.respondWith(serverError());
+
       await page.goto("/rooms/abc-def-123");
 
-      const request = await nthRequest(nameCheck);
+      const request =
+        await postParticipantNameCheckRequestsAfterChange.waitForRequest();
       expect(request.postDataJSON()).toEqual({ name: "Laura Rivera" });
 
       await expect(page.getByTestId("room-access-overlay")).toBeVisible();
@@ -329,34 +355,39 @@ test.describe("Rooms View access participant name", () => {
 
     test("logs in with the remembered participant name and the access code from the url", async ({
       page,
-      room,
-      roomRequests,
-      nameCheck,
-      roomAuth,
+      roomResponse,
+      getRoomApiMock,
+      postParticipantNameCheckApiMock,
+      postRoomAuthApiMock,
     }) => {
       await page.addInitScript(() => {
         window.localStorage.setItem("pilos_guest_name", "Laura Rivera");
       });
-      room.data.allow_membership = true;
-      room.data.current_user = null;
+      roomResponse.data.allow_membership = true;
+      roomResponse.data.current_user = null;
       // The room is authenticated as soon as the request carries the room auth token
       await page.route("**/api/v1/rooms/abc-def-123*", (route) => {
         if (route.request().method() !== "GET") {
           return route.fallback();
         }
-        roomRequests.requests.push(route.request());
-        room.data.authenticated = "room_auth_token" in queryOf(route.request());
-        return route.fulfill({ json: room });
+        getRoomApiMock.requests.push(route.request());
+        roomResponse.data.authenticated =
+          "room_auth_token" in getRequestQuery(route.request());
+        return route.fulfill({ json: roomResponse });
       });
 
       await page.goto("/rooms/abc-def-123#accessCode=123456789");
 
-      expect((await nthRequest(nameCheck)).postDataJSON()).toEqual({
-        name: "Laura Rivera",
+      await expect(postParticipantNameCheckApiMock).toHaveReceivedRequest({
+        json: {
+          name: "Laura Rivera",
+        },
       });
-      expect((await nthRequest(roomAuth)).postDataJSON()).toEqual({
-        access_code: "123456789",
-        type: 0,
+      await expect(postRoomAuthApiMock).toHaveReceivedRequest({
+        json: {
+          access_code: "123456789",
+          type: 0,
+        },
       });
 
       await expect(page.getByTestId("room-access-overlay")).toBeHidden();
@@ -365,10 +396,10 @@ test.describe("Rooms View access participant name", () => {
       ).toBeVisible();
       await expect(page.getByText("Laura Rivera")).toBeVisible();
 
-      const authenticatedRequest = roomRequests.requests.find(
-        (request) => "room_auth_token" in queryOf(request),
+      const authenticatedRequest = getRoomApiMock.requests.find(
+        (request) => "room_auth_token" in getRequestQuery(request),
       );
-      expect(queryOf(authenticatedRequest)).toMatchObject({
+      expect(getRequestQuery(authenticatedRequest)).toMatchObject({
         room_auth_token: "roomAuthToken",
         room_auth_token_type: "0",
       });
@@ -379,8 +410,9 @@ test.describe("Rooms View access participant name", () => {
 
       test("asks for the access code and restores the remembered participant name", async ({
         page,
-        room,
-        roomRequests,
+        roomResponse,
+        getRoomApiMock,
+        postParticipantNameCheckApiMock,
       }) => {
         await page.addInitScript(() => {
           window.localStorage.setItem("pilos_guest_name", "Laura Rivera");
@@ -388,18 +420,17 @@ test.describe("Rooms View access participant name", () => {
         await page.goto("/rooms/abc-def-123");
         await expect(page.getByTestId("reload-room-button")).toBeVisible();
 
-        const check = await mockMethod(
-          page,
-          "POST",
-          "**/api/v1/participantName/check",
-          { status: 204, hold: true },
-        );
-        room.data.allow_membership = true;
-        room.data.current_user = null;
-        room.data.authenticated = false;
+        const postParticipantNameCheckRequestsAfterChange =
+          postParticipantNameCheckApiMock.respondWith({
+            status: 204,
+            hold: true,
+          });
+        roomResponse.data.allow_membership = true;
+        roomResponse.data.current_user = null;
+        roomResponse.data.authenticated = false;
 
         await page.getByTestId("reload-room-button").click();
-        await nthRequest(roomRequests, 2);
+        await getRoomApiMock.waitForRequest(2);
 
         await expectToastAndClose(page, "rooms.require_access_code");
 
@@ -408,10 +439,14 @@ test.describe("Rooms View access participant name", () => {
         await expect(name).toHaveValue("");
         await expect(name).toBeDisabled();
 
-        check.release();
+        postParticipantNameCheckApiMock.release();
 
-        expect((await nthRequest(check)).postDataJSON()).toEqual({
-          name: "Laura Rivera",
+        await expect(
+          postParticipantNameCheckRequestsAfterChange,
+        ).toHaveReceivedRequest({
+          json: {
+            name: "Laura Rivera",
+          },
         });
         await expect(name).toHaveValue("Laura Rivera");
         await expect(name).toBeEnabled();
@@ -422,9 +457,9 @@ test.describe("Rooms View access participant name", () => {
   });
 
   test.describe("change participant name (guest)", () => {
-    test.beforeEach(async ({ page, room }) => {
-      room.data.allow_membership = true;
-      room.data.current_user = null;
+    test.beforeEach(async ({ page, roomResponse }) => {
+      roomResponse.data.allow_membership = true;
+      roomResponse.data.current_user = null;
       await page.goto("/rooms/abc-def-123");
 
       await expect(page).toHaveTitle("Meeting One - PILOS Test");
@@ -435,13 +470,13 @@ test.describe("Rooms View access participant name", () => {
 
     test("shows loading state while the participant name is checked", async ({
       page,
+      postParticipantNameCheckApiMock,
     }) => {
-      const check = await mockMethod(
-        page,
-        "POST",
-        "**/api/v1/participantName/check",
-        { status: 204, hold: true },
-      );
+      const postParticipantNameCheckRequestsAfterChange =
+        postParticipantNameCheckApiMock.respondWith({
+          status: 204,
+          hold: true,
+        });
 
       await expect(page.getByTestId("room-login-button")).toHaveText(
         "rooms.continue_as_guest",
@@ -452,16 +487,16 @@ test.describe("Rooms View access participant name", () => {
       await expect(overlay).toBeVisible();
       await expect(overlay.getByTestId("room-login-button")).toBeDisabled();
 
-      check.release();
-      await nthRequest(check);
+      postParticipantNameCheckApiMock.release();
+      await postParticipantNameCheckRequestsAfterChange.waitForRequest();
 
       await expect(overlay).toBeHidden();
     });
 
     test.describe("after login", () => {
-      test.beforeEach(async ({ page, nameCheck }) => {
+      test.beforeEach(async ({ page, postParticipantNameCheckApiMock }) => {
         await page.getByTestId("room-login-button").click();
-        await nthRequest(nameCheck);
+        await postParticipantNameCheckApiMock.waitForRequest();
         await expect(page.getByTestId("room-access-overlay")).toBeHidden();
       });
 
@@ -572,16 +607,24 @@ test.describe("Rooms View access participant name", () => {
         );
       });
 
-      test("changes the participant name", async ({ page, nameCheck }) => {
+      test("changes the participant name", async ({
+        page,
+        postParticipantNameCheckApiMock,
+      }) => {
         await page.getByTestId("change-participant-name-button").click();
 
         const dialog = page.getByTestId("room-change-participant-name-dialog");
         await dialog.locator("#participant-name").fill("Max Doe");
         await dialog.getByTestId("dialog-save-button").click();
 
-        expect((await nthRequest(nameCheck, 2)).postDataJSON()).toEqual({
-          name: "Max Doe",
-        });
+        await expect(postParticipantNameCheckApiMock).toHaveReceivedRequest(
+          {
+            json: {
+              name: "Max Doe",
+            },
+          },
+          { nth: 2 },
+        );
         await expect(dialog).toBeHidden();
 
         await expect
@@ -630,7 +673,10 @@ test.describe("Rooms View access participant name", () => {
         ).not.toBeChecked();
       });
 
-      test("remembers the participant name", async ({ page, nameCheck }) => {
+      test("remembers the participant name", async ({
+        page,
+        postParticipantNameCheckApiMock,
+      }) => {
         await page.getByTestId("change-participant-name-button").click();
 
         const dialog = page.getByTestId("room-change-participant-name-dialog");
@@ -666,7 +712,7 @@ test.describe("Rooms View access participant name", () => {
         await dialog.locator("#remember-participant-name").check();
         await dialog.getByTestId("dialog-save-button").click();
 
-        await nthRequest(nameCheck, 2);
+        await postParticipantNameCheckApiMock.waitForRequest(2);
         await expect(dialog).toBeHidden();
 
         await expect(
@@ -715,14 +761,14 @@ test.describe("Rooms View access participant name", () => {
 
       test("forgets the remembered participant name", async ({
         page,
-        nameCheck,
+        postParticipantNameCheckApiMock,
       }) => {
         await page.getByTestId("change-participant-name-button").click();
 
         const dialog = page.getByTestId("room-change-participant-name-dialog");
         await dialog.locator("#remember-participant-name").check();
         await dialog.getByTestId("dialog-save-button").click();
-        await nthRequest(nameCheck, 2);
+        await postParticipantNameCheckApiMock.waitForRequest(2);
         await expect(dialog).toBeHidden();
         await expect
           .poll(() =>
@@ -765,7 +811,7 @@ test.describe("Rooms View access participant name", () => {
         await dialog.locator("#remember-participant-name").uncheck();
         await dialog.getByTestId("dialog-save-button").click();
 
-        await nthRequest(nameCheck, 3);
+        await postParticipantNameCheckApiMock.waitForRequest(3);
         await expect(dialog).toBeHidden();
 
         await expect
@@ -815,10 +861,10 @@ test.describe("Rooms View access participant name", () => {
   });
 
   test.describe("remembered participant name is used to join (guest)", () => {
-    test.beforeEach(async ({ page, room }) => {
+    test.beforeEach(async ({ page, roomResponse }) => {
       await setValidRememberedParticipantName(page, "Laura Rivera");
-      room.data.allow_membership = true;
-      room.data.current_user = null;
+      roomResponse.data.allow_membership = true;
+      roomResponse.data.current_user = null;
       await page.goto("/rooms/abc-def-123");
       await expect(page.getByTestId("room-access-overlay")).toBeHidden();
       await expect(page.getByText("Meeting One")).toBeVisible();
@@ -873,13 +919,12 @@ test.describe("Rooms View access participant name", () => {
       ).toBeChecked();
     });
 
-    test("changes the remembered participant name", async ({ page }) => {
-      const check = await mockMethod(
-        page,
-        "POST",
-        "**/api/v1/participantName/check",
-        { status: 204 },
-      );
+    test("changes the remembered participant name", async ({
+      page,
+      postParticipantNameCheckApiMock,
+    }) => {
+      const postParticipantNameCheckRequestsAfterChange =
+        postParticipantNameCheckApiMock.respondWith({ status: 204 });
       await page.getByTestId("change-participant-name-button").click();
 
       const dialog = page.getByTestId("room-change-participant-name-dialog");
@@ -913,8 +958,12 @@ test.describe("Rooms View access participant name", () => {
       await dialog.locator("#participant-name").fill("Max Doe");
       await dialog.getByTestId("dialog-save-button").click();
 
-      expect((await nthRequest(check)).postDataJSON()).toEqual({
-        name: "Max Doe",
+      await expect(
+        postParticipantNameCheckRequestsAfterChange,
+      ).toHaveReceivedRequest({
+        json: {
+          name: "Max Doe",
+        },
       });
       await expect(dialog).toBeHidden();
 
@@ -960,13 +1009,12 @@ test.describe("Rooms View access participant name", () => {
       ).toBeChecked();
     });
 
-    test("forgets the remembered participant name", async ({ page }) => {
-      const check = await mockMethod(
-        page,
-        "POST",
-        "**/api/v1/participantName/check",
-        { status: 204 },
-      );
+    test("forgets the remembered participant name", async ({
+      page,
+      postParticipantNameCheckApiMock,
+    }) => {
+      const postParticipantNameCheckRequestsAfterChange =
+        postParticipantNameCheckApiMock.respondWith({ status: 204 });
       await page.getByTestId("change-participant-name-button").click();
 
       const dialog = page.getByTestId("room-change-participant-name-dialog");
@@ -1000,7 +1048,7 @@ test.describe("Rooms View access participant name", () => {
       await dialog.locator("#remember-participant-name").uncheck();
       await dialog.getByTestId("dialog-save-button").click();
 
-      await nthRequest(check);
+      await postParticipantNameCheckRequestsAfterChange.waitForRequest();
       await expect(dialog).toBeHidden();
 
       await expect
@@ -1045,22 +1093,16 @@ test.describe("Rooms View access participant name", () => {
 
     test("shows validation error and keeps the participant name if the change is invalid", async ({
       page,
+      postParticipantNameCheckApiMock,
     }) => {
-      const check = await mockMethod(
-        page,
-        "POST",
-        "**/api/v1/participantName/check",
-        {
-          status: 422,
-          json: {
-            errors: {
-              name: [
-                'Name contains the following non-permitted characters: <>";',
-              ],
-            },
-          },
-        },
-      );
+      const postParticipantNameCheckRequestsAfterChange =
+        postParticipantNameCheckApiMock.respondWith(
+          validationErrors({
+            name: [
+              'Name contains the following non-permitted characters: <>";',
+            ],
+          }),
+        );
       await page.getByTestId("change-participant-name-button").click();
 
       const dialog = page.getByTestId("room-change-participant-name-dialog");
@@ -1096,8 +1138,12 @@ test.describe("Rooms View access participant name", () => {
         .fill('<script>alert("HI");</script>');
       await dialog.getByTestId("dialog-save-button").click();
 
-      expect((await nthRequest(check)).postDataJSON()).toEqual({
-        name: '<script>alert("HI");</script>',
+      await expect(
+        postParticipantNameCheckRequestsAfterChange,
+      ).toHaveReceivedRequest({
+        json: {
+          name: '<script>alert("HI");</script>',
+        },
       });
 
       // The dialog stays open and shows the error
@@ -1133,21 +1179,22 @@ test.describe("Rooms View access participant name", () => {
 
     test("shows error toast and keeps the dialog open if the check fails", async ({
       page,
+      postParticipantNameCheckApiMock,
     }) => {
-      const check = await mockMethod(
-        page,
-        "POST",
-        "**/api/v1/participantName/check",
-        { status: 500, json: { message: "Test" } },
-      );
+      const postParticipantNameCheckRequestsAfterChange =
+        postParticipantNameCheckApiMock.respondWith(serverError());
       await page.getByTestId("change-participant-name-button").click();
 
       const dialog = page.getByTestId("room-change-participant-name-dialog");
       await expect(dialog).toBeVisible();
       await dialog.getByTestId("dialog-save-button").click();
 
-      expect((await nthRequest(check)).postDataJSON()).toEqual({
-        name: "Laura Rivera",
+      await expect(
+        postParticipantNameCheckRequestsAfterChange,
+      ).toHaveReceivedRequest({
+        json: {
+          name: "Laura Rivera",
+        },
       });
 
       await expect(dialog).toBeVisible();
@@ -1159,55 +1206,68 @@ test.describe("Rooms View access participant name", () => {
   });
 
   test.describe("personalized link", () => {
-    test.beforeEach(async ({ page, room, roomAuth }) => {
+    test.beforeEach(async ({ page, roomResponse, postRoomAuthApiMock }) => {
       await page.addInitScript(() => {
         window.localStorage.setItem("pilos_guest_name", "Laura Rivera");
       });
-      room.data.username = "Max Doe";
-      room.data.allow_membership = true;
-      room.data.is_member = true;
-      room.data.current_user = null;
-      roomAuth.json = { data: { id: "roomAuthToken", type: 1 } };
+      roomResponse.data.username = "Max Doe";
+      roomResponse.data.allow_membership = true;
+      roomResponse.data.is_member = true;
+      roomResponse.data.current_user = null;
+      postRoomAuthApiMock.respondWith({
+        status: 201,
+        json: { data: { id: "roomAuthToken", type: 1 } },
+      });
     });
 
     test("ignores an invalid remembered participant name and clears it", async ({
       page,
-      roomRequests,
-      nameCheck,
-      roomAuth,
+      getRoomApiMock,
+      postParticipantNameCheckApiMock,
+      postRoomAuthApiMock,
     }) => {
-      nameCheck.status = 422;
-      nameCheck.json = {
-        errors: {
-          name: ['Name contains the following non-permitted characters: <>";'],
-        },
-      };
+      const postParticipantNameCheckRequestsAfterChange =
+        postParticipantNameCheckApiMock.respondWith(
+          validationErrors({
+            name: [
+              'Name contains the following non-permitted characters: <>";',
+            ],
+          }),
+        );
 
       await page.goto(
         "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
       );
 
-      expect((await nthRequest(nameCheck)).postDataJSON()).toEqual({
-        name: "Laura Rivera",
+      await expect(
+        postParticipantNameCheckRequestsAfterChange,
+      ).toHaveReceivedRequest({
+        json: {
+          name: "Laura Rivera",
+        },
       });
-      expect((await nthRequest(roomAuth)).postDataJSON()).toEqual({
-        personalized_link_token:
-          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-        type: 1,
+      await expect(postRoomAuthApiMock).toHaveReceivedRequest({
+        json: {
+          personalized_link_token:
+            "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+          type: 1,
+        },
       });
 
       // The room is requested with the room auth token
       await expect
         .poll(() =>
-          roomRequests.requests.some(
-            (request) => queryOf(request).room_auth_token === "roomAuthToken",
+          getRoomApiMock.requests.some(
+            (request) =>
+              getRequestQuery(request).room_auth_token === "roomAuthToken",
           ),
         )
         .toBe(true);
-      const request = roomRequests.requests.find(
-        (request) => queryOf(request).room_auth_token === "roomAuthToken",
+      const request = getRoomApiMock.requests.find(
+        (request) =>
+          getRequestQuery(request).room_auth_token === "roomAuthToken",
       );
-      expect(queryOf(request)).toMatchObject({
+      expect(getRequestQuery(request)).toMatchObject({
         room_auth_token: "roomAuthToken",
         room_auth_token_type: "1",
       });
@@ -1250,38 +1310,46 @@ test.describe("Rooms View access participant name", () => {
 
     test("keeps the remembered participant name and shows an error toast if the check fails", async ({
       page,
-      roomRequests,
-      nameCheck,
-      roomAuth,
+      getRoomApiMock,
+      postParticipantNameCheckApiMock,
+      postRoomAuthApiMock,
     }) => {
-      nameCheck.status = 500;
-      nameCheck.json = { message: "Test" };
+      const postParticipantNameCheckRequestsAfterChange =
+        postParticipantNameCheckApiMock.respondWith(serverError());
 
       await page.goto(
         "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
       );
 
-      expect((await nthRequest(nameCheck)).postDataJSON()).toEqual({
-        name: "Laura Rivera",
+      await expect(
+        postParticipantNameCheckRequestsAfterChange,
+      ).toHaveReceivedRequest({
+        json: {
+          name: "Laura Rivera",
+        },
       });
-      expect((await nthRequest(roomAuth)).postDataJSON()).toEqual({
-        personalized_link_token:
-          "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
-        type: 1,
+      await expect(postRoomAuthApiMock).toHaveReceivedRequest({
+        json: {
+          personalized_link_token:
+            "xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
+          type: 1,
+        },
       });
 
       // The room is requested with the room auth token
       await expect
         .poll(() =>
-          roomRequests.requests.some(
-            (request) => queryOf(request).room_auth_token === "roomAuthToken",
+          getRoomApiMock.requests.some(
+            (request) =>
+              getRequestQuery(request).room_auth_token === "roomAuthToken",
           ),
         )
         .toBe(true);
-      const request = roomRequests.requests.find(
-        (request) => queryOf(request).room_auth_token === "roomAuthToken",
+      const request = getRoomApiMock.requests.find(
+        (request) =>
+          getRequestQuery(request).room_auth_token === "roomAuthToken",
       );
-      expect(queryOf(request)).toMatchObject({
+      expect(getRequestQuery(request)).toMatchObject({
         room_auth_token: "roomAuthToken",
         room_auth_token_type: "1",
       });

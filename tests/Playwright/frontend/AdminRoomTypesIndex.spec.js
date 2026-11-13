@@ -1,25 +1,31 @@
-import {
-  test,
-  expect,
-  expectToastAndClose,
-} from "../support/fixtures/adminRoomTypes.js";
+import { mergeTests } from "@playwright/test";
+import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
+import { test as serverPoolControllerTest } from "../support/fixtures/serverPoolController.js";
+import { test as roleControllerTest } from "../support/fixtures/roleController.js";
+import { expect, expectToastAndClose } from "../support/test.js";
 import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
 } from "../support/general.js";
 import { expectAdminBreadcrumbs } from "../support/admin.js";
 import {
-  holdRequest,
+  holdApiRequest,
   expectActivePage,
-  mockMethod,
-  nthRequest,
+  mockApiRequest,
+  serverError,
 } from "../support/utils.js";
+
+const test = mergeTests(
+  roomTypeControllerTest,
+  serverPoolControllerTest,
+  roleControllerTest,
+);
 
 test.describe("Admin room types index", () => {
   test.use({ authenticated: true });
 
-  test.beforeEach(async ({ currentUser }) => {
-    currentUser.data.permissions = ["admin.view"];
+  test.beforeEach(async ({ currentUserResponse }) => {
+    currentUserResponse.data.permissions = ["admin.view"];
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
@@ -27,9 +33,9 @@ test.describe("Admin room types index", () => {
   });
 
   test.describe("load room types", () => {
-    test("loading state", async ({ page, roomTypes }) => {
-      const release = await holdRequest(page, "**/api/v1/roomTypes*", {
-        json: roomTypes,
+    test("loading state", async ({ page, getRoomTypesApiMock }) => {
+      const release = await holdApiRequest(page, "roomTypes*", {
+        json: getRoomTypesApiMock.json,
       });
 
       await page.goto("/admin/room_types");
@@ -81,8 +87,8 @@ test.describe("Admin room types index", () => {
       ).toHaveText("Lecture");
     });
 
-    test("no data", async ({ page, roomTypes }) => {
-      roomTypes.data = [];
+    test("no data", async ({ page, getRoomTypesApiMock }) => {
+      getRoomTypesApiMock.json.data = [];
 
       await page.goto("/admin/room_types");
 
@@ -93,10 +99,7 @@ test.describe("Admin room types index", () => {
 
   test.describe("load room types errors", () => {
     test("server error shows toast and overlay", async ({ page }) => {
-      await mockMethod(page, "GET", "**/api/v1/roomTypes*", {
-        status: 500,
-        json: { message: "Test" },
-      });
+      await mockApiRequest(page, "GET", "roomTypes*", serverError());
 
       await page.goto("/admin/room_types");
 
@@ -118,19 +121,16 @@ test.describe("Admin room types index", () => {
       await expect(retryButton).toHaveText("app.reload");
     });
 
-    test("reload after error", async ({ page, roomTypes }) => {
-      await mockMethod(page, "GET", "**/api/v1/roomTypes*", {
-        status: 500,
-        json: { message: "Test" },
-      });
+    test("reload after error", async ({ page, getRoomTypesApiMock }) => {
+      await mockApiRequest(page, "GET", "roomTypes*", serverError());
       await page.goto("/admin/room_types");
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
         'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
 
-      await mockMethod(page, "GET", "**/api/v1/roomTypes*", {
-        json: roomTypes,
+      await mockApiRequest(page, "GET", "roomTypes*", {
+        json: getRoomTypesApiMock.json,
       });
 
       const request = page.waitForRequest("**/api/v1/roomTypes*");
@@ -148,7 +148,7 @@ test.describe("Admin room types index", () => {
     });
 
     test("unauthenticated redirects to login", async ({ page }) => {
-      await mockMethod(page, "GET", "**/api/v1/roomTypes*", { status: 401 });
+      await mockApiRequest(page, "GET", "roomTypes*", { status: 401 });
 
       await page.goto("/admin/room_types");
 
@@ -297,8 +297,11 @@ test.describe("Admin room types index", () => {
     ];
 
     for (const permissionCase of permissionCases) {
-      test(`with ${permissionCase.name}`, async ({ page, currentUser }) => {
-        currentUser.data.permissions = permissionCase.permissions;
+      test(`with ${permissionCase.name}`, async ({
+        page,
+        currentUserResponse,
+      }) => {
+        currentUserResponse.data.permissions = permissionCase.permissions;
 
         await page.goto("/admin/room_types");
 
@@ -351,10 +354,10 @@ test.describe("Admin room types index", () => {
   });
 
   test.describe("loading state during reload", () => {
-    let deleteMock;
+    let deleteRoomTypeApiMock;
 
-    test.beforeEach(async ({ page, currentUser }) => {
-      currentUser.data.permissions = [
+    test.beforeEach(async ({ page, currentUserResponse }) => {
+      currentUserResponse.data.permissions = [
         "admin.view",
         "roles.viewAny",
         "serverPools.viewAny",
@@ -363,9 +366,14 @@ test.describe("Admin room types index", () => {
         "roomTypes.create",
         "roomTypes.delete",
       ];
-      deleteMock = await mockMethod(page, "DELETE", "**/api/v1/roomTypes/3", {
-        status: 204,
-      });
+      deleteRoomTypeApiMock = await mockApiRequest(
+        page,
+        "DELETE",
+        "roomTypes/3",
+        {
+          status: 204,
+        },
+      );
 
       await page.goto("/admin/room_types");
       await expect(page.getByTestId("room-type-item")).toContainText([
@@ -385,10 +393,10 @@ test.describe("Admin room types index", () => {
 
     test("components are disabled while reloading", async ({
       page,
-      roomTypes,
+      getRoomTypesApiMock,
     }) => {
-      const release = await holdRequest(page, "**/api/v1/roomTypes*", {
-        json: roomTypes,
+      const release = await holdApiRequest(page, "roomTypes*", {
+        json: getRoomTypesApiMock.json,
       });
 
       await page
@@ -396,7 +404,7 @@ test.describe("Admin room types index", () => {
         .getByTestId("dialog-continue-button")
         .click();
 
-      await nthRequest(deleteMock);
+      await deleteRoomTypeApiMock.waitForRequest();
       await expect(page.getByTestId("overlay")).toBeVisible();
       const search = page.getByTestId("room-type-search");
       await expect(search.locator("input")).toBeVisible();
@@ -426,7 +434,7 @@ test.describe("Admin room types index", () => {
         .getByTestId("dialog-continue-button")
         .click();
       await reloadRequest;
-      await nthRequest(deleteMock);
+      await deleteRoomTypeApiMock.waitForRequest();
 
       await expect(page.getByTestId("overlay")).toBeHidden();
       const search = page.getByTestId("room-type-search");
