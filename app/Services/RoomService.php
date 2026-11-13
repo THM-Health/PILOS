@@ -78,7 +78,7 @@ class RoomService
             // Create new meeting
             $meeting = new Meeting;
             $meeting->record_attendance = $this->room->getRoomSetting('record_attendance');
-            $meeting->record = $this->room->getRoomSetting('record');
+            $meeting->record = config('recording.enabled') && $this->room->getRoomSetting('record');
             $meeting->server()->associate($server);
             $meeting->room()->associate($this->room);
             $meeting->save();

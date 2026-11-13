@@ -39,7 +39,7 @@ class StartMeetingRequest extends FormRequest
 
     private function getRecordingRules(): array
     {
-        if ($this->room->getRoomSetting('record')) {
+        if (config('recording.enabled') && $this->room->getRoomSetting('record')) {
             return [
                 'consent_record' => ['required', 'boolean', 'accepted'], // Consent to join meeting with recording enabled
                 'consent_record_video' => ['required', 'boolean'], // Permission to record own video
