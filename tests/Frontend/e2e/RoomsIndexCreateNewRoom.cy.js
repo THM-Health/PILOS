@@ -624,6 +624,52 @@ describe("Rooms index create new room", function () {
       });
   });
 
+  it("create new room with recordings disabled", function () {
+    cy.fixture("config.json").then((config) => {
+      config.data.recording.enabled = false;
+
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+
+    cy.visit("/rooms");
+
+    cy.wait("@roomRequest");
+
+    cy.intercept("GET", "api/v1/roomTypes*", {
+      fixture: "roomTypesWithSettings.json",
+    });
+
+    // Open room create modal
+    cy.get('[data-test="room-create-button"]').click();
+
+    cy.get('[data-test="room-create-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        // Select a room type
+        cy.get('[data-test="room-type-select-option"]').eq(1).click();
+
+        // Check that the recording settings are hidden in the default room settings
+        cy.get('[data-test="room-type-details"]')
+          .should("be.visible")
+          .within(() => {
+            cy.get('[data-test="show-default-settings-button"]').click();
+
+            cy.get('[data-test="room-type-record_attendance-setting"]').should(
+              "be.visible",
+            );
+            cy.get('[data-test="room-type-record-setting"]').should(
+              "not.exist",
+            );
+            cy.get(
+              '[data-test="room-type-auto_start_recording-setting"]',
+            ).should("not.exist");
+          });
+      });
+  });
+
   it("create new room errors", function () {
     // Create new room without room type
     cy.intercept("POST", "api/v1/rooms", {

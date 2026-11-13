@@ -245,16 +245,20 @@ const form = computed(() => {
           label: t("rooms.settings.recordings.record_attendance"),
           component: RoomTabSettingsToggleSwitch,
         },
-        {
-          setting: "record",
-          label: t("rooms.settings.recordings.record_video_conference"),
-          component: RoomTabSettingsToggleSwitch,
-        },
-        {
-          setting: "auto_start_recording",
-          label: t("rooms.settings.recordings.auto_start_recording"),
-          component: RoomTabSettingsToggleSwitch,
-        },
+        ...(settingsStore.getSetting("recording.enabled")
+          ? [
+              {
+                setting: "record",
+                label: t("rooms.settings.recordings.record_video_conference"),
+                component: RoomTabSettingsToggleSwitch,
+              },
+              {
+                setting: "auto_start_recording",
+                label: t("rooms.settings.recordings.auto_start_recording"),
+                component: RoomTabSettingsToggleSwitch,
+              },
+            ]
+          : []),
       ],
     },
     {

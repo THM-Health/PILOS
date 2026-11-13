@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
+    'enabled' => (bool) env('RECORDING_ENABLED', true),
     'player' => env('RECORDING_PLAYER', '/playback/presentation/2.3'),
     'spool-sub-directory' => env('RECORDING_SPOOL_SUB_DIRECTORY', ''),
     'download_allowlist' => env('RECORDING_DOWNLOAD_ALLOWLIST', '.*'),

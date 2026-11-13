@@ -98,6 +98,7 @@ class ConfigResource extends JsonResource
                 ]),
             ],
             'recording' => [
+                'enabled' => config('recording.enabled'),
                 'meeting_usage_enabled' => $recordingSettings->meeting_usage_enabled,
                 'meeting_usage_retention_period' => $recordingSettings->meeting_usage_retention_period,
                 'attendance_retention_period' => $recordingSettings->attendance_retention_period,

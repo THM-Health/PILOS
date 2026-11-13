@@ -81,6 +81,7 @@ class ApplicationTest extends TestCase
         config(['app.hide_disabled_features' => true]);
         config(['ldap.enabled' => false]);
         config(['services.shibboleth.enabled' => false]);
+        config(['recording.enabled' => true]);
         config(['recording.max_retention_period' => -1]);
         config(['recording.description_limit' => 255]);
         config(['bigbluebutton.room_refresh_rate' => 20]);
@@ -137,6 +138,7 @@ class ApplicationTest extends TestCase
                         'link_target' => 'blank',
                     ],
                     'recording' => [
+                        'enabled' => true,
                         'meeting_usage_enabled' => true,
                         'meeting_usage_retention_period' => 90,
                         'attendance_retention_period' => 14,
@@ -193,6 +195,7 @@ class ApplicationTest extends TestCase
         config(['bigbluebutton.room_refresh_rate' => 5]);
         config(['auth.local.enabled' => false]);
         config(['ldap.enabled' => true]);
+        config(['recording.enabled' => false]);
         config(['streaming.enabled' => true]);
         config(['streaming.refresh_interval' => 10]);
         config(['streaming.show_fps' => false]);
@@ -233,6 +236,7 @@ class ApplicationTest extends TestCase
                         'enabled' => false,
                     ],
                     'recording' => [
+                        'enabled' => false,
                         'meeting_usage_enabled' => false,
                         'meeting_usage_retention_period' => 90,
                         'attendance_retention_period' => 14,

@@ -1,8 +1,10 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { useSettingsStore } from "../stores/settings.js";
 
 export function useRoomTypeSettings() {
   const { t } = useI18n();
+  const settingsStore = useSettingsStore();
   return computed(() => {
     return [
       {
@@ -56,16 +58,20 @@ export function useRoomTypeSettings() {
             label: t("rooms.settings.recordings.record_attendance"),
             type: "switch",
           },
-          {
-            key: "record",
-            label: t("rooms.settings.recordings.record_video_conference"),
-            type: "switch",
-          },
-          {
-            key: "auto_start_recording",
-            label: t("rooms.settings.recordings.auto_start_recording"),
-            type: "switch",
-          },
+          ...(settingsStore.getSetting("recording.enabled")
+            ? [
+                {
+                  key: "record",
+                  label: t("rooms.settings.recordings.record_video_conference"),
+                  type: "switch",
+                },
+                {
+                  key: "auto_start_recording",
+                  label: t("rooms.settings.recordings.auto_start_recording"),
+                  type: "switch",
+                },
+              ]
+            : []),
         ],
       },
       {
