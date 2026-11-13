@@ -871,6 +871,54 @@ describe("Admin room types edit", function () {
       );
   });
 
+  it("edit room type with recordings disabled", function () {
+    cy.fixture("config.json").then((config) => {
+      config.data.recording.enabled = false;
+
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+
+    cy.fixture("roomType.json").then((roomType) => {
+      roomType.data.record_default = true;
+      roomType.data.record_enforced = true;
+      roomType.data.auto_start_recording_default = true;
+      roomType.data.auto_start_recording_enforced = true;
+
+      cy.intercept("GET", "api/v1/roomTypes/3", {
+        statusCode: 200,
+        body: roomType,
+      }).as("roomTypeRequest");
+
+      cy.intercept("PUT", "api/v1/roomTypes/3", {
+        statusCode: 200,
+        body: roomType,
+      }).as("saveChangesRequest");
+    });
+
+    cy.visit("/admin/room_types/3/edit");
+    cy.wait("@roomTypeRequest");
+    cy.wait("@serverPoolsRequest");
+
+    // Check that the recording settings are hidden
+    cy.get('[data-test="record-attendance-field"]').should("be.visible");
+    cy.get('[data-test="record-field"]').should("not.exist");
+    cy.get('[data-test="auto-start-recording-field"]').should("not.exist");
+
+    cy.get('[data-test="room-types-save-button"]').click();
+
+    // Check that the hidden recording settings are still sent unchanged
+    cy.wait("@saveChangesRequest").then((interception) => {
+      expect(interception.request.body.record_default).to.be.true;
+      expect(interception.request.body.record_enforced).to.be.true;
+      expect(interception.request.body.auto_start_recording_default).to.be.true;
+      expect(interception.request.body.auto_start_recording_enforced).to.be
+        .true;
+    });
+  });
+
   it("edit room type with restrictions", function () {
     cy.fixture("roomType.json").then((roomType) => {
       roomType.data.restrict = true;
