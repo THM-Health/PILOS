@@ -13,11 +13,7 @@ import {
   expectRoleChips,
   expectMultiselectOptions,
 } from "../support/admin.js";
-import {
-  holdApiRequest,
-  mockApiRequest,
-  serverError,
-} from "../support/utils.js";
+import { mockApiRequest, serverError } from "../support/utils.js";
 
 const test = mergeTests(
   roomTypeControllerTest,
@@ -662,9 +658,14 @@ test.describe("Admin room types new", () => {
         json: roomTypeResponse,
       });
 
-      const roomTypeRequest = page.waitForRequest("**/api/v1/roomTypes/30");
+      const getCreatedRoomTypeApiMock = await mockApiRequest(
+        page,
+        "GET",
+        "roomTypes/30",
+        { json: roomTypeResponse },
+      );
       await page.getByTestId("room-types-save-button").click();
-      await roomTypeRequest;
+      await getCreatedRoomTypeApiMock.waitForRequest();
 
       await expect(page).toHaveURL(/\/admin\/room_types\/30$/);
       await expect(page.getByTestId("overlay")).toBeHidden();
@@ -714,6 +715,7 @@ test.describe("Admin room types new", () => {
     test("loads the next page of roles", async ({
       page,
       rolesSecondPageResponse,
+      getRolesApiMock,
     }) => {
       await page.getByTestId("role-dropdown").click();
       const content = page.locator(".multiselect__content");
@@ -728,8 +730,9 @@ test.describe("Admin room types new", () => {
       );
       await expect(content.getByTestId("next-page-button")).toBeEnabled();
 
-      const release = await holdApiRequest(page, "roles*", {
+      getRolesApiMock.respondWith({
         json: rolesSecondPageResponse,
+        hold: true,
       });
       await content.getByTestId("next-page-button").click();
 
@@ -741,7 +744,7 @@ test.describe("Admin room types new", () => {
       );
       await expect(page.getByTestId("room-types-save-button")).toBeDisabled();
 
-      release();
+      getRolesApiMock.release();
 
       await expect(content).toBeVisible();
       await expect(content.getByTestId("previous-page-button")).toBeEnabled();
@@ -756,8 +759,9 @@ test.describe("Admin room types new", () => {
     test("selects roles and closes the dropdown", async ({
       page,
       rolesSecondPageResponse,
+      getRolesApiMock,
     }) => {
-      await mockApiRequest(page, "GET", "roles*", {
+      getRolesApiMock.respondWith({
         json: rolesSecondPageResponse,
       });
       await page.getByTestId("role-dropdown").click();
@@ -783,6 +787,7 @@ test.describe("Admin room types new", () => {
       roomTypeResponse,
       serverPoolsResponse,
       rolesSecondPageResponse,
+      getRolesApiMock,
     }) => {
       Object.assign(roomTypeResponse.data, {
         id: 30,
@@ -846,7 +851,7 @@ test.describe("Admin room types new", () => {
         page.getByTestId("server-pool-dropdown").locator(".multiselect__tags"),
       ).toContainText("Test");
 
-      await mockApiRequest(page, "GET", "roles*", {
+      getRolesApiMock.respondWith({
         json: rolesSecondPageResponse,
       });
       await page.getByTestId("role-dropdown").click();
@@ -993,8 +998,9 @@ test.describe("Admin room types new", () => {
   test.describe("load roles errors", () => {
     test("disables the dropdown and saving while the roles are loading", async ({
       page,
+      getRolesApiMock,
     }) => {
-      const release = await holdApiRequest(page, "roles*", serverError());
+      getRolesApiMock.respondWith({ ...serverError(), hold: true });
       await page.goto("/admin/room_types/new");
       await page.locator("#restrict").click();
 
@@ -1003,7 +1009,7 @@ test.describe("Admin room types new", () => {
         /multiselect--disabled/,
       );
 
-      release();
+      getRolesApiMock.release();
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
         'app.flash.server_error.error_code_{"statusCode":500}',
@@ -1011,8 +1017,8 @@ test.describe("Admin room types new", () => {
     });
 
     test.describe("500 error", () => {
-      test.beforeEach(async ({ page }) => {
-        await mockApiRequest(page, "GET", "roles*", serverError());
+      test.beforeEach(async ({ page, getRolesApiMock }) => {
+        getRolesApiMock.respondWith(serverError());
         await page.goto("/admin/room_types/new");
         await page.locator("#restrict").click();
         await expectToastAndClose(page, [
@@ -1031,8 +1037,12 @@ test.describe("Admin room types new", () => {
         await expect(page.getByTestId("room-types-save-button")).toBeEnabled();
       });
 
-      test("reloads the roles", async ({ page, rolesResponse }) => {
-        await mockApiRequest(page, "GET", "roles*", {
+      test("reloads the roles", async ({
+        page,
+        rolesResponse,
+        getRolesApiMock,
+      }) => {
+        getRolesApiMock.respondWith({
           json: rolesResponse,
         });
         await page.getByTestId("roles-reload-button").click();
@@ -1052,6 +1062,7 @@ test.describe("Admin room types new", () => {
 
     test("shows an error if switching the page fails with 500", async ({
       page,
+      getRolesApiMock,
     }) => {
       await page.goto("/admin/room_types/new");
       await page.locator("#restrict").click();
@@ -1059,7 +1070,7 @@ test.describe("Admin room types new", () => {
       const content = page.locator(".multiselect__content");
       await expect(content.locator(".multiselect__option")).toHaveCount(5);
 
-      await mockApiRequest(page, "GET", "roles*", serverError());
+      getRolesApiMock.respondWith(serverError());
       await content.getByTestId("next-page-button").click();
 
       await expectToastAndClose(page, [
@@ -1075,8 +1086,9 @@ test.describe("Admin room types new", () => {
 
     test("redirects to the login page on 401 when the roles are loaded", async ({
       page,
+      getRolesApiMock,
     }) => {
-      await mockApiRequest(page, "GET", "roles*", { status: 401 });
+      getRolesApiMock.respondWith({ status: 401 });
       await page.goto("/admin/room_types/new");
       await page.locator("#restrict").click();
 
@@ -1085,6 +1097,7 @@ test.describe("Admin room types new", () => {
 
     test("redirects to the login page on 401 when switching the page", async ({
       page,
+      getRolesApiMock,
     }) => {
       await page.goto("/admin/room_types/new");
       await page.locator("#restrict").click();
@@ -1092,7 +1105,7 @@ test.describe("Admin room types new", () => {
       const content = page.locator(".multiselect__content");
       await expect(content.locator(".multiselect__option")).toHaveCount(5);
 
-      await mockApiRequest(page, "GET", "roles*", { status: 401 });
+      getRolesApiMock.respondWith({ status: 401 });
       await content.getByTestId("next-page-button").click();
 
       await expectLoginRedirect(page, "/admin/room_types/new");

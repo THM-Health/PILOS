@@ -52,6 +52,7 @@ test.describe("Admin roles index role actions", () => {
     test("confirm deletes the role and refreshes the list", async ({
       page,
       rolesResponse,
+      getRolesApiMock,
     }) => {
       const deleteRoleApiMock = await mockApiRequest(
         page,
@@ -68,11 +69,7 @@ test.describe("Admin roles index role actions", () => {
       rolesResponse.meta.total = 2;
       rolesResponse.meta.total_no_filter = 2;
 
-      const rolesRequest = page.waitForRequest(
-        (request) =>
-          request.method() === "GET" &&
-          new URL(request.url()).pathname === "/api/v1/roles",
-      );
+      const rolesRequest = getRolesApiMock.waitForNextRequest();
 
       await expect(page.getByTestId("dialog-continue-button")).toHaveText(
         "app.yes",

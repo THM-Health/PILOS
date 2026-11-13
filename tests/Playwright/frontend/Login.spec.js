@@ -1,7 +1,16 @@
-import { test } from "../support/fixtures/authGeneral.js";
+import { mergeTests } from "@playwright/test";
+import { test as authGeneralTest } from "../support/fixtures/authGeneral.js";
+import { test as roomControllerTest } from "../support/fixtures/roomController.js";
+import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { interceptRoomIndexRequests } from "../support/mocks.js";
+
 import { mockApiRequest, validationErrors } from "../support/utils.js";
+
+const test = mergeTests(
+  authGeneralTest,
+  roomControllerTest,
+  roomTypeControllerTest,
+);
 
 test.describe("Login tabs", () => {
   test("hide ldap login if disabled", async ({ page, configResponse }) => {
@@ -98,6 +107,8 @@ for (const form of [
     test("shows loading state while the login request is pending", async ({
       page,
       currentUserResponse,
+      getCurrentUserApiMock,
+      getCsrfCookieApiMock,
     }) => {
       const postLoginApiMock = await mockApiRequest(
         page,
@@ -108,14 +119,11 @@ for (const form of [
           hold: true,
         },
       );
-      await page.route("**/api/v1/currentUser", (route) =>
-        route.fulfill({ json: currentUserResponse }),
-      );
-      await interceptRoomIndexRequests(page);
+      getCurrentUserApiMock.respondWith({ json: currentUserResponse });
 
       await page.locator(form.userInput).fill(form.userValue);
       await page.locator(form.passwordInput).fill("password");
-      const cookieRequest = page.waitForRequest("**/sanctum/csrf-cookie");
+      const cookieRequest = getCsrfCookieApiMock.waitForNextRequest();
       await page.getByTestId("login-button").click();
 
       await expect(page.locator(form.userInput)).toBeDisabled();
@@ -133,18 +141,19 @@ for (const form of [
     test("sends credentials and csrf token", async ({
       page,
       currentUserResponse,
+      getCurrentUserApiMock,
     }) => {
-      await page.route(`**/api/v1/${form.loginPath}`, (route) =>
-        route.fulfill({ status: 200 }),
+      const postLoginApiMock = await mockApiRequest(
+        page,
+        "POST",
+        form.loginPath,
+        { status: 200 },
       );
-      await page.route("**/api/v1/currentUser", (route) =>
-        route.fulfill({ json: currentUserResponse }),
-      );
-      await interceptRoomIndexRequests(page);
+      getCurrentUserApiMock.respondWith({ json: currentUserResponse });
 
       await page.locator(form.userInput).fill(form.userValue);
       await page.locator(form.passwordInput).fill("password");
-      const loginRequest = page.waitForRequest(`**/api/v1/${form.loginPath}`);
+      const loginRequest = postLoginApiMock.waitForNextRequest();
       await page.getByTestId("login-button").click();
 
       const request = await loginRequest;
@@ -160,14 +169,10 @@ for (const form of [
     test("redirects to the room index after login", async ({
       page,
       currentUserResponse,
+      getCurrentUserApiMock,
     }) => {
-      await page.route(`**/api/v1/${form.loginPath}`, (route) =>
-        route.fulfill({ status: 200 }),
-      );
-      await page.route("**/api/v1/currentUser", (route) =>
-        route.fulfill({ json: currentUserResponse }),
-      );
-      await interceptRoomIndexRequests(page);
+      await mockApiRequest(page, "POST", form.loginPath, { status: 200 });
+      getCurrentUserApiMock.respondWith({ json: currentUserResponse });
 
       await page.locator(form.userInput).fill(form.userValue);
       await page.locator(form.passwordInput).fill("password");
@@ -319,7 +324,7 @@ for (const form of [
         page,
       }) => {
         await mockApiRequest(page, "POST", form.loginPath, { status: 420 });
-        await interceptRoomIndexRequests(page);
+
         await page.getByTestId("login-button").click();
 
         await expectToastAndClose(page, "app.flash.guests_only");
@@ -333,10 +338,14 @@ for (const form of [
       page,
       configResponse,
       currentUserResponse,
+      getCurrentUserApiMock,
     }) => {
       configResponse.data.auth[form.name] = true;
-      await page.route(`**/api/v1/${form.loginPath}`, (route) =>
-        route.fulfill({ status: 200 }),
+      const postLoginApiMock = await mockApiRequest(
+        page,
+        "POST",
+        form.loginPath,
+        { status: 200 },
       );
 
       // Visit page that can only be visited by logged in users
@@ -345,15 +354,12 @@ for (const form of [
 
       // User that has the permission to show the admin page
       currentUserResponse.data.permissions = ["admin.view"];
-      await page.route("**/api/v1/currentUser", (route) =>
-        route.fulfill({ json: currentUserResponse }),
-      );
-      await interceptRoomIndexRequests(page);
+      getCurrentUserApiMock.respondWith({ json: currentUserResponse });
 
       await page.getByTestId(`login-tab-button-${form.name}`).click();
       await page.locator(form.userInput).fill(form.userValue);
       await page.locator(form.passwordInput).fill("password");
-      const loginRequest = page.waitForRequest(`**/api/v1/${form.loginPath}`);
+      const loginRequest = postLoginApiMock.waitForNextRequest();
       await page.getByTestId("login-button").click();
       await loginRequest;
 
@@ -413,9 +419,8 @@ test.describe("Login local without password change", () => {
 test.describe("Login with already logged in user", () => {
   test.use({ authenticated: true });
 
-  test.beforeEach(async ({ page, currentUserResponse }) => {
+  test.beforeEach(async ({ currentUserResponse }) => {
     currentUserResponse.data.permissions = ["admin.view"];
-    await interceptRoomIndexRequests(page);
   });
 
   test("redirects to the room index", async ({ page }) => {
@@ -469,7 +474,6 @@ for (const provider of ["shibboleth", "oidc"]) {
       test.use({ authenticated: true });
 
       test("redirects to the room index", async ({ page }) => {
-        await interceptRoomIndexRequests(page);
         await page.goto("/external_login");
 
         await expectToastAndClose(page, "auth.flash.login");
@@ -524,7 +528,6 @@ test.describe("External login callback", () => {
     test.use({ authenticated: true });
 
     test("redirects to the room index despite error", async ({ page }) => {
-      await interceptRoomIndexRequests(page);
       await page.goto("/external_login?error=invalid_request");
 
       await expect(page).toHaveURL(/\/rooms/);

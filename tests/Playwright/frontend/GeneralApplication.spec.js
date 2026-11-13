@@ -1,13 +1,14 @@
-import { test, expect, expectToastAndClose } from "../support/test.js";
-import { interceptRoomIndexRequests } from "../support/mocks.js";
-import { holdApiRequest, validationErrors } from "../support/utils.js";
+import { mergeTests } from "@playwright/test";
+import { test as roomControllerTest } from "../support/fixtures/roomController.js";
+import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
+import { expect, expectToastAndClose } from "../support/test.js";
+
+import { validationErrors, mockApiRequest } from "../support/utils.js";
+
+const test = mergeTests(roomControllerTest, roomTypeControllerTest);
 
 test.describe("General", () => {
   test.use({ authenticated: true });
-
-  test.beforeEach(async ({ page }) => {
-    await interceptRoomIndexRequests(page);
-  });
 
   test.describe("locales", () => {
     test("all locales get rendered", async ({ page }) => {
@@ -42,22 +43,9 @@ test.describe("General", () => {
     });
 
     test.describe("changing selected locale", () => {
-      let release;
-      let localeRequest;
-      let deRequest;
-
-      test.beforeEach(async ({ page }) => {
+      test.beforeEach(async ({ page, postLocaleApiMock }) => {
         // Hold the locale request to be able to check the loading state
-        release = await holdApiRequest(page, "locale");
-        await page.route("**/api/v1/locale/de", (route) =>
-          route.fulfill({ path: "tests/Playwright/fixtures/en.json" }),
-        );
-        localeRequest = page.waitForRequest(
-          (request) =>
-            request.method() === "POST" &&
-            request.url().endsWith("/api/v1/locale"),
-        );
-        deRequest = page.waitForRequest("**/api/v1/locale/de");
+        postLocaleApiMock.respondWith({ status: 200, hold: true });
 
         await page.goto("/rooms");
         await expect(page.getByTestId("room-search")).toBeVisible();
@@ -72,51 +60,49 @@ test.describe("General", () => {
         await submenu.getByTestId("navbar-locale-de").click();
       });
 
-      test("shows overlay while the locale is changed", async ({ page }) => {
+      test("shows overlay while the locale is changed", async ({
+        page,
+        postLocaleApiMock,
+      }) => {
         await expect(page.getByTestId("overlay")).toBeVisible();
 
-        release();
+        postLocaleApiMock.release();
         await expect(page.getByTestId("overlay")).toBeHidden();
       });
 
-      test("sends the locale and loads the new locale", async () => {
-        release();
+      test("sends the locale and loads the new locale", async ({
+        postLocaleApiMock,
+        getLocaleDeApiMock,
+      }) => {
+        postLocaleApiMock.release();
 
-        const request = await localeRequest;
-        expect(request.postDataJSON()).toEqual({ locale: "de" });
-        await deRequest;
+        await expect(postLocaleApiMock).toHaveReceivedRequest({
+          json: { locale: "de" },
+        });
+        await getLocaleDeApiMock.waitForRequest();
       });
 
-      test("closes the menu", async ({ page }) => {
-        release();
+      test("closes the menu", async ({
+        page,
+        postLocaleApiMock,
+        getLocaleDeApiMock,
+      }) => {
+        postLocaleApiMock.release();
 
-        await deRequest;
+        await getLocaleDeApiMock.waitForRequest();
         await expect(page.getByTestId("submenu").nth(1)).toBeHidden();
       });
     });
 
     test.describe("changing selected locale error", () => {
-      let deRequests;
-
-      test.beforeEach(async ({ page }) => {
-        deRequests = [];
-        page.on("request", (request) => {
-          if (request.url().endsWith("/api/v1/locale/de")) {
-            deRequests.push(request);
-          }
-        });
-      });
-
       test("shows validation error and does not change the language on 422", async ({
         page,
+        postLocaleApiMock,
+        getLocaleDeApiMock,
       }) => {
-        const localeRequest = page.waitForRequest(
-          (request) =>
-            request.method() === "POST" &&
-            request.url().endsWith("/api/v1/locale"),
-        );
-        await page.route("**/api/v1/locale", (route) =>
-          route.fulfill(validationErrors({ locale: ["Test"] }, "Test")),
+        const localeRequest = postLocaleApiMock.waitForNextRequest();
+        postLocaleApiMock.respondWith(
+          validationErrors({ locale: ["Test"] }, "Test"),
         );
 
         await page.goto("/rooms");
@@ -130,23 +116,19 @@ test.describe("General", () => {
         await localeRequest;
         await expectToastAndClose(page, "Test");
         // The request for the new language must not have been sent
-        expect(deRequests).toHaveLength(0);
+        expect(getLocaleDeApiMock.requests).toHaveLength(0);
       });
 
       test("shows server error and does not change the language on 500", async ({
         page,
+        postLocaleApiMock,
+        getLocaleDeApiMock,
       }) => {
-        const localeRequest = page.waitForRequest(
-          (request) =>
-            request.method() === "POST" &&
-            request.url().endsWith("/api/v1/locale"),
-        );
-        await page.route("**/api/v1/locale", (route) =>
-          route.fulfill({
-            status: 500,
-            json: { message: ["Test"] },
-          }),
-        );
+        const localeRequest = postLocaleApiMock.waitForNextRequest();
+        postLocaleApiMock.respondWith({
+          status: 500,
+          json: { message: ["Test"] },
+        });
 
         await page.goto("/rooms");
         await page.getByTestId("navbar-locale").click();
@@ -161,21 +143,24 @@ test.describe("General", () => {
           'app.flash.server_error.message_{"message":["Test"]}',
           'app.flash.server_error.error_code_{"statusCode":500}',
         ]);
-        expect(deRequests).toHaveLength(0);
+        expect(getLocaleDeApiMock.requests).toHaveLength(0);
       });
     });
 
     test.describe("PrimeVue locale", () => {
-      test.beforeEach(async ({ page }) => {
-        await page.route("**/api/v1/locale", (route) =>
-          route.fulfill({ status: 200 }),
-        );
+      test.beforeEach(async ({ postLocaleApiMock }) => {
+        postLocaleApiMock.respondWith({
+          status: 200,
+        });
       });
 
-      test("uses locale with exact match", async ({ page }) => {
-        await page.route("**/api/v1/locale/de", (route) =>
-          route.fulfill({ path: "tests/Playwright/fixtures/en.json" }),
-        );
+      test("uses locale with exact match", async ({
+        page,
+        getLocaleDeApiMock,
+      }) => {
+        const getLocaleDeRequestsAfterChange = getLocaleDeApiMock.respondWith({
+          path: "tests/Playwright/fixtures/en.json",
+        });
 
         await page.goto("/rooms");
         await expect(page.getByTestId("room-search")).toBeVisible();
@@ -186,7 +171,7 @@ test.describe("General", () => {
         await expect(submenu.getByTestId("navbar-locale-de")).toHaveText(
           "Deutsch",
         );
-        const deLocale = page.waitForRequest("**/api/v1/locale/de");
+        const deLocale = getLocaleDeRequestsAfterChange.waitForNextRequest();
         await submenu.getByTestId("navbar-locale-de").click();
         await deLocale;
 
@@ -207,8 +192,11 @@ test.describe("General", () => {
           en: "English",
           "de-xx": "Deutsch",
         };
-        await page.route("**/api/v1/locale/de-xx", (route) =>
-          route.fulfill({ path: "tests/Playwright/fixtures/en.json" }),
+        const getLocaleDeXxApiMock = await mockApiRequest(
+          page,
+          "GET",
+          "locale/de-xx",
+          { path: "tests/Playwright/fixtures/en.json" },
         );
 
         await page.goto("/rooms");
@@ -220,7 +208,7 @@ test.describe("General", () => {
         await expect(submenu.getByTestId("navbar-locale-de-xx")).toHaveText(
           "Deutsch",
         );
-        const deXxLocale = page.waitForRequest("**/api/v1/locale/de-xx");
+        const deXxLocale = getLocaleDeXxApiMock.waitForNextRequest();
         await submenu.getByTestId("navbar-locale-de-xx").click();
         await deXxLocale;
 
@@ -241,8 +229,11 @@ test.describe("General", () => {
           en: "English",
           xx: "Invalid locale",
         };
-        await page.route("**/api/v1/locale/xx", (route) =>
-          route.fulfill({ path: "tests/Playwright/fixtures/en.json" }),
+        const getLocaleXxApiMock = await mockApiRequest(
+          page,
+          "GET",
+          "locale/xx",
+          { path: "tests/Playwright/fixtures/en.json" },
         );
 
         await page.goto("/rooms");
@@ -254,7 +245,7 @@ test.describe("General", () => {
         await expect(submenu.getByTestId("navbar-locale-xx")).toHaveText(
           "Invalid locale",
         );
-        const xxLocale = page.waitForRequest("**/api/v1/locale/xx");
+        const xxLocale = getLocaleXxApiMock.waitForNextRequest();
         await submenu.getByTestId("navbar-locale-xx").click();
         await xxLocale;
 
@@ -274,12 +265,11 @@ test.describe("General", () => {
     test("disabled welcome page redirects unauthenticated users to login", async ({
       page,
       configResponse,
+      getCurrentUserApiMock,
     }) => {
       configResponse.data.general.no_welcome_page = true;
       configResponse.data.auth.local = true;
-      await page.route("**/api/v1/currentUser", (route) =>
-        route.fulfill({ json: {} }),
-      );
+      getCurrentUserApiMock.respondWith({ json: {} });
 
       await page.goto("/");
 
@@ -328,6 +318,7 @@ test.describe("General", () => {
     test("help button opens the help url", async ({ page, configResponse }) => {
       const helpUrl = `https://thm-health.github.io/PILOS-Redirect_Test_Pages/help?foo=a&bar=b`;
       configResponse.data.general.help_url = helpUrl;
+      // eslint-disable-next-line no-restricted-syntax -- external URL, not an API request
       await page.route(helpUrl, (route) =>
         route.fulfill({ contentType: "text/html", body: "help" }),
       );

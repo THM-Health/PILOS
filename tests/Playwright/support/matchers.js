@@ -4,8 +4,9 @@ import { getRequestQuery } from "./utils.js";
 /**
  * Custom matchers for the mock handles of `mockApiRequest` (added to `expect` in `test.js`).
  *
- * - `await expect(mock).toHaveReceivedRequest({ json, query }, { nth = 1 })`: the `nth` request of the mock has
- *   (at least) these request values. It waits for the request like `mock.waitForRequest(nth)`.
+ * - `await expect(mock).toHaveReceivedRequest({ json, query }, { nth = 1 })`: the `nth` request of the mock has these
+ *   request values (`json` is compared completely, `query` has to contain at least these parameters). It waits for the
+ *   request like `mock.waitForRequest(nth)`.
  * - `await expect(mock).toHaveReceivedRequests(count)`: the mock received exactly `count` requests. It retries until
  *   the count is reached.
  */
@@ -37,8 +38,14 @@ export const matchers = {
 
     let failure = null;
     try {
-      // eslint-disable-next-line playwright/no-standalone-expect -- a matcher runs inside of the test
-      baseExpect(actual).toEqual(wanted);
+      /* eslint-disable playwright/no-standalone-expect -- a matcher runs inside of the test */
+      if ("json" in wanted) {
+        baseExpect(actual.json).toEqual(wanted.json);
+      }
+      if ("query" in wanted) {
+        baseExpect(actual.query).toMatchObject(wanted.query);
+      }
+      /* eslint-enable playwright/no-standalone-expect */
     } catch (error) {
       failure = error.message;
     }

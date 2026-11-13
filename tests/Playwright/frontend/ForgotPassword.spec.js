@@ -1,7 +1,16 @@
-import { test } from "../support/fixtures/authGeneral.js";
+import { mergeTests } from "@playwright/test";
+import { test as authGeneralTest } from "../support/fixtures/authGeneral.js";
+import { test as roomControllerTest } from "../support/fixtures/roomController.js";
+import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { interceptRoomIndexRequests } from "../support/mocks.js";
-import { holdApiRequest, validationErrors } from "../support/utils.js";
+
+import { validationErrors, serverError } from "../support/utils.js";
+
+const test = mergeTests(
+  authGeneralTest,
+  roomControllerTest,
+  roomTypeControllerTest,
+);
 
 test.describe("Forgot password", () => {
   test.beforeEach(async ({ configResponse }) => {
@@ -36,8 +45,6 @@ test.describe("Forgot password", () => {
     test.use({ authenticated: true });
 
     test("redirects to home page with error message", async ({ page }) => {
-      await interceptRoomIndexRequests(page);
-
       await page.goto("/forgot_password");
 
       await expectToastAndClose(page, "app.flash.guests_only");
@@ -61,9 +68,13 @@ test.describe("Forgot password", () => {
       );
     });
 
-    test("disables form while request is pending", async ({ page }) => {
-      const release = await holdApiRequest(page, "password/email", {
+    test("disables form while request is pending", async ({
+      page,
+      postPasswordEmailApiMock,
+    }) => {
+      postPasswordEmailApiMock.respondWith({
         json: { message: "Success!" },
+        hold: true,
       });
 
       await page.locator("#email").fill("JohnDoe@domain.tld");
@@ -72,17 +83,19 @@ test.describe("Forgot password", () => {
       await expect(page.locator("#email")).toBeDisabled();
       await expect(page.getByTestId("send-reset-link-button")).toBeDisabled();
 
-      release();
+      postPasswordEmailApiMock.release();
       await expectToastAndClose(page, "Success!");
     });
 
-    test("sends email and csrf token", async ({ page }) => {
-      await page.route("**/api/v1/password/email", (route) =>
-        route.fulfill({ json: { message: "Success!" } }),
-      );
+    test("sends email and csrf token", async ({
+      page,
+      postPasswordEmailApiMock,
+    }) => {
+      const postPasswordEmailRequestsAfterChange =
+        postPasswordEmailApiMock.respondWith({ json: { message: "Success!" } });
 
       await page.locator("#email").fill("JohnDoe@domain.tld");
-      const request = page.waitForRequest("**/api/v1/password/email");
+      const request = postPasswordEmailRequestsAfterChange.waitForNextRequest();
       await page.getByTestId("send-reset-link-button").click();
 
       const forgotPasswordRequest = await request;
@@ -98,10 +111,11 @@ test.describe("Forgot password", () => {
 
     test("shows success message and redirects to home page", async ({
       page,
+      postPasswordEmailApiMock,
     }) => {
-      await page.route("**/api/v1/password/email", (route) =>
-        route.fulfill({ json: { message: "Success!" } }),
-      );
+      postPasswordEmailApiMock.respondWith({
+        json: { message: "Success!" },
+      });
 
       await page.locator("#email").fill("JohnDoe@domain.tld");
       await page.getByTestId("send-reset-link-button").click();
@@ -111,13 +125,14 @@ test.describe("Forgot password", () => {
       await expect(page.locator("h1")).toContainText("home.title");
     });
 
-    test("shows validation error on 422", async ({ page }) => {
-      await page.route("**/api/v1/password/email", (route) =>
-        route.fulfill(
-          validationErrors(
-            { email: ["The email field is required."] },
-            "The email field is required",
-          ),
+    test("shows validation error on 422", async ({
+      page,
+      postPasswordEmailApiMock,
+    }) => {
+      postPasswordEmailApiMock.respondWith(
+        validationErrors(
+          { email: ["The email field is required."] },
+          "The email field is required",
         ),
       );
 
@@ -132,21 +147,15 @@ test.describe("Forgot password", () => {
 
     test("shows server error on 500 and clears previous validation error", async ({
       page,
+      postPasswordEmailApiMock,
     }) => {
-      let status = 422;
-      await page.route("**/api/v1/password/email", (route) =>
-        route.fulfill(
-          status === 422
-            ? {
-                status,
-                json: {
-                  message: "The email field is required",
-                  errors: { email: ["The email field is required."] },
-                },
-              }
-            : { status, json: { message: "Test" } },
-        ),
-      );
+      const postPasswordEmailRequestsAfterChange =
+        postPasswordEmailApiMock.respondWith(
+          validationErrors(
+            { email: ["The email field is required."] },
+            "The email field is required",
+          ),
+        );
 
       await page.locator("#email").fill("JohnDoe@domain.tld");
       await page.getByTestId("send-reset-link-button").click();
@@ -155,7 +164,7 @@ test.describe("Forgot password", () => {
       );
       await expectToastAndClose(page, "The email field is required");
 
-      status = 500;
+      postPasswordEmailRequestsAfterChange.respondWith(serverError());
       await page.getByTestId("send-reset-link-button").click();
 
       await expectToastAndClose(page, [

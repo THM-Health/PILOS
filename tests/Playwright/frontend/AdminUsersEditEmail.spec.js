@@ -4,7 +4,7 @@ import { test as roleControllerTest } from "../support/fixtures/roleController.j
 import { test as timezonesTest } from "../support/fixtures/timezones.js";
 import { test as sessionControllerTest } from "../support/fixtures/sessionController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { interceptAdminUsersIndexRequests } from "../support/mocks.js";
+
 import { expectLoginRedirect } from "../support/general.js";
 import {
   mockApiRequest,
@@ -92,6 +92,7 @@ test.describe("Admin users edit email", () => {
     test("sends the new email and redirects to the user view", async ({
       page,
       userResponse,
+      getUserApiMock,
     }) => {
       userResponse.data.email = "laura.rivera@example.com";
       const putUserEmailApiMock = await mockApiRequest(
@@ -102,7 +103,7 @@ test.describe("Admin users edit email", () => {
           json: userResponse,
         },
       );
-      const getUserApiMock = await mockApiRequest(page, "GET", "users/2", {
+      const getUserRequestsAfterChange = getUserApiMock.respondWith({
         json: userResponse,
       });
 
@@ -119,7 +120,7 @@ test.describe("Admin users edit email", () => {
 
       await expect(page).toHaveURL(/\/admin\/users\/2#tab=email/);
       await expect(page).not.toHaveURL(/\/edit/);
-      await getUserApiMock.waitForRequest();
+      await getUserRequestsAfterChange.waitForRequest();
     });
 
     test("disables tabs, header buttons and fields while saving", async ({
@@ -229,15 +230,17 @@ test.describe("Admin users edit email", () => {
       );
     });
 
-    test("404 error redirects to users index", async ({ page }) => {
-      await interceptAdminUsersIndexRequests(page);
+    test("404 error redirects to users index", async ({
+      page,
+      getUsersApiMock,
+    }) => {
       const putUserEmailApiMock = await mockApiRequest(
         page,
         "PUT",
         "users/2/email",
         modelNotFound("user", [2]),
       );
-      const usersRequest = page.waitForRequest(/\/api\/v1\/users\?/);
+      const usersRequest = getUsersApiMock.waitForNextRequest();
       await page.getByTestId("user-tab-email-save-button").click();
       await putUserEmailApiMock.waitForRequest();
 

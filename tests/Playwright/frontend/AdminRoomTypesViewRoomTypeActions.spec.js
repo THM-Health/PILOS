@@ -9,7 +9,6 @@ import {
   expectRoleChips,
 } from "../support/admin.js";
 import {
-  holdApiRequest,
   mockApiRequest,
   serverError,
   modelNotFound,
@@ -45,8 +44,9 @@ test.describe("Admin room types view room type actions", () => {
 
     test("opens dialog with default replacement room type", async ({
       page,
+      getRoomTypesApiMock,
     }) => {
-      const replacementRequest = page.waitForRequest("**/api/v1/roomTypes*");
+      const replacementRequest = getRoomTypesApiMock.waitForNextRequest();
       await page.getByTestId("room-types-delete-button").click();
       await replacementRequest;
 
@@ -123,7 +123,7 @@ test.describe("Admin room types view room type actions", () => {
       await expect(page.getByTestId("dialog-cancel-button")).toBeDisabled();
       await expect(continueButton).toBeDisabled();
 
-      const roomTypesRequest = page.waitForRequest("**/api/v1/roomTypes*");
+      const roomTypesRequest = getRoomTypesApiMock.waitForNextRequest();
       deleteRoomTypeApiMock.release();
       await expect(deleteRoomTypeApiMock).toHaveReceivedRequest({
         json: {
@@ -168,7 +168,7 @@ test.describe("Admin room types view room type actions", () => {
         (roomType) => roomType.id !== 3,
       );
 
-      const roomTypesRequest = page.waitForRequest("**/api/v1/roomTypes*");
+      const roomTypesRequest = getRoomTypesApiMock.waitForNextRequest();
       await expect(page.getByTestId("dialog-continue-button")).toHaveText(
         "app.yes",
       );
@@ -285,11 +285,7 @@ test.describe("Admin room types view room type actions", () => {
       page,
       getRoomTypesApiMock,
     }) => {
-      const releaseRequest = await holdApiRequest(
-        page,
-        "roomTypes*",
-        serverError(),
-      );
+      getRoomTypesApiMock.respondWith({ ...serverError(), hold: true });
       await page.getByTestId("room-types-delete-button").click();
 
       // Check loading
@@ -297,7 +293,7 @@ test.describe("Admin room types view room type actions", () => {
         .getByTestId("replacement-room-type-dropdown")
         .locator(".p-select-label");
       await expect(dropdownLabel).toHaveAttribute("aria-disabled", "true");
-      releaseRequest();
+      getRoomTypesApiMock.release();
 
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
@@ -307,14 +303,14 @@ test.describe("Admin room types view room type actions", () => {
       await expect(dropdownLabel).toHaveAttribute("aria-disabled", "true");
 
       // Reload with correct data
-      await mockApiRequest(page, "GET", "roomTypes*", {
+      getRoomTypesApiMock.respondWith({
         json: getRoomTypesApiMock.json,
       });
       const reloadButton = page.getByTestId(
         "replacement-room-types-reload-button",
       );
       await expect(reloadButton).toBeVisible();
-      const reloadRequest = page.waitForRequest("**/api/v1/roomTypes*");
+      const reloadRequest = getRoomTypesApiMock.waitForNextRequest();
       await reloadButton.click();
       await reloadRequest;
 
@@ -326,8 +322,11 @@ test.describe("Admin room types view room type actions", () => {
       await expect(page.getByTestId("room-types-delete-dialog")).toBeHidden();
     });
 
-    test("unauthenticated (401) redirects to login", async ({ page }) => {
-      await mockApiRequest(page, "GET", "roomTypes*", { status: 401 });
+    test("unauthenticated (401) redirects to login", async ({
+      page,
+      getRoomTypesApiMock,
+    }) => {
+      getRoomTypesApiMock.respondWith({ status: 401 });
 
       await page.getByTestId("room-types-delete-button").click();
 
@@ -450,6 +449,7 @@ test.describe("Admin room types view room type actions", () => {
 
     test("cancel edit discards changes and switches to view", async ({
       page,
+      getRoomTypeApiMock,
     }) => {
       await page.goto("/admin/room_types/3/edit");
       await expect(page.locator("#room-type-name")).toHaveValue("Exam");
@@ -483,7 +483,7 @@ test.describe("Admin room types view room type actions", () => {
       await expect(page.getByTestId("room-types-save-button")).toBeVisible();
       await expect(page.getByTestId("room-types-save-button")).toBeEnabled();
 
-      const roomTypeRequest = page.waitForRequest("**/api/v1/roomTypes/3");
+      const roomTypeRequest = getRoomTypeApiMock.waitForNextRequest();
       await page.getByTestId("room-types-cancel-edit-button").click();
 
       await expect(page).toHaveURL(/\/admin\/room_types\/3$/);

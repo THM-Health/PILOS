@@ -5,7 +5,6 @@ import { test as roleControllerTest } from "../support/fixtures/roleController.j
 import { expect, expectToastAndClose } from "../support/test.js";
 import { expectLoginRedirect } from "../support/general.js";
 import {
-  holdApiRequest,
   mockApiRequest,
   serverError,
   modelNotFound,
@@ -37,8 +36,11 @@ test.describe("Admin room types index room type actions", () => {
   });
 
   test.describe("delete room type", () => {
-    test("dialog shows room type and default replacement", async ({ page }) => {
-      const replacementRequest = page.waitForRequest("**/api/v1/roomTypes*");
+    test("dialog shows room type and default replacement", async ({
+      page,
+      getRoomTypesApiMock,
+    }) => {
+      const replacementRequest = getRoomTypesApiMock.waitForNextRequest();
       await page
         .getByTestId("room-type-item")
         .nth(0)
@@ -169,7 +171,7 @@ test.describe("Admin room types index room type actions", () => {
       );
 
       // Reopen dialog for different room type
-      const replacementRequest = page.waitForRequest("**/api/v1/roomTypes*");
+      const replacementRequest = getRoomTypesApiMock.waitForNextRequest();
       await page
         .getByTestId("room-type-item")
         .nth(1)
@@ -361,11 +363,7 @@ test.describe("Admin room types index room type actions", () => {
       page,
       getRoomTypesApiMock,
     }) => {
-      const releaseRequest = await holdApiRequest(
-        page,
-        "roomTypes*",
-        serverError(),
-      );
+      getRoomTypesApiMock.respondWith({ ...serverError(), hold: true });
       await page
         .getByTestId("room-type-item")
         .nth(0)
@@ -377,7 +375,7 @@ test.describe("Admin room types index room type actions", () => {
         .getByTestId("replacement-room-type-dropdown")
         .locator(".p-select-label");
       await expect(dropdownLabel).toHaveAttribute("aria-disabled", "true");
-      releaseRequest();
+      getRoomTypesApiMock.release();
 
       // Check that dialog is still open and that error message is shown
       await expectToastAndClose(page, [
@@ -388,14 +386,14 @@ test.describe("Admin room types index room type actions", () => {
       await expect(dropdownLabel).toHaveAttribute("aria-disabled", "true");
 
       // Reload with correct data
-      await mockApiRequest(page, "GET", "roomTypes*", {
+      getRoomTypesApiMock.respondWith({
         json: getRoomTypesApiMock.json,
       });
       const reloadButton = page.getByTestId(
         "replacement-room-types-reload-button",
       );
       await expect(reloadButton).toBeVisible();
-      const reloadRequest = page.waitForRequest("**/api/v1/roomTypes*");
+      const reloadRequest = getRoomTypesApiMock.waitForNextRequest();
       await reloadButton.click();
       await reloadRequest;
 
@@ -407,8 +405,11 @@ test.describe("Admin room types index room type actions", () => {
       await expect(page.getByTestId("room-types-delete-dialog")).toBeHidden();
     });
 
-    test("unauthenticated (401) redirects to login", async ({ page }) => {
-      await mockApiRequest(page, "GET", "roomTypes*", { status: 401 });
+    test("unauthenticated (401) redirects to login", async ({
+      page,
+      getRoomTypesApiMock,
+    }) => {
+      getRoomTypesApiMock.respondWith({ status: 401 });
 
       await page
         .getByTestId("room-type-item")

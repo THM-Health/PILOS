@@ -14,7 +14,7 @@ import {
   modelNotFound,
   validationErrors,
 } from "../support/utils.js";
-import { interceptRoomIndexRequests } from "../support/mocks.js";
+
 import { checkSettingsFileSelector } from "../support/admin.js";
 
 const test = mergeTests(
@@ -159,9 +159,9 @@ test.describe("Rooms view streaming config actions", () => {
   });
 
   test.describe("load with error", () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page, getRoomStreamingConfigApiMock }) => {
       await page.getByTestId("dialog-cancel-button").click();
-      await mockApiRequest(page, "GET", "rooms/abc-def-123/streaming/config", {
+      getRoomStreamingConfigApiMock.respondWith({
         status: 500,
         json: { message: "Internal server error" },
       });
@@ -193,12 +193,13 @@ test.describe("Rooms view streaming config actions", () => {
     test("retry enables the form", async ({
       page,
       roomStreamingConfigResponse,
+      getRoomStreamingConfigApiMock,
     }) => {
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Internal server error"}',
         'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
-      await mockApiRequest(page, "GET", "rooms/abc-def-123/streaming/config", {
+      getRoomStreamingConfigApiMock.respondWith({
         json: roomStreamingConfigResponse,
       });
 
@@ -219,18 +220,17 @@ test.describe("Rooms view streaming config actions", () => {
 
   test("load with room not found redirects to the room index", async ({
     page,
+    getRoomStreamingConfigApiMock,
   }) => {
     await page.getByTestId("dialog-cancel-button").click();
-    await interceptRoomIndexRequests(page);
-    const getRoomStreamingConfigApiMock = await mockApiRequest(
-      page,
-      "GET",
-      "rooms/abc-def-123/streaming/config",
-      modelNotFound("room", ["abc-def-123"]),
-    );
+
+    const getRoomStreamingConfigRequestsAfterChange =
+      getRoomStreamingConfigApiMock.respondWith(
+        modelNotFound("room", ["abc-def-123"]),
+      );
 
     await page.getByTestId("streaming-config-button").click();
-    await getRoomStreamingConfigApiMock.waitForRequest();
+    await getRoomStreamingConfigRequestsAfterChange.waitForRequest();
 
     await expect(page).toHaveURL(
       (url) =>
@@ -541,7 +541,6 @@ test.describe("Rooms view streaming config actions", () => {
     });
 
     test("room not found redirects to the room index", async ({ page }) => {
-      await interceptRoomIndexRequests(page);
       const postRoomStreamingConfigApiMock = await mockApiRequest(
         page,
         "POST",

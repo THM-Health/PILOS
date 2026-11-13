@@ -1,18 +1,26 @@
 import { serverError } from "../support/utils.js";
-import { test, expect, expectToastAndClose } from "../support/test.js";
-import { interceptRoomIndexRequests } from "../support/mocks.js";
+import { mergeTests } from "@playwright/test";
+import { test as authGeneralTest } from "../support/fixtures/authGeneral.js";
+import { test as roomControllerTest } from "../support/fixtures/roomController.js";
+import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
+import { expect, expectToastAndClose } from "../support/test.js";
+
+const test = mergeTests(
+  authGeneralTest,
+  roomControllerTest,
+  roomTypeControllerTest,
+);
 
 test.describe("Logout", () => {
   test.use({ authenticated: true });
 
-  test.beforeEach(async ({ page }) => {
-    await interceptRoomIndexRequests(page);
-  });
-
-  test("successful logout without redirect", async ({ page }) => {
-    await page.route("**/api/v1/logout", (route) =>
-      route.fulfill({ status: 204 }),
-    );
+  test("successful logout without redirect", async ({
+    page,
+    postLogoutApiMock,
+  }) => {
+    const postLogoutRequestsAfterChange = postLogoutApiMock.respondWith({
+      status: 204,
+    });
     await page.goto("/rooms");
 
     await page.getByTestId("navbar-user").click();
@@ -22,7 +30,7 @@ test.describe("Logout", () => {
       .getByTestId("navbar-user-logout");
     await expect(logout).toHaveText("auth.logout");
 
-    const logoutRequest = page.waitForRequest("**/api/v1/logout");
+    const logoutRequest = postLogoutRequestsAfterChange.waitForNextRequest();
     await logout.click();
     await logoutRequest;
 
@@ -31,10 +39,13 @@ test.describe("Logout", () => {
     await expect(page.getByText("auth.logout_success")).toBeVisible();
   });
 
-  test("home button after logout leaves the logout page", async ({ page }) => {
-    await page.route("**/api/v1/logout", (route) =>
-      route.fulfill({ status: 204 }),
-    );
+  test("home button after logout leaves the logout page", async ({
+    page,
+    postLogoutApiMock,
+  }) => {
+    postLogoutApiMock.respondWith({
+      status: 204,
+    });
     await page.goto("/rooms");
     await page.getByTestId("navbar-user").click();
     await page
@@ -51,13 +62,18 @@ test.describe("Logout", () => {
     await expect(page).not.toHaveURL(/\/logout/);
   });
 
-  test("successful logout with redirect", async ({ page }) => {
+  test("successful logout with redirect", async ({
+    page,
+    postLogoutApiMock,
+  }) => {
     const redirectBaseUrl =
       "https://thm-health.github.io/PILOS-Redirect_Test_Pages";
     const redirectUrl = `${redirectBaseUrl}/idp?foo=a&bar=b`;
-    await page.route("**/api/v1/logout", (route) =>
-      route.fulfill({ status: 200, json: { redirect: redirectUrl } }),
-    );
+    postLogoutApiMock.respondWith({
+      status: 200,
+      json: { redirect: redirectUrl },
+    });
+    // eslint-disable-next-line no-restricted-syntax -- external redirect URL, not an API request
     await page.route(`${redirectBaseUrl}/**`, (route) =>
       route.fulfill({ body: "redirected", contentType: "text/html" }),
     );
@@ -76,14 +92,14 @@ test.describe("Logout", () => {
 
   test("failed logout shows an error and keeps the user logged in", async ({
     page,
+    postLogoutApiMock,
   }) => {
-    await page.route("**/api/v1/logout", (route) =>
-      route.fulfill(serverError()),
-    );
+    const postLogoutRequestsAfterChange =
+      postLogoutApiMock.respondWith(serverError());
     await page.goto("/rooms");
 
     await page.getByTestId("navbar-user").click();
-    const logoutRequest = page.waitForRequest("**/api/v1/logout");
+    const logoutRequest = postLogoutRequestsAfterChange.waitForNextRequest();
     await page
       .getByTestId("submenu")
       .first()

@@ -1,5 +1,9 @@
-import { test, expect } from "../support/test.js";
-import { interceptRoomIndexRequests } from "../support/mocks.js";
+import { mergeTests } from "@playwright/test";
+import { test as roomControllerTest } from "../support/fixtures/roomController.js";
+import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
+import { expect } from "../support/test.js";
+
+const test = mergeTests(roomControllerTest, roomTypeControllerTest);
 
 test.describe("Banner", () => {
   test.use({ authenticated: true });
@@ -120,7 +124,6 @@ test.describe("Banner", () => {
     });
 
     // Requests needed to show the room index page (target of the link)
-    await interceptRoomIndexRequests(page);
 
     await page.goto("/");
 

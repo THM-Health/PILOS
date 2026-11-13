@@ -8,7 +8,6 @@ import {
 } from "../support/general.js";
 import {
   expectActivePage,
-  holdApiRequest,
   mockApiRequest,
   getRequestQuery,
   readFixture,
@@ -1823,35 +1822,29 @@ test.describe("Rooms index", () => {
         );
 
         // Respond with no rooms on the second page and with 2 rooms on the first page
-        await page.route("**/api/v1/rooms*", (route) => {
-          if (route.request().method() === "GET") {
-            if (getRequestQuery(route.request()).page === "2") {
-              getRoomsApiMock.respondWithSlice({
-                slice: [0, 0],
-                meta: {
-                  current_page: 2,
-                  from: null,
-                  per_page: 2,
-                  to: null,
-                  total: 2,
-                  total_no_filter: 2,
-                },
-              });
-            } else {
-              getRoomsApiMock.respondWithSlice({
-                slice: [0, 2],
-                meta: {
-                  per_page: 2,
-                  to: 2,
-                  total: 2,
-                  total_no_filter: 2,
-                },
-              });
-              roomsResponse.data[0].is_favorite = true;
-            }
-          }
-          return route.fallback();
+        const emptyPage = readFixture("rooms.json");
+        emptyPage.data = [];
+        Object.assign(emptyPage.meta, {
+          current_page: 2,
+          from: null,
+          per_page: 2,
+          to: null,
+          total: 2,
+          total_no_filter: 2,
         });
+        const firstPage = readFixture("rooms.json");
+        firstPage.data = firstPage.data.slice(0, 2);
+        Object.assign(firstPage.meta, {
+          per_page: 2,
+          to: 2,
+          total: 2,
+          total_no_filter: 2,
+        });
+        firstPage.data[0].is_favorite = true;
+        const roomsRequestsAfterChange = getRoomsApiMock.respondWithSequence([
+          { json: emptyPage },
+          { json: firstPage },
+        ]);
         const deleteRoomFavoritesApiMock = await mockApiRequest(
           page,
           "DELETE",
@@ -1859,7 +1852,6 @@ test.describe("Rooms index", () => {
           { status: 204 },
         );
 
-        const loadedBefore = getRoomsApiMock.requests.length;
         await page
           .getByTestId("room-card")
           .nth(0)
@@ -1868,16 +1860,14 @@ test.describe("Rooms index", () => {
 
         await deleteRoomFavoritesApiMock.waitForRequest();
         // First room request still has the second page, second one is reset to the first page
-        expect(
-          getRequestQuery(
-            await getRoomsApiMock.waitForRequest(loadedBefore + 1),
-          ),
-        ).toMatchObject({ page: "2" });
-        expect(
-          getRequestQuery(
-            await getRoomsApiMock.waitForRequest(loadedBefore + 2),
-          ),
-        ).toMatchObject({ page: "1" });
+        await expect(roomsRequestsAfterChange).toHaveReceivedRequest(
+          { query: { page: "2" } },
+          { nth: 1 },
+        );
+        await expect(roomsRequestsAfterChange).toHaveReceivedRequest(
+          { query: { page: "1" } },
+          { nth: 2 },
+        );
 
         await expect(page.getByTestId("room-card")).toHaveCount(2);
         await expectActivePage(page, 0);
@@ -2154,8 +2144,8 @@ test.describe("Rooms index", () => {
   });
 
   test.describe("error loading room types", () => {
-    test("error loading room types", async ({ page }) => {
-      const release = await holdApiRequest(page, "roomTypes*", serverError());
+    test("error loading room types", async ({ page, getRoomTypesApiMock }) => {
+      getRoomTypesApiMock.respondWith({ ...serverError(), hold: true });
 
       await page.goto("/rooms");
       await expect(page.getByTestId("room-card")).toHaveCount(3);
@@ -2168,7 +2158,7 @@ test.describe("Rooms index", () => {
         "true",
       );
 
-      release();
+      getRoomTypesApiMock.release();
 
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
@@ -2195,8 +2185,9 @@ test.describe("Rooms index", () => {
       await expect(page.getByTestId("room-type-dropdown")).toHaveCount(0);
       await expect(inputGroup).toContainText("rooms.room_types.loading_error");
 
-      const release = await holdApiRequest(page, "roomTypes*", {
+      getRoomTypesApiMock.respondWith({
         json: readFixture("roomTypes.json"),
+        hold: true,
       });
 
       const reloadButton = inputGroup.getByRole("button");
@@ -2205,7 +2196,7 @@ test.describe("Rooms index", () => {
       await expect(reloadButton).toBeDisabled();
 
       // Send correct response and check that reload button does not exist after reload
-      release();
+      getRoomTypesApiMock.release();
       await expect(inputGroup.getByRole("button")).toHaveCount(0);
 
       // Check that dropdown exists and error message is not shown after correct response

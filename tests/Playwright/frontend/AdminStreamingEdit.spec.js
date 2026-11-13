@@ -485,8 +485,8 @@ test.describe("Admin streaming settings with edit permission", () => {
     });
 
     test.describe("loading error", () => {
-      test.beforeEach(async ({ page }) => {
-        await mockApiRequest(page, "GET", "streaming", {
+      test.beforeEach(async ({ page, getStreamingApiMock }) => {
+        getStreamingApiMock.respondWith({
           status: 500,
           json: { message: "Internal server error" },
         });
@@ -516,11 +516,10 @@ test.describe("Admin streaming settings with edit permission", () => {
       test("enables all fields after retry", async ({
         page,
         streamingResponse,
+        getStreamingApiMock,
       }) => {
         await expect(page.getByTestId("overlay")).toBeVisible();
-        await page.route("**/api/v1/streaming", (route) =>
-          route.fulfill({ json: streamingResponse }),
-        );
+        getStreamingApiMock.respondWith({ json: streamingResponse });
         await page.getByTestId("loading-retry-button").click();
 
         await expect(page.getByTestId("overlay")).toHaveCount(0);
@@ -655,12 +654,11 @@ test.describe("Admin streaming settings with edit permission", () => {
       await expect(page.getByTestId("room-type-item")).toHaveCount(2);
     });
 
-    test("enable streaming and upload pause image", async ({ page }) => {
-      const loadRequest = page.waitForRequest(
-        (request) =>
-          request.method() === "GET" &&
-          request.url().endsWith("/api/v1/roomTypes/3/streaming"),
-      );
+    test("enable streaming and upload pause image", async ({
+      page,
+      getRoomTypeStreamingApiMock,
+    }) => {
+      const loadRequest = getRoomTypeStreamingApiMock.waitForNextRequest();
       const row = page.getByTestId("room-type-item").nth(0);
       const cells = row.getByTestId("room-type-item-cell");
       await expect(cells).toHaveCount(4);
@@ -742,6 +740,7 @@ test.describe("Admin streaming settings with edit permission", () => {
     test("table is reloaded after saving", async ({
       page,
       streamingResponse,
+      getStreamingApiMock,
     }) => {
       const row = page.getByTestId("room-type-item").nth(0);
       await row
@@ -762,11 +761,7 @@ test.describe("Admin streaming settings with edit permission", () => {
       streamingResponse.data.room_types[2].streaming_settings.enabled = true;
       streamingResponse.data.room_types[2].streaming_settings.default_pause_image =
         "https://example.com/lecture-pause.jpg";
-      const reloadRequest = page.waitForRequest(
-        (request) =>
-          request.method() === "GET" &&
-          request.url().endsWith("/api/v1/streaming"),
-      );
+      const reloadRequest = getStreamingApiMock.waitForNextRequest();
       await dialog.getByTestId("dialog-save-button").click();
 
       await reloadRequest;
@@ -781,6 +776,7 @@ test.describe("Admin streaming settings with edit permission", () => {
       page,
       streamingResponse,
       roomTypeStreamingResponse,
+      getStreamingApiMock,
     }) => {
       roomTypeStreamingResponse.data.default_pause_image =
         "https://example.com/pause.jpg";
@@ -832,11 +828,7 @@ test.describe("Admin streaming settings with edit permission", () => {
       streamingResponse.data.room_types[2].streaming_settings.enabled = false;
       streamingResponse.data.room_types[2].streaming_settings.default_pause_image =
         null;
-      const reloadRequest = page.waitForRequest(
-        (request) =>
-          request.method() === "GET" &&
-          request.url().endsWith("/api/v1/streaming"),
-      );
+      const reloadRequest = getStreamingApiMock.waitForNextRequest();
       await expect(dialog.getByTestId("dialog-save-button")).toBeEnabled();
       await dialog.getByTestId("dialog-save-button").click();
 
@@ -938,8 +930,8 @@ test.describe("Admin streaming settings with edit permission", () => {
     });
 
     test.describe("loading error", () => {
-      test.beforeEach(async ({ page }) => {
-        await mockApiRequest(page, "GET", "roomTypes/3/streaming", {
+      test.beforeEach(async ({ page, getRoomTypeStreamingApiMock }) => {
+        getRoomTypeStreamingApiMock.respondWith({
           status: 500,
           json: { message: "Internal server error" },
         });
@@ -974,14 +966,15 @@ test.describe("Admin streaming settings with edit permission", () => {
       test("shows fields after retry", async ({
         page,
         roomTypeStreamingResponse,
+        getRoomTypeStreamingApiMock,
       }) => {
         const dialog = page.getByTestId(
           "streaming-room-type-settings-edit-dialog",
         );
         await expect(dialog).toBeVisible();
-        await page.route("**/api/v1/roomTypes/3/streaming", (route) =>
-          route.fulfill({ json: roomTypeStreamingResponse }),
-        );
+        getRoomTypeStreamingApiMock.respondWith({
+          json: roomTypeStreamingResponse,
+        });
         await dialog.getByTestId("loading-retry-button").click();
 
         await expect(dialog.getByTestId("overlay")).toHaveCount(0);

@@ -1,3 +1,4 @@
+import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
 import { mergeTests } from "@playwright/test";
 import { test as roomControllerTest } from "../support/fixtures/roomController.js";
 import { test as roomFileControllerTest } from "../support/fixtures/roomFileController.js";
@@ -10,7 +11,7 @@ import {
   serverError,
   modelNotFound,
 } from "../support/utils.js";
-import { interceptRoomIndexRequests } from "../support/mocks.js";
+
 import { checkRoomAuthErrors } from "../support/room.js";
 
 const test = mergeTests(
@@ -18,6 +19,7 @@ const test = mergeTests(
   roomFileControllerTest,
   roomMemberControllerTest,
   roomPersonalizedLinkControllerTest,
+  roomTypeControllerTest,
 );
 test.use({ roomFilesFixtureName: "roomFilesNoDetails.json" });
 
@@ -361,7 +363,6 @@ test.describe("Rooms view members bulk actions", () => {
     test("redirects to the room index page if the room is not found", async ({
       page,
     }) => {
-      await interceptRoomIndexRequests(page);
       await mockApiRequest(
         page,
         "PUT",
@@ -630,7 +631,6 @@ test.describe("Rooms view members bulk actions", () => {
     test("redirects to the room index page if the room is not found", async ({
       page,
     }) => {
-      await interceptRoomIndexRequests(page);
       await mockApiRequest(
         page,
         "DELETE",
@@ -1322,7 +1322,6 @@ test.describe("Rooms view members bulk actions", () => {
     test("redirects to the room index page if the room is not found", async ({
       page,
     }) => {
-      await interceptRoomIndexRequests(page);
       await mockApiRequest(
         page,
         "POST",

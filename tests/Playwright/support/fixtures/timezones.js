@@ -10,13 +10,17 @@ import { mockApiRequest, readFixture } from "../utils.js";
  * - `timezonesResponse`: the timezones (GET /api/v1/getTimezones)
  */
 export const test = base.extend({
-  timezonesResponse: [
-    async ({ page }, use) => {
-      const timezonesResponse = readFixture("timezones.json");
-      await mockApiRequest(page, "GET", "getTimezones", {
-        json: timezonesResponse,
-      });
-      await use(timezonesResponse);
+  timezonesResponse: async ({}, use) => {
+    const timezonesResponse = readFixture("timezones.json");
+    await use(timezonesResponse);
+  },
+  getTimezonesApiMock: [
+    async ({ page, timezonesResponse }, use) => {
+      await use(
+        await mockApiRequest(page, "GET", "getTimezones", () => ({
+          json: timezonesResponse,
+        })),
+      );
     },
     { auto: true },
   ],

@@ -10,13 +10,17 @@ import { mockApiRequest, readFixture } from "../utils.js";
  * - `streamingResponse`: the streaming settings (GET /api/v1/streaming)
  */
 export const test = base.extend({
-  streamingResponse: [
-    async ({ page }, use) => {
-      const streamingResponse = readFixture("streaming.json");
-      await mockApiRequest(page, "GET", "streaming", {
-        json: streamingResponse,
-      });
-      await use(streamingResponse);
+  streamingResponse: async ({}, use) => {
+    const streamingResponse = readFixture("streaming.json");
+    await use(streamingResponse);
+  },
+  getStreamingApiMock: [
+    async ({ page, streamingResponse }, use) => {
+      await use(
+        await mockApiRequest(page, "GET", "streaming", () => ({
+          json: streamingResponse,
+        })),
+      );
     },
     { auto: true },
   ],

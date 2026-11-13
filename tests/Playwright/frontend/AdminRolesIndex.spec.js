@@ -7,7 +7,6 @@ import {
   expectLoginRedirect,
 } from "../support/general.js";
 import {
-  mockApiRequest,
   expectActivePage,
   getRequestQuery,
   readFixture,
@@ -44,8 +43,8 @@ test.describe("Admin roles index", () => {
   });
 
   test.describe("load roles", () => {
-    test("loading state", async ({ page, rolesResponse }) => {
-      const getRolesApiMock = await mockApiRequest(page, "GET", "roles*", {
+    test("loading state", async ({ page, rolesResponse, getRolesApiMock }) => {
+      getRolesApiMock.respondWith({
         json: rolesResponse,
         hold: true,
       });
@@ -64,7 +63,7 @@ test.describe("Admin roles index", () => {
       await expect(page.getByTestId("roles-add-button")).toHaveCount(0);
       await expect(page.getByTestId("overlay")).toBeVisible();
 
-      const response = page.waitForResponse("**/api/v1/roles?*");
+      const response = getRolesApiMock.waitForNextResponse();
       getRolesApiMock.release();
       await response;
 
@@ -115,8 +114,9 @@ test.describe("Admin roles index", () => {
     test("error on initial load can be retried", async ({
       page,
       rolesResponse,
+      getRolesApiMock,
     }) => {
-      await mockApiRequest(page, "GET", "roles*", serverError());
+      getRolesApiMock.respondWith(serverError());
 
       await page.goto("/admin/roles");
 
@@ -133,7 +133,7 @@ test.describe("Admin roles index", () => {
       await expect(search.locator("input")).toBeEnabled();
       await expect(search.locator("button")).toBeEnabled();
 
-      await mockApiRequest(page, "GET", "roles*", { json: rolesResponse });
+      getRolesApiMock.respondWith({ json: rolesResponse });
 
       const retryButton = page.getByTestId("loading-retry-button");
       await expect(retryButton).toBeVisible();
@@ -152,15 +152,18 @@ test.describe("Admin roles index", () => {
     });
 
     test.describe("error on page change", () => {
-      test.beforeEach(async ({ page }) => {
+      test.beforeEach(async ({ page, getRolesApiMock }) => {
         await page.goto("/admin/roles");
         await expect(page.getByTestId("role-item")).toHaveCount(3);
 
-        await mockApiRequest(page, "GET", "roles*", serverError());
+        getRolesApiMock.respondWith(serverError());
       });
 
-      test("error is shown and loading can be retried", async ({ page }) => {
-        const request = page.waitForRequest("**/api/v1/roles?*");
+      test("error is shown and loading can be retried", async ({
+        page,
+        getRolesApiMock,
+      }) => {
+        const request = getRolesApiMock.waitForNextRequest();
         await page.getByTestId("paginator-next-button").nth(1).click();
         expect(getRequestQuery(await request)).toMatchObject({ page: "2" });
 
@@ -182,6 +185,7 @@ test.describe("Admin roles index", () => {
       test("retry resets to the first page", async ({
         page,
         rolesResponse,
+        getRolesApiMock,
       }) => {
         await page.getByTestId("paginator-next-button").nth(1).click();
         await expectToastAndClose(page, [
@@ -191,11 +195,11 @@ test.describe("Admin roles index", () => {
 
         rolesResponse.data = rolesResponse.data.slice(0, 1);
         Object.assign(rolesResponse.meta, { last_page: 1, per_page: 1, to: 1 });
-        await mockApiRequest(page, "GET", "roles*", { json: rolesResponse });
+        getRolesApiMock.respondWith({ json: rolesResponse });
 
         const retryButton = page.getByTestId("loading-retry-button");
         await expect(retryButton).toHaveText("app.reload");
-        const request = page.waitForRequest("**/api/v1/roles?*");
+        const request = getRolesApiMock.waitForNextRequest();
         await retryButton.click();
         expect(getRequestQuery(await request)).toMatchObject({ page: "1" });
 
@@ -212,8 +216,11 @@ test.describe("Admin roles index", () => {
         await expectActivePage(page, 0);
       });
 
-      test("401 on page change redirects to login", async ({ page }) => {
-        await mockApiRequest(page, "GET", "roles*", {
+      test("401 on page change redirects to login", async ({
+        page,
+        getRolesApiMock,
+      }) => {
+        getRolesApiMock.respondWith({
           status: 401,
           json: {},
         });
@@ -224,8 +231,11 @@ test.describe("Admin roles index", () => {
       });
     });
 
-    test("401 on visit redirects to login", async ({ page }) => {
-      await mockApiRequest(page, "GET", "roles*", {
+    test("401 on visit redirects to login", async ({
+      page,
+      getRolesApiMock,
+    }) => {
+      getRolesApiMock.respondWith({
         status: 401,
         json: {},
       });
@@ -239,6 +249,7 @@ test.describe("Admin roles index", () => {
   test("page out of bounds is reset to the first page", async ({
     page,
     rolesResponse,
+    getRolesApiMock,
   }) => {
     const all = readFixture("roles.json");
     rolesResponse.data = all.data.slice(0, 1);
@@ -271,19 +282,21 @@ test.describe("Admin roles index", () => {
       data: all.data.slice(0, 2),
       meta: { ...all.meta, per_page: 2, to: 2, total: 2, total_no_filter: 2 },
     };
-    const queries = [];
-    await page.route("**/api/v1/roles?*", (route) => {
-      queries.push(getRequestQuery(route.request()));
-      return route.fulfill({
-        json: queries.length === 1 ? emptyPage : resetPage,
-      });
-    });
+    const rolesRequestsAfterChange = getRolesApiMock.respondWithSequence([
+      { json: emptyPage },
+      { json: resetPage },
+    ]);
 
     await page.getByTestId("paginator-next-button").nth(1).click();
 
-    await expect.poll(() => queries.length).toBe(2);
-    expect(queries[0]).toMatchObject({ page: "2" });
-    expect(queries[1]).toMatchObject({ page: "1" });
+    await expect(rolesRequestsAfterChange).toHaveReceivedRequest(
+      { query: { page: "2" } },
+      { nth: 1 },
+    );
+    await expect(rolesRequestsAfterChange).toHaveReceivedRequest(
+      { query: { page: "1" } },
+      { nth: 2 },
+    );
 
     await expect(page.getByTestId("role-item")).toHaveCount(2);
     await expect(page.getByTestId("paginator-page")).toHaveCount(1);
@@ -291,8 +304,8 @@ test.describe("Admin roles index", () => {
   });
 
   test.describe("role search", () => {
-    test("initial request has no query", async ({ page }) => {
-      const request = page.waitForRequest("**/api/v1/roles?*");
+    test("initial request has no query", async ({ page, getRolesApiMock }) => {
+      const request = getRolesApiMock.waitForNextRequest();
       await page.goto("/admin/roles");
       const query = getRequestQuery(await request);
 
@@ -303,7 +316,11 @@ test.describe("Admin roles index", () => {
       ).toHaveValue("");
     });
 
-    test("no roles found for search query", async ({ page, rolesResponse }) => {
+    test("no roles found for search query", async ({
+      page,
+      rolesResponse,
+      getRolesApiMock,
+    }) => {
       await page.goto("/admin/roles");
       await expect(page.getByTestId("role-item")).toHaveCount(3);
 
@@ -316,7 +333,7 @@ test.describe("Admin roles index", () => {
       });
 
       await page.getByTestId("role-search").locator("input").fill("Test");
-      const request = page.waitForRequest("**/api/v1/roles?*");
+      const request = getRolesApiMock.waitForNextRequest();
       await page.getByTestId("role-search").locator("button").click();
       const query = getRequestQuery(await request);
       expect(query).toMatchObject({ query: "Test", page: "1" });
@@ -330,6 +347,7 @@ test.describe("Admin roles index", () => {
     test("no roles available, search with enter key", async ({
       page,
       rolesResponse,
+      getRolesApiMock,
     }) => {
       await page.goto("/admin/roles");
       await expect(page.getByTestId("role-item")).toHaveCount(3);
@@ -345,7 +363,7 @@ test.describe("Admin roles index", () => {
 
       const input = page.getByTestId("role-search").locator("input");
       await input.fill("Test2");
-      const request = page.waitForRequest("**/api/v1/roles?*");
+      const request = getRolesApiMock.waitForNextRequest();
       await input.press("Enter");
       const query = getRequestQuery(await request);
       expect(query).toMatchObject({ query: "Test2", page: "1" });
@@ -357,7 +375,7 @@ test.describe("Admin roles index", () => {
     });
 
     test.describe("with multiple pages", () => {
-      test.beforeEach(async ({ page, rolesResponse }) => {
+      test.beforeEach(async ({ page, rolesResponse, getRolesApiMock }) => {
         await page.goto("/admin/roles");
         await expect(page.getByTestId("role-item")).toHaveCount(3);
 
@@ -370,7 +388,7 @@ test.describe("Admin roles index", () => {
         });
 
         await page.getByTestId("role-search").locator("input").fill("e");
-        const request = page.waitForRequest("**/api/v1/roles?*");
+        const request = getRolesApiMock.waitForNextRequest();
         await page.getByTestId("role-search").locator("button").click();
         const query = getRequestQuery(await request);
         expect(query).toMatchObject({ query: "e", page: "1" });
@@ -391,6 +409,7 @@ test.describe("Admin roles index", () => {
       test("search query stays after changing the page", async ({
         page,
         rolesResponse,
+        getRolesApiMock,
       }) => {
         const all = readFixture("roles.json");
         rolesResponse.data = all.data.slice(1, 2);
@@ -404,7 +423,7 @@ test.describe("Admin roles index", () => {
           total: 2,
         };
 
-        const request = page.waitForRequest("**/api/v1/roles?*");
+        const request = getRolesApiMock.waitForNextRequest();
         await page.getByTestId("paginator-next-button").nth(1).click();
         const query = getRequestQuery(await request);
         expect(query).toMatchObject({ query: "e", page: "2" });
@@ -422,6 +441,7 @@ test.describe("Admin roles index", () => {
       test("page is reset when the search query changes", async ({
         page,
         rolesResponse,
+        getRolesApiMock,
       }) => {
         const all = readFixture("roles.json");
         await expect(page.getByTestId("paginator-page")).toHaveCount(2);
@@ -449,7 +469,7 @@ test.describe("Admin roles index", () => {
 
         const input = page.getByTestId("role-search").locator("input");
         await input.fill("o");
-        const request = page.waitForRequest("**/api/v1/roles?*");
+        const request = getRolesApiMock.waitForNextRequest();
         await page.getByTestId("role-search").locator("button").click();
         const query = getRequestQuery(await request);
         expect(query).toMatchObject({ query: "o", page: "1" });
@@ -468,8 +488,11 @@ test.describe("Admin roles index", () => {
       ];
     });
 
-    test("initial sorting and sortable columns", async ({ page }) => {
-      const request = page.waitForRequest("**/api/v1/roles?*");
+    test("initial sorting and sortable columns", async ({
+      page,
+      getRolesApiMock,
+    }) => {
+      const request = getRolesApiMock.waitForNextRequest();
       await page.goto("/admin/roles");
       expect(getRequestQuery(await request)).toMatchObject({
         page: "1",
@@ -502,9 +525,9 @@ test.describe("Admin roles index", () => {
         Object.assign(rolesResponse.meta, { last_page: 3, per_page: 1, to: 1 });
       });
 
-      test("change sorting direction", async ({ page }) => {
+      test("change sorting direction", async ({ page, getRolesApiMock }) => {
         const header = page.getByTestId("role-header-cell").nth(0);
-        const request = page.waitForRequest("**/api/v1/roles?*");
+        const request = getRolesApiMock.waitForNextRequest();
         await header.click();
         const query = getRequestQuery(await request);
         expect(query).toMatchObject({
@@ -528,6 +551,7 @@ test.describe("Admin roles index", () => {
       test("sorting stays after changing the page", async ({
         page,
         rolesResponse,
+        getRolesApiMock,
       }) => {
         const header = page.getByTestId("role-header-cell").nth(0);
         await header.click();
@@ -544,7 +568,7 @@ test.describe("Admin roles index", () => {
           to: 2,
         };
 
-        const request = page.waitForRequest("**/api/v1/roles?*");
+        const request = getRolesApiMock.waitForNextRequest();
         await page.getByTestId("paginator-next-button").nth(1).click();
         const query = getRequestQuery(await request);
         expect(query).toMatchObject({
@@ -565,6 +589,7 @@ test.describe("Admin roles index", () => {
       test("page is reset when the sorting changes", async ({
         page,
         rolesResponse,
+        getRolesApiMock,
       }) => {
         const header = page.getByTestId("role-header-cell").nth(0);
         await header.click();
@@ -585,7 +610,7 @@ test.describe("Admin roles index", () => {
 
         rolesResponse.data = all.data.slice(0, 1);
         rolesResponse.meta = { ...all.meta, last_page: 3, per_page: 1, to: 1 };
-        const request = page.waitForRequest("**/api/v1/roles?*");
+        const request = getRolesApiMock.waitForNextRequest();
         await header.click();
         const query = getRequestQuery(await request);
         expect(query).toMatchObject({
@@ -708,6 +733,7 @@ test.describe("Admin roles index", () => {
     page,
     currentUserResponse,
     rolesResponse,
+    getRolesApiMock,
   }) => {
     currentUserResponse.data.superuser = false;
     currentUserResponse.data.permissions = [
@@ -722,7 +748,7 @@ test.describe("Admin roles index", () => {
     await page.goto("/admin/roles");
     await expect(page.getByTestId("role-item")).toHaveCount(3);
 
-    const getRolesApiMock = await mockApiRequest(page, "GET", "roles*", {
+    getRolesApiMock.respondWith({
       json: rolesResponse,
       hold: true,
     });
@@ -747,7 +773,7 @@ test.describe("Admin roles index", () => {
     ).toBeDisabled();
     await expect(row.getByTestId("roles-delete-button")).toBeDisabled();
 
-    const response = page.waitForResponse("**/api/v1/roles?*");
+    const response = getRolesApiMock.waitForNextResponse();
     getRolesApiMock.release();
     await response;
 

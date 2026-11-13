@@ -10,7 +10,7 @@ import {
   checkDefaultRoomSettingField,
   checkRoomAuthErrors,
 } from "../support/room.js";
-import { mockApiRequest, serverError } from "../support/utils.js";
+import { serverError } from "../support/utils.js";
 
 const test = mergeTests(
   roomControllerTest,
@@ -35,6 +35,7 @@ test.describe("Rooms view settings room type actions", () => {
 
     test("loads room types with the room settings and shows the details", async ({
       page,
+      getRoomTypesApiMock,
     }) => {
       const changeDialog = page.getByTestId("room-type-change-dialog");
       await expect(
@@ -42,7 +43,7 @@ test.describe("Rooms view settings room type actions", () => {
       ).toBeHidden();
       await expect(changeDialog).toBeHidden();
 
-      const roomTypesRequest = page.waitForRequest("**/api/v1/roomTypes*");
+      const roomTypesRequest = getRoomTypesApiMock.waitForNextRequest();
       await page.getByTestId("room-type-change-button").click();
       const request = await roomTypesRequest;
       expect(Object.fromEntries(new URL(request.url()).searchParams)).toEqual({
@@ -1972,12 +1973,7 @@ test.describe("Rooms view settings room type actions", () => {
       page,
       getRoomTypesApiMock,
     }) => {
-      const getRoomTypesApiMock2 = await mockApiRequest(
-        page,
-        "GET",
-        "roomTypes*",
-        serverError({ hold: true }),
-      );
+      getRoomTypesApiMock.respondWith(serverError({ hold: true }));
 
       await page.goto("/rooms/abc-def-123#tab=settings");
       await expect(page.locator("#room-setting-room_type")).toHaveValue(
@@ -1996,7 +1992,7 @@ test.describe("Rooms view settings room type actions", () => {
       await expect(dialog.getByTestId("dialog-save-button")).toBeVisible();
       await expect(dialog.getByTestId("dialog-save-button")).toBeDisabled();
 
-      getRoomTypesApiMock2.release();
+      getRoomTypesApiMock.release();
 
       // Check error message
       const toast = page.locator(".p-toast-message");
@@ -2022,18 +2018,13 @@ test.describe("Rooms view settings room type actions", () => {
       await expect(dialog.getByTestId("dialog-save-button")).toBeDisabled();
 
       // Reload with valid room types
-      const getRoomTypesApiMock3 = await mockApiRequest(
-        page,
-        "GET",
-        "roomTypes*",
-        {
-          json: getRoomTypesApiMock.json,
-        },
-      );
+      const getRoomTypesRequestsAfterChange2 = getRoomTypesApiMock.respondWith({
+        json: getRoomTypesApiMock.json,
+      });
       const reloadButton = dialog.getByTestId("reload-room-types-button");
       await expect(reloadButton).toBeVisible();
       await reloadButton.click();
-      await getRoomTypesApiMock3.waitForRequest();
+      await getRoomTypesRequestsAfterChange2.waitForRequest();
 
       await expect(dialog.getByTestId("room-type-select-option")).toHaveText([
         "Lecture",

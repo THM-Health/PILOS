@@ -1,10 +1,10 @@
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import { test } from "../support/fixtures/authGeneral.js";
+import { expect, expectToastAndClose } from "../support/test.js";
 import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
 } from "../support/general.js";
 import {
-  holdApiRequest,
   validationErrors,
   serverError,
   errorResponse,
@@ -33,16 +33,19 @@ test("redirect to login if not logged in", async ({ page }) => {
 });
 
 test.describe("verify email", () => {
-  test("shows loading state and sends email and token", async ({ page }) => {
-    const release = await holdApiRequest(page, "email/verify");
-    const requestPromise = page.waitForRequest("**/api/v1/email/verify");
+  test("shows loading state and sends email and token", async ({
+    page,
+    postEmailVerifyApiMock,
+  }) => {
+    postEmailVerifyApiMock.respondWith({ hold: true });
+    const requestPromise = postEmailVerifyApiMock.waitForNextRequest();
 
     await page.goto("/verify_email?email=MaxDoe@domain.tld&token=Token123");
 
     await expect(page.getByText("app.verify_email.title")).toBeVisible();
     await expect(page.getByTestId("overlay")).toBeVisible();
 
-    release();
+    postEmailVerifyApiMock.release();
 
     const request = await requestPromise;
     expect(request.method()).toBe("POST");
@@ -55,10 +58,8 @@ test.describe("verify email", () => {
     await expect(page.getByTestId("verify-success-message")).toBeVisible();
   });
 
-  test("shows success message", async ({ page }) => {
-    await page.route("**/api/v1/email/verify", (route) =>
-      route.fulfill({ status: 200 }),
-    );
+  test("shows success message", async ({ page, postEmailVerifyApiMock }) => {
+    postEmailVerifyApiMock.respondWith({ status: 200 });
 
     await page.goto("/verify_email?email=MaxDoe@domain.tld&token=Token123");
 
@@ -72,16 +73,17 @@ test.describe("verify email", () => {
 });
 
 test.describe("verify email errors", () => {
-  test("shows invalid message on 422 with missing props", async ({ page }) => {
-    await page.route("**/api/v1/email/verify", (route) =>
-      route.fulfill(
-        validationErrors(
-          {
-            email: ["The email field is required."],
-            token: ["The token field is required."],
-          },
-          "The email field is required. (and 1 more error)",
-        ),
+  test("shows invalid message on 422 with missing props", async ({
+    page,
+    postEmailVerifyApiMock,
+  }) => {
+    postEmailVerifyApiMock.respondWith(
+      validationErrors(
+        {
+          email: ["The email field is required."],
+          token: ["The token field is required."],
+        },
+        "The email field is required. (and 1 more error)",
       ),
     );
 
@@ -94,10 +96,11 @@ test.describe("verify email errors", () => {
     await expect(page.getByTestId("verify-error-message")).toBeHidden();
   });
 
-  test("shows invalid message on 422 with invalid token", async ({ page }) => {
-    await page.route("**/api/v1/email/verify", (route) =>
-      route.fulfill({ status: 422 }),
-    );
+  test("shows invalid message on 422 with invalid token", async ({
+    page,
+    postEmailVerifyApiMock,
+  }) => {
+    postEmailVerifyApiMock.respondWith({ status: 422 });
 
     await page.goto("/verify_email?email=MaxDoe@domain.tld&token=Token123");
 
@@ -108,10 +111,11 @@ test.describe("verify email errors", () => {
     await expect(page.getByTestId("verify-error-message")).toBeHidden();
   });
 
-  test("shows error message and toast on server error", async ({ page }) => {
-    await page.route("**/api/v1/email/verify", (route) =>
-      route.fulfill(serverError()),
-    );
+  test("shows error message and toast on server error", async ({
+    page,
+    postEmailVerifyApiMock,
+  }) => {
+    postEmailVerifyApiMock.respondWith(serverError());
 
     await page.goto("/verify_email?email=MaxDoe@domain.tld&token=Token123");
 
@@ -128,10 +132,9 @@ test.describe("verify email errors", () => {
 
   test("shows error message and toast on too many requests", async ({
     page,
+    postEmailVerifyApiMock,
   }) => {
-    await page.route("**/api/v1/email/verify", (route) =>
-      route.fulfill(errorResponse(429, "Too many requests")),
-    );
+    postEmailVerifyApiMock.respondWith(errorResponse(429, "Too many requests"));
 
     await page.goto("/verify_email?email=MaxDoe@domain.tld&token=Token123");
 
@@ -143,10 +146,11 @@ test.describe("verify email errors", () => {
     await expect(page.getByTestId("verify-invalid-message")).toBeHidden();
   });
 
-  test("redirects to login on unauthenticated", async ({ page }) => {
-    await page.route("**/api/v1/email/verify", (route) =>
-      route.fulfill({ status: 401 }),
-    );
+  test("redirects to login on unauthenticated", async ({
+    page,
+    postEmailVerifyApiMock,
+  }) => {
+    postEmailVerifyApiMock.respondWith({ status: 401 });
 
     await page.goto("/verify_email?email=MaxDoe@domain.tld&token=Token123");
 

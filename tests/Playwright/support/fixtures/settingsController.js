@@ -9,23 +9,18 @@ import { mockApiRequest, readFixture } from "../utils.js";
  *
  * - `settingsResponse`: the settings (GET /api/v1/settings). Responses of save requests that use the same object return
  *   the state of the server.
- * - `settingsRequests`: the `GET /api/v1/settings` requests that were made, to check if the page was reloaded
  */
 export const test = base.extend({
-  settingsRequests: async ({}, use) => {
-    await use([]);
+  settingsResponse: async ({}, use) => {
+    await use(readFixture("settings.json"));
   },
-  settingsResponse: [
-    async ({ page, settingsRequests }, use) => {
-      const settingsResponse = readFixture("settings.json");
-      await mockApiRequest(
-        page,
-        "GET",
-        "settings",
-        { json: settingsResponse },
-        { onRequest: (request) => settingsRequests.push(request) },
+  getSettingsApiMock: [
+    async ({ page, settingsResponse }, use) => {
+      await use(
+        await mockApiRequest(page, "GET", "settings", () => ({
+          json: settingsResponse,
+        })),
       );
-      await use(settingsResponse);
     },
     { auto: true },
   ],

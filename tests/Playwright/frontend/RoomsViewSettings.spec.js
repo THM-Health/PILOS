@@ -5,7 +5,7 @@ import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeCont
 import { test as userControllerTest } from "../support/fixtures/userController.js";
 import { test as roomStreamingControllerTest } from "../support/fixtures/roomStreamingController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { interceptRoomIndexRequests } from "../support/mocks.js";
+
 import {
   checkRoomAuthErrors,
   checkRoomAuthErrorsLoadingTab,
@@ -35,13 +35,12 @@ test.describe("Rooms view settings", () => {
     test("show loading state while the settings are loading", async ({
       page,
       roomSettingsResponse,
+      getRoomSettingsApiMock,
     }) => {
-      const getRoomSettingsApiMock = await mockApiRequest(
-        page,
-        "GET",
-        "rooms/abc-def-123/settings",
-        { json: roomSettingsResponse, hold: true },
-      );
+      getRoomSettingsApiMock.respondWith({
+        json: roomSettingsResponse,
+        hold: true,
+      });
 
       await page.goto("/rooms/abc-def-123");
       await page.locator("#tab-settings").click();
@@ -453,13 +452,9 @@ test.describe("Rooms view settings", () => {
   test.describe("load settings errors", () => {
     test("show error and keep buttons disabled on server error", async ({
       page,
+      getRoomSettingsApiMock,
     }) => {
-      await mockApiRequest(
-        page,
-        "GET",
-        "rooms/abc-def-123/settings",
-        serverError(),
-      );
+      getRoomSettingsApiMock.respondWith(serverError());
 
       await page.goto("/rooms/abc-def-123#tab=settings");
 
@@ -497,12 +492,9 @@ test.describe("Rooms view settings", () => {
 
     test("redirect to room index if the room is not found", async ({
       page,
+      getRoomSettingsApiMock,
     }) => {
-      await interceptRoomIndexRequests(page);
-      await mockApiRequest(
-        page,
-        "GET",
-        "rooms/abc-def-123/settings",
+      getRoomSettingsApiMock.respondWith(
         modelNotFound("room", ["abc-def-123"]),
       );
 
@@ -1714,7 +1706,6 @@ test.describe("Rooms view settings", () => {
     test("redirect to room index if the room is not found", async ({
       page,
     }) => {
-      await interceptRoomIndexRequests(page);
       await mockApiRequest(
         page,
         "PUT",
@@ -1766,7 +1757,7 @@ test.describe("Rooms view settings", () => {
 
     test("delete room", async ({ page }) => {
       const dialog = page.getByTestId("room-delete-dialog");
-      await interceptRoomIndexRequests(page);
+
       const deleteRoomApiMock = await mockApiRequest(
         page,
         "DELETE",
@@ -1787,7 +1778,6 @@ test.describe("Rooms view settings", () => {
     test("redirect to room index if the room is not found", async ({
       page,
     }) => {
-      await interceptRoomIndexRequests(page);
       await mockApiRequest(
         page,
         "DELETE",
@@ -1876,10 +1866,9 @@ test.describe("Rooms view settings", () => {
 
     test("show too many results while searching", async ({
       page,
-      userSearchResponse,
+      getUsersSearchApiMock,
     }) => {
-      userSearchResponse.status = 204;
-      userSearchResponse.json = undefined;
+      getUsersSearchApiMock.respondWith({ status: 204 });
       const dialog = page.getByTestId("room-transfer-ownership-dialog");
       const dropdown = page.getByTestId("new-owner-dropdown");
       const options = dialog.locator(".multiselect__option");
@@ -1903,9 +1892,7 @@ test.describe("Rooms view settings", () => {
       );
       await input.click();
 
-      const search = page.waitForRequest(
-        /\/api\/v1\/users\/search\?query=L(&|$)/,
-      );
+      const search = getUsersSearchApiMock.waitForNextRequest();
       await input.pressSequentially("L");
       await search;
 
@@ -1921,7 +1908,7 @@ test.describe("Rooms view settings", () => {
       await expect(options.nth(1)).toBeHidden();
     });
 
-    test("show search results", async ({ page }) => {
+    test("show search results", async ({ page, getUsersSearchApiMock }) => {
       const dialog = page.getByTestId("room-transfer-ownership-dialog");
       const options = dialog.locator(".multiselect__option");
 
@@ -1931,9 +1918,7 @@ test.describe("Rooms view settings", () => {
       const input = page.getByTestId("new-owner-dropdown").locator("input");
       await input.click();
       await input.pressSequentially("L");
-      const search = page.waitForRequest(
-        /\/api\/v1\/users\/search\?query=Laura(&|$)/,
-      );
+      const search = getUsersSearchApiMock.waitForNextRequest();
       await input.pressSequentially("aura");
       await search;
 
@@ -1961,6 +1946,7 @@ test.describe("Rooms view settings", () => {
 
     test("show role selection after selecting a new owner", async ({
       page,
+      getUsersSearchApiMock,
     }) => {
       const dialog = page.getByTestId("room-transfer-ownership-dialog");
       const dropdown = page.getByTestId("new-owner-dropdown");
@@ -1968,9 +1954,7 @@ test.describe("Rooms view settings", () => {
       await page.getByTestId("room-transfer-ownership-button").click();
       await expect(dialog).toBeVisible();
       await dropdown.click();
-      const search = page.waitForRequest(
-        /\/api\/v1\/users\/search\?query=L(&|$)/,
-      );
+      const search = getUsersSearchApiMock.waitForNextRequest();
       await dropdown.locator("input").pressSequentially("L");
       await search;
       await expect(dialog.locator(".multiselect__content")).toBeVisible();
@@ -1999,16 +1983,18 @@ test.describe("Rooms view settings", () => {
       ).toBeVisible();
     });
 
-    test("transfer ownership with a role", async ({ page, roomResponse }) => {
+    test("transfer ownership with a role", async ({
+      page,
+      roomResponse,
+      getUsersSearchApiMock,
+    }) => {
       const dialog = page.getByTestId("room-transfer-ownership-dialog");
       const dropdown = page.getByTestId("new-owner-dropdown");
 
       await page.getByTestId("room-transfer-ownership-button").click();
       await expect(dialog).toBeVisible();
       await dropdown.click();
-      const search = page.waitForRequest(
-        /\/api\/v1\/users\/search\?query=L(&|$)/,
-      );
+      const search = getUsersSearchApiMock.waitForNextRequest();
       await dropdown.locator("input").pressSequentially("L");
       await search;
       await expect(dialog.locator(".multiselect__content")).toBeVisible();
@@ -2054,6 +2040,7 @@ test.describe("Rooms view settings", () => {
     test("transfer ownership without a role", async ({
       page,
       roomResponse,
+      getUsersSearchApiMock,
     }) => {
       const dialog = page.getByTestId("room-transfer-ownership-dialog");
       const dropdown = page.getByTestId("new-owner-dropdown");
@@ -2061,9 +2048,7 @@ test.describe("Rooms view settings", () => {
       await page.getByTestId("room-transfer-ownership-button").click();
       await expect(dialog).toBeVisible();
       await dropdown.click();
-      const search = page.waitForRequest(
-        /\/api\/v1\/users\/search\?query=L(&|$)/,
-      );
+      const search = getUsersSearchApiMock.waitForNextRequest();
       await dropdown.locator("input").pressSequentially("L");
       await search;
       await expect(dialog.locator(".multiselect__content")).toBeVisible();
@@ -2126,10 +2111,9 @@ test.describe("Rooms view settings", () => {
     test.describe("errors", () => {
       test("show server error on user search and keep dialog open", async ({
         page,
-        userSearchResponse,
+        getUsersSearchApiMock,
       }) => {
-        userSearchResponse.status = 500;
-        userSearchResponse.json = { message: "Test" };
+        getUsersSearchApiMock.respondWith(serverError());
         const dialog = page.getByTestId("room-transfer-ownership-dialog");
         const dropdown = page.getByTestId("new-owner-dropdown");
 
@@ -2137,9 +2121,7 @@ test.describe("Rooms view settings", () => {
         await expect(dialog).toBeVisible();
 
         await dropdown.click();
-        const search = page.waitForRequest(
-          /\/api\/v1\/users\/search\?query=L(&|$)/,
-        );
+        const search = getUsersSearchApiMock.waitForNextRequest();
         await dropdown.locator("input").pressSequentially("L");
         await search;
 
@@ -2169,26 +2151,25 @@ test.describe("Rooms view settings", () => {
       });
 
       test.describe("with selected new owner", () => {
-        test.beforeEach(async ({ page, userSearchResponse }) => {
-          userSearchResponse.json.data = userSearchResponse.json.data.slice(
-            0,
-            2,
-          );
-          const dialog = page.getByTestId("room-transfer-ownership-dialog");
-          const dropdown = page.getByTestId("new-owner-dropdown");
+        test.beforeEach(
+          async ({ page, userSearchResponse, getUsersSearchApiMock }) => {
+            userSearchResponse.data = userSearchResponse.data.slice(0, 2);
+            const dialog = page.getByTestId("room-transfer-ownership-dialog");
+            const dropdown = page.getByTestId("new-owner-dropdown");
 
-          await page.getByTestId("room-transfer-ownership-button").click();
-          await expect(dialog).toBeVisible();
-          await dropdown.click();
-          const search = page.waitForRequest(
-            /\/api\/v1\/users\/search\?query=L(&|$)/,
-          );
-          await dropdown.locator("input").pressSequentially("L");
-          await search;
-          await expect(dialog.locator(".multiselect__content")).toBeVisible();
-          await dialog.locator(".multiselect__option").nth(1).click();
-          await expect(dialog.locator(".multiselect__content")).toHaveCount(0);
-        });
+            await page.getByTestId("room-transfer-ownership-button").click();
+            await expect(dialog).toBeVisible();
+            await dropdown.click();
+            const search = getUsersSearchApiMock.waitForNextRequest();
+            await dropdown.locator("input").pressSequentially("L");
+            await search;
+            await expect(dialog.locator(".multiselect__content")).toBeVisible();
+            await dialog.locator(".multiselect__option").nth(1).click();
+            await expect(dialog.locator(".multiselect__content")).toHaveCount(
+              0,
+            );
+          },
+        );
 
         test("show 422 error if the role is missing", async ({ page }) => {
           const dialog = page.getByTestId("room-transfer-ownership-dialog");
@@ -2303,7 +2284,7 @@ test.describe("Rooms view settings", () => {
         page,
       }) => {
         const dialog = page.getByTestId("room-transfer-ownership-dialog");
-        await interceptRoomIndexRequests(page);
+
         await mockApiRequest(
           page,
           "POST",

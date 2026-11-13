@@ -4,7 +4,7 @@ import { test as roleControllerTest } from "../support/fixtures/roleController.j
 import { test as timezonesTest } from "../support/fixtures/timezones.js";
 import { test as sessionControllerTest } from "../support/fixtures/sessionController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { interceptAdminUsersIndexRequests } from "../support/mocks.js";
+
 import { expectLoginRedirect } from "../support/general.js";
 import {
   mockApiRequest,
@@ -96,17 +96,14 @@ test.describe("Admin users edit others", () => {
     test("save changes and redirect to the user view", async ({
       page,
       userResponse,
+      getUserApiMock,
     }) => {
       userResponse.data.bbb_skip_check_audio = true;
       const postUserApiMock = await mockApiRequest(page, "POST", "users/2", {
         json: userResponse,
       });
 
-      const userRequest = page.waitForRequest(
-        (request) =>
-          request.method() === "GET" &&
-          new URL(request.url()).pathname === "/api/v1/users/2",
-      );
+      const userRequest = getUserApiMock.waitForNextRequest();
       await page.getByTestId("user-tab-others-save-button").click();
 
       const request = await postUserApiMock.waitForRequest();
@@ -189,6 +186,7 @@ test.describe("Admin users edit others", () => {
     test("stale model (428) shows the stale dialog and reloads", async ({
       page,
       userResponse,
+      getUserApiMock,
     }) => {
       userResponse.data.bbb_skip_check_audio = true;
       await mockApiRequest(page, "POST", "users/2", {
@@ -205,11 +203,7 @@ test.describe("Admin users edit others", () => {
         'app.errors.stale_model_{"model":"app.model.user"}',
       );
 
-      const userRequest = page.waitForRequest(
-        (request) =>
-          request.method() === "GET" &&
-          new URL(request.url()).pathname === "/api/v1/users/2",
-      );
+      const userRequest = getUserApiMock.waitForNextRequest();
       await page.getByTestId("stale-dialog-reload-button").click();
 
       await expect(page).toHaveURL(/\/admin\/users\/2/);
@@ -219,13 +213,9 @@ test.describe("Admin users edit others", () => {
 
     test("user not found (404) redirects to the users index", async ({
       page,
+      getUsersApiMock,
     }) => {
-      await interceptAdminUsersIndexRequests(page);
-      const usersRequest = page.waitForRequest(
-        (request) =>
-          request.method() === "GET" &&
-          new URL(request.url()).pathname === "/api/v1/users",
-      );
+      const usersRequest = getUsersApiMock.waitForNextRequest();
       await mockApiRequest(page, "POST", "users/2", modelNotFound("user", [2]));
 
       await page.getByTestId("user-tab-others-save-button").click();

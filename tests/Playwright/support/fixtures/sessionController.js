@@ -10,11 +10,17 @@ import { mockApiRequest, readFixture } from "../utils.js";
  * - `sessionsResponse`: the sessions of the user (GET /api/v1/sessions)
  */
 export const test = base.extend({
-  sessionsResponse: [
-    async ({ page }, use) => {
-      const sessionsResponse = readFixture("sessions.json");
-      await mockApiRequest(page, "GET", "sessions", { json: sessionsResponse });
-      await use(sessionsResponse);
+  sessionsResponse: async ({}, use) => {
+    const sessionsResponse = readFixture("sessions.json");
+    await use(sessionsResponse);
+  },
+  getSessionsApiMock: [
+    async ({ page, sessionsResponse }, use) => {
+      await use(
+        await mockApiRequest(page, "GET", "sessions", () => ({
+          json: sessionsResponse,
+        })),
+      );
     },
     { auto: true },
   ],

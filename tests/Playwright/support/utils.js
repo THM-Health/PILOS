@@ -21,6 +21,7 @@ export function readFixture(name) {
  * @property {import("@playwright/test").Request[]} requests
  * @property {(count?: number) => Promise<import("@playwright/test").Request>} waitForRequest Like the one of the mock,
  *   but counts only the requests after that point in time.
+ * @property {() => Promise<import("@playwright/test").Request>} waitForNextRequest A promise for the next request.
  */
 
 /**
@@ -30,13 +31,21 @@ export function readFixture(name) {
  *   requests were received (default 1) and returns the `count`th one. As the mock records all requests, it can be
  *   called after the action that triggers the request (no promise has to be created before it, unlike
  *   `page.waitForRequest`).
+ * @property {() => Promise<import("@playwright/test").Request>} waitForNextRequest A promise for the next request, call
+ *   it before the action that triggers the request.
+ * @property {() => Promise<import("@playwright/test").Request>} waitForNextResponse A promise for the next request that
+ *   the mock has answered (the response is sent to the page), call it before the action that triggers the request.
  * @property {(response: object|((request: import("@playwright/test").Request) => object)) => RequestView} respondWith
  *   Changes the answer of the mock, the recorded requests and `waitForRequest` keep counting. The response is the same
  *   as the one of `mockApiRequest`. Returns a view of the requests that are received after the change.
+ * @property {(responses: object[]) => RequestView} respondWithSequence Answers the first request after the call with the
+ *   first response, the second with the second one and so on (the last response is repeated). The responses are
+ *   options of `route.fulfill()` without `hold`.
  * @property {() => RequestView} respondWithDefault Goes back to the answer the mock was registered with. It is a deep
  *   copy taken at registration, so changes that a test made to the registered object afterwards are not part of it, and
  *   a `hold` of the default is applied again with a new gate. Returns a view like `respondWith`.
- * @property {() => void} release Answers all requests that are held by a response with `hold: true`.
+ * @property {() => Promise<void>} release Answers all requests that are held by a response with `hold: true`. The
+ *   returned promise resolves when the held requests are answered.
  */
 
 /**
@@ -50,7 +59,8 @@ export function readFixture(name) {
  * @param {import("@playwright/test").Page} page
  * @param {string|null} method - `null` mocks every method
  * @param {string|RegExp|Function} path - glob relative to `api/v1/` (`*` matches the query string, but not further
- *   path segments), other matchers of `page.route` are used as they are
+ *   path segments). Globs that start with a double star and a slash (e.g. the sanctum csrf cookie) and other matchers
+ *   of `page.route` are used as they are.
  * @param {object|((request: import("@playwright/test").Request) => object)} response - options for
  *   `route.fulfill()` (e.g. `{ status, json }` or `{ path }`) or a function that returns them. With `hold: true` the
  *   requests are answered after `release()` was called (replaces `interceptIndefinitely`), every response has its own
@@ -69,6 +79,7 @@ export async function mockApiRequest(
   const requestRecorder = createRequestRecorder();
   const { requests } = requestRecorder;
   const gates = new Set();
+  const pending = new Set();
 
   const createAnswer = (definition) => {
     if (typeof definition === "function") {
@@ -88,8 +99,11 @@ export async function mockApiRequest(
     typeof response === "function" ? response : structuredClone(response);
   let answer = createAnswer(response);
 
+  // eslint-disable-next-line no-restricted-syntax -- `mockApiRequest` is the one place that registers the routes
   await page.route(
-    typeof path === "string" ? `**/api/v1/${path}` : path,
+    typeof path === "string" && !path.startsWith("**/")
+      ? `**/api/v1/${path}`
+      : path,
     async (route) => {
       const request = route.request();
       if (method && request.method() !== method) {
@@ -98,25 +112,68 @@ export async function mockApiRequest(
       requests.push(request);
       onRequest?.(request);
       const current = answer;
-      await current.gate?.promise;
-      return route.fulfill(current.respond(request));
+      const answered = (async () => {
+        await current.gate?.promise;
+        try {
+          await route.fulfill(current.respond(request));
+          requestRecorder.markResponded(request);
+        } catch {
+          // the request has been aborted in the meantime, e.g. by a reload
+        }
+      })();
+      pending.add(answered);
+      answered.finally(() => pending.delete(answered));
+      return answered;
     },
   );
 
-  return {
+  // The views that the methods return are also handles from that point on, so a test can change the answer again.
+  const asHandle = (view) =>
+    Object.assign(view, {
+      respondWith: (...args) => handle.respondWith(...args),
+      respondWithOnce: (...args) => handle.respondWithOnce(...args),
+      respondWithSequence: (...args) => handle.respondWithSequence(...args),
+      respondWithDefault: () => handle.respondWithDefault(),
+      release: () => handle.release(),
+    });
+
+  const handle = {
     ...requestRecorder,
     respondWith(newResponse) {
       answer = createAnswer(newResponse);
-      return requestRecorder.startView();
+      return asHandle(requestRecorder.startView());
     },
     respondWithDefault() {
       answer = createAnswer(defaultResponse);
-      return requestRecorder.startView();
+      return asHandle(requestRecorder.startView());
+    },
+    respondWithOnce(onceResponse) {
+      const previous = answer;
+      const once = createAnswer(onceResponse);
+      answer = {
+        gate: once.gate,
+        respond: (request) => {
+          answer = previous;
+          return once.respond(request);
+        },
+      };
+      return asHandle(requestRecorder.startView());
+    },
+    respondWithSequence(responses) {
+      const view = asHandle(requestRecorder.startView());
+      const first = requests.length;
+      answer = createAnswer((request) => {
+        const index = requests.indexOf(request) - first;
+        return responses[Math.min(index, responses.length - 1)];
+      });
+      return view;
     },
     release() {
       gates.forEach((gate) => gate.open());
+      return Promise.all([...pending]);
     },
   };
+  return handle;
 }
 
 /**
@@ -232,22 +289,6 @@ export async function mockApiList(page, path, body) {
   });
 }
 
-/**
- * Holds the matching requests of every method until `release()` is called, to be able to check the loading state
- * (replaces interceptIndefinitely).
- * @param {import("@playwright/test").Page} page
- * @param {string|RegExp|Function} path - see `mockApiRequest`
- * @param {object} [response] - options for `route.fulfill()`, e.g. `{ json: {...} }` or `{ path: "..." }`
- * @returns {Promise<() => void>} release function, call it to send the response
- */
-export async function holdApiRequest(page, path, response = { status: 200 }) {
-  const mock = await mockApiRequest(page, null, path, {
-    ...response,
-    hold: true,
-  });
-  return () => mock.release();
-}
-
 // ----------------------------------------------------------------------------
 // Responses of the API (for `mockApiRequest` and `respondWith`)
 
@@ -313,6 +354,7 @@ export function validationErrors(errors, message, options = {}) {
  * spread it into the handle (`{ ...createRequestRecorder(), ... }`).
  * - `requests`: all recorded requests
  * - `waitForNextRequest()`: a promise for the next request, call it before the action that triggers it
+ * - `waitForNextResponse()`: a promise for the next request that was answered (the response is sent to the page)
  * - `waitForRequest(count = 1)`: waits until at least `count` requests were recorded and returns the `count`th one. As
  *   the mock records all requests, it can be called after the action that triggers the request (no promise has to be
  *   created before it, unlike `page.waitForRequest`).
@@ -320,6 +362,7 @@ export function validationErrors(errors, message, options = {}) {
  */
 export function createRequestRecorder() {
   const requests = [];
+  const responded = [];
   const waitForRequestAfter =
     (start) =>
     async (count = 1) => {
@@ -334,6 +377,18 @@ export function createRequestRecorder() {
     /**
      * Returns a promise for the next request. Call it before the action that triggers the request.
      */
+    /**
+     * Returns a promise for the next request that the mock has answered (the response is sent to the page). Call it
+     * before the action that triggers the request.
+     */
+    async waitForNextResponse() {
+      const start = responded.length;
+      await expect.poll(() => responded.length).toBeGreaterThan(start);
+      return responded[start];
+    },
+    markResponded(request) {
+      responded.push(request);
+    },
     waitForNextRequest() {
       const start = requests.length;
       return waitForRequestAfter(start)(1);
@@ -349,6 +404,7 @@ export function createRequestRecorder() {
           return requests.slice(start);
         },
         waitForRequest: waitForRequestAfter(start),
+        waitForNextRequest: () => waitForRequestAfter(requests.length)(1),
       };
     },
   };

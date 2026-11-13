@@ -11,12 +11,7 @@ import {
   roomTypeCheckDefaultRoomSettingCheckboxField,
   expectAdminBreadcrumbs,
 } from "../support/admin.js";
-import {
-  holdApiRequest,
-  mockApiRequest,
-  serverError,
-  modelNotFound,
-} from "../support/utils.js";
+import { serverError, modelNotFound } from "../support/utils.js";
 
 const test = mergeTests(
   roomTypeControllerTest,
@@ -53,10 +48,9 @@ test.describe("Admin room types view", () => {
   test("shows loading state and hides buttons while loading and without permissions", async ({
     page,
     roomTypeResponse,
+    getRoomTypeApiMock,
   }) => {
-    const release = await holdApiRequest(page, "roomTypes/3", {
-      json: roomTypeResponse,
-    });
+    getRoomTypeApiMock.respondWith({ json: roomTypeResponse, hold: true });
 
     await page.goto("/admin/room_types/3");
     await expect(
@@ -76,7 +70,7 @@ test.describe("Admin room types view", () => {
       await expect(page.getByTestId(button)).toHaveCount(0);
     }
 
-    release();
+    getRoomTypeApiMock.release();
 
     // Check that loading is done
     await expect(page.locator("#room-type-name")).toHaveValue("Exam");
@@ -460,8 +454,9 @@ test.describe("Admin room types view", () => {
     test("shows the error and allows to reload on 500", async ({
       page,
       roomTypeResponse,
+      getRoomTypeApiMock,
     }) => {
-      await mockApiRequest(page, "GET", "roomTypes/3", serverError());
+      getRoomTypeApiMock.respondWith(serverError());
       await page.goto("/admin/room_types/3");
 
       // Check that overlay is shown
@@ -474,7 +469,7 @@ test.describe("Admin room types view", () => {
       ]);
 
       // Reload with correct data
-      await mockApiRequest(page, "GET", "roomTypes/3", {
+      getRoomTypeApiMock.respondWith({
         json: roomTypeResponse,
       });
 
@@ -489,13 +484,11 @@ test.describe("Admin room types view", () => {
       await expect(retryButton).toHaveCount(0);
     });
 
-    test("redirects to the index page on 404", async ({ page }) => {
-      await mockApiRequest(
-        page,
-        "GET",
-        "roomTypes/3",
-        modelNotFound("room_type", [3]),
-      );
+    test("redirects to the index page on 404", async ({
+      page,
+      getRoomTypeApiMock,
+    }) => {
+      getRoomTypeApiMock.respondWith(modelNotFound("room_type", [3]));
 
       await page.goto("/admin/room_types/3");
 
@@ -509,8 +502,11 @@ test.describe("Admin room types view", () => {
       ]);
     });
 
-    test("redirects to the login page on 401", async ({ page }) => {
-      await mockApiRequest(page, "GET", "roomTypes/3", { status: 401 });
+    test("redirects to the login page on 401", async ({
+      page,
+      getRoomTypeApiMock,
+    }) => {
+      getRoomTypeApiMock.respondWith({ status: 401 });
 
       await page.goto("/admin/room_types/3");
 

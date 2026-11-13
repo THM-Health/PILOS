@@ -6,24 +6,26 @@ import {
   modelNotFound,
 } from "../support/utils.js";
 import { mergeTests } from "@playwright/test";
+import { test as roomFileControllerTest } from "../support/fixtures/roomFileController.js";
+import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
 import { test as roomControllerTest } from "../support/fixtures/roomController.js";
 import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import {
-  interceptRoomFilesRequest,
-  interceptRoomIndexRequests,
-} from "../support/mocks.js";
+
 import {
   setValidRememberedParticipantName,
   expectAuthToken,
   expectNoAuthToken,
 } from "../support/room.js";
 
-const test = mergeTests(roomControllerTest, participantNameCheckTest);
+const test = mergeTests(
+  roomControllerTest,
+  participantNameCheckTest,
+  roomFileControllerTest,
+  roomTypeControllerTest,
+);
 
-test.beforeEach(async ({ page }) => {
-  await interceptRoomFilesRequest(page);
-});
+test.use({ roomFilesFixtureName: "roomFilesNoDetails.json" });
 
 test.describe("logged in user", () => {
   test.use({ authenticated: true });
@@ -778,7 +780,6 @@ test.describe("logged in user", () => {
     });
 
     test("room not found", async ({ page, postRoomAuthApiMock }) => {
-      await interceptRoomIndexRequests(page);
       const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith(
         modelNotFound("room", ["abc-def-123"]),
       );

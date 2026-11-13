@@ -55,6 +55,7 @@ test.describe("Admin servers index server actions", () => {
     test("confirm deletes the server and reloads the list", async ({
       page,
       serversResponse,
+      getServersApiMock,
     }) => {
       const dialog = page.getByTestId("servers-delete-dialog");
       await page
@@ -89,7 +90,7 @@ test.describe("Admin servers index server actions", () => {
       );
       await expect(page.getByTestId("dialog-cancel-button")).toBeDisabled();
 
-      const reload = page.waitForRequest(/\/api\/v1\/servers\?/);
+      const reload = getServersApiMock.waitForNextRequest();
       await deleteServerApiMock.waitForRequest();
       deleteServerApiMock.release();
       await reload;
@@ -177,6 +178,7 @@ test.describe("Admin servers index server actions", () => {
     test("server not found (404) reloads the list and closes the dialog", async ({
       page,
       serversResponse,
+      getServersApiMock,
     }) => {
       serversResponse.data = serversResponse.data.filter(
         (server) => server.id !== 3,
@@ -192,7 +194,7 @@ test.describe("Admin servers index server actions", () => {
         modelNotFound("server", [3]),
       );
 
-      const reload = page.waitForRequest(/\/api\/v1\/servers\?/);
+      const reload = getServersApiMock.waitForNextRequest();
       await page.getByTestId("dialog-continue-button").click();
       await deleteServerApiMock.waitForRequest();
       await reload;
@@ -240,8 +242,11 @@ test.describe("Admin servers index server actions", () => {
   });
 
   test.describe("reload servers", () => {
-    test("initial load does not update the usage", async ({ page }) => {
-      const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+    test("initial load does not update the usage", async ({
+      page,
+      getServersApiMock,
+    }) => {
+      const request = getServersApiMock.waitForNextRequest();
       await page.goto("/admin/servers");
 
       expect(getRequestQuery(await request)).toMatchObject({
@@ -279,7 +284,7 @@ test.describe("Admin servers index server actions", () => {
       });
       getServersApiMock.respondWith({ json: serversResponse, hold: true });
 
-      const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+      const request = getServersApiMock.waitForNextRequest();
       await page.getByTestId("servers-reload-usage-button").click();
 
       // Check loading state during reload
@@ -328,7 +333,7 @@ test.describe("Admin servers index server actions", () => {
         await expect(cells.nth(6)).toHaveText("5");
 
         getServersApiMock.respondWithPage({ currentPage: 2, lastPage: 5 });
-        const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+        const request = getServersApiMock.waitForNextRequest();
         // there are two paginator components (first one for small devices, second one for larger devices)
         await page.getByTestId("paginator-next-button").nth(1).click();
 
@@ -356,7 +361,7 @@ test.describe("Admin servers index server actions", () => {
           video_count: 10,
         });
 
-        const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+        const request = getServersApiMock.waitForNextRequest();
         await page.getByTestId("servers-reload-usage-button").click();
 
         expect(getRequestQuery(await request)).toMatchObject({
@@ -374,8 +379,11 @@ test.describe("Admin servers index server actions", () => {
         await expectActivePage(page, 1);
       });
 
-      test("reload without usage keeps the page", async ({ page }) => {
-        const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+      test("reload without usage keeps the page", async ({
+        page,
+        getServersApiMock,
+      }) => {
+        const request = getServersApiMock.waitForNextRequest();
         await page.getByTestId("servers-reload-no-usage-button").click();
 
         expect(getRequestQuery(await request)).toMatchObject({

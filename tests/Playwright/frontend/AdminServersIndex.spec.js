@@ -69,7 +69,7 @@ test.describe("Admin servers index", () => {
       await expect(page.getByText("admin.servers.usage_info")).toBeVisible();
       await expect(page.getByTestId("overlay")).toBeVisible();
 
-      const response = page.waitForResponse(/\/api\/v1\/servers\?/);
+      const response = getServersApiMock.waitForNextResponse();
       getServersApiMock.release();
       await response;
 
@@ -264,7 +264,7 @@ test.describe("Admin servers index", () => {
         json: serversResponse,
       });
 
-      const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+      const request = getServersApiMock.waitForNextRequest();
       await page.getByTestId("loading-retry-button").click();
       const query = getRequestQuery(await request);
 
@@ -290,7 +290,7 @@ test.describe("Admin servers index", () => {
       test("shows error and overlay", async ({ page, getServersApiMock }) => {
         getServersApiMock.respondWith(serverError());
 
-        const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+        const request = getServersApiMock.waitForNextRequest();
         await page.getByTestId("paginator-next-button").nth(1).click();
         const query = getRequestQuery(await request);
         expect(query.page).toBe("2");
@@ -334,7 +334,7 @@ test.describe("Admin servers index", () => {
           json: serversResponse,
         });
 
-        const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+        const request = getServersApiMock.waitForNextRequest();
         await page.getByTestId("loading-retry-button").click();
         const query = getRequestQuery(await request);
         expect(query).toMatchObject({ update_usage: "0", page: "1" });
@@ -398,7 +398,7 @@ test.describe("Admin servers index", () => {
     });
     getServersApiMock.respondWith({ json: emptyServers, hold: true });
 
-    const secondPageRequest = page.waitForRequest(/\/api\/v1\/servers\?/);
+    const secondPageRequest = getServersApiMock.waitForNextRequest();
     await page.getByTestId("paginator-next-button").nth(1).click();
 
     // The page is still the same on the first request
@@ -417,12 +417,7 @@ test.describe("Admin servers index", () => {
     });
 
     // The second request resets the page
-    const resetRequest = page.waitForRequest(
-      (request) =>
-        request.method() === "GET" &&
-        new URL(request.url()).pathname === "/api/v1/servers" &&
-        getRequestQuery(request).page === "1",
-    );
+    const resetRequest = getServersApiMock.waitForNextRequest();
     getServersApiMock.release();
     await resetRequest;
 
@@ -432,8 +427,11 @@ test.describe("Admin servers index", () => {
   });
 
   test.describe("server search", () => {
-    test("initial request has no query", async ({ page }) => {
-      const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+    test("initial request has no query", async ({
+      page,
+      getServersApiMock,
+    }) => {
+      const request = getServersApiMock.waitForNextRequest();
       await page.goto("/admin/servers");
 
       const query = getRequestQuery(await request);
@@ -447,6 +445,7 @@ test.describe("Admin servers index", () => {
     test("no servers found for search query", async ({
       page,
       serversResponse,
+      getServersApiMock,
     }) => {
       await page.goto("/admin/servers");
       await expect(page.getByTestId("server-item")).toHaveCount(5);
@@ -460,7 +459,7 @@ test.describe("Admin servers index", () => {
       });
 
       await page.getByTestId("server-search").locator("input").fill("Test");
-      const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+      const request = getServersApiMock.waitForNextRequest();
       await page.getByTestId("server-search").locator("button").click();
       const query = getRequestQuery(await request);
 
@@ -476,6 +475,7 @@ test.describe("Admin servers index", () => {
     test("no servers available, search with enter", async ({
       page,
       serversResponse,
+      getServersApiMock,
     }) => {
       await page.goto("/admin/servers");
       await expect(page.getByTestId("server-item")).toHaveCount(5);
@@ -491,7 +491,7 @@ test.describe("Admin servers index", () => {
 
       const input = page.getByTestId("server-search").locator("input");
       await input.fill("Test2");
-      const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+      const request = getServersApiMock.waitForNextRequest();
       await input.press("Enter");
       const query = getRequestQuery(await request);
 
@@ -515,7 +515,7 @@ test.describe("Admin servers index", () => {
           meta: { total: 2 },
         });
         await page.getByTestId("server-search").locator("input").fill("Server");
-        const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+        const request = getServersApiMock.waitForNextRequest();
         await page.getByTestId("server-search").locator("button").click();
         await request;
         await expect(page.getByTestId("server-item")).toHaveCount(1);
@@ -539,7 +539,7 @@ test.describe("Admin servers index", () => {
           meta: { total: 2 },
         });
 
-        const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+        const request = getServersApiMock.waitForNextRequest();
         await page.getByTestId("paginator-next-button").nth(1).click();
         const query = getRequestQuery(await request);
 
@@ -575,7 +575,7 @@ test.describe("Admin servers index", () => {
         });
         const input = page.getByTestId("server-search").locator("input");
         await input.fill("Se");
-        const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+        const request = getServersApiMock.waitForNextRequest();
         await page.getByTestId("server-search").locator("button").click();
         const query = getRequestQuery(await request);
 
@@ -595,8 +595,11 @@ test.describe("Admin servers index", () => {
       ];
     });
 
-    test("default sorting and sortable columns", async ({ page }) => {
-      const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+    test("default sorting and sortable columns", async ({
+      page,
+      getServersApiMock,
+    }) => {
+      const request = getServersApiMock.waitForNextRequest();
       await page.goto("/admin/servers");
 
       expect(getRequestQuery(await request)).toMatchObject({
@@ -644,7 +647,7 @@ test.describe("Admin servers index", () => {
         await expect(page.getByTestId("server-item")).toHaveCount(5);
 
         getServersApiMock.respondWithPage({ currentPage: 1, lastPage: 5 });
-        const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+        const request = getServersApiMock.waitForNextRequest();
         await page.getByTestId("server-header-cell").nth(1).click();
         const query = getRequestQuery(await request);
         expect(query).toMatchObject({
@@ -673,7 +676,7 @@ test.describe("Admin servers index", () => {
       }) => {
         getServersApiMock.respondWithPage({ currentPage: 2, lastPage: 5 });
 
-        const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+        const request = getServersApiMock.waitForNextRequest();
         await page.getByTestId("paginator-next-button").nth(1).click();
         const query = getRequestQuery(await request);
 
@@ -704,7 +707,7 @@ test.describe("Admin servers index", () => {
         await expectActivePage(page, 1);
 
         getServersApiMock.respondWithPage({ currentPage: 1, lastPage: 5 });
-        const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+        const request = getServersApiMock.waitForNextRequest();
         await page.getByTestId("server-header-cell").nth(1).click();
         const query = getRequestQuery(await request);
 
@@ -728,8 +731,9 @@ test.describe("Admin servers index", () => {
 
       test("changing the column resets the sorting of the previous one", async ({
         page,
+        getServersApiMock,
       }) => {
-        const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+        const request = getServersApiMock.waitForNextRequest();
         await page.getByTestId("server-header-cell").nth(3).click();
         const query = getRequestQuery(await request);
 
@@ -754,12 +758,12 @@ test.describe("Admin servers index", () => {
       await expect(page.getByTestId("server-item")).toHaveCount(1);
       await expect(page.getByTestId("server-item")).toContainText("Server 01");
 
-      const sortRequest = page.waitForRequest(/\/api\/v1\/servers\?/);
+      const sortRequest = getServersApiMock.waitForNextRequest();
       await page.getByTestId("server-header-cell").nth(3).click();
       await sortRequest;
 
       getServersApiMock.respondWithPage({ currentPage: 2, lastPage: 5 });
-      const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+      const request = getServersApiMock.waitForNextRequest();
       await page.getByTestId("paginator-next-button").nth(1).click();
       const query = getRequestQuery(await request);
 
@@ -792,7 +796,7 @@ test.describe("Admin servers index", () => {
       await expectActivePage(page, 1);
 
       getServersApiMock.respondWithPage({ currentPage: 1, lastPage: 5 });
-      const request = page.waitForRequest(/\/api\/v1\/servers\?/);
+      const request = getServersApiMock.waitForNextRequest();
       await page.getByTestId("server-header-cell").nth(4).click();
       const query = getRequestQuery(await request);
 
@@ -820,7 +824,7 @@ test.describe("Admin servers index", () => {
       await headers.nth(4).click();
       await expect(headers.nth(4)).toHaveAttribute("data-p-sorted", "true");
 
-      const participantRequest = page.waitForRequest(/\/api\/v1\/servers\?/);
+      const participantRequest = getServersApiMock.waitForNextRequest();
       await headers.nth(5).click();
       let query = getRequestQuery(await participantRequest);
       expect(query).toMatchObject({
@@ -832,7 +836,7 @@ test.describe("Admin servers index", () => {
       await expect(headers.nth(5)).toHaveAttribute("data-p-sorted", "true");
       await expect(headers.nth(5)).toHaveAttribute("aria-sort", "ascending");
 
-      const videoRequest = page.waitForRequest(/\/api\/v1\/servers\?/);
+      const videoRequest = getServersApiMock.waitForNextRequest();
       await headers.nth(6).click();
       query = getRequestQuery(await videoRequest);
       expect(query).toMatchObject({

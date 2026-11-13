@@ -1,21 +1,25 @@
+import { test as roomControllerTest } from "../support/fixtures/roomController.js";
+import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
 import { mergeTests } from "@playwright/test";
 import { test as userProfileTest } from "../support/fixtures/userProfile.js";
 import { test as userControllerTest } from "../support/fixtures/userController.js";
 import { test as timezonesTest } from "../support/fixtures/timezones.js";
 import { test as sessionControllerTest } from "../support/fixtures/sessionController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { interceptRoomIndexRequests } from "../support/mocks.js";
+
 import {
   expectLoginRedirect,
   testVisitWithoutCurrentUser,
 } from "../support/general.js";
-import { mockApiRequest, serverError } from "../support/utils.js";
+import { serverError } from "../support/utils.js";
 
 const test = mergeTests(
   userProfileTest,
   userControllerTest,
   timezonesTest,
   sessionControllerTest,
+  roomControllerTest,
+  roomTypeControllerTest,
 );
 
 test.use({ authenticated: true });
@@ -28,10 +32,9 @@ test.describe("User profile", () => {
   test("open user profile from the navbar and show it after loading", async ({
     page,
     profileUserResponse,
+    getProfileUserApiMock,
   }) => {
-    await interceptRoomIndexRequests(page);
-
-    const getUserApiMock = await mockApiRequest(page, "GET", "users/1", {
+    getProfileUserApiMock.respondWith({
       json: profileUserResponse,
       hold: true,
     });
@@ -56,7 +59,7 @@ test.describe("User profile", () => {
     await expect(page.getByTestId("security-tab-button")).toHaveCount(0);
     await expect(page.getByTestId("others-tab-button")).toHaveCount(0);
 
-    getUserApiMock.release();
+    getProfileUserApiMock.release();
 
     await expect(page.getByTestId("overlay")).toBeHidden();
     await expect(page.getByTestId("base-tab-button")).toBeVisible();
@@ -92,8 +95,9 @@ test.describe("User profile", () => {
     test("show error and allow reload", async ({
       page,
       profileUserResponse,
+      getProfileUserApiMock,
     }) => {
-      await mockApiRequest(page, "GET", "users/1", serverError());
+      getProfileUserApiMock.respondWith(serverError());
 
       await page.goto("/profile");
 
@@ -104,7 +108,7 @@ test.describe("User profile", () => {
       ]);
 
       // Reload with correct data
-      await mockApiRequest(page, "GET", "users/1", {
+      getProfileUserApiMock.respondWith({
         json: profileUserResponse,
       });
 
@@ -116,12 +120,15 @@ test.describe("User profile", () => {
       await expect(page.getByTestId("base-tab-button")).toBeVisible();
     });
 
-    test("401 error on reload redirects to login", async ({ page }) => {
+    test("401 error on reload redirects to login", async ({
+      page,
+      getProfileUserApiMock,
+    }) => {
       await page.goto("/profile");
       await expect(page.getByTestId("overlay")).toBeHidden();
       await expect(page.getByTestId("base-tab-button")).toBeVisible();
 
-      await mockApiRequest(page, "GET", "users/1", { status: 401 });
+      getProfileUserApiMock.respondWith({ status: 401 });
       await page.reload();
 
       await expectLoginRedirect(page, "/profile");

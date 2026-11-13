@@ -1,8 +1,9 @@
+import { test as roomFileControllerTest } from "../support/fixtures/roomFileController.js";
 import { mergeTests } from "@playwright/test";
 import { test as roomControllerTest } from "../support/fixtures/roomController.js";
 import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { interceptRoomFilesRequest } from "../support/mocks.js";
+
 import { setValidRememberedParticipantName } from "../support/room.js";
 import {
   getRequestQuery,
@@ -10,13 +11,15 @@ import {
   serverError,
 } from "../support/utils.js";
 
-const test = mergeTests(roomControllerTest, participantNameCheckTest);
+const test = mergeTests(
+  roomControllerTest,
+  participantNameCheckTest,
+  roomFileControllerTest,
+);
+
+test.use({ roomFilesFixtureName: "roomFilesNoDetails.json" });
 
 test.describe("Rooms View access participant name", () => {
-  test.beforeEach(async ({ page }) => {
-    await interceptRoomFilesRequest(page);
-  });
-
   test.describe("participant name errors (guest)", () => {
     test.beforeEach(async ({ roomResponse }) => {
       roomResponse.data.allow_membership = true;
@@ -366,14 +369,10 @@ test.describe("Rooms View access participant name", () => {
       roomResponse.data.allow_membership = true;
       roomResponse.data.current_user = null;
       // The room is authenticated as soon as the request carries the room auth token
-      await page.route("**/api/v1/rooms/abc-def-123*", (route) => {
-        if (route.request().method() !== "GET") {
-          return route.fallback();
-        }
-        getRoomApiMock.requests.push(route.request());
+      getRoomApiMock.respondWith((request) => {
         roomResponse.data.authenticated =
-          "room_auth_token" in getRequestQuery(route.request());
-        return route.fulfill({ json: roomResponse });
+          "room_auth_token" in getRequestQuery(request);
+        return { json: roomResponse };
       });
 
       await page.goto("/rooms/abc-def-123#accessCode=123456789");

@@ -1,3 +1,4 @@
+import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
 import { mergeTests } from "@playwright/test";
 import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
 import { test as roomControllerTest } from "../support/fixtures/roomController.js";
@@ -11,7 +12,7 @@ import {
   serverError,
   validationErrors,
 } from "../support/utils.js";
-import { interceptRoomIndexRequests } from "../support/mocks.js";
+
 import {
   checkRoomAuthErrors,
   expectNoAuthToken,
@@ -23,6 +24,7 @@ const test = mergeTests(
   recordingControllerTest,
   postMessageToAppTest,
   participantNameCheckTest,
+  roomTypeControllerTest,
 );
 
 test.use({ authenticated: true });
@@ -376,6 +378,7 @@ test.describe("Rooms view recordings recording actions", () => {
       roomRecordingsResponse,
       postMessageToApp,
       getRoomRecordingsApiMock,
+      postParticipantNameCheckApiMock,
     }) => {
       roomResponse.data.current_user = null;
       roomRecordingsResponse.data = roomRecordingsResponse.data.slice(0, 1);
@@ -384,11 +387,8 @@ test.describe("Rooms view recordings recording actions", () => {
       roomRecordingsResponse.meta.total_no_filter = 1;
       const getRoomRecordingsRequestsAfterChange =
         getRoomRecordingsApiMock.respondWith({ json: roomRecordingsResponse });
-      const participantNameCheck = page.waitForRequest(
-        (request) =>
-          request.method() === "POST" &&
-          request.url().includes("/api/v1/participantName/check"),
-      );
+      const participantNameCheck =
+        postParticipantNameCheckApiMock.waitForNextRequest();
 
       await postMessageToApp({ type: "forbidden" });
 
@@ -663,7 +663,6 @@ test.describe("Rooms view recordings recording actions", () => {
     test("redirects to the room index page if the room was not found", async ({
       page,
     }) => {
-      await interceptRoomIndexRequests(page);
       await mockApiRequest(
         page,
         "DELETE",
@@ -991,7 +990,6 @@ test.describe("Rooms view recordings recording actions", () => {
     test("redirects to the room index page if the room was not found", async ({
       page,
     }) => {
-      await interceptRoomIndexRequests(page);
       await mockApiRequest(
         page,
         "PUT",

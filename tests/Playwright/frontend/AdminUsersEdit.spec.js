@@ -4,17 +4,13 @@ import { test as roleControllerTest } from "../support/fixtures/roleController.j
 import { test as timezonesTest } from "../support/fixtures/timezones.js";
 import { test as sessionControllerTest } from "../support/fixtures/sessionController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { interceptAdminUsersIndexRequests } from "../support/mocks.js";
+
 import {
   expectLoginRedirect,
   testVisitWithoutCurrentUser,
 } from "../support/general.js";
 import { expectAdminBreadcrumbs } from "../support/admin.js";
-import {
-  mockApiRequest,
-  serverError,
-  modelNotFound,
-} from "../support/utils.js";
+import { serverError, modelNotFound } from "../support/utils.js";
 
 const test = mergeTests(
   userControllerTest,
@@ -126,8 +122,9 @@ test.describe("Admin users edit", () => {
     test("loading state hides buttons and tabs", async ({
       page,
       userResponse,
+      getUserApiMock,
     }) => {
-      const getUserApiMock = await mockApiRequest(page, "GET", "users/2", {
+      getUserApiMock.respondWith({
         hold: true,
         json: userResponse,
       });
@@ -247,8 +244,9 @@ test.describe("Admin users edit", () => {
     test("server error shows overlay and allows reload", async ({
       page,
       userResponse,
+      getUserApiMock,
     }) => {
-      await mockApiRequest(page, "GET", "users/2", serverError());
+      getUserApiMock.respondWith(serverError());
 
       await page.goto("/admin/users/2/edit");
 
@@ -259,7 +257,7 @@ test.describe("Admin users edit", () => {
       ]);
 
       // Reload with correct data
-      await mockApiRequest(page, "GET", "users/2", {
+      getUserApiMock.respondWith({
         json: userResponse,
       });
 
@@ -272,9 +270,11 @@ test.describe("Admin users edit", () => {
       await expect(page.getByTestId("overlay")).toBeHidden();
     });
 
-    test("404 error redirects to users index", async ({ page }) => {
-      await interceptAdminUsersIndexRequests(page);
-      await mockApiRequest(page, "GET", "users/2", modelNotFound("user", [2]));
+    test("404 error redirects to users index", async ({
+      page,
+      getUserApiMock,
+    }) => {
+      getUserApiMock.respondWith(modelNotFound("user", [2]));
 
       await page.goto("/admin/users/2/edit");
 
@@ -285,8 +285,8 @@ test.describe("Admin users edit", () => {
       ]);
     });
 
-    test("401 error redirects to login", async ({ page }) => {
-      await mockApiRequest(page, "GET", "users/2", { status: 401 });
+    test("401 error redirects to login", async ({ page, getUserApiMock }) => {
+      getUserApiMock.respondWith({ status: 401 });
 
       await page.goto("/admin/users/2/edit");
 

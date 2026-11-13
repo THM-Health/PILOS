@@ -130,5 +130,22 @@ export default defineConfig([
       "playwright/no-conditional-expect": "off",
     },
   },
+  {
+    // The mocked suites mock and wait for API requests only through the fixtures and `mockApiRequest`, see
+    // `.ai/rules/playwright.md`. The system suite talks to the real backend and is not affected.
+    files: ["tests/Playwright/**/*.js"],
+    ignores: ["tests/Playwright/system/**"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "CallExpression[callee.object.name='page'][callee.property.name=/^(route|waitForRequest|waitForResponse)$/]",
+          message:
+            "Mock API requests with a fixture handle or `mockApiRequest` and wait for them with `waitForRequest` / `waitForNextRequest` / `waitForNextResponse` of the handle (see .ai/rules/playwright.md).",
+        },
+      ],
+    },
+  },
   eslintConfigPrettier,
 ]);

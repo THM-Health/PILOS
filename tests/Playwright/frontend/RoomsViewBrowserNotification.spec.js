@@ -104,11 +104,14 @@ test.describe("Rooms view browser notification", () => {
     );
   });
 
-  test("hide enable button if not supported by browser", async ({ page }) => {
+  test("hide enable button if not supported by browser", async ({
+    page,
+    getRoomApiMock,
+  }) => {
     await page.addInitScript(() => {
       delete window.Notification;
     });
-    const roomResponse = page.waitForResponse("**/api/v1/rooms/abc-def-123");
+    const roomResponse = getRoomApiMock.waitForNextResponse();
     await page.goto("/rooms/abc-def-123");
     await roomResponse;
 
@@ -147,6 +150,7 @@ test.describe("Rooms view browser notification", () => {
       page,
       roomResponse,
       stubBrowserApis,
+      getRoomApiMock,
     }) => {
       const getState = await stubBrowserApis();
       await page.goto("/rooms/abc-def-123");
@@ -160,7 +164,7 @@ test.describe("Rooms view browser notification", () => {
         end: null,
       };
       await Promise.all([
-        page.waitForResponse("**/api/v1/rooms/abc-def-123"),
+        getRoomApiMock.waitForNextResponse(),
         page.getByTestId("reload-room-button").click(),
       ]);
 
@@ -190,6 +194,7 @@ test.describe("Rooms view browser notification", () => {
       page,
       roomResponse,
       stubBrowserApis,
+      getRoomApiMock,
     }) => {
       const getState = await stubBrowserApis();
       await page.goto("/rooms/abc-def-123");
@@ -201,7 +206,7 @@ test.describe("Rooms view browser notification", () => {
         end: null,
       };
       await Promise.all([
-        page.waitForResponse("**/api/v1/rooms/abc-def-123"),
+        getRoomApiMock.waitForNextResponse(),
         page.getByTestId("reload-room-button").click(),
       ]);
       await expect.poll(async () => (await getState()).plays).toBe(1);
@@ -211,7 +216,7 @@ test.describe("Rooms view browser notification", () => {
         end: "2023-08-21T09:18:28.000000Z",
       };
       await Promise.all([
-        page.waitForResponse("**/api/v1/rooms/abc-def-123"),
+        getRoomApiMock.waitForNextResponse(),
         page.getByTestId("reload-room-button").click(),
       ]);
 
@@ -222,6 +227,7 @@ test.describe("Rooms view browser notification", () => {
       page,
       roomResponse,
       stubBrowserApis,
+      getRoomApiMock,
     }) => {
       const getState = await stubBrowserApis();
       await page.goto("/rooms/abc-def-123");
@@ -234,7 +240,7 @@ test.describe("Rooms view browser notification", () => {
         end: null,
       };
       await Promise.all([
-        page.waitForResponse("**/api/v1/rooms/abc-def-123"),
+        getRoomApiMock.waitForNextResponse(),
         page.getByTestId("reload-room-button").click(),
       ]);
       await expect.poll(async () => (await getState()).plays).toBe(1);
@@ -243,7 +249,7 @@ test.describe("Rooms view browser notification", () => {
         end: "2023-08-21T09:18:28.000000Z",
       };
       await Promise.all([
-        page.waitForResponse("**/api/v1/rooms/abc-def-123"),
+        getRoomApiMock.waitForNextResponse(),
         page.getByTestId("reload-room-button").click(),
       ]);
       await expect.poll(async () => (await getState()).closed).toEqual([0]);
@@ -253,7 +259,7 @@ test.describe("Rooms view browser notification", () => {
         end: null,
       };
       await Promise.all([
-        page.waitForResponse("**/api/v1/rooms/abc-def-123"),
+        getRoomApiMock.waitForNextResponse(),
         page.getByTestId("reload-room-button").click(),
       ]);
       await expect(button).toHaveCount(0);
@@ -301,6 +307,7 @@ test.describe("Rooms view browser notification", () => {
       page,
       roomResponse,
       stubBrowserApis,
+      getRoomApiMock,
     }) => {
       await stubBrowserApis();
       await page.goto("/rooms/abc-def-123");
@@ -313,7 +320,7 @@ test.describe("Rooms view browser notification", () => {
         end: null,
       };
       await Promise.all([
-        page.waitForResponse("**/api/v1/rooms/abc-def-123"),
+        getRoomApiMock.waitForNextResponse(),
         page.getByTestId("reload-room-button").click(),
       ]);
       await expect(button).toHaveCount(0);
@@ -322,7 +329,7 @@ test.describe("Rooms view browser notification", () => {
         end: "2023-08-21T09:18:28.000000Z",
       };
       await Promise.all([
-        page.waitForResponse("**/api/v1/rooms/abc-def-123"),
+        getRoomApiMock.waitForNextResponse(),
         page.getByTestId("reload-room-button").click(),
       ]);
 
@@ -339,6 +346,7 @@ test.describe("Rooms view browser notification", () => {
       page,
       roomResponse,
       stubBrowserApis,
+      getRoomApiMock,
     }) => {
       const getState = await stubBrowserApis({ throwOnConstruct: true });
       await page.goto("/rooms/abc-def-123");
@@ -351,7 +359,7 @@ test.describe("Rooms view browser notification", () => {
         end: null,
       };
       await Promise.all([
-        page.waitForResponse("**/api/v1/rooms/abc-def-123"),
+        getRoomApiMock.waitForNextResponse(),
         page.getByTestId("reload-room-button").click(),
       ]);
 

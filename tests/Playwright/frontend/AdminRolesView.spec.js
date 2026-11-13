@@ -11,11 +11,7 @@ import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
 } from "../support/general.js";
-import {
-  mockApiRequest,
-  serverError,
-  modelNotFound,
-} from "../support/utils.js";
+import { serverError, modelNotFound } from "../support/utils.js";
 
 const test = mergeTests(roleControllerTest, permissionControllerTest);
 
@@ -125,8 +121,9 @@ test.describe("Admin roles view", () => {
     test("loading state hides buttons until the role is loaded", async ({
       page,
       roleResponse,
+      getRoleApiMock,
     }) => {
-      const getRoleApiMock = await mockApiRequest(page, "GET", "roles/2", {
+      getRoleApiMock.respondWith({
         hold: true,
         json: roleResponse,
       });
@@ -484,8 +481,10 @@ test.describe("Admin roles view", () => {
     test("role request fails and can be retried", async ({
       page,
       roleResponse,
+      getRoleApiMock,
+      getPermissionsApiMock,
     }) => {
-      await mockApiRequest(page, "GET", "roles/2", serverError());
+      getRoleApiMock.respondWith(serverError());
 
       await page.goto("/admin/roles/2");
 
@@ -496,16 +495,12 @@ test.describe("Admin roles view", () => {
       await expect(page.getByTestId("overlay")).toBeVisible();
 
       // Reload with correct data
-      await mockApiRequest(page, "GET", "roles/2", { json: roleResponse });
+      getRoleApiMock.respondWith({ json: roleResponse });
 
       const retryButton = page.getByTestId("loading-retry-button");
       await expect(retryButton).toHaveText("app.reload");
-      const roleRetry = page.waitForRequest(
-        (r) => r.method() === "GET" && r.url().endsWith("/api/v1/roles/2"),
-      );
-      const permissionsRetry = page.waitForRequest(
-        (r) => r.method() === "GET" && r.url().endsWith("/api/v1/permissions"),
-      );
+      const roleRetry = getRoleApiMock.waitForNextRequest();
+      const permissionsRetry = getPermissionsApiMock.waitForNextRequest();
       await retryButton.click();
       await roleRetry;
       await permissionsRetry;
@@ -515,8 +510,8 @@ test.describe("Admin roles view", () => {
       await expect(page.getByTestId("loading-retry-button")).toHaveCount(0);
     });
 
-    test("role not found", async ({ page }) => {
-      await mockApiRequest(page, "GET", "roles/2", modelNotFound("role", [2]));
+    test("role not found", async ({ page, getRoleApiMock }) => {
+      getRoleApiMock.respondWith(modelNotFound("role", [2]));
 
       await page.goto("/admin/roles/2");
 
@@ -528,8 +523,8 @@ test.describe("Admin roles view", () => {
       ]);
     });
 
-    test("role request unauthenticated", async ({ page }) => {
-      await mockApiRequest(page, "GET", "roles/2", { status: 401 });
+    test("role request unauthenticated", async ({ page, getRoleApiMock }) => {
+      getRoleApiMock.respondWith({ status: 401 });
 
       await page.goto("/admin/roles/2");
 
@@ -539,13 +534,11 @@ test.describe("Admin roles view", () => {
     test("permissions request fails and can be retried", async ({
       page,
       permissionsResponse,
+      getRoleApiMock,
+      getPermissionsApiMock,
     }) => {
-      const getPermissionsApiMock = await mockApiRequest(
-        page,
-        "GET",
-        "permissions",
-        serverError({ hold: true }),
-      );
+      const getPermissionsRequestsAfterChange =
+        getPermissionsApiMock.respondWith(serverError({ hold: true }));
 
       await page.goto("/admin/roles/2");
 
@@ -571,18 +564,15 @@ test.describe("Admin roles view", () => {
       await expect(page.getByTestId("roles-save-button")).toHaveCount(0);
 
       // Reload with correct data
-      await mockApiRequest(page, "GET", "permissions", {
+      getPermissionsApiMock.respondWith({
         json: permissionsResponse,
       });
 
       const retryButton = page.getByTestId("loading-retry-button");
       await expect(retryButton).toHaveText("app.reload");
-      const roleRetry = page.waitForRequest(
-        (r) => r.method() === "GET" && r.url().endsWith("/api/v1/roles/2"),
-      );
-      const permissionsRetry = page.waitForRequest(
-        (r) => r.method() === "GET" && r.url().endsWith("/api/v1/permissions"),
-      );
+      const roleRetry = getRoleApiMock.waitForNextRequest();
+      const permissionsRetry =
+        getPermissionsRequestsAfterChange.waitForNextRequest();
       await retryButton.click();
       await roleRetry;
       await permissionsRetry;
@@ -592,8 +582,11 @@ test.describe("Admin roles view", () => {
       await expect(page.getByTestId("loading-retry-button")).toHaveCount(0);
     });
 
-    test("permissions request unauthenticated", async ({ page }) => {
-      await mockApiRequest(page, "GET", "permissions", { status: 401 });
+    test("permissions request unauthenticated", async ({
+      page,
+      getPermissionsApiMock,
+    }) => {
+      getPermissionsApiMock.respondWith({ status: 401 });
 
       await page.goto("/admin/roles/2");
 

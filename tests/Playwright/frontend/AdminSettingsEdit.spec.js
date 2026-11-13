@@ -195,6 +195,7 @@ test.describe("Admin settings with edit permission", () => {
     test("saves changed application settings", async ({
       page,
       settingsResponse,
+      getConfigApiMock,
     }) => {
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
@@ -245,7 +246,7 @@ test.describe("Admin settings with edit permission", () => {
           hold: true,
         },
       );
-      const configRequest = page.waitForRequest("**/api/v1/config");
+      const configRequest = getConfigApiMock.waitForNextRequest();
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
@@ -318,6 +319,7 @@ test.describe("Admin settings with edit permission", () => {
     test("saves cleared url fields and unlimited toast lifetime", async ({
       page,
       settingsResponse,
+      getConfigApiMock,
     }) => {
       settingsResponse.data.general_name = "PILOS test application";
       settingsResponse.data.general_help_url = "http://www.pilos.com/help";
@@ -358,7 +360,7 @@ test.describe("Admin settings with edit permission", () => {
           json: settingsResponse,
         },
       );
-      const configRequest = page.waitForRequest("**/api/v1/config");
+      const configRequest = getConfigApiMock.waitForNextRequest();
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
@@ -495,7 +497,8 @@ test.describe("Admin settings with edit permission", () => {
     test("saves uploaded logos, primary color and rounded setting without reload", async ({
       page,
       settingsResponse,
-      settingsRequests,
+      getSettingsApiMock,
+      getConfigApiMock,
     }) => {
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
@@ -578,7 +581,7 @@ test.describe("Admin settings with edit permission", () => {
           hold: true,
         },
       );
-      const configRequest = page.waitForRequest("**/api/v1/config");
+      const configRequest = getConfigApiMock.waitForNextRequest();
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
@@ -639,13 +642,14 @@ test.describe("Admin settings with edit permission", () => {
       ).toHaveText("admin.settings.theme.enforced_color_mode.dark");
 
       // Check that page was not reloaded
-      expect(settingsRequests).toHaveLength(1);
+      expect(getSettingsApiMock.requests).toHaveLength(1);
     });
 
     test("saves without changes and does not send the unchanged custom css", async ({
       page,
       settingsResponse,
-      settingsRequests,
+      getSettingsApiMock,
+      getConfigApiMock,
     }) => {
       settingsResponse.data.theme_logo = "/images/logo2.svg";
       settingsResponse.data.theme_logo_dark = "/images/logo-dark2.svg";
@@ -667,7 +671,7 @@ test.describe("Admin settings with edit permission", () => {
           json: settingsResponse,
         },
       );
-      const firstConfigRequest = page.waitForRequest("**/api/v1/config");
+      const firstConfigRequest = getConfigApiMock.waitForNextRequest();
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
       await postSettingsApiMock.waitForRequest();
@@ -684,7 +688,7 @@ test.describe("Admin settings with edit permission", () => {
           json: settingsResponse,
         },
       );
-      const configRequest = page.waitForRequest("**/api/v1/config");
+      const configRequest = getConfigApiMock.waitForNextRequest();
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
@@ -730,13 +734,14 @@ test.describe("Admin settings with edit permission", () => {
         "#14b8a6",
       );
       await expect(page.locator("#theme-rounded")).not.toBeChecked();
-      expect(settingsRequests).toHaveLength(1);
+      expect(getSettingsApiMock.requests).toHaveLength(1);
     });
 
     test("saves changed logo urls without reload", async ({
       page,
       settingsResponse,
-      settingsRequests,
+      getSettingsApiMock,
+      getConfigApiMock,
     }) => {
       settingsResponse.data.theme_logo = "/images/logo2.svg";
       settingsResponse.data.theme_logo_dark = "/images/logo-dark2.svg";
@@ -769,7 +774,7 @@ test.describe("Admin settings with edit permission", () => {
           json: settingsResponse,
         },
       );
-      const configRequest = page.waitForRequest("**/api/v1/config");
+      const configRequest = getConfigApiMock.waitForNextRequest();
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
@@ -814,7 +819,7 @@ test.describe("Admin settings with edit permission", () => {
         "#14b8a6",
       );
       await expect(page.locator("#theme-rounded")).not.toBeChecked();
-      expect(settingsRequests).toHaveLength(1);
+      expect(getSettingsApiMock.requests).toHaveLength(1);
     });
   });
 
@@ -842,7 +847,8 @@ test.describe("Admin settings with edit permission", () => {
     test("saves an uploaded favicon and reloads the page", async ({
       page,
       settingsResponse,
-      settingsRequests,
+      getSettingsApiMock,
+      getConfigApiMock,
     }) => {
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
@@ -866,7 +872,7 @@ test.describe("Admin settings with edit permission", () => {
           json: settingsResponse,
         },
       );
-      const configRequest = page.waitForRequest("**/api/v1/config");
+      const configRequest = getConfigApiMock.waitForNextRequest();
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
@@ -884,7 +890,7 @@ test.describe("Admin settings with edit permission", () => {
       // Config is loaded regardless of whether the page is reloaded or not
       await configRequest;
       // Check that page was reloaded
-      await expect.poll(() => settingsRequests.length).toBe(2);
+      await expect.poll(() => getSettingsApiMock.requests.length).toBe(2);
 
       await expect(
         page.getByTestId("favicon-field").getByTestId("settings-image-preview"),
@@ -894,7 +900,8 @@ test.describe("Admin settings with edit permission", () => {
     test("saves a changed favicon url and reloads the page", async ({
       page,
       settingsResponse,
-      settingsRequests,
+      getSettingsApiMock,
+      getConfigApiMock,
     }) => {
       settingsResponse.data.theme_favicon = "/images/favicon2.ico";
       await page.goto("/admin/settings");
@@ -916,7 +923,7 @@ test.describe("Admin settings with edit permission", () => {
           json: settingsResponse,
         },
       );
-      const configRequest = page.waitForRequest("**/api/v1/config");
+      const configRequest = getConfigApiMock.waitForNextRequest();
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
@@ -927,7 +934,7 @@ test.describe("Admin settings with edit permission", () => {
       expect(requestFormData.get("theme_favicon")).toBe("/images/favicon3.ico");
 
       await configRequest;
-      await expect.poll(() => settingsRequests.length).toBe(2);
+      await expect.poll(() => getSettingsApiMock.requests.length).toBe(2);
 
       await expect(
         page.getByTestId("favicon-field").getByTestId("settings-image-preview"),
@@ -959,7 +966,8 @@ test.describe("Admin settings with edit permission", () => {
     test("saves an uploaded dark favicon and reloads the page", async ({
       page,
       settingsResponse,
-      settingsRequests,
+      getSettingsApiMock,
+      getConfigApiMock,
     }) => {
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
@@ -985,7 +993,7 @@ test.describe("Admin settings with edit permission", () => {
           json: settingsResponse,
         },
       );
-      const configRequest = page.waitForRequest("**/api/v1/config");
+      const configRequest = getConfigApiMock.waitForNextRequest();
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
@@ -1001,7 +1009,7 @@ test.describe("Admin settings with edit permission", () => {
       expect(requestFormData.get("theme_favicon_dark")).toBeNull();
 
       await configRequest;
-      await expect.poll(() => settingsRequests.length).toBe(2);
+      await expect.poll(() => getSettingsApiMock.requests.length).toBe(2);
 
       await expect(
         page
@@ -1013,7 +1021,8 @@ test.describe("Admin settings with edit permission", () => {
     test("saves a changed dark favicon url and reloads the page", async ({
       page,
       settingsResponse,
-      settingsRequests,
+      getSettingsApiMock,
+      getConfigApiMock,
     }) => {
       settingsResponse.data.theme_favicon_dark = "/images/favicon-dark2.ico";
       await page.goto("/admin/settings");
@@ -1035,7 +1044,7 @@ test.describe("Admin settings with edit permission", () => {
           json: settingsResponse,
         },
       );
-      const configRequest = page.waitForRequest("**/api/v1/config");
+      const configRequest = getConfigApiMock.waitForNextRequest();
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
@@ -1048,7 +1057,7 @@ test.describe("Admin settings with edit permission", () => {
       );
 
       await configRequest;
-      await expect.poll(() => settingsRequests.length).toBe(2);
+      await expect.poll(() => getSettingsApiMock.requests.length).toBe(2);
 
       await expect(
         page
@@ -1082,7 +1091,8 @@ test.describe("Admin settings with edit permission", () => {
     test("saves an uploaded custom css file and reloads the page", async ({
       page,
       settingsResponse,
-      settingsRequests,
+      getSettingsApiMock,
+      getConfigApiMock,
     }) => {
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
@@ -1109,7 +1119,7 @@ test.describe("Admin settings with edit permission", () => {
           json: settingsResponse,
         },
       );
-      const configRequest = page.waitForRequest("**/api/v1/config");
+      const configRequest = getConfigApiMock.waitForNextRequest();
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
@@ -1124,7 +1134,7 @@ test.describe("Admin settings with edit permission", () => {
       );
 
       await configRequest;
-      await expect.poll(() => settingsRequests.length).toBe(2);
+      await expect.poll(() => getSettingsApiMock.requests.length).toBe(2);
 
       const field = page.getByTestId("theme-custom-css-field");
       await expect(field.getByTestId("file-input-button")).toHaveText(
@@ -1145,7 +1155,8 @@ test.describe("Admin settings with edit permission", () => {
     test("saves a removed custom css file and reloads the page", async ({
       page,
       settingsResponse,
-      settingsRequests,
+      getSettingsApiMock,
+      getConfigApiMock,
     }) => {
       settingsResponse.data.theme_custom_css =
         "/storage/styles/theme_custom_css.css";
@@ -1165,7 +1176,7 @@ test.describe("Admin settings with edit permission", () => {
           json: settingsResponse,
         },
       );
-      const configRequest = page.waitForRequest("**/api/v1/config");
+      const configRequest = getConfigApiMock.waitForNextRequest();
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
@@ -1175,7 +1186,7 @@ test.describe("Admin settings with edit permission", () => {
       expect(requestFormData.get("theme_custom_css")).toBe("");
 
       await configRequest;
-      await expect.poll(() => settingsRequests.length).toBe(2);
+      await expect.poll(() => getSettingsApiMock.requests.length).toBe(2);
 
       await expect(field.getByTestId("file-input-button")).toHaveText(
         "app.browse",
@@ -1616,7 +1627,11 @@ test.describe("Admin settings with edit permission", () => {
       await expect(banner.getByTestId("banner-link-button")).toHaveCount(0);
     });
 
-    test("saves the banner settings", async ({ page, settingsResponse }) => {
+    test("saves the banner settings", async ({
+      page,
+      settingsResponse,
+      getConfigApiMock,
+    }) => {
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
       await expect(saveButton).toBeEnabled();
@@ -1663,7 +1678,7 @@ test.describe("Admin settings with edit permission", () => {
           hold: true,
         },
       );
-      const configRequest = page.waitForRequest("**/api/v1/config");
+      const configRequest = getConfigApiMock.waitForNextRequest();
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
@@ -1760,6 +1775,7 @@ test.describe("Admin settings with edit permission", () => {
     test("saves a disabled banner with cleared inputs", async ({
       page,
       settingsResponse,
+      getConfigApiMock,
     }) => {
       settingsResponse.data.banner_enabled = true;
       settingsResponse.data.banner_title = "Banner title";
@@ -1873,7 +1889,7 @@ test.describe("Admin settings with edit permission", () => {
           json: settingsResponse,
         },
       );
-      const configRequest = page.waitForRequest("**/api/v1/config");
+      const configRequest = getConfigApiMock.waitForNextRequest();
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
@@ -2185,7 +2201,11 @@ test.describe("Admin settings with edit permission", () => {
       await expect(hideOwnerField.locator("#room-hide-owner")).toBeChecked();
     });
 
-    test("saves the room settings", async ({ page, settingsResponse }) => {
+    test("saves the room settings", async ({
+      page,
+      settingsResponse,
+      getConfigApiMock,
+    }) => {
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
       await expect(saveButton).toBeEnabled();
@@ -2236,7 +2256,7 @@ test.describe("Admin settings with edit permission", () => {
           hold: true,
         },
       );
-      const configRequest = page.waitForRequest("**/api/v1/config");
+      const configRequest = getConfigApiMock.waitForNextRequest();
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
@@ -2295,6 +2315,7 @@ test.describe("Admin settings with edit permission", () => {
     test("saves an unlimited room limit and cleared terms of use", async ({
       page,
       settingsResponse,
+      getConfigApiMock,
     }) => {
       settingsResponse.data.room_personalized_link_expiration = 14;
       settingsResponse.data.room_auto_delete_deadline_period = 7;
@@ -2325,7 +2346,7 @@ test.describe("Admin settings with edit permission", () => {
           json: settingsResponse,
         },
       );
-      const configRequest = page.waitForRequest("**/api/v1/config");
+      const configRequest = getConfigApiMock.waitForNextRequest();
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
@@ -2398,7 +2419,11 @@ test.describe("Admin settings with edit permission", () => {
       await expect(searchField.locator("#user-search-by-name")).toBeChecked();
     });
 
-    test("saves the user settings", async ({ page, settingsResponse }) => {
+    test("saves the user settings", async ({
+      page,
+      settingsResponse,
+      getConfigApiMock,
+    }) => {
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
       await expect(saveButton).toBeEnabled();
@@ -2417,7 +2442,7 @@ test.describe("Admin settings with edit permission", () => {
           hold: true,
         },
       );
-      const configRequest = page.waitForRequest("**/api/v1/config");
+      const configRequest = getConfigApiMock.waitForNextRequest();
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
@@ -2632,6 +2657,7 @@ test.describe("Admin settings with edit permission", () => {
     test("saves the recording and statistics settings", async ({
       page,
       settingsResponse,
+      getConfigApiMock,
     }) => {
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
@@ -2679,7 +2705,7 @@ test.describe("Admin settings with edit permission", () => {
           hold: true,
         },
       );
-      const configRequest = page.waitForRequest("**/api/v1/config");
+      const configRequest = getConfigApiMock.waitForNextRequest();
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
@@ -2825,6 +2851,7 @@ test.describe("Admin settings with edit permission", () => {
     test("saves uploaded bbb files and the welcome message", async ({
       page,
       settingsResponse,
+      getConfigApiMock,
     }) => {
       await page.goto("/admin/settings");
       await expect(page.getByTestId("application-name-field")).toBeVisible();
@@ -2879,7 +2906,7 @@ test.describe("Admin settings with edit permission", () => {
           hold: true,
         },
       );
-      const configRequest = page.waitForRequest("**/api/v1/config");
+      const configRequest = getConfigApiMock.waitForNextRequest();
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
@@ -2961,6 +2988,7 @@ test.describe("Admin settings with edit permission", () => {
     test("deletes bbb files and images and saves the deletion", async ({
       page,
       settingsResponse,
+      getConfigApiMock,
     }) => {
       settingsResponse.data.bbb_logo = "/images/logo.svg";
       settingsResponse.data.bbb_logo_dark = "/images/logo-dark.svg";
@@ -3064,7 +3092,7 @@ test.describe("Admin settings with edit permission", () => {
           json: settingsResponse,
         },
       );
-      const configRequest = page.waitForRequest("**/api/v1/config");
+      const configRequest = getConfigApiMock.waitForNextRequest();
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 
@@ -3117,6 +3145,7 @@ test.describe("Admin settings with edit permission", () => {
     test("saves empty bbb settings without sending unchanged values", async ({
       page,
       settingsResponse,
+      getConfigApiMock,
     }) => {
       settingsResponse.data.bbb_logo = null;
       settingsResponse.data.bbb_logo_dark = null;
@@ -3135,7 +3164,7 @@ test.describe("Admin settings with edit permission", () => {
           json: settingsResponse,
         },
       );
-      const configRequest = page.waitForRequest("**/api/v1/config");
+      const configRequest = getConfigApiMock.waitForNextRequest();
       await expect(saveButton).toContainText("app.save");
       await saveButton.click();
 

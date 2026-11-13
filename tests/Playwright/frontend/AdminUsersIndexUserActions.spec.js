@@ -65,6 +65,7 @@ test.describe("Admin users index user actions", () => {
     test("confirm deletes the user and reloads the list", async ({
       page,
       usersResponse,
+      getUsersApiMock,
     }) => {
       const deleteUserApiMock = await mockApiRequest(
         page,
@@ -94,7 +95,7 @@ test.describe("Admin users index user actions", () => {
       await expect(page.getByTestId("dialog-cancel-button")).toBeDisabled();
       await expect(page.getByTestId("dialog-continue-button")).toBeDisabled();
 
-      const reload = page.waitForRequest("**/api/v1/users*");
+      const reload = getUsersApiMock.waitForNextRequest();
       await deleteUserApiMock.waitForRequest();
       deleteUserApiMock.release();
       await reload;
@@ -157,6 +158,7 @@ test.describe("Admin users index user actions", () => {
     test("user not found (404) reloads the list and closes the dialog", async ({
       page,
       usersResponse,
+      getUsersApiMock,
     }) => {
       usersResponse.data = usersResponse.data.filter((user) => user.id !== 3);
       Object.assign(usersResponse.meta, {
@@ -171,7 +173,7 @@ test.describe("Admin users index user actions", () => {
         modelNotFound("user", [3]),
       );
 
-      const reload = page.waitForRequest("**/api/v1/users*");
+      const reload = getUsersApiMock.waitForNextRequest();
       await page.getByTestId("dialog-continue-button").click();
       await deleteUserApiMock.waitForRequest();
       await reload;
@@ -363,18 +365,20 @@ test.describe("Admin users index user actions", () => {
   });
 
   test.describe("navigation without update and view permission", () => {
-    test.beforeEach(async ({ page, currentUserResponse }) => {
-      currentUserResponse.data.permissions = [
-        "admin.view",
-        "users.viewAny",
-        "roles.viewAny",
-      ];
-      await mockApiRequest(page, "GET", "users/1", {
-        json: readFixture("userDataCurrentUser.json"),
-      });
-      await page.goto("/admin/users");
-      await expect(page.getByTestId("user-item")).toHaveCount(4);
-    });
+    test.beforeEach(
+      async ({ page, currentUserResponse, getProfileUserApiMock }) => {
+        currentUserResponse.data.permissions = [
+          "admin.view",
+          "users.viewAny",
+          "roles.viewAny",
+        ];
+        getProfileUserApiMock.respondWith({
+          json: readFixture("userDataCurrentUser.json"),
+        });
+        await page.goto("/admin/users");
+        await expect(page.getByTestId("user-item")).toHaveCount(4);
+      },
+    );
 
     test("open edit page of the current user", async ({ page }) => {
       await page

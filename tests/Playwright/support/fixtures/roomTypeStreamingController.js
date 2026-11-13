@@ -10,15 +10,19 @@ import { mockApiRequest, readFixture } from "../utils.js";
  * - `roomTypeStreamingResponse`: the streaming settings of the room type 3 (GET /api/v1/roomTypes/3/streaming)
  */
 export const test = base.extend({
-  roomTypeStreamingResponse: [
-    async ({ page }, use) => {
-      const roomTypeStreamingResponse = readFixture(
-        "roomTypeStreamingSettings.json",
+  roomTypeStreamingResponse: async ({}, use) => {
+    const roomTypeStreamingResponse = readFixture(
+      "roomTypeStreamingSettings.json",
+    );
+    await use(roomTypeStreamingResponse);
+  },
+  getRoomTypeStreamingApiMock: [
+    async ({ page, roomTypeStreamingResponse }, use) => {
+      await use(
+        await mockApiRequest(page, "GET", "roomTypes/3/streaming", () => ({
+          json: roomTypeStreamingResponse,
+        })),
       );
-      await mockApiRequest(page, "GET", "roomTypes/3/streaming", {
-        json: roomTypeStreamingResponse,
-      });
-      await use(roomTypeStreamingResponse);
     },
     { auto: true },
   ],

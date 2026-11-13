@@ -16,26 +16,36 @@ import { AdminServerPoolsServerSelect } from "../pages/AdminServerPoolsServerSel
  * - `serverSelect`: page object of the server multiselect
  */
 export const test = base.extend({
-  serverPoolResponse: [
-    async ({ page }, use) => {
-      const serverPoolResponse = readFixture("serverPool.json");
-      await mockApiRequest(page, "GET", "serverPools/1", {
-        json: serverPoolResponse,
-      });
-      await use(serverPoolResponse);
+  serverPoolResponse: async ({}, use) => {
+    const serverPoolResponse = readFixture("serverPool.json");
+    await use(serverPoolResponse);
+  },
+  getServerPoolApiMock: [
+    async ({ page, serverPoolResponse }, use) => {
+      await use(
+        await mockApiRequest(page, "GET", "serverPools/1", () => ({
+          json: serverPoolResponse,
+        })),
+      );
     },
     { auto: true },
   ],
 
-  createdServerPoolResponse: [
-    async ({ page }, use) => {
-      const serverPool = readFixture("serverPool.json");
-      serverPool.data.id = 20;
-      serverPool.data.name = "Server Pool 1";
-      serverPool.data.description = "Server Pool 1 description";
-      serverPool.data.servers = [];
-      await mockApiRequest(page, "GET", "serverPools/20", { json: serverPool });
-      await use(serverPool);
+  createdServerPoolResponse: async ({}, use) => {
+    const createdServerPoolResponse = readFixture("serverPool.json");
+    createdServerPoolResponse.data.id = 20;
+    createdServerPoolResponse.data.name = "Server Pool 1";
+    createdServerPoolResponse.data.description = "Server Pool 1 description";
+    createdServerPoolResponse.data.servers = [];
+    await use(createdServerPoolResponse);
+  },
+  getCreatedServerPoolApiMock: [
+    async ({ page, createdServerPoolResponse }, use) => {
+      await use(
+        await mockApiRequest(page, "GET", "serverPools/20", () => ({
+          json: createdServerPoolResponse,
+        })),
+      );
     },
     { auto: true },
   ],

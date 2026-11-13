@@ -50,9 +50,10 @@ test.describe("Admin servers edit", () => {
   test("shows loading state while the server is loading", async ({
     page,
     serverResponse,
+    getServerApiMock,
   }) => {
     serverResponse.data.status = -1;
-    const getServerApiMock = await mockApiRequest(page, "GET", "servers/1", {
+    getServerApiMock.respondWith({
       hold: true,
       json: serverResponse,
     });
@@ -714,8 +715,9 @@ test.describe("Admin servers edit", () => {
       page,
       serverResponse,
       serverForm,
+      getServerApiMock,
     }) => {
-      await mockApiRequest(page, "GET", "servers/1", serverError());
+      getServerApiMock.respondWith(serverError());
 
       await page.goto("/admin/servers/1/edit");
 
@@ -725,7 +727,7 @@ test.describe("Admin servers edit", () => {
         'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
 
-      await mockApiRequest(page, "GET", "servers/1", { json: serverResponse });
+      getServerApiMock.respondWith({ json: serverResponse });
 
       const retryButton = page.getByTestId("loading-retry-button");
       await expect(retryButton).toBeVisible();
@@ -738,13 +740,9 @@ test.describe("Admin servers edit", () => {
 
     test("model not found (404) redirects to the servers index", async ({
       page,
+      getServerApiMock,
     }) => {
-      await mockApiRequest(
-        page,
-        "GET",
-        "servers/1",
-        modelNotFound("server", [1]),
-      );
+      getServerApiMock.respondWith(modelNotFound("server", [1]));
 
       await page.goto("/admin/servers/1/edit");
 
@@ -755,8 +753,11 @@ test.describe("Admin servers edit", () => {
       ]);
     });
 
-    test("unauthenticated (401) redirects to the login", async ({ page }) => {
-      await mockApiRequest(page, "GET", "servers/1", { status: 401 });
+    test("unauthenticated (401) redirects to the login", async ({
+      page,
+      getServerApiMock,
+    }) => {
+      getServerApiMock.respondWith({ status: 401 });
 
       await page.goto("/admin/servers/1/edit");
 

@@ -9,27 +9,37 @@ import { mockApiRequest, readFixture } from "../utils.js";
  * - `roomStreamingConfigResponse`: the streaming config of the dialog (GET /api/v1/rooms/abc-def-123/streaming/config)
  */
 export const test = base.extend({
-  roomStreamingStatusResponse: [
-    async ({ page }, use) => {
-      const roomStreamingStatusResponse = readFixture(
-        "roomStreamingStatus.json",
+  roomStreamingStatusResponse: async ({}, use) => {
+    const roomStreamingStatusResponse = readFixture("roomStreamingStatus.json");
+    await use(roomStreamingStatusResponse);
+  },
+  getRoomStreamingStatusApiMock: [
+    async ({ page, roomStreamingStatusResponse }, use) => {
+      await use(
+        await mockApiRequest(
+          page,
+          "GET",
+          "rooms/abc-def-123/streaming/status",
+          () => ({ json: roomStreamingStatusResponse }),
+        ),
       );
-      await mockApiRequest(page, "GET", "rooms/abc-def-123/streaming/status", {
-        json: roomStreamingStatusResponse,
-      });
-      await use(roomStreamingStatusResponse);
     },
     { auto: true },
   ],
-  roomStreamingConfigResponse: [
-    async ({ page }, use) => {
-      const roomStreamingConfigResponse = readFixture(
-        "roomStreamingConfig.json",
+  roomStreamingConfigResponse: async ({}, use) => {
+    const roomStreamingConfigResponse = readFixture("roomStreamingConfig.json");
+    await use(roomStreamingConfigResponse);
+  },
+  getRoomStreamingConfigApiMock: [
+    async ({ page, roomStreamingConfigResponse }, use) => {
+      await use(
+        await mockApiRequest(
+          page,
+          "GET",
+          "rooms/abc-def-123/streaming/config",
+          () => ({ json: roomStreamingConfigResponse }),
+        ),
       );
-      await mockApiRequest(page, "GET", "rooms/abc-def-123/streaming/config", {
-        json: roomStreamingConfigResponse,
-      });
-      await use(roomStreamingConfigResponse);
     },
     { auto: true },
   ],

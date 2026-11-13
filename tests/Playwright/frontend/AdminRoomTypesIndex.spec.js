@@ -9,7 +9,6 @@ import {
 } from "../support/general.js";
 import { expectAdminBreadcrumbs } from "../support/admin.js";
 import {
-  holdApiRequest,
   expectActivePage,
   mockApiRequest,
   serverError,
@@ -34,8 +33,9 @@ test.describe("Admin room types index", () => {
 
   test.describe("load room types", () => {
     test("loading state", async ({ page, getRoomTypesApiMock }) => {
-      const release = await holdApiRequest(page, "roomTypes*", {
+      getRoomTypesApiMock.respondWith({
         json: getRoomTypesApiMock.json,
+        hold: true,
       });
 
       await page.goto("/admin/room_types");
@@ -52,8 +52,8 @@ test.describe("Admin room types index", () => {
       await expect(page.getByTestId("room-types-add-button")).toHaveCount(0);
       await expect(page.getByTestId("overlay")).toBeVisible();
 
-      const response = page.waitForResponse("**/api/v1/roomTypes*");
-      release();
+      const response = getRoomTypesApiMock.waitForNextResponse();
+      getRoomTypesApiMock.release();
       await response;
 
       // Check that loading is over
@@ -98,8 +98,11 @@ test.describe("Admin room types index", () => {
   });
 
   test.describe("load room types errors", () => {
-    test("server error shows toast and overlay", async ({ page }) => {
-      await mockApiRequest(page, "GET", "roomTypes*", serverError());
+    test("server error shows toast and overlay", async ({
+      page,
+      getRoomTypesApiMock,
+    }) => {
+      getRoomTypesApiMock.respondWith(serverError());
 
       await page.goto("/admin/room_types");
 
@@ -122,18 +125,18 @@ test.describe("Admin room types index", () => {
     });
 
     test("reload after error", async ({ page, getRoomTypesApiMock }) => {
-      await mockApiRequest(page, "GET", "roomTypes*", serverError());
+      getRoomTypesApiMock.respondWith(serverError());
       await page.goto("/admin/room_types");
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
         'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
 
-      await mockApiRequest(page, "GET", "roomTypes*", {
+      getRoomTypesApiMock.respondWith({
         json: getRoomTypesApiMock.json,
       });
 
-      const request = page.waitForRequest("**/api/v1/roomTypes*");
+      const request = getRoomTypesApiMock.waitForNextRequest();
       await page.getByTestId("loading-retry-button").click();
       await request;
 
@@ -147,8 +150,11 @@ test.describe("Admin room types index", () => {
       ]);
     });
 
-    test("unauthenticated redirects to login", async ({ page }) => {
-      await mockApiRequest(page, "GET", "roomTypes*", { status: 401 });
+    test("unauthenticated redirects to login", async ({
+      page,
+      getRoomTypesApiMock,
+    }) => {
+      getRoomTypesApiMock.respondWith({ status: 401 });
 
       await page.goto("/admin/room_types");
 
@@ -356,47 +362,50 @@ test.describe("Admin room types index", () => {
   test.describe("loading state during reload", () => {
     let deleteRoomTypeApiMock;
 
-    test.beforeEach(async ({ page, currentUserResponse }) => {
-      currentUserResponse.data.permissions = [
-        "admin.view",
-        "roles.viewAny",
-        "serverPools.viewAny",
-        "roomTypes.view",
-        "roomTypes.update",
-        "roomTypes.create",
-        "roomTypes.delete",
-      ];
-      deleteRoomTypeApiMock = await mockApiRequest(
-        page,
-        "DELETE",
-        "roomTypes/3",
-        {
-          status: 204,
-        },
-      );
+    test.beforeEach(
+      async ({ page, currentUserResponse, getRoomTypesApiMock }) => {
+        currentUserResponse.data.permissions = [
+          "admin.view",
+          "roles.viewAny",
+          "serverPools.viewAny",
+          "roomTypes.view",
+          "roomTypes.update",
+          "roomTypes.create",
+          "roomTypes.delete",
+        ];
+        deleteRoomTypeApiMock = await mockApiRequest(
+          page,
+          "DELETE",
+          "roomTypes/3",
+          {
+            status: 204,
+          },
+        );
 
-      await page.goto("/admin/room_types");
-      await expect(page.getByTestId("room-type-item")).toContainText([
-        "Exam",
-        "Lecture",
-      ]);
+        await page.goto("/admin/room_types");
+        await expect(page.getByTestId("room-type-item")).toContainText([
+          "Exam",
+          "Lecture",
+        ]);
 
-      // Trigger reload by deleting a room type
-      const replacementRequest = page.waitForRequest("**/api/v1/roomTypes*");
-      await page
-        .getByTestId("room-type-item")
-        .nth(0)
-        .getByTestId("room-types-delete-button")
-        .click();
-      await replacementRequest;
-    });
+        // Trigger reload by deleting a room type
+        const replacementRequest = getRoomTypesApiMock.waitForNextRequest();
+        await page
+          .getByTestId("room-type-item")
+          .nth(0)
+          .getByTestId("room-types-delete-button")
+          .click();
+        await replacementRequest;
+      },
+    );
 
     test("components are disabled while reloading", async ({
       page,
       getRoomTypesApiMock,
     }) => {
-      const release = await holdApiRequest(page, "roomTypes*", {
+      getRoomTypesApiMock.respondWith({
         json: getRoomTypesApiMock.json,
+        hold: true,
       });
 
       await page
@@ -422,13 +431,16 @@ test.describe("Admin room types index", () => {
       ).toBeDisabled();
       await expect(item.getByTestId("room-types-delete-button")).toBeDisabled();
 
-      release();
+      getRoomTypesApiMock.release();
 
       await expect(page.getByTestId("overlay")).toBeHidden();
     });
 
-    test("components are enabled after reloading", async ({ page }) => {
-      const reloadRequest = page.waitForResponse("**/api/v1/roomTypes*");
+    test("components are enabled after reloading", async ({
+      page,
+      getRoomTypesApiMock,
+    }) => {
+      const reloadRequest = getRoomTypesApiMock.waitForNextResponse();
       await page
         .getByTestId("room-types-delete-dialog")
         .getByTestId("dialog-continue-button")

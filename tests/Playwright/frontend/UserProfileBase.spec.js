@@ -24,37 +24,35 @@ const test = mergeTests(
 test.use({ authenticated: true });
 
 test.describe("User profile base", () => {
-  test.beforeEach(async ({ page }) => {
-    await page.route("**/api/v1/locale/de", (route) =>
-      route.fulfill({
-        json: {
-          data: {},
-          meta: {
-            dateTimeFormat: {
-              dateShort: { year: "numeric", month: "2-digit", day: "2-digit" },
-              dateLong: { year: "numeric", month: "short", day: "2-digit" },
-              time: { hour: "2-digit", minute: "2-digit", hour12: false },
-              datetimeShort: {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: false,
-              },
-              datetimeLong: {
-                year: "numeric",
-                month: "short",
-                day: "2-digit",
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: false,
-              },
+  test.beforeEach(async ({ getLocaleDeApiMock }) => {
+    getLocaleDeApiMock.respondWith({
+      json: {
+        data: {},
+        meta: {
+          dateTimeFormat: {
+            dateShort: { year: "numeric", month: "2-digit", day: "2-digit" },
+            dateLong: { year: "numeric", month: "short", day: "2-digit" },
+            time: { hour: "2-digit", minute: "2-digit", hour12: false },
+            datetimeShort: {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            },
+            datetimeLong: {
+              year: "numeric",
+              month: "short",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
             },
           },
         },
-      }),
-    );
+      },
+    });
   });
 
   test("view base data", async ({ page }) => {
@@ -591,6 +589,7 @@ test.describe("User profile base", () => {
       page,
       profileUserResponse,
       currentUserResponse,
+      getCurrentUserApiMock,
     }) => {
       const savedUser = structuredClone(profileUserResponse);
       savedUser.data.image = null;
@@ -598,14 +597,10 @@ test.describe("User profile base", () => {
       const postUserApiMock = await mockApiRequest(page, "POST", "users/1", {
         json: savedUser,
       });
-      const getCurrentUserApiMock = await mockApiRequest(
-        page,
-        "GET",
-        "currentUser",
-        {
+      const getCurrentUserRequestsAfterChange =
+        getCurrentUserApiMock.respondWith({
           json: currentUserResponse,
-        },
-      );
+        });
 
       await page.getByTestId("delete-image-button").click();
       await page.getByTestId("user-tab-profile-save-button").click();
@@ -622,7 +617,7 @@ test.describe("User profile base", () => {
         "2024-09-13T14:22:26.000000Z",
       );
       expect(requestFormData.get("image")).toEqual("");
-      await getCurrentUserApiMock.waitForRequest();
+      await getCurrentUserRequestsAfterChange.waitForRequest();
 
       await expect(page.getByTestId("delete-image-button")).toHaveCount(0);
       await expect(page.getByTestId("profile-image-preview")).toHaveCount(0);
@@ -893,13 +888,8 @@ test.describe("User profile base", () => {
   });
 
   test.describe("load timezones error", () => {
-    test("loading state", async ({ page }) => {
-      const getTimezonesApiMock = await mockApiRequest(
-        page,
-        "GET",
-        "getTimezones",
-        serverError({ hold: true }),
-      );
+    test("loading state", async ({ page, getTimezonesApiMock }) => {
+      getTimezonesApiMock.respondWith(serverError({ hold: true }));
 
       await page.goto("/profile");
 
@@ -920,8 +910,9 @@ test.describe("User profile base", () => {
 
     test("error shows a reload button and keeps the dropdown disabled", async ({
       page,
+      getTimezonesApiMock,
     }) => {
-      await mockApiRequest(page, "GET", "getTimezones", serverError());
+      getTimezonesApiMock.respondWith(serverError());
 
       await page.goto("/profile");
       await expectToastAndClose(page, [
@@ -941,8 +932,9 @@ test.describe("User profile base", () => {
     test("reload timezones without error", async ({
       page,
       timezonesResponse,
+      getTimezonesApiMock,
     }) => {
-      await mockApiRequest(page, "GET", "getTimezones", serverError());
+      getTimezonesApiMock.respondWith(serverError());
 
       await page.goto("/profile");
       await expectToastAndClose(page, [
@@ -950,16 +942,11 @@ test.describe("User profile base", () => {
         'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
 
-      const getTimezonesApiMock = await mockApiRequest(
-        page,
-        "GET",
-        "getTimezones",
-        {
-          json: timezonesResponse,
-        },
-      );
+      const getTimezonesRequestsAfterChange = getTimezonesApiMock.respondWith({
+        json: timezonesResponse,
+      });
       await page.getByTestId("timezone-reload-button").click();
-      await getTimezonesApiMock.waitForRequest();
+      await getTimezonesRequestsAfterChange.waitForRequest();
 
       const timezone = page.getByTestId("timezone-dropdown");
       await expect(timezone).toHaveText("UTC");
@@ -979,18 +966,16 @@ test.describe("User profile base", () => {
       await expect(options.nth(3)).toHaveAttribute("aria-selected", "true");
     });
 
-    test("401 error redirects to login", async ({ page }) => {
-      const getTimezonesApiMock = await mockApiRequest(
-        page,
-        "GET",
-        "getTimezones",
-        {
-          status: 401,
-        },
-      );
+    test("401 error redirects to login", async ({
+      page,
+      getTimezonesApiMock,
+    }) => {
+      const getTimezonesRequestsAfterChange = getTimezonesApiMock.respondWith({
+        status: 401,
+      });
 
       await page.goto("/profile");
-      await getTimezonesApiMock.waitForRequest();
+      await getTimezonesRequestsAfterChange.waitForRequest();
 
       await expectLoginRedirect(page, "/profile");
     });

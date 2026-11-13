@@ -165,6 +165,7 @@ test.describe("Footer", () => {
   test.describe("external links", () => {
     test.beforeEach(async ({ page }) => {
       // Do not depend on the external redirect pages
+      // eslint-disable-next-line no-restricted-syntax -- external URL, not an API request
       await page.route(
         "https://thm-health.github.io/PILOS-Redirect_Test_Pages/**",
         (route) =>

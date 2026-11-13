@@ -1,3 +1,4 @@
+import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
 import { mergeTests } from "@playwright/test";
 import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
 import { test as roomControllerTest } from "../support/fixtures/roomController.js";
@@ -15,7 +16,7 @@ import {
   modelNotFound,
   unauthorized,
 } from "../support/utils.js";
-import { interceptRoomIndexRequests } from "../support/mocks.js";
+
 import {
   checkRoomAuthErrors,
   setValidRememberedParticipantName,
@@ -26,6 +27,7 @@ const test = mergeTests(
   roomFileControllerTest,
   postMessageToAppTest,
   participantNameCheckTest,
+  roomTypeControllerTest,
 );
 
 test.use({ authenticated: true });
@@ -161,10 +163,7 @@ test.describe("Rooms view files file actions", () => {
           const getRoomFilesRequestsAfterChange =
             getRoomFilesApiMock.respondWith({ json: roomFilesResponse });
 
-          const uploadRequest = page.waitForRequest(
-            (request) =>
-              request.method() === "POST" && request.url().includes("/files"),
-          );
+          const uploadRequest = postRoomFilesApiMock.waitForNextRequest();
           // An in-memory file, Chromium does not expose the content of files from disk in intercepted request bodies
           await page.locator("#file").setInputFiles({
             name,
@@ -437,7 +436,6 @@ test.describe("Rooms view files file actions", () => {
       test("redirects to the room index if the room is not found", async ({
         page,
       }) => {
-        await interceptRoomIndexRequests(page);
         await mockApiRequest(
           page,
           "POST",
@@ -654,7 +652,6 @@ test.describe("Rooms view files file actions", () => {
       test("redirects to the room index if the room is not found", async ({
         page,
       }) => {
-        await interceptRoomIndexRequests(page);
         await mockApiRequest(
           page,
           "DELETE",
@@ -949,7 +946,6 @@ test.describe("Rooms view files file actions", () => {
       test("redirects to the room index if the room is not found", async ({
         page,
       }) => {
-        await interceptRoomIndexRequests(page);
         await mockApiRequest(
           page,
           "PATCH",
@@ -1145,7 +1141,6 @@ test.describe("Rooms view files file actions", () => {
       test("redirects to the room index if the room is not found", async ({
         page,
       }) => {
-        await interceptRoomIndexRequests(page);
         await mockApiRequest(
           page,
           "PATCH",
@@ -1330,7 +1325,6 @@ test.describe("Rooms view files file actions", () => {
       test("redirects to the room index if the room is not found", async ({
         page,
       }) => {
-        await interceptRoomIndexRequests(page);
         await mockApiRequest(
           page,
           "PATCH",

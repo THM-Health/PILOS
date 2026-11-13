@@ -126,13 +126,17 @@ export const test = base.extend({
     },
     { auto: true },
   ],
-  roomSettingsResponse: [
-    async ({ page }, use) => {
-      const roomSettingsResponse = readFixture("roomSettings.json");
-      await mockApiRequest(page, "GET", "rooms/abc-def-123/settings", {
-        json: roomSettingsResponse,
-      });
-      await use(roomSettingsResponse);
+  roomSettingsResponse: async ({}, use) => {
+    const roomSettingsResponse = readFixture("roomSettings.json");
+    await use(roomSettingsResponse);
+  },
+  getRoomSettingsApiMock: [
+    async ({ page, roomSettingsResponse }, use) => {
+      await use(
+        await mockApiRequest(page, "GET", "rooms/abc-def-123/settings", () => ({
+          json: roomSettingsResponse,
+        })),
+      );
     },
     { auto: true },
   ],

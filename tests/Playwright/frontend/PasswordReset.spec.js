@@ -1,12 +1,20 @@
-import { test } from "../support/fixtures/authGeneral.js";
+import { mergeTests } from "@playwright/test";
+import { test as authGeneralTest } from "../support/fixtures/authGeneral.js";
+import { test as roomControllerTest } from "../support/fixtures/roomController.js";
+import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { interceptRoomIndexRequests } from "../support/mocks.js";
+
 import {
-  holdApiRequest,
   validationErrors,
   serverError,
   errorResponse,
 } from "../support/utils.js";
+
+const test = mergeTests(
+  authGeneralTest,
+  roomControllerTest,
+  roomTypeControllerTest,
+);
 
 test.describe("Password reset", () => {
   test.beforeEach(async ({ configResponse }) => {
@@ -29,8 +37,6 @@ test.describe("Password reset", () => {
     test.use({ authenticated: true });
 
     test("shows error and redirects to home page", async ({ page }) => {
-      await interceptRoomIndexRequests(page);
-
       await page.goto("/reset_password");
 
       await expectToastAndClose(page, "app.flash.guests_only");
@@ -71,27 +77,33 @@ test.describe("Password reset", () => {
     });
 
     test.describe("submit", () => {
-      let releaseReset;
+      test.beforeEach(
+        async ({
+          page,
+          currentUserResponse,
+          getCurrentUserApiMock,
+          postPasswordResetApiMock,
+        }) => {
+          // The initial current user request must be finished before the user is mocked as logged in
+          await expect(page.locator("#new_password")).toBeVisible();
+          getCurrentUserApiMock.respondWith({ json: currentUserResponse });
 
-      test.beforeEach(async ({ page, currentUserResponse }) => {
-        // The initial current user request must be finished before the user is mocked as logged in
-        await expect(page.locator("#new_password")).toBeVisible();
-        await page.route("**/api/v1/currentUser", (route) =>
-          route.fulfill({ json: currentUserResponse }),
-        );
-        await interceptRoomIndexRequests(page);
+          postPasswordResetApiMock.respondWith({
+            status: 200,
+            json: { message: "Success!" },
+            hold: true,
+          });
 
-        releaseReset = await holdApiRequest(page, "password/reset", {
-          status: 200,
-          json: { message: "Success!" },
-        });
-
-        await page.locator("#new_password").fill("secretPassword123#");
-        await page.locator("#password_confirmation").fill("secretPassword123#");
-      });
+          await page.locator("#new_password").fill("secretPassword123#");
+          await page
+            .locator("#password_confirmation")
+            .fill("secretPassword123#");
+        },
+      );
 
       test("shows loading state while the request is pending", async ({
         page,
+        postPasswordResetApiMock,
       }) => {
         await page.getByTestId("reset-password-button").click();
 
@@ -99,14 +111,17 @@ test.describe("Password reset", () => {
         await expect(page.locator("#password_confirmation")).toBeDisabled();
         await expect(page.getByTestId("reset-password-button")).toBeDisabled();
 
-        releaseReset();
+        postPasswordResetApiMock.release();
         await expectToastAndClose(page, "Success!");
       });
 
-      test("sends data and csrf token", async ({ page }) => {
-        const resetRequest = page.waitForRequest("**/api/v1/password/reset");
+      test("sends data and csrf token", async ({
+        page,
+        postPasswordResetApiMock,
+      }) => {
+        const resetRequest = postPasswordResetApiMock.waitForNextRequest();
         await page.getByTestId("reset-password-button").click();
-        releaseReset();
+        postPasswordResetApiMock.release();
 
         const request = await resetRequest;
         expect(request.postDataJSON()).toEqual({
@@ -120,10 +135,14 @@ test.describe("Password reset", () => {
         await expectToastAndClose(page, "Success!");
       });
 
-      test("shows success and redirects to home page", async ({ page }) => {
-        const currentUserRequest = page.waitForRequest("**/api/v1/currentUser");
+      test("shows success and redirects to home page", async ({
+        page,
+        getCurrentUserApiMock,
+        postPasswordResetApiMock,
+      }) => {
+        const currentUserRequest = getCurrentUserApiMock.waitForNextRequest();
         await page.getByTestId("reset-password-button").click();
-        releaseReset();
+        postPasswordResetApiMock.release();
         await currentUserRequest;
 
         await expectToastAndClose(page, "Success!");
@@ -156,18 +175,19 @@ test.describe("Password reset", () => {
         .fill("newSecretPassword123#");
     });
 
-    test("shows 422 field errors and toast", async ({ page }) => {
-      await page.route("**/api/v1/password/reset", (route) =>
-        route.fulfill(
-          validationErrors(
-            {
-              password: ["The New password field is required."],
-              password_confirmation: [
-                "The New password confirmation field is required.",
-              ],
-            },
-            "The New password field is required. (and 1 more error)",
-          ),
+    test("shows 422 field errors and toast", async ({
+      page,
+      postPasswordResetApiMock,
+    }) => {
+      postPasswordResetApiMock.respondWith(
+        validationErrors(
+          {
+            password: ["The New password field is required."],
+            password_confirmation: [
+              "The New password confirmation field is required.",
+            ],
+          },
+          "The New password field is required. (and 1 more error)",
         ),
       );
 
@@ -185,9 +205,12 @@ test.describe("Password reset", () => {
       );
     });
 
-    test("replaces previous 422 errors with new ones", async ({ page }) => {
-      await page.route("**/api/v1/password/reset", (route) =>
-        route.fulfill(
+    test("replaces previous 422 errors with new ones", async ({
+      page,
+      postPasswordResetApiMock,
+    }) => {
+      const postPasswordResetRequestsAfterChange =
+        postPasswordResetApiMock.respondWith(
           validationErrors(
             {
               password: ["The New password field is required."],
@@ -197,23 +220,20 @@ test.describe("Password reset", () => {
             },
             "The New password field is required. (and 1 more error)",
           ),
-        ),
-      );
+        );
       await page.getByTestId("reset-password-button").click();
       await expectToastAndClose(
         page,
         "The New password field is required. (and 1 more error)",
       );
 
-      await page.route("**/api/v1/password/reset", (route) =>
-        route.fulfill(
-          validationErrors(
-            {
-              email: ["The Email field is required."],
-              token: ["The Token field is required."],
-            },
-            "The Email field is required. (and 1 more error)",
-          ),
+      postPasswordResetRequestsAfterChange.respondWith(
+        validationErrors(
+          {
+            email: ["The Email field is required."],
+            token: ["The Token field is required."],
+          },
+          "The Email field is required. (and 1 more error)",
         ),
       );
       await page.locator("#new_password").fill("newSecretPassword123#");
@@ -237,9 +257,12 @@ test.describe("Password reset", () => {
       );
     });
 
-    test("hides 422 errors after a 500 error", async ({ page }) => {
-      await page.route("**/api/v1/password/reset", (route) =>
-        route.fulfill(
+    test("hides 422 errors after a 500 error", async ({
+      page,
+      postPasswordResetApiMock,
+    }) => {
+      const postPasswordResetRequestsAfterChange =
+        postPasswordResetApiMock.respondWith(
           validationErrors(
             {
               email: ["The Email field is required."],
@@ -247,8 +270,7 @@ test.describe("Password reset", () => {
             },
             "The Email field is required. (and 1 more error)",
           ),
-        ),
-      );
+        );
       await page.getByTestId("reset-password-button").click();
       await expect(
         page.getByText("The Email field is required.", { exact: true }),
@@ -258,9 +280,7 @@ test.describe("Password reset", () => {
         "The Email field is required. (and 1 more error)",
       );
 
-      await page.route("**/api/v1/password/reset", (route) =>
-        route.fulfill(serverError()),
-      );
+      postPasswordResetRequestsAfterChange.respondWith(serverError());
       await page.getByTestId("reset-password-button").click();
 
       await expectToastAndClose(page, [
@@ -275,9 +295,12 @@ test.describe("Password reset", () => {
       ).toBeHidden();
     });
 
-    test("shows too many requests error", async ({ page }) => {
-      await page.route("**/api/v1/password/reset", (route) =>
-        route.fulfill(errorResponse(429, "Too many requests")),
+    test("shows too many requests error", async ({
+      page,
+      postPasswordResetApiMock,
+    }) => {
+      postPasswordResetApiMock.respondWith(
+        errorResponse(429, "Too many requests"),
       );
 
       await page.getByTestId("reset-password-button").click();

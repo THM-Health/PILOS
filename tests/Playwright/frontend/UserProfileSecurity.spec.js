@@ -353,6 +353,7 @@ test.describe("User profile security", () => {
       test("only the current session remains", async ({
         page,
         sessionsResponse,
+        getSessionsApiMock,
       }) => {
         const deleteSessionsApiMock = await mockApiRequest(
           page,
@@ -362,21 +363,16 @@ test.describe("User profile security", () => {
             status: 204,
           },
         );
-        const getSessionsApiMock = await mockApiRequest(
-          page,
-          "GET",
-          "sessions",
-          {
-            json: {
-              ...sessionsResponse,
-              data: sessionsResponse.data.slice(0, 1),
-            },
+        const getSessionsRequestsAfterChange = getSessionsApiMock.respondWith({
+          json: {
+            ...sessionsResponse,
+            data: sessionsResponse.data.slice(0, 1),
           },
-        );
+        });
 
         await page.getByTestId("logout-all-sessions-button").click();
         await deleteSessionsApiMock.waitForRequest();
-        await getSessionsApiMock.waitForRequest();
+        await getSessionsRequestsAfterChange.waitForRequest();
 
         await expectToastAndClose(page, "auth.flash.logout_all_others");
 
@@ -521,16 +517,16 @@ test.describe("User profile security", () => {
   });
 
   test.describe("load sessions error", () => {
-    test("loading shows the overlay without sessions", async ({ page }) => {
-      const getSessionsApiMock = await mockApiRequest(
-        page,
-        "GET",
-        "sessions",
+    test("loading shows the overlay without sessions", async ({
+      page,
+      getSessionsApiMock,
+    }) => {
+      const getSessionsRequestsAfterChange = getSessionsApiMock.respondWith(
         serverError({ hold: true }),
       );
 
       await page.goto("/profile#tab=security");
-      await getSessionsApiMock.waitForRequest();
+      await getSessionsRequestsAfterChange.waitForRequest();
 
       await expect(page.getByTestId("overlay")).toBeVisible();
       await expect(page.getByTestId("session-panel")).toHaveCount(0);
@@ -543,8 +539,11 @@ test.describe("User profile security", () => {
       ]);
     });
 
-    test("error shows the overlay with retry button", async ({ page }) => {
-      await mockApiRequest(page, "GET", "sessions", serverError());
+    test("error shows the overlay with retry button", async ({
+      page,
+      getSessionsApiMock,
+    }) => {
+      getSessionsApiMock.respondWith(serverError());
 
       await page.goto("/profile#tab=security");
 
@@ -559,8 +558,12 @@ test.describe("User profile security", () => {
       );
     });
 
-    test("retry loads the sessions", async ({ page, sessionsResponse }) => {
-      await mockApiRequest(page, "GET", "sessions", serverError());
+    test("retry loads the sessions", async ({
+      page,
+      sessionsResponse,
+      getSessionsApiMock,
+    }) => {
+      getSessionsApiMock.respondWith(serverError());
 
       await page.goto("/profile#tab=security");
       await expectToastAndClose(page, [
@@ -568,11 +571,11 @@ test.describe("User profile security", () => {
         'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
 
-      const getSessionsApiMock = await mockApiRequest(page, "GET", "sessions", {
+      const getSessionsRequestsAfterChange = getSessionsApiMock.respondWith({
         json: sessionsResponse,
       });
       await page.getByTestId("loading-retry-button").click();
-      await getSessionsApiMock.waitForRequest();
+      await getSessionsRequestsAfterChange.waitForRequest();
 
       await expect(page.getByTestId("overlay")).toBeHidden();
 

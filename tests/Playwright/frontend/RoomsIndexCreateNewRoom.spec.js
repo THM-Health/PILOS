@@ -2,7 +2,7 @@ import { mergeTests } from "@playwright/test";
 import { test as roomControllerTest } from "../support/fixtures/roomController.js";
 import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { interceptRoomViewRequests } from "../support/mocks.js";
+
 import { expectLoginRedirect } from "../support/general.js";
 import { checkDefaultRoomSettingField } from "../support/room.js";
 import {
@@ -370,7 +370,6 @@ test.describe("Rooms index create new room", () => {
     test("loading state while creating and redirect to the room", async ({
       page,
     }) => {
-      await interceptRoomViewRequests(page);
       const postRoomsApiMock = await mockApiRequest(page, "POST", "rooms", {
         status: 201,
         json: {
@@ -675,14 +674,14 @@ test.describe("Rooms index create new room", () => {
   });
 
   test.describe("errors loading room types", () => {
-    test("500 error: loading state, toast and reload", async ({ page }) => {
+    test("500 error: loading state, toast and reload", async ({
+      page,
+      getRoomTypesApiMock,
+    }) => {
       await page.goto("/rooms");
       await expect(page.getByTestId("room-card")).toHaveCount(3);
 
-      const getRoomTypesApiMock = await mockApiRequest(
-        page,
-        "GET",
-        "roomTypes*",
+      const getRoomTypesRequestsAfterChange = getRoomTypesApiMock.respondWith(
         serverError({ hold: true }),
       );
 
@@ -697,7 +696,7 @@ test.describe("Rooms index create new room", () => {
       await expect(dialog.getByTestId("dialog-save-button")).toBeDisabled();
 
       getRoomTypesApiMock.release();
-      await getRoomTypesApiMock.waitForRequest();
+      await getRoomTypesRequestsAfterChange.waitForRequest();
 
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
@@ -712,7 +711,7 @@ test.describe("Rooms index create new room", () => {
       await expect(dialog.getByTestId("dialog-save-button")).toBeDisabled();
 
       // Reload with valid room types
-      await mockApiRequest(page, "GET", "roomTypes*", {
+      getRoomTypesApiMock.respondWith({
         json: readFixture("roomTypesWithSettings.json"),
       });
       await dialog.getByTestId("reload-room-types-button").click();
@@ -725,11 +724,14 @@ test.describe("Rooms index create new room", () => {
       ]);
     });
 
-    test("401 error redirects to login", async ({ page }) => {
+    test("401 error redirects to login", async ({
+      page,
+      getRoomTypesApiMock,
+    }) => {
       await page.goto("/rooms");
       await expect(page.getByTestId("room-card")).toHaveCount(3);
 
-      await mockApiRequest(page, "GET", "roomTypes*", { status: 401 });
+      getRoomTypesApiMock.respondWith({ status: 401 });
       await page.getByTestId("room-create-button").click();
 
       await expectLoginRedirect(page, "/rooms");

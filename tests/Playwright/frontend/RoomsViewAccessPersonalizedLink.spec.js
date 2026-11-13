@@ -6,19 +6,24 @@ import {
   serverError,
 } from "../support/utils.js";
 import { mergeTests } from "@playwright/test";
+import { test as roomFileControllerTest } from "../support/fixtures/roomFileController.js";
+import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
 import { test as roomControllerTest } from "../support/fixtures/roomController.js";
 import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import {
-  interceptRoomFilesRequest,
-  interceptRoomIndexRequests,
-} from "../support/mocks.js";
+
 import { expectAuthToken, expectNoAuthToken } from "../support/room.js";
 
-const test = mergeTests(roomControllerTest, participantNameCheckTest);
+const test = mergeTests(
+  roomControllerTest,
+  participantNameCheckTest,
+  roomFileControllerTest,
+  roomTypeControllerTest,
+);
 
-test.beforeEach(async ({ page, postRoomAuthApiMock }) => {
-  await interceptRoomFilesRequest(page);
+test.use({ roomFilesFixtureName: "roomFilesNoDetails.json" });
+
+test.beforeEach(async ({ postRoomAuthApiMock }) => {
   postRoomAuthApiMock.respondWith({
     status: 201,
     json: { data: { id: "roomAuthToken", type: 1 } },
@@ -962,8 +967,6 @@ test.describe("authenticated user", () => {
     page,
     getRoomApiMock,
   }) => {
-    await interceptRoomIndexRequests(page);
-
     await page.goto(
       "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
     );

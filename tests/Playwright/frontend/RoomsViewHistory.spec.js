@@ -1,4 +1,8 @@
-import { test } from "../support/fixtures/roomController.js";
+import { test as roomFileControllerTest } from "../support/fixtures/roomFileController.js";
+import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
+import { mergeTests } from "@playwright/test";
+import { test as roomControllerTest } from "../support/fixtures/roomController.js";
+import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import {
   expectActivePage,
@@ -6,21 +10,26 @@ import {
   readFixture,
   forbidden,
 } from "../support/utils.js";
-import {
-  interceptRoomFilesRequest,
-  interceptRoomIndexRequests,
-} from "../support/mocks.js";
+
 import {
   checkRoomAuthErrorsLoadingTab,
   selectSortType,
 } from "../support/room.js";
+
+const test = mergeTests(
+  roomControllerTest,
+  participantNameCheckTest,
+  roomFileControllerTest,
+  roomTypeControllerTest,
+);
+
+test.use({ roomFilesFixtureName: "roomFilesNoDetails.json" });
 
 test.describe("Rooms view history", () => {
   test.use({ authenticated: true });
 
   test.beforeEach(async ({ page }) => {
     await page.clock.setFixedTime(Date.UTC(2021, 5, 25));
-    await interceptRoomFilesRequest(page);
   });
 
   test.describe("load history", () => {
@@ -135,6 +144,7 @@ test.describe("Rooms view history", () => {
     test("shows a message if there is no history after reloading", async ({
       page,
       roomMeetingsResponse,
+      getRoomMeetingsApiMock,
     }) => {
       await page.goto("/rooms/abc-def-123#tab=history");
       await expect(page.getByTestId("room-history-item")).toHaveCount(5);
@@ -143,9 +153,7 @@ test.describe("Rooms view history", () => {
       roomMeetingsResponse.meta.from = null;
       roomMeetingsResponse.meta.to = null;
       roomMeetingsResponse.meta.total = 0;
-      const historyRequest = page.waitForRequest(
-        "**/api/v1/rooms/abc-def-123/meetings*",
-      );
+      const historyRequest = getRoomMeetingsApiMock.waitForNextRequest();
       await page.getByTestId("room-history-reload-button").click();
       await historyRequest;
 
@@ -295,9 +303,7 @@ test.describe("Rooms view history", () => {
       }) => {
         getRoomMeetingsApiMock.respondWithPage({ lastPage: 5 });
 
-        const historyRequest = page.waitForRequest(
-          "**/api/v1/rooms/abc-def-123/meetings*",
-        );
+        const historyRequest = getRoomMeetingsApiMock.waitForNextRequest();
         await page.getByTestId("loading-retry-button").click();
 
         expect(getRequestQuery(await historyRequest)).toMatchObject({
@@ -326,13 +332,14 @@ test.describe("Rooms view history", () => {
       test("asks for the guest name if the room has no access code", async ({
         page,
         roomResponse,
+        postParticipantNameCheckApiMock,
+        getRoomApiMock,
+        getRoomFilesApiMock,
       }) => {
         roomResponse.data.current_user = null;
 
-        const filesRequest = page.waitForRequest((request) =>
-          new URL(request.url()).pathname.endsWith("/rooms/abc-def-123/files"),
-        );
-        const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
+        const filesRequest = getRoomFilesApiMock.waitForNextRequest();
+        const roomRequest = getRoomApiMock.waitForNextRequest();
         await page.getByTestId("paginator-next-button").nth(1).click();
         await roomRequest;
 
@@ -340,14 +347,9 @@ test.describe("Rooms view history", () => {
         await expect(page.getByTestId("room-access-overlay")).toBeVisible();
         await page.locator("#participant-name").fill("Max Doe");
 
-        const checkRequest = page.waitForRequest(
-          (request) =>
-            request.method() === "POST" &&
-            request.url().endsWith("/api/v1/participantName/check"),
-        );
-        await page.route("**/api/v1/participantName/check", (route) =>
-          route.fulfill({ status: 204 }),
-        );
+        const checkRequest =
+          postParticipantNameCheckApiMock.waitForNextRequest();
+        postParticipantNameCheckApiMock.respondWith({ status: 204 });
         await page.getByTestId("room-login-button").click();
         await checkRequest;
 
@@ -366,11 +368,12 @@ test.describe("Rooms view history", () => {
       test("shows the access code overlay if the room has an access code", async ({
         page,
         roomResponse,
+        getRoomApiMock,
       }) => {
         roomResponse.data.current_user = null;
         roomResponse.data.authenticated = false;
 
-        const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
+        const roomRequest = getRoomApiMock.waitForNextRequest();
         await page.getByTestId("paginator-next-button").nth(1).click();
         await roomRequest;
 
@@ -385,7 +388,7 @@ test.describe("Rooms view history", () => {
       }) => {
         getRoomApiMock.respondWith(forbidden("guests_not_allowed"));
 
-        const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
+        const roomRequest = getRoomApiMock.waitForNextRequest();
         await page.getByTestId("paginator-next-button").nth(1).click();
         await roomRequest;
 
@@ -401,6 +404,7 @@ test.describe("Rooms view history", () => {
       page,
       getRoomMeetingsApiMock,
       roomResponse,
+      getRoomFilesApiMock,
     }) => {
       getRoomMeetingsApiMock.respondWithPage({ lastPage: 3 });
       await page.goto("/rooms/abc-def-123#tab=history");
@@ -413,9 +417,7 @@ test.describe("Rooms view history", () => {
         json: { message: "This action is unauthorized." },
       });
 
-      const filesRequest = page.waitForRequest((request) =>
-        new URL(request.url()).pathname.endsWith("/rooms/abc-def-123/files"),
-      );
+      const filesRequest = getRoomFilesApiMock.waitForNextRequest();
       await page.getByTestId("paginator-next-button").nth(1).click();
 
       await expectToastAndClose(page, "app.flash.unauthorized");
@@ -441,7 +443,6 @@ test.describe("Rooms view history", () => {
       await page.goto("/rooms/abc-def-123");
       await expect(page.locator("#tab-history")).toBeVisible();
 
-      await interceptRoomIndexRequests(page);
       getRoomMeetingsApiMock.respondWith({
         status: 404,
         json: {
@@ -476,43 +477,47 @@ test.describe("Rooms view history", () => {
     await expect(page.getByTestId("room-history-item")).toHaveCount(1);
 
     // The second page is empty, the following request (first page) returns the meetings
-    const requests = [];
-    await page.route("**/api/v1/rooms/abc-def-123/meetings*", (route) => {
-      requests.push(getRequestQuery(route.request()));
-      const history = readFixture("roomHistory.json");
-      if (requests.length === 1) {
-        history.data = [];
-        history.meta.current_page = 2;
-        history.meta.from = null;
-        history.meta.per_page = 2;
-        history.meta.to = null;
-        history.meta.total = 2;
-        history.meta.total_no_filter = 2;
-      } else {
-        history.data = history.data.slice(0, 2);
-        history.meta.per_page = 2;
-        history.meta.to = 2;
-        history.meta.total = 2;
-        history.meta.total_no_filter = 2;
-      }
-      return route.fulfill({ json: history });
-    });
+    const emptyPage = readFixture("roomHistory.json");
+    emptyPage.data = [];
+    emptyPage.meta.current_page = 2;
+    emptyPage.meta.from = null;
+    emptyPage.meta.per_page = 2;
+    emptyPage.meta.to = null;
+    emptyPage.meta.total = 2;
+    emptyPage.meta.total_no_filter = 2;
+    const firstPage = readFixture("roomHistory.json");
+    firstPage.data = firstPage.data.slice(0, 2);
+    firstPage.meta.per_page = 2;
+    firstPage.meta.to = 2;
+    firstPage.meta.total = 2;
+    firstPage.meta.total_no_filter = 2;
+    const roomMeetingsRequestsAfterChange =
+      getRoomMeetingsApiMock.respondWithSequence([
+        { json: emptyPage },
+        { json: firstPage },
+      ]);
 
     await page.getByTestId("paginator-next-button").nth(1).click();
 
     // First request is for the second page, then the page is reset
-    await expect.poll(() => requests.length).toBe(2);
-    expect(requests[0]).toMatchObject({ page: "2" });
-    expect(requests[1]).toMatchObject({ page: "1" });
+    await expect(roomMeetingsRequestsAfterChange).toHaveReceivedRequest(
+      { query: { page: "2" } },
+      { nth: 1 },
+    );
+    await expect(roomMeetingsRequestsAfterChange).toHaveReceivedRequest(
+      { query: { page: "1" } },
+      { nth: 2 },
+    );
 
     await expect(page.getByTestId("room-history-item")).toHaveCount(2);
   });
 
   test.describe("sort history", () => {
-    test("loads the history sorted by start descending", async ({ page }) => {
-      const historyRequest = page.waitForRequest(
-        "**/api/v1/rooms/abc-def-123/meetings*",
-      );
+    test("loads the history sorted by start descending", async ({
+      page,
+      getRoomMeetingsApiMock,
+    }) => {
+      const historyRequest = getRoomMeetingsApiMock.waitForNextRequest();
 
       await page.goto("/rooms/abc-def-123#tab=history");
 
@@ -552,9 +557,7 @@ test.describe("Rooms view history", () => {
       await expect(page.getByTestId("room-history-item")).toHaveCount(5);
 
       getRoomMeetingsApiMock.respondWithPage({ lastPage: 5 });
-      const historyRequest = page.waitForRequest(
-        "**/api/v1/rooms/abc-def-123/meetings*",
-      );
+      const historyRequest = getRoomMeetingsApiMock.waitForNextRequest();
       await selectSortType(page, 0);
 
       expect(getRequestQuery(await historyRequest)).toMatchObject({
@@ -591,9 +594,7 @@ test.describe("Rooms view history", () => {
           lastPage: 3,
           currentPage: 2,
         });
-        const historyRequest = page.waitForRequest(
-          "**/api/v1/rooms/abc-def-123/meetings*",
-        );
+        const historyRequest = getRoomMeetingsApiMock.waitForNextRequest();
         // there are two paginator components, the first one for small devices and the second one for larger devices
         await page.getByTestId("paginator-next-button").nth(1).click();
 
@@ -625,9 +626,7 @@ test.describe("Rooms view history", () => {
         await expectActivePage(page, 1);
 
         getRoomMeetingsApiMock.respondWithPage({ lastPage: 3 });
-        const historyRequest = page.waitForRequest(
-          "**/api/v1/rooms/abc-def-123/meetings*",
-        );
+        const historyRequest = getRoomMeetingsApiMock.waitForNextRequest();
         await page
           .getByTestId("sorting-type-inputgroup")
           .locator("button")
@@ -644,9 +643,7 @@ test.describe("Rooms view history", () => {
       test.describe("with ascending direction", () => {
         test.beforeEach(async ({ page, getRoomMeetingsApiMock }) => {
           getRoomMeetingsApiMock.respondWithPage({ lastPage: 3 });
-          const historyRequest = page.waitForRequest(
-            "**/api/v1/rooms/abc-def-123/meetings*",
-          );
+          const historyRequest = getRoomMeetingsApiMock.waitForNextRequest();
           await page
             .getByTestId("sorting-type-inputgroup")
             .locator("button")
@@ -665,9 +662,7 @@ test.describe("Rooms view history", () => {
             lastPage: 3,
             currentPage: 2,
           });
-          const historyRequest = page.waitForRequest(
-            "**/api/v1/rooms/abc-def-123/meetings*",
-          );
+          const historyRequest = getRoomMeetingsApiMock.waitForNextRequest();
           await page.getByTestId("paginator-next-button").nth(1).click();
 
           expect(getRequestQuery(await historyRequest)).toMatchObject({
@@ -690,9 +685,7 @@ test.describe("Rooms view history", () => {
           await expectActivePage(page, 1);
 
           getRoomMeetingsApiMock.respondWithPage({ lastPage: 3 });
-          const historyRequest = page.waitForRequest(
-            "**/api/v1/rooms/abc-def-123/meetings*",
-          );
+          const historyRequest = getRoomMeetingsApiMock.waitForNextRequest();
           await selectSortType(page, 0);
 
           expect(getRequestQuery(await historyRequest)).toMatchObject({

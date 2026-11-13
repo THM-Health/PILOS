@@ -1,9 +1,10 @@
+import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
 import { mergeTests } from "@playwright/test";
 import { test as roomControllerTest } from "../support/fixtures/roomController.js";
 import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import { RoomDescription } from "../support/pages/RoomDescription.js";
-import { interceptRoomIndexRequests } from "../support/mocks.js";
+
 import {
   checkRoomAuthErrors,
   setValidRememberedParticipantName,
@@ -15,7 +16,11 @@ import {
   modelNotFound,
 } from "../support/utils.js";
 
-const test = mergeTests(roomControllerTest, participantNameCheckTest);
+const test = mergeTests(
+  roomControllerTest,
+  participantNameCheckTest,
+  roomTypeControllerTest,
+);
 
 test.describe("Rooms view description", () => {
   test.use({ authenticated: true });
@@ -25,12 +30,14 @@ test.describe("Rooms view description", () => {
   });
 
   test.describe("permissions", () => {
-    test("guest can not edit", async ({ page, roomResponse }) => {
+    test("guest can not edit", async ({
+      page,
+      roomResponse,
+      getCurrentUserApiMock,
+    }) => {
       roomResponse.data.current_user = null;
       roomResponse.data.description = "<p>Room description</p>";
-      await page.route("**/api/v1/currentUser", (route) =>
-        route.fulfill({ json: {} }),
-      );
+      getCurrentUserApiMock.respondWith({ json: {} });
 
       await page.goto("/rooms/abc-def-123");
 
@@ -438,7 +445,6 @@ test.describe("Rooms view description", () => {
     });
 
     test("404 error redirects to room index", async ({ page }) => {
-      await interceptRoomIndexRequests(page);
       const putRoomDescriptionApiMock = await mockApiRequest(
         page,
         "PUT",

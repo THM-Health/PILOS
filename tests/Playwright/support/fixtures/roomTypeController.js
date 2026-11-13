@@ -122,13 +122,17 @@ export const test = base.extend({
     { auto: true },
   ],
 
-  roomTypeResponse: [
-    async ({ page }, use) => {
-      const roomTypeResponse = readFixture("roomType.json");
-      await mockApiRequest(page, "GET", "roomTypes/3", {
-        json: roomTypeResponse,
-      });
-      await use(roomTypeResponse);
+  roomTypeResponse: async ({}, use) => {
+    const roomTypeResponse = readFixture("roomType.json");
+    await use(roomTypeResponse);
+  },
+  getRoomTypeApiMock: [
+    async ({ page, roomTypeResponse }, use) => {
+      await use(
+        await mockApiRequest(page, "GET", "roomTypes/3", () => ({
+          json: roomTypeResponse,
+        })),
+      );
     },
     { auto: true },
   ],

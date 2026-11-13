@@ -1,5 +1,5 @@
 import { test as base } from "../test.js";
-import { mockApiRequest, readFixture } from "../utils.js";
+import { mockApiList, mockApiRequest, readFixture } from "../utils.js";
 
 /**
  * Mocks of the `RoleController`.
@@ -12,19 +12,26 @@ import { mockApiRequest, readFixture } from "../utils.js";
  * - `rolesSecondPageResponse`: second page of the roles, not served, to be mocked by the test that switches the page
  */
 export const test = base.extend({
-  rolesResponse: [
-    async ({ page }, use) => {
-      const rolesResponse = readFixture("roles.json");
-      await mockApiRequest(page, "GET", "roles*", { json: rolesResponse });
-      await use(rolesResponse);
+  rolesResponse: async ({}, use) => {
+    await use(readFixture("roles.json"));
+  },
+  getRolesApiMock: [
+    async ({ page, rolesResponse }, use) => {
+      await use(await mockApiList(page, "roles*", rolesResponse));
     },
     { auto: true },
   ],
-  roleResponse: [
-    async ({ page }, use) => {
-      const roleResponse = readFixture("role.json");
-      await mockApiRequest(page, "GET", "roles/2", { json: roleResponse });
-      await use(roleResponse);
+  roleResponse: async ({}, use) => {
+    const roleResponse = readFixture("role.json");
+    await use(roleResponse);
+  },
+  getRoleApiMock: [
+    async ({ page, roleResponse }, use) => {
+      await use(
+        await mockApiRequest(page, "GET", "roles/2", () => ({
+          json: roleResponse,
+        })),
+      );
     },
     { auto: true },
   ],

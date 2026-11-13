@@ -7,7 +7,7 @@ import {
   expectLoginRedirect,
 } from "../support/general.js";
 import { expectAdminBreadcrumbs } from "../support/admin.js";
-import { holdApiRequest, serverError } from "../support/utils.js";
+import { serverError } from "../support/utils.js";
 
 const test = mergeTests(settingsControllerTest, timezonesTest);
 
@@ -45,11 +45,10 @@ test.describe("Admin settings general", () => {
     page,
     currentUserResponse,
     settingsResponse,
+    getSettingsApiMock,
   }) => {
     currentUserResponse.data.permissions = ["admin.view", "settings.viewAny"];
-    const release = await holdApiRequest(page, "settings", {
-      json: settingsResponse,
-    });
+    getSettingsApiMock.respondWith({ json: settingsResponse, hold: true });
 
     await page.goto("/admin/settings");
 
@@ -59,7 +58,7 @@ test.describe("Admin settings general", () => {
     await expect(page.getByTestId("overlay")).toBeVisible();
     await expect(page.getByTestId("settings-save-button")).toHaveCount(0);
 
-    release();
+    getSettingsApiMock.release();
 
     await expect(page.getByTestId("overlay")).toBeHidden();
     await expectAdminBreadcrumbs(page, "admin.breadcrumbs.settings");
@@ -69,10 +68,9 @@ test.describe("Admin settings general", () => {
   test("loading state with edit permission", async ({
     page,
     settingsResponse,
+    getSettingsApiMock,
   }) => {
-    const release = await holdApiRequest(page, "settings", {
-      json: settingsResponse,
-    });
+    getSettingsApiMock.respondWith({ json: settingsResponse, hold: true });
 
     await page.goto("/admin/settings");
 
@@ -85,7 +83,7 @@ test.describe("Admin settings general", () => {
       "app.save",
     );
 
-    release();
+    getSettingsApiMock.release();
 
     await expect(page.getByTestId("overlay")).toBeHidden();
     await expectAdminBreadcrumbs(page, "admin.breadcrumbs.settings");
@@ -94,10 +92,9 @@ test.describe("Admin settings general", () => {
   test.describe("load settings errors", () => {
     test("server error shows toast, overlay and retry button", async ({
       page,
+      getSettingsApiMock,
     }) => {
-      await page.route("**/api/v1/settings", (route) =>
-        route.fulfill(serverError()),
-      );
+      getSettingsApiMock.respondWith(serverError());
 
       await page.goto("/admin/settings");
 
@@ -114,10 +111,9 @@ test.describe("Admin settings general", () => {
     test("retry after server error loads the settings", async ({
       page,
       settingsResponse,
+      getSettingsApiMock,
     }) => {
-      await page.route("**/api/v1/settings", (route) =>
-        route.fulfill(serverError()),
-      );
+      getSettingsApiMock.respondWith(serverError());
 
       await page.goto("/admin/settings");
       await expectToastAndClose(page, [
@@ -125,9 +121,7 @@ test.describe("Admin settings general", () => {
         'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
 
-      await page.route("**/api/v1/settings", (route) =>
-        route.fulfill({ json: settingsResponse }),
-      );
+      getSettingsApiMock.respondWith({ json: settingsResponse });
       await page.getByTestId("loading-retry-button").click();
 
       await expect(page.getByTestId("overlay")).toBeHidden();
@@ -135,10 +129,11 @@ test.describe("Admin settings general", () => {
       await expect(page.getByTestId("settings-save-button")).toBeEnabled();
     });
 
-    test("unauthenticated redirects to login", async ({ page }) => {
-      await page.route("**/api/v1/settings", (route) =>
-        route.fulfill({ status: 401 }),
-      );
+    test("unauthenticated redirects to login", async ({
+      page,
+      getSettingsApiMock,
+    }) => {
+      getSettingsApiMock.respondWith({ status: 401 });
 
       await page.goto("/admin/settings");
 
@@ -147,8 +142,11 @@ test.describe("Admin settings general", () => {
   });
 
   test.describe("load timezones errors", () => {
-    test("loading state and server error", async ({ page }) => {
-      const release = await holdApiRequest(page, "getTimezones", serverError());
+    test("loading state and server error", async ({
+      page,
+      getTimezonesApiMock,
+    }) => {
+      getTimezonesApiMock.respondWith({ ...serverError(), hold: true });
 
       await page.goto("/admin/settings");
 
@@ -160,7 +158,7 @@ test.describe("Admin settings general", () => {
         "true",
       );
 
-      release();
+      getTimezonesApiMock.release();
 
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
@@ -177,10 +175,9 @@ test.describe("Admin settings general", () => {
     test("reload timezones after error", async ({
       page,
       timezonesResponse,
+      getTimezonesApiMock,
     }) => {
-      await page.route("**/api/v1/getTimezones", (route) =>
-        route.fulfill(serverError()),
-      );
+      getTimezonesApiMock.respondWith(serverError());
 
       await page.goto("/admin/settings");
       await expectToastAndClose(page, [
@@ -188,9 +185,7 @@ test.describe("Admin settings general", () => {
         'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
 
-      await page.route("**/api/v1/getTimezones", (route) =>
-        route.fulfill({ json: timezonesResponse }),
-      );
+      getTimezonesApiMock.respondWith({ json: timezonesResponse });
       await page.getByTestId("timezone-reload-button").click();
 
       const dropdown = page.getByTestId("timezone-dropdown");
@@ -212,10 +207,11 @@ test.describe("Admin settings general", () => {
       await expect(options.nth(3)).toHaveAttribute("aria-selected", "true");
     });
 
-    test("unauthenticated redirects to login", async ({ page }) => {
-      await page.route("**/api/v1/getTimezones", (route) =>
-        route.fulfill({ status: 401 }),
-      );
+    test("unauthenticated redirects to login", async ({
+      page,
+      getTimezonesApiMock,
+    }) => {
+      getTimezonesApiMock.respondWith({ status: 401 });
 
       await page.goto("/admin/settings");
 

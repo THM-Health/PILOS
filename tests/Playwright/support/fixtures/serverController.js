@@ -14,11 +14,17 @@ import { AdminServersForm } from "../pages/AdminServersForm.js";
  * - `serverForm`: page object of the server form
  */
 export const test = base.extend({
-  serverResponse: [
-    async ({ page }, use) => {
-      const serverResponse = readFixture("server.json");
-      await mockApiRequest(page, "GET", "servers/1*", { json: serverResponse });
-      await use(serverResponse);
+  serverResponse: async ({}, use) => {
+    const serverResponse = readFixture("server.json");
+    await use(serverResponse);
+  },
+  getServerApiMock: [
+    async ({ page, serverResponse }, use) => {
+      await use(
+        await mockApiRequest(page, "GET", "servers/1*", () => ({
+          json: serverResponse,
+        })),
+      );
     },
     { auto: true },
   ],

@@ -61,13 +61,9 @@ test.describe("Admin server pools edit", () => {
   test("shows loading state while the server pool is loading", async ({
     page,
     serverPoolResponse,
+    getServerPoolApiMock,
   }) => {
-    const getServerPoolApiMock = await mockApiRequest(
-      page,
-      "GET",
-      "serverPools/1",
-      { hold: true, json: serverPoolResponse },
-    );
+    getServerPoolApiMock.respondWith({ hold: true, json: serverPoolResponse });
 
     await page.goto("/admin/server_pools/1/edit");
     await expect(
@@ -677,8 +673,9 @@ test.describe("Admin server pools edit", () => {
     test("500 error shows overlay and retry loads the server pool", async ({
       page,
       serverPoolResponse,
+      getServerPoolApiMock,
     }) => {
-      await mockApiRequest(page, "GET", "serverPools/1", serverError());
+      getServerPoolApiMock.respondWith(serverError());
 
       await page.goto("/admin/server_pools/1/edit");
 
@@ -688,7 +685,7 @@ test.describe("Admin server pools edit", () => {
         'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
 
-      await mockApiRequest(page, "GET", "serverPools/1", {
+      getServerPoolApiMock.respondWith({
         json: serverPoolResponse,
       });
 
@@ -701,13 +698,11 @@ test.describe("Admin server pools edit", () => {
       await expect(page.locator("#name")).toHaveValue("Test");
     });
 
-    test("404 error redirects to the index page", async ({ page }) => {
-      await mockApiRequest(
-        page,
-        "GET",
-        "serverPools/1",
-        modelNotFound("server_pool", [1]),
-      );
+    test("404 error redirects to the index page", async ({
+      page,
+      getServerPoolApiMock,
+    }) => {
+      getServerPoolApiMock.respondWith(modelNotFound("server_pool", [1]));
 
       await page.goto("/admin/server_pools/1/edit");
 
@@ -718,8 +713,11 @@ test.describe("Admin server pools edit", () => {
       ]);
     });
 
-    test("401 error redirects to the login page", async ({ page }) => {
-      await mockApiRequest(page, "GET", "serverPools/1", {
+    test("401 error redirects to the login page", async ({
+      page,
+      getServerPoolApiMock,
+    }) => {
+      getServerPoolApiMock.respondWith({
         status: 401,
       });
 

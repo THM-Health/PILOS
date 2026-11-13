@@ -1,12 +1,11 @@
+import { test as roomFileControllerTest } from "../support/fixtures/roomFileController.js";
+import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
 import { mergeTests } from "@playwright/test";
 import { test as roomControllerTest } from "../support/fixtures/roomController.js";
 import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
 import { test as browserApisTest } from "../support/fixtures/browserApis.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import {
-  interceptRoomFilesRequest,
-  interceptRoomIndexRequests,
-} from "../support/mocks.js";
+
 import { expectAuthToken, expectNoAuthToken } from "../support/room.js";
 import {
   mockApiRequest,
@@ -21,14 +20,14 @@ const test = mergeTests(
   roomControllerTest,
   participantNameCheckTest,
   browserApisTest,
+  roomFileControllerTest,
+  roomTypeControllerTest,
 );
+
+test.use({ roomFilesFixtureName: "roomFilesNoDetails.json" });
 
 test.describe("Room View general", () => {
   test.use({ authenticated: true });
-
-  test.beforeEach(async ({ page }) => {
-    await interceptRoomFilesRequest(page);
-  });
 
   test.describe("room view by role", () => {
     const ALL_TABS = [
@@ -494,6 +493,7 @@ test.describe("Room View general", () => {
       page,
       roomResponse,
       postRoomAuthApiMock,
+      getRoomApiMock,
     }) => {
       roomResponse.data.authenticated = false;
       await page.goto("/rooms/abc-def-123");
@@ -502,9 +502,7 @@ test.describe("Room View general", () => {
       await expect(page.getByTestId("room-access-overlay")).toBeVisible();
       await page.locator("#access-code").fill("123456789");
       roomResponse.data.authenticated = true;
-      const loginRoomRequest = page.waitForRequest(
-        "**/api/v1/rooms/abc-def-123*",
-      );
+      const loginRoomRequest = getRoomApiMock.waitForNextRequest();
       await page.getByTestId("room-login-button").click();
       await postRoomAuthApiMock.waitForRequest();
       await loginRoomRequest;
@@ -522,7 +520,7 @@ test.describe("Room View general", () => {
       await expect(page.getByTestId("room-end-membership-button")).toHaveCount(
         0,
       );
-      const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
+      const roomRequest = getRoomApiMock.waitForNextRequest();
       await joinButton.click();
       await expect(joinButton).toBeDisabled();
       postRoomMembershipApiMock.release();
@@ -540,6 +538,7 @@ test.describe("Room View general", () => {
       page,
       roomResponse,
       postRoomAuthApiMock,
+      getRoomApiMock,
     }) => {
       roomResponse.data.authenticated = false;
       await page.goto("/rooms/abc-def-123");
@@ -548,9 +547,7 @@ test.describe("Room View general", () => {
       await expect(page.getByTestId("room-access-overlay")).toBeVisible();
       await page.locator("#access-code").fill("123456789");
       roomResponse.data.authenticated = true;
-      const loginRoomRequest = page.waitForRequest(
-        "**/api/v1/rooms/abc-def-123*",
-      );
+      const loginRoomRequest = getRoomApiMock.waitForNextRequest();
       await page.getByTestId("room-login-button").click();
       await postRoomAuthApiMock.waitForRequest();
       await loginRoomRequest;
@@ -563,9 +560,7 @@ test.describe("Room View general", () => {
         { status: 204 },
       );
       roomResponse.data.is_member = true;
-      const memberRoomRequest = page.waitForRequest(
-        "**/api/v1/rooms/abc-def-123*",
-      );
+      const memberRoomRequest = getRoomApiMock.waitForNextRequest();
       await page.getByTestId("room-join-membership-button").click();
       await postRoomMembershipApiMock.waitForRequest();
       await memberRoomRequest;
@@ -585,7 +580,7 @@ test.describe("Room View general", () => {
       await page.getByTestId("room-end-membership-button").click();
       await expect(page.getByTestId("end-membership-dialog")).toBeVisible();
       const continueButton = page.getByTestId("dialog-continue-button");
-      const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
+      const roomRequest = getRoomApiMock.waitForNextRequest();
       await continueButton.click();
       await expect(continueButton).toBeDisabled();
       deleteRoomMembershipApiMock.release();
@@ -612,6 +607,7 @@ test.describe("Room View general", () => {
         page,
         roomResponse,
         postRoomAuthApiMock,
+        getRoomApiMock,
       }) => {
         // use the access code flow to check that the token is sent
         roomResponse.data.authenticated = false;
@@ -619,9 +615,7 @@ test.describe("Room View general", () => {
         await expect(page.getByTestId("room-access-overlay")).toBeVisible();
         await page.locator("#access-code").fill("123456789");
         roomResponse.data.authenticated = true;
-        const loginRoomRequest = page.waitForRequest(
-          "**/api/v1/rooms/abc-def-123*",
-        );
+        const loginRoomRequest = getRoomApiMock.waitForNextRequest();
         await page.getByTestId("room-login-button").click();
         await postRoomAuthApiMock.waitForRequest();
         await loginRoomRequest;
@@ -645,15 +639,14 @@ test.describe("Room View general", () => {
         page,
         roomResponse,
         postRoomAuthApiMock,
+        getRoomApiMock,
       }) => {
         roomResponse.data.authenticated = false;
         await page.reload();
         await expect(page.getByTestId("room-access-overlay")).toBeVisible();
         await page.locator("#access-code").fill("123456789");
         roomResponse.data.authenticated = true;
-        const loginRoomRequest = page.waitForRequest(
-          "**/api/v1/rooms/abc-def-123*",
-        );
+        const loginRoomRequest = getRoomApiMock.waitForNextRequest();
         await page.getByTestId("room-login-button").click();
         await postRoomAuthApiMock.waitForRequest();
         await loginRoomRequest;
@@ -665,7 +658,7 @@ test.describe("Room View general", () => {
           unauthorized("invalid_auth_token"),
         );
         roomResponse.data.authenticated = false;
-        const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
+        const roomRequest = getRoomApiMock.waitForNextRequest();
         await page.getByTestId("room-join-membership-button").click();
 
         // access code is still set in the membership request, but reset in the following room request
@@ -680,16 +673,18 @@ test.describe("Room View general", () => {
 
         // Login with the access code is possible again
         roomResponse.data.authenticated = true;
-        const reloadedRoomRequest = page.waitForRequest(
-          "**/api/v1/rooms/abc-def-123*",
-        );
+        const reloadedRoomRequest = getRoomApiMock.waitForNextRequest();
         await page.getByTestId("room-login-button").click();
         await postRoomAuthApiMock.waitForRequest(2);
         await reloadedRoomRequest;
         await expect(page.getByTestId("room-access-overlay")).toBeHidden();
       });
 
-      test("membership not available", async ({ page, roomResponse }) => {
+      test("membership not available", async ({
+        page,
+        roomResponse,
+        getRoomApiMock,
+      }) => {
         const postRoomMembershipApiMock = await mockApiRequest(
           page,
           "POST",
@@ -699,7 +694,7 @@ test.describe("Room View general", () => {
           ),
         );
         roomResponse.data.allow_membership = false;
-        const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
+        const roomRequest = getRoomApiMock.waitForNextRequest();
         await page.getByTestId("room-join-membership-button").click();
 
         await postRoomMembershipApiMock.waitForRequest();
@@ -714,7 +709,11 @@ test.describe("Room View general", () => {
         ).toHaveCount(0);
       });
 
-      test("unauthenticated", async ({ page, roomResponse }) => {
+      test("unauthenticated", async ({
+        page,
+        roomResponse,
+        getRoomApiMock,
+      }) => {
         const postRoomMembershipApiMock = await mockApiRequest(
           page,
           "POST",
@@ -726,7 +725,7 @@ test.describe("Room View general", () => {
           current_user: null,
           description: "<p>Test</p>",
         };
-        const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
+        const roomRequest = getRoomApiMock.waitForNextRequest();
         await page.getByTestId("room-join-membership-button").click();
 
         await postRoomMembershipApiMock.waitForRequest();
@@ -742,7 +741,6 @@ test.describe("Room View general", () => {
       });
 
       test("room not found", async ({ page }) => {
-        await interceptRoomIndexRequests(page);
         const postRoomMembershipApiMock = await mockApiRequest(
           page,
           "POST",
@@ -793,7 +791,11 @@ test.describe("Room View general", () => {
         await expect(page.getByTestId("end-membership-dialog")).toBeHidden();
       });
 
-      test("unauthenticated", async ({ page, roomResponse }) => {
+      test("unauthenticated", async ({
+        page,
+        roomResponse,
+        getRoomApiMock,
+      }) => {
         const deleteRoomMembershipApiMock = await mockApiRequest(
           page,
           "DELETE",
@@ -807,7 +809,7 @@ test.describe("Room View general", () => {
           allow_membership: true,
           description: "<p>Test</p>",
         };
-        const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
+        const roomRequest = getRoomApiMock.waitForNextRequest();
         await page.getByTestId("dialog-continue-button").click();
 
         expectNoAuthToken(await deleteRoomMembershipApiMock.waitForRequest());
@@ -826,7 +828,6 @@ test.describe("Room View general", () => {
       });
 
       test("room not found", async ({ page }) => {
-        await interceptRoomIndexRequests(page);
         const deleteRoomMembershipApiMock = await mockApiRequest(
           page,
           "DELETE",
@@ -877,7 +878,7 @@ test.describe("Room View general", () => {
         "aria-label",
         'rooms.favorites.add_for_{"room":"Meeting One"}',
       );
-      const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
+      const roomRequest = getRoomApiMock.waitForNextRequest();
       await button.click();
       await expect(button).toBeDisabled();
       postRoomFavoritesApiMock.release();
@@ -913,7 +914,7 @@ test.describe("Room View general", () => {
         "aria-label",
         'rooms.favorites.remove_for_{"room":"Meeting One"}',
       );
-      const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
+      const roomRequest = getRoomApiMock.waitForNextRequest();
       await button.click();
       await expect(button).toBeDisabled();
       deleteRoomFavoritesApiMock.release();
@@ -936,14 +937,14 @@ test.describe("Room View general", () => {
         );
       });
 
-      test("general error", async ({ page }) => {
+      test("general error", async ({ page, getRoomApiMock }) => {
         const postRoomFavoritesApiMock = await mockApiRequest(
           page,
           "POST",
           "rooms/abc-def-123/favorites*",
           { status: 500, json: { message: "Test add favorite error" } },
         );
-        const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
+        const roomRequest = getRoomApiMock.waitForNextRequest();
         await page.getByTestId("room-favorites-button").click();
 
         await postRoomFavoritesApiMock.waitForRequest();
@@ -960,7 +961,11 @@ test.describe("Room View general", () => {
         );
       });
 
-      test("unauthenticated", async ({ page, roomResponse }) => {
+      test("unauthenticated", async ({
+        page,
+        roomResponse,
+        getRoomApiMock,
+      }) => {
         const postRoomFavoritesApiMock = await mockApiRequest(
           page,
           "POST",
@@ -972,7 +977,7 @@ test.describe("Room View general", () => {
           current_user: null,
           description: "<p>Test</p>",
         };
-        const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
+        const roomRequest = getRoomApiMock.waitForNextRequest();
         await page.getByTestId("room-favorites-button").click();
 
         await postRoomFavoritesApiMock.waitForRequest();
@@ -988,7 +993,6 @@ test.describe("Room View general", () => {
       });
 
       test("room not found", async ({ page }) => {
-        await interceptRoomIndexRequests(page);
         const postRoomFavoritesApiMock = await mockApiRequest(
           page,
           "POST",
@@ -1020,14 +1024,14 @@ test.describe("Room View general", () => {
         );
       });
 
-      test("general error", async ({ page }) => {
+      test("general error", async ({ page, getRoomApiMock }) => {
         const deleteRoomFavoritesApiMock = await mockApiRequest(
           page,
           "DELETE",
           "rooms/abc-def-123/favorites*",
           { status: 500, json: { message: "Test remove favorite error" } },
         );
-        const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
+        const roomRequest = getRoomApiMock.waitForNextRequest();
         await page.getByTestId("room-favorites-button").click();
 
         await deleteRoomFavoritesApiMock.waitForRequest();
@@ -1044,7 +1048,11 @@ test.describe("Room View general", () => {
         );
       });
 
-      test("unauthenticated", async ({ page, roomResponse }) => {
+      test("unauthenticated", async ({
+        page,
+        roomResponse,
+        getRoomApiMock,
+      }) => {
         const deleteRoomFavoritesApiMock = await mockApiRequest(
           page,
           "DELETE",
@@ -1058,7 +1066,7 @@ test.describe("Room View general", () => {
           allow_membership: true,
           description: "<p>Test</p>",
         };
-        const roomRequest = page.waitForRequest("**/api/v1/rooms/abc-def-123*");
+        const roomRequest = getRoomApiMock.waitForNextRequest();
         await page.getByTestId("room-favorites-button").click();
 
         await deleteRoomFavoritesApiMock.waitForRequest();
@@ -1077,7 +1085,6 @@ test.describe("Room View general", () => {
       });
 
       test("room not found", async ({ page }) => {
-        await interceptRoomIndexRequests(page);
         const deleteRoomFavoritesApiMock = await mockApiRequest(
           page,
           "DELETE",
@@ -1156,7 +1163,6 @@ test.describe("Room View general", () => {
     page,
     getRoomApiMock,
   }) => {
-    await interceptRoomIndexRequests(page);
     getRoomApiMock.respondWith(modelNotFound("room", ["abc-def-123"]));
 
     await page.goto("/rooms/abc-def-123");
@@ -1318,6 +1324,7 @@ test.describe("Room View general", () => {
       page,
       roomResponse,
       getRoomApiMock,
+      getLocaleEnApiMock,
     }) => {
       roomResponse.data.allow_membership = true;
       roomResponse.data.current_user = null;
@@ -1331,9 +1338,7 @@ test.describe("Room View general", () => {
           },
         },
       };
-      await page.route("**/api/v1/locale/en", (route) =>
-        route.fulfill({ json: locale }),
-      );
+      getLocaleEnApiMock.respondWith({ json: locale });
 
       // Simulate BBB errors
       const errors = encodeURIComponent(
@@ -1385,7 +1390,6 @@ test.describe("Room View general", () => {
       roomResponse,
       getRoomApiMock,
     }) => {
-      await interceptRoomIndexRequests(page);
       roomResponse.data.allow_membership = true;
       await page.goto("/rooms/abc-def-123");
       await expect(page.getByText("Meeting One").first()).toBeVisible();

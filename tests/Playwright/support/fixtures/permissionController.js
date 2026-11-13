@@ -31,13 +31,17 @@ const permissionNames = [
  * - `expectPermissions(explicit, { restrictions })`: checks the permission list of the role pages
  */
 export const test = base.extend({
-  permissionsResponse: [
-    async ({ page }, use) => {
-      const permissionsResponse = readFixture("permissions.json");
-      await mockApiRequest(page, "GET", "permissions", {
-        json: permissionsResponse,
-      });
-      await use(permissionsResponse);
+  permissionsResponse: async ({}, use) => {
+    const permissionsResponse = readFixture("permissions.json");
+    await use(permissionsResponse);
+  },
+  getPermissionsApiMock: [
+    async ({ page, permissionsResponse }, use) => {
+      await use(
+        await mockApiRequest(page, "GET", "permissions", () => ({
+          json: permissionsResponse,
+        })),
+      );
     },
     { auto: true },
   ],

@@ -374,6 +374,7 @@ test.describe("Admin users new", () => {
       page,
       userResponse,
       rolesSecondPageResponse,
+      getRolesApiMock,
     }) => {
       await page.locator("#firstname").fill("Max");
       await page.locator("#lastname").fill("Doe");
@@ -390,7 +391,7 @@ test.describe("Admin users new", () => {
       await expect(content).toBeVisible();
 
       // Switch to next page
-      await mockApiRequest(page, "GET", "roles*", {
+      getRolesApiMock.respondWith({
         json: rolesSecondPageResponse,
       });
       await content.getByTestId("next-page-button").click();
@@ -453,6 +454,7 @@ test.describe("Admin users new", () => {
     test("roles pagination and loading state", async ({
       page,
       rolesSecondPageResponse,
+      getRolesApiMock,
     }) => {
       await page
         .getByTestId("role-dropdown")
@@ -468,7 +470,7 @@ test.describe("Admin users new", () => {
       await expect(next).toContainText("app.next_page");
       await expect(next).toBeEnabled();
 
-      const getRolesApiMock = await mockApiRequest(page, "GET", "roles*", {
+      const getRolesRequestsAfterChange = getRolesApiMock.respondWith({
         json: rolesSecondPageResponse,
         hold: true,
       });
@@ -484,7 +486,7 @@ test.describe("Admin users new", () => {
       await expect(page.getByTestId("users-new-save-button")).toBeDisabled();
 
       getRolesApiMock.release();
-      await getRolesApiMock.waitForRequest();
+      await getRolesRequestsAfterChange.waitForRequest();
 
       await expect(previous).toBeEnabled();
       await expect(next).toBeDisabled();
@@ -622,11 +624,12 @@ test.describe("Admin users new", () => {
   });
 
   test.describe("load timezones errors", () => {
-    test("500 error and reload", async ({ page, timezonesResponse }) => {
-      const getTimezonesApiMock = await mockApiRequest(
-        page,
-        "GET",
-        "getTimezones",
+    test("500 error and reload", async ({
+      page,
+      timezonesResponse,
+      getTimezonesApiMock,
+    }) => {
+      const getTimezonesRequestsAfterChange1 = getTimezonesApiMock.respondWith(
         serverError({ hold: true }),
       );
 
@@ -640,7 +643,7 @@ test.describe("Admin users new", () => {
       await expect(dropdownLabel).toHaveAttribute("aria-disabled", "true");
 
       getTimezonesApiMock.release();
-      await getTimezonesApiMock.waitForRequest();
+      await getTimezonesRequestsAfterChange1.waitForRequest();
 
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
@@ -654,16 +657,11 @@ test.describe("Admin users new", () => {
       await expect(page.getByTestId("users-new-save-button")).toBeDisabled();
 
       // Reload timezones without errors
-      const getTimezonesApiMock2 = await mockApiRequest(
-        page,
-        "GET",
-        "getTimezones",
-        {
-          json: timezonesResponse,
-        },
-      );
+      const getTimezonesRequestsAfterChange2 = getTimezonesApiMock.respondWith({
+        json: timezonesResponse,
+      });
       await page.getByTestId("timezone-reload-button").click();
-      await getTimezonesApiMock2.waitForRequest();
+      await getTimezonesRequestsAfterChange2.waitForRequest();
 
       await expect(page.getByTestId("users-new-save-button")).toBeEnabled();
       await expect(page.getByTestId("timezone-dropdown")).toHaveText("UTC");
@@ -674,8 +672,11 @@ test.describe("Admin users new", () => {
       await expect(page.getByTestId("timezone-dropdown-option")).toHaveCount(4);
     });
 
-    test("401 error redirects to login", async ({ page }) => {
-      await mockApiRequest(page, "GET", "getTimezones", { status: 401 });
+    test("401 error redirects to login", async ({
+      page,
+      getTimezonesApiMock,
+    }) => {
+      getTimezonesApiMock.respondWith({ status: 401 });
 
       await page.goto("/admin/users/new");
 
@@ -726,11 +727,12 @@ test.describe("Admin users new", () => {
   });
 
   test.describe("load roles errors", () => {
-    test("500 error and reload", async ({ page, rolesResponse }) => {
-      const getRolesApiMock = await mockApiRequest(
-        page,
-        "GET",
-        "roles*",
+    test("500 error and reload", async ({
+      page,
+      rolesResponse,
+      getRolesApiMock,
+    }) => {
+      const getRolesRequestsAfterChange1 = getRolesApiMock.respondWith(
         serverError({ hold: true }),
       );
 
@@ -743,7 +745,7 @@ test.describe("Admin users new", () => {
       );
 
       getRolesApiMock.release();
-      await getRolesApiMock.waitForRequest();
+      await getRolesRequestsAfterChange1.waitForRequest();
 
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
@@ -756,11 +758,11 @@ test.describe("Admin users new", () => {
       await expect(page.getByTestId("users-new-save-button")).toBeDisabled();
 
       // Reload roles without errors
-      const getRolesApiMock2 = await mockApiRequest(page, "GET", "roles*", {
+      const getRolesRequestsAfterChange2 = getRolesApiMock.respondWith({
         json: rolesResponse,
       });
       await page.getByTestId("roles-reload-button").click();
-      await getRolesApiMock2.waitForRequest();
+      await getRolesRequestsAfterChange2.waitForRequest();
 
       await expect(page.getByTestId("role-dropdown")).not.toHaveClass(
         /multiselect--disabled/,
@@ -773,19 +775,18 @@ test.describe("Admin users new", () => {
       await expect(page.locator(".multiselect__option")).toHaveCount(5);
     });
 
-    test("500 error when switching pages", async ({ page }) => {
+    test("500 error when switching pages", async ({
+      page,
+      getRolesApiMock,
+    }) => {
       await page.goto("/admin/users/new");
       await page.getByTestId("role-dropdown").click();
       await expect(page.locator(".multiselect__content")).toBeVisible();
 
-      const getRolesApiMock = await mockApiRequest(
-        page,
-        "GET",
-        "roles*",
-        serverError(),
-      );
+      const getRolesRequestsAfterChange =
+        getRolesApiMock.respondWith(serverError());
       await page.getByTestId("next-page-button").click();
-      await getRolesApiMock.waitForRequest();
+      await getRolesRequestsAfterChange.waitForRequest();
 
       await expectToastAndClose(page, [
         'app.flash.server_error.message_{"message":"Test"}',
@@ -799,8 +800,8 @@ test.describe("Admin users new", () => {
       await expect(page.getByTestId("users-new-save-button")).toBeDisabled();
     });
 
-    test("401 error redirects to login", async ({ page }) => {
-      await mockApiRequest(page, "GET", "roles*", { status: 401 });
+    test("401 error redirects to login", async ({ page, getRolesApiMock }) => {
+      getRolesApiMock.respondWith({ status: 401 });
 
       await page.goto("/admin/users/new");
 
@@ -809,12 +810,13 @@ test.describe("Admin users new", () => {
 
     test("401 error when switching pages redirects to login", async ({
       page,
+      getRolesApiMock,
     }) => {
       await page.goto("/admin/users/new");
       await page.getByTestId("role-dropdown").click();
       await expect(page.locator(".multiselect__content")).toBeVisible();
 
-      await mockApiRequest(page, "GET", "roles*", { status: 401 });
+      getRolesApiMock.respondWith({ status: 401 });
       await page.getByTestId("next-page-button").click();
 
       await expectLoginRedirect(page, "/admin/users/new");

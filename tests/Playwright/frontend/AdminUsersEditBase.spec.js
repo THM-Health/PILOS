@@ -4,7 +4,7 @@ import { test as roleControllerTest } from "../support/fixtures/roleController.j
 import { test as timezonesTest } from "../support/fixtures/timezones.js";
 import { test as sessionControllerTest } from "../support/fixtures/sessionController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { interceptAdminUsersIndexRequests } from "../support/mocks.js";
+
 import { expectLoginRedirect } from "../support/general.js";
 import { expectAdminBreadcrumbs } from "../support/admin.js";
 import {
@@ -660,13 +660,9 @@ test.describe("Admin users edit base", () => {
 
     test("user not found (404) redirects to the users index", async ({
       page,
+      getUsersApiMock,
     }) => {
-      await interceptAdminUsersIndexRequests(page);
-      const usersRequest = page.waitForRequest(
-        (request) =>
-          new URL(request.url()).pathname === "/api/v1/users" &&
-          request.method() === "GET",
-      );
+      const usersRequest = getUsersApiMock.waitForNextRequest();
       await mockApiRequest(page, "POST", "users/2", modelNotFound("user", [2]));
 
       await page.getByTestId("user-tab-profile-save-button").click();
@@ -739,16 +735,16 @@ test.describe("Admin users edit base", () => {
   });
 
   test.describe("load timezones error", () => {
-    test("loading state and server error (500)", async ({ page }) => {
-      const getTimezonesApiMock = await mockApiRequest(
-        page,
-        "GET",
-        "getTimezones",
+    test("loading state and server error (500)", async ({
+      page,
+      getTimezonesApiMock,
+    }) => {
+      const getTimezonesRequestsAfterChange = getTimezonesApiMock.respondWith(
         serverError({ hold: true }),
       );
 
       await page.goto("/admin/users/2/edit");
-      await getTimezonesApiMock.waitForRequest();
+      await getTimezonesRequestsAfterChange.waitForRequest();
 
       await expect(
         page.getByTestId("user-tab-profile-save-button"),
@@ -771,8 +767,8 @@ test.describe("Admin users edit base", () => {
       await expect(label).toHaveAttribute("aria-disabled", "true");
     });
 
-    test("reload timezones", async ({ page }) => {
-      await mockApiRequest(page, "GET", "getTimezones", serverError());
+    test("reload timezones", async ({ page, getTimezonesApiMock }) => {
+      getTimezonesApiMock.respondWith(serverError());
 
       await page.goto("/admin/users/2/edit");
       await expectToastAndClose(page, [
@@ -780,7 +776,7 @@ test.describe("Admin users edit base", () => {
         'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
 
-      await mockApiRequest(page, "GET", "getTimezones", {
+      getTimezonesApiMock.respondWith({
         path: "tests/Playwright/fixtures/timezones.json",
       });
       await page.getByTestId("timezone-reload-button").click();
@@ -806,8 +802,9 @@ test.describe("Admin users edit base", () => {
 
     test("unauthenticated (401) redirects to the login page", async ({
       page,
+      getTimezonesApiMock,
     }) => {
-      await mockApiRequest(page, "GET", "getTimezones", {
+      getTimezonesApiMock.respondWith({
         status: 401,
         json: {},
       });

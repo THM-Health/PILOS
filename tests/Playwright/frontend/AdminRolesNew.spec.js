@@ -669,13 +669,8 @@ test.describe("Admin roles new", () => {
   });
 
   test.describe("load permissions errors", () => {
-    test("loading state", async ({ page }) => {
-      const getPermissionsApiMock = await mockApiRequest(
-        page,
-        "GET",
-        "permissions",
-        serverError({ hold: true }),
-      );
+    test("loading state", async ({ page, getPermissionsApiMock }) => {
+      getPermissionsApiMock.respondWith(serverError({ hold: true }));
 
       await page.goto("/admin/roles/new");
 
@@ -694,8 +689,11 @@ test.describe("Admin roles new", () => {
       ]);
     });
 
-    test("error keeps overlay and hides buttons", async ({ page }) => {
-      await mockApiRequest(page, "GET", "permissions", serverError());
+    test("error keeps overlay and hides buttons", async ({
+      page,
+      getPermissionsApiMock,
+    }) => {
+      getPermissionsApiMock.respondWith(serverError());
 
       await page.goto("/admin/roles/new");
 
@@ -720,8 +718,9 @@ test.describe("Admin roles new", () => {
     test("reload after error loads the permissions", async ({
       page,
       permissionsResponse,
+      getPermissionsApiMock,
     }) => {
-      await mockApiRequest(page, "GET", "permissions", serverError());
+      getPermissionsApiMock.respondWith(serverError());
 
       await page.goto("/admin/roles/new");
       await expectToastAndClose(page, [
@@ -729,14 +728,10 @@ test.describe("Admin roles new", () => {
         'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
 
-      await mockApiRequest(page, "GET", "permissions", {
+      getPermissionsApiMock.respondWith({
         json: permissionsResponse,
       });
-      const reloaded = page.waitForRequest(
-        (request) =>
-          request.method() === "GET" &&
-          request.url().includes("/api/v1/permissions"),
-      );
+      const reloaded = getPermissionsApiMock.waitForNextRequest();
       await page.getByTestId("loading-retry-button").click();
       await reloaded;
 
@@ -745,8 +740,11 @@ test.describe("Admin roles new", () => {
       await expect(page.getByTestId("loading-retry-button")).toHaveCount(0);
     });
 
-    test("401 error redirects to login", async ({ page }) => {
-      await mockApiRequest(page, "GET", "permissions", { status: 401 });
+    test("401 error redirects to login", async ({
+      page,
+      getPermissionsApiMock,
+    }) => {
+      getPermissionsApiMock.respondWith({ status: 401 });
 
       await page.goto("/admin/roles/new");
 

@@ -7,20 +7,22 @@ import {
   errorResponse,
 } from "../support/utils.js";
 import { mergeTests } from "@playwright/test";
+import { test as roomFileControllerTest } from "../support/fixtures/roomFileController.js";
+import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
 import { test as roomControllerTest } from "../support/fixtures/roomController.js";
 import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import {
-  interceptRoomFilesRequest,
-  interceptRoomIndexRequests,
-} from "../support/mocks.js";
+
 import { expectAuthToken } from "../support/room.js";
 
-const test = mergeTests(roomControllerTest, participantNameCheckTest);
+const test = mergeTests(
+  roomControllerTest,
+  participantNameCheckTest,
+  roomFileControllerTest,
+  roomTypeControllerTest,
+);
 
-test.beforeEach(async ({ page }) => {
-  await interceptRoomFilesRequest(page);
-});
+test.use({ roomFilesFixtureName: "roomFilesNoDetails.json" });
 
 test.describe("saved access parameter priority", () => {
   test.beforeEach(async ({ page }) => {
@@ -1233,7 +1235,6 @@ test.describe("hash change with access code errors", () => {
     page,
     postRoomAuthApiMock,
   }) => {
-    await interceptRoomIndexRequests(page);
     const postRoomAuthRequestsAfterChange = postRoomAuthApiMock.respondWith(
       modelNotFound("room", ["abc-def-123"]),
     );

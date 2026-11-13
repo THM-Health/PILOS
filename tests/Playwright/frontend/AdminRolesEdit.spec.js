@@ -59,8 +59,8 @@ test.describe("Admin roles edit", () => {
   });
 
   test.describe("loading and buttons", () => {
-    test("loading state", async ({ page, roleResponse }) => {
-      const getRoleApiMock = await mockApiRequest(page, "GET", "roles/2", {
+    test("loading state", async ({ page, roleResponse, getRoleApiMock }) => {
+      getRoleApiMock.respondWith({
         json: roleResponse,
         hold: true,
       });
@@ -1403,7 +1403,10 @@ test.describe("Admin roles edit", () => {
       );
     });
 
-    test("save changed name, room limit and permissions", async ({ page }) => {
+    test("save changed name, room limit and permissions", async ({
+      page,
+      getRoleApiMock,
+    }) => {
       await page.goto("/admin/roles/2/edit");
       await expect(page.locator("#name")).toHaveValue("Staff");
 
@@ -1455,7 +1458,7 @@ test.describe("Admin roles edit", () => {
       role.data.permissions = role.data.permissions.filter((permission) =>
         selectedPermissions.includes(permission.id),
       );
-      await mockApiRequest(page, "GET", "roles/2", { json: role });
+      getRoleApiMock.respondWith({ json: role });
       const putRoleApiMock = await mockApiRequest(page, "PUT", "roles/2", {
         json: role,
       });
@@ -1780,7 +1783,7 @@ test.describe("Admin roles edit", () => {
         );
       });
 
-      test("overwrite", async ({ page }) => {
+      test("overwrite", async ({ page, getRoleApiMock }) => {
         await page.goto("/admin/roles/2/edit");
         await expect(page.locator("#name")).toHaveValue("Staff");
 
@@ -1839,7 +1842,7 @@ test.describe("Admin roles edit", () => {
         ).toHaveText("app.overwrite");
 
         // Overwrite
-        await mockApiRequest(page, "GET", "roles/2", {
+        getRoleApiMock.respondWith({
           json: reloadedRole,
         });
         const putRoleApiMock = await mockApiRequest(page, "PUT", "roles/2", {
@@ -1903,13 +1906,10 @@ test.describe("Admin roles edit", () => {
       page,
       roleResponse,
       permissionsResponse,
+      getPermissionsApiMock,
+      getRoleApiMock,
     }) => {
-      const getPermissionsApiMock = await mockApiRequest(
-        page,
-        "GET",
-        "permissions",
-        serverError({ hold: true }),
-      );
+      getPermissionsApiMock.respondWith(serverError({ hold: true }));
 
       await page.goto("/admin/roles/2/edit");
 
@@ -1939,24 +1939,20 @@ test.describe("Admin roles edit", () => {
       await expect(page.getByTestId("roles-save-button")).toBeDisabled();
 
       // Reload with correct data
-      const getRoleApiMock = await mockApiRequest(page, "GET", "roles/2", {
+      const getRoleRequestsAfterChange = getRoleApiMock.respondWith({
         json: roleResponse,
       });
-      const getPermissionsApiMock2 = await mockApiRequest(
-        page,
-        "GET",
-        "permissions",
-        {
+      const getPermissionsRequestsAfterChange2 =
+        getPermissionsApiMock.respondWith({
           json: permissionsResponse,
-        },
-      );
+        });
 
       await expect(page.getByTestId("loading-retry-button")).toHaveText(
         "app.reload",
       );
       await page.getByTestId("loading-retry-button").click();
-      await getRoleApiMock.waitForRequest();
-      await getPermissionsApiMock2.waitForRequest();
+      await getRoleRequestsAfterChange.waitForRequest();
+      await getPermissionsRequestsAfterChange2.waitForRequest();
 
       // Check that overlay is not shown anymore
       await expect(page.locator("#name")).toHaveValue("Staff");
@@ -1964,8 +1960,11 @@ test.describe("Admin roles edit", () => {
       await expect(page.getByTestId("loading-retry-button")).toHaveCount(0);
     });
 
-    test("permissions request unauthenticated", async ({ page }) => {
-      await mockApiRequest(page, "GET", "permissions", { status: 401 });
+    test("permissions request unauthenticated", async ({
+      page,
+      getPermissionsApiMock,
+    }) => {
+      getPermissionsApiMock.respondWith({ status: 401 });
 
       await page.goto("/admin/roles/2/edit");
 
@@ -1976,8 +1975,10 @@ test.describe("Admin roles edit", () => {
       page,
       roleResponse,
       permissionsResponse,
+      getRoleApiMock,
+      getPermissionsApiMock,
     }) => {
-      await mockApiRequest(page, "GET", "roles/2", serverError());
+      getRoleApiMock.respondWith(serverError());
 
       await page.goto("/admin/roles/2/edit");
 
@@ -1992,24 +1993,20 @@ test.describe("Admin roles edit", () => {
       ]);
 
       // Reload with correct data
-      const getRoleApiMock = await mockApiRequest(page, "GET", "roles/2", {
+      const getRoleRequestsAfterChange = getRoleApiMock.respondWith({
         json: roleResponse,
       });
-      const getPermissionsApiMock = await mockApiRequest(
-        page,
-        "GET",
-        "permissions",
-        {
+      const getPermissionsRequestsAfterChange =
+        getPermissionsApiMock.respondWith({
           json: permissionsResponse,
-        },
-      );
+        });
 
       await expect(page.getByTestId("loading-retry-button")).toHaveText(
         "app.reload",
       );
       await page.getByTestId("loading-retry-button").click();
-      await getRoleApiMock.waitForRequest();
-      await getPermissionsApiMock.waitForRequest();
+      await getRoleRequestsAfterChange.waitForRequest();
+      await getPermissionsRequestsAfterChange.waitForRequest();
 
       // Check that overlay is not shown anymore
       await expect(page.locator("#name")).toHaveValue("Staff");
@@ -2017,8 +2014,8 @@ test.describe("Admin roles edit", () => {
       await expect(page.getByTestId("loading-retry-button")).toHaveCount(0);
     });
 
-    test("role not found", async ({ page }) => {
-      await mockApiRequest(page, "GET", "roles/2", modelNotFound("role", [2]));
+    test("role not found", async ({ page, getRoleApiMock }) => {
+      getRoleApiMock.respondWith(modelNotFound("role", [2]));
 
       await page.goto("/admin/roles/2/edit");
 
@@ -2029,8 +2026,8 @@ test.describe("Admin roles edit", () => {
       ]);
     });
 
-    test("role request unauthenticated", async ({ page }) => {
-      await mockApiRequest(page, "GET", "roles/2", {
+    test("role request unauthenticated", async ({ page, getRoleApiMock }) => {
+      getRoleApiMock.respondWith({
         status: 401,
         json: {},
       });
@@ -2087,8 +2084,11 @@ test.describe("Admin roles edit", () => {
         }
       });
 
-      test("superuser role is only partly editable", async ({ page }) => {
-        await mockApiRequest(page, "GET", "roles/2", {
+      test("superuser role is only partly editable", async ({
+        page,
+        getRoleApiMock,
+      }) => {
+        getRoleApiMock.respondWith({
           json: readFixture("superuserRole.json"),
         });
 

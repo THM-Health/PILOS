@@ -1,16 +1,18 @@
+import { test as roomFileControllerTest } from "../support/fixtures/roomFileController.js";
 import { mergeTests } from "@playwright/test";
 import { test as roomControllerTest } from "../support/fixtures/roomController.js";
 import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
 import { expect } from "../support/test.js";
-import { interceptRoomFilesRequest } from "../support/mocks.js";
 
-const test = mergeTests(roomControllerTest, participantNameCheckTest);
+const test = mergeTests(
+  roomControllerTest,
+  participantNameCheckTest,
+  roomFileControllerTest,
+);
+
+test.use({ roomFilesFixtureName: "roomFilesNoDetails.json" });
 
 test.describe("Rooms View access", () => {
-  test.beforeEach(async ({ page }) => {
-    await interceptRoomFilesRequest(page);
-  });
-
   test.describe("guest", () => {
     test.beforeEach(async ({ roomResponse }) => {
       roomResponse.data.allow_membership = true;

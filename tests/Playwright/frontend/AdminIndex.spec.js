@@ -1,14 +1,25 @@
-import { test, expect, expectToastAndClose } from "../support/test.js";
+import { mergeTests } from "@playwright/test";
+import { test as settingsControllerTest } from "../support/fixtures/settingsController.js";
+import { test as timezonesTest } from "../support/fixtures/timezones.js";
+import { test as userControllerTest } from "../support/fixtures/userController.js";
+import { test as roleControllerTest } from "../support/fixtures/roleController.js";
+import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
+import { test as serverControllerTest } from "../support/fixtures/serverController.js";
+import { test as serverPoolControllerTest } from "../support/fixtures/serverPoolController.js";
+import { test as streamingControllerTest } from "../support/fixtures/streamingController.js";
+import { expect, expectToastAndClose } from "../support/test.js";
 import { testVisitWithoutCurrentUser } from "../support/general.js";
-import {
-  interceptAdminSettingsRequest,
-  interceptAdminUsersIndexRequests,
-  interceptAdminRolesIndexRequests,
-  interceptAdminRoomTypesIndexRequests,
-  interceptAdminServersIndexRequests,
-  interceptAdminServerPoolsIndexRequests,
-  interceptAdminStreamingIndexRequests,
-} from "../support/mocks.js";
+
+const test = mergeTests(
+  settingsControllerTest,
+  timezonesTest,
+  userControllerTest,
+  roleControllerTest,
+  roomTypeControllerTest,
+  serverControllerTest,
+  serverPoolControllerTest,
+  streamingControllerTest,
+);
 
 test.use({ authenticated: true });
 
@@ -131,7 +142,6 @@ test("only room types are shown with the admin view permission", async ({
 
 test("open admin settings", async ({ page, currentUserResponse }) => {
   currentUserResponse.data.permissions = ["admin.view", "settings.viewAny"];
-  await interceptAdminSettingsRequest(page);
 
   await page.goto("/admin");
 
@@ -173,7 +183,6 @@ test("open admin users", async ({ page, currentUserResponse }) => {
     "users.viewAny",
     "roles.viewAny",
   ];
-  await interceptAdminUsersIndexRequests(page);
 
   await page.goto("/admin");
 
@@ -210,7 +219,6 @@ test("open admin users", async ({ page, currentUserResponse }) => {
 
 test("open admin roles", async ({ page, currentUserResponse }) => {
   currentUserResponse.data.permissions = ["admin.view", "roles.viewAny"];
-  await interceptAdminRolesIndexRequests(page);
 
   await page.goto("/admin");
 
@@ -241,8 +249,6 @@ test("open admin roles", async ({ page, currentUserResponse }) => {
 });
 
 test("open admin room types", async ({ page }) => {
-  await interceptAdminRoomTypesIndexRequests(page);
-
   await page.goto("/admin");
 
   await expect(
@@ -274,7 +280,6 @@ test("open admin room types", async ({ page }) => {
 
 test("open admin servers", async ({ page, currentUserResponse }) => {
   currentUserResponse.data.permissions = ["admin.view", "servers.viewAny"];
-  await interceptAdminServersIndexRequests(page);
 
   await page.goto("/admin");
 
@@ -306,7 +311,6 @@ test("open admin servers", async ({ page, currentUserResponse }) => {
 
 test("open admin server pools", async ({ page, currentUserResponse }) => {
   currentUserResponse.data.permissions = ["admin.view", "serverPools.viewAny"];
-  await interceptAdminServerPoolsIndexRequests(page);
 
   await page.goto("/admin");
 
@@ -345,7 +349,6 @@ test("open admin streaming", async ({
 }) => {
   configResponse.data.streaming.enabled = true;
   currentUserResponse.data.permissions = ["admin.view", "streaming.viewAny"];
-  await interceptAdminStreamingIndexRequests(page);
 
   await page.goto("/admin");
 

@@ -1,21 +1,15 @@
 import { expect, expectToastAndClose } from "./test.js";
-import { getRequestQuery, readFixture, forbidden } from "./utils.js";
+import {
+  forbidden,
+  getRequestQuery,
+  mockApiRequest,
+  readFixture,
+} from "./utils.js";
 
-const ROOM_URL = "**/api/v1/rooms/abc-def-123";
-const ROOM_FILES_URL = "**/api/v1/rooms/abc-def-123/files*";
-const ROOM_RECORDINGS_URL = "**/api/v1/rooms/abc-def-123/recordings*";
-const PARTICIPANT_NAME_CHECK_URL = "**/api/v1/participantName/check";
-
-/**
- * The Cypress commands received relative globs like `api/v1/rooms/abc-def-123/files*`,
- * Playwright globs have to match the whole URL.
- */
-function toUrlMatcher(url) {
-  if (typeof url !== "string" || url.startsWith("**") || /^\w+:/.test(url)) {
-    return url;
-  }
-  return "**/" + url.replace(/^\//, "");
-}
+const ROOM_URL = "rooms/abc-def-123";
+const ROOM_FILES_URL = "rooms/abc-def-123/files*";
+const ROOM_RECORDINGS_URL = "rooms/abc-def-123/recordings*";
+const PARTICIPANT_NAME_CHECK_URL = "participantName/check";
 
 /**
  * Select a filter dropdown option by index.
@@ -59,20 +53,25 @@ export function expectNoAuthToken(request) {
 }
 
 /**
- * Mock all requests of the given method and url. Routes registered later take precedence over earlier ones
- * (like `cy.intercept`). The returned state counts the requests that reached this mock (replaces `cy.wait("@alias")`).
+ * The helpers get the url of a request as glob with or without `**\/api/v1/`, `mockApiRequest` wants it relative to
+ * `api/v1/`.
+ */
+function toApiPath(url) {
+  return typeof url === "string" ? url.replace(/^(\*\*\/)?api\/v1\//, "") : url;
+}
+
+/**
+ * Mock all requests of the given method and url (`mockApiRequest`). The returned state counts the requests that reached
+ * this mock.
  * @returns {{ count: number }}
  */
 async function mockRequest(page, method, url, response) {
-  const state = { count: 0 };
-  await page.route(toUrlMatcher(url), (route) => {
-    if (method && route.request().method() !== method) {
-      return route.fallback();
-    }
-    state.count++;
-    return route.fulfill(response);
-  });
-  return state;
+  const mock = await mockApiRequest(page, method, toApiPath(url), response);
+  return {
+    get count() {
+      return mock.requests.length;
+    },
+  };
 }
 
 /**
@@ -92,37 +91,21 @@ function mockRoomError(page, status, body) {
 }
 
 /**
- * Hold the requests (like `interceptIndefinitely`) until `sendResponse()` is called, which answers them.
+ * Hold the requests until `sendResponse()` is called, which answers them.
  */
 async function holdRequest(page, method, url, response) {
-  let openGate;
-  const gate = new Promise((resolve) => (openGate = resolve));
-  const state = { count: 0, responded: 0 };
-
-  await page.route(toUrlMatcher(url), async (route) => {
-    if (method && route.request().method() !== method) {
-      return route.fallback();
-    }
-    state.count++;
-    await gate;
-    try {
-      await route.fulfill(response);
-      state.responded++;
-    } catch {
-      // the request has been aborted in the meantime, e.g. by a reload
-    }
+  const mock = await mockApiRequest(page, method, toApiPath(url), {
+    ...response,
+    hold: true,
   });
-
   return {
-    state,
-    sendResponse: async () => {
-      const respondedBefore = state.responded;
-      openGate();
-      // a held request that was aborted by a reload is never answered, so only wait if there is a live one
-      await expect
-        .poll(() => state.responded > respondedBefore || state.count === 0)
-        .toBe(true);
+    state: {
+      get count() {
+        return mock.requests.length;
+      },
     },
+    // a held request that was aborted by a reload is never answered, `release` only waits for the live ones
+    sendResponse: () => mock.release(),
   };
 }
 

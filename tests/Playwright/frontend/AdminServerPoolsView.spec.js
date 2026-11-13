@@ -7,11 +7,7 @@ import {
   expectLoginRedirect,
 } from "../support/general.js";
 import { expectAdminBreadcrumbs } from "../support/admin.js";
-import {
-  mockApiRequest,
-  serverError,
-  modelNotFound,
-} from "../support/utils.js";
+import { serverError, modelNotFound } from "../support/utils.js";
 
 const test = mergeTests(serverPoolControllerTest, serverControllerTest);
 
@@ -51,13 +47,9 @@ test.describe("Admin server pools view", () => {
   test("loading state hides the buttons and shows the overlay", async ({
     page,
     serverPoolResponse,
+    getServerPoolApiMock,
   }) => {
-    const getServerPoolApiMock = await mockApiRequest(
-      page,
-      "GET",
-      "serverPools/1",
-      { json: serverPoolResponse, hold: true },
-    );
+    getServerPoolApiMock.respondWith({ json: serverPoolResponse, hold: true });
     await page.goto("/admin/server_pools/1");
 
     await expect(
@@ -200,8 +192,9 @@ test.describe("Admin server pools view", () => {
     test("server error shows overlay and can be retried", async ({
       page,
       serverPoolResponse,
+      getServerPoolApiMock,
     }) => {
-      await mockApiRequest(page, "GET", "serverPools/1", serverError());
+      getServerPoolApiMock.respondWith(serverError());
 
       await page.goto("/admin/server_pools/1");
 
@@ -211,7 +204,7 @@ test.describe("Admin server pools view", () => {
         'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
 
-      await mockApiRequest(page, "GET", "serverPools/1", {
+      getServerPoolApiMock.respondWith({
         json: serverPoolResponse,
       });
       const retryButton = page.getByTestId("loading-retry-button");
@@ -224,17 +217,14 @@ test.describe("Admin server pools view", () => {
       await expect(retryButton).toHaveCount(0);
     });
 
-    test("404 redirects to the server pools index", async ({ page }) => {
-      await mockApiRequest(
-        page,
-        "GET",
-        "serverPools/1",
-        modelNotFound("server_pool", [1]),
-      );
+    test("404 redirects to the server pools index", async ({
+      page,
+      getServerPoolsApiMock,
+      getServerPoolApiMock,
+    }) => {
+      getServerPoolApiMock.respondWith(modelNotFound("server_pool", [1]));
 
-      const serverPoolsRequest = page.waitForRequest(
-        /\/api\/v1\/serverPools\?/,
-      );
+      const serverPoolsRequest = getServerPoolsApiMock.waitForNextRequest();
       await page.goto("/admin/server_pools/1");
 
       await expect(page).toHaveURL(/\/admin\/server_pools$/);
@@ -245,8 +235,11 @@ test.describe("Admin server pools view", () => {
       ]);
     });
 
-    test("401 redirects to the login page", async ({ page }) => {
-      await mockApiRequest(page, "GET", "serverPools/1", {
+    test("401 redirects to the login page", async ({
+      page,
+      getServerPoolApiMock,
+    }) => {
+      getServerPoolApiMock.respondWith({
         status: 401,
       });
 

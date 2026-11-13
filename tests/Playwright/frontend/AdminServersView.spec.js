@@ -5,11 +5,7 @@ import {
   expectLoginRedirect,
 } from "../support/general.js";
 import { expectAdminBreadcrumbs } from "../support/admin.js";
-import {
-  mockApiRequest,
-  serverError,
-  modelNotFound,
-} from "../support/utils.js";
+import { serverError, modelNotFound } from "../support/utils.js";
 
 test.describe("Admin servers view", () => {
   test.use({ authenticated: true });
@@ -44,8 +40,9 @@ test.describe("Admin servers view", () => {
   test("loading state hides the buttons and shows the overlay", async ({
     page,
     serverResponse,
+    getServerApiMock,
   }) => {
-    const getServerApiMock = await mockApiRequest(page, "GET", "servers/1", {
+    getServerApiMock.respondWith({
       json: serverResponse,
       hold: true,
     });
@@ -467,8 +464,9 @@ test.describe("Admin servers view", () => {
       page,
       serverResponse,
       serverForm,
+      getServerApiMock,
     }) => {
-      await mockApiRequest(page, "GET", "servers/1", serverError());
+      getServerApiMock.respondWith(serverError());
 
       await page.goto("/admin/servers/1");
 
@@ -478,7 +476,7 @@ test.describe("Admin servers view", () => {
         'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
 
-      await mockApiRequest(page, "GET", "servers/1", { json: serverResponse });
+      getServerApiMock.respondWith({ json: serverResponse });
       const retryButton = page.getByTestId("loading-retry-button");
       await expect(retryButton).toBeVisible();
       await expect(retryButton).toHaveText("app.reload");
@@ -489,15 +487,14 @@ test.describe("Admin servers view", () => {
       await expect(retryButton).toHaveCount(0);
     });
 
-    test("404 redirects to the servers index", async ({ page }) => {
-      await mockApiRequest(
-        page,
-        "GET",
-        "servers/1",
-        modelNotFound("server", [1]),
-      );
+    test("404 redirects to the servers index", async ({
+      page,
+      getServersApiMock,
+      getServerApiMock,
+    }) => {
+      getServerApiMock.respondWith(modelNotFound("server", [1]));
 
-      const serversRequest = page.waitForRequest(/\/api\/v1\/servers\?/);
+      const serversRequest = getServersApiMock.waitForNextRequest();
       await page.goto("/admin/servers/1");
 
       await expect(page).toHaveURL(/\/admin\/servers$/);
@@ -508,8 +505,11 @@ test.describe("Admin servers view", () => {
       ]);
     });
 
-    test("401 redirects to the login page", async ({ page }) => {
-      await mockApiRequest(page, "GET", "servers/1", { status: 401 });
+    test("401 redirects to the login page", async ({
+      page,
+      getServerApiMock,
+    }) => {
+      getServerApiMock.respondWith({ status: 401 });
 
       await page.goto("/admin/servers/1");
 

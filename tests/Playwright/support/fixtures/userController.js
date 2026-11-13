@@ -10,7 +10,8 @@ import { mockApiList, mockApiRequest, readFixture } from "../utils.js";
  * - `usersResponse`: list of users, answered by the list mock `getUsersApiMock` (GET /api/v1/users, see `mockApiList`)
  * - `userResponse`: the viewed user Laura Rivera (GET /api/v1/users/2)
  * - `profileUserResponse`: the user shown on the profile page, John Doe (GET /api/v1/users/1)
- * - `userSearchResponse`: `{ status, json }` answered to the user search (GET /api/v1/users/search), by default three users
+ * - `userSearchResponse`: the result of the user search (GET /api/v1/users/search) that `getUsersSearchApiMock`
+ *   answers, by default three users
  */
 export const test = base.extend({
   usersResponse: async ({}, use) => {
@@ -23,61 +24,68 @@ export const test = base.extend({
     { auto: true },
   ],
 
-  userResponse: [
-    async ({ page }, use) => {
-      const userResponse = readFixture("userDataUser.json");
-      await mockApiRequest(page, "GET", "users/2", { json: userResponse });
-      await use(userResponse);
-    },
-    { auto: true },
-  ],
-  profileUserResponse: [
-    async ({ page }, use) => {
-      const profileUserResponse = readFixture("userDataCurrentUser.json");
-      await mockApiRequest(page, "GET", "users/1", {
-        json: profileUserResponse,
-      });
-      await use(profileUserResponse);
-    },
-    { auto: true },
-  ],
-  userSearchResponse: [
-    async ({ page }, use) => {
-      const userSearchResponse = {
-        status: 200,
-        json: {
-          data: [
-            {
-              id: 5,
-              firstname: "Laura",
-              lastname: "Rivera",
-              email: "LauraWRivera@domain.tld",
-              image: null,
-            },
-            {
-              id: 10,
-              firstname: "Laura",
-              lastname: "Walter",
-              email: "LauraMWalter@domain.tld",
-              image: null,
-            },
-            {
-              id: 1,
-              firstname: "John",
-              lastname: "Doe",
-              email: "JohnDoe@domain.tld",
-              image: null,
-            },
-          ],
-        },
-      };
-      await mockApiRequest(
-        page,
-        "GET",
-        /\/api\/v1\/users\/search\?query=/,
-        () => userSearchResponse,
+  userResponse: async ({}, use) => {
+    const userResponse = readFixture("userDataUser.json");
+    await use(userResponse);
+  },
+  getUserApiMock: [
+    async ({ page, userResponse }, use) => {
+      await use(
+        await mockApiRequest(page, "GET", "users/2", () => ({
+          json: userResponse,
+        })),
       );
-      await use(userSearchResponse);
+    },
+    { auto: true },
+  ],
+  profileUserResponse: async ({}, use) => {
+    const profileUserResponse = readFixture("userDataCurrentUser.json");
+    await use(profileUserResponse);
+  },
+  getProfileUserApiMock: [
+    async ({ page, profileUserResponse }, use) => {
+      await use(
+        await mockApiRequest(page, "GET", "users/1", () => ({
+          json: profileUserResponse,
+        })),
+      );
+    },
+    { auto: true },
+  ],
+  userSearchResponse: async ({}, use) => {
+    await use({
+      data: [
+        {
+          id: 5,
+          firstname: "Laura",
+          lastname: "Rivera",
+          email: "LauraWRivera@domain.tld",
+          image: null,
+        },
+        {
+          id: 10,
+          firstname: "Laura",
+          lastname: "Walter",
+          email: "LauraMWalter@domain.tld",
+          image: null,
+        },
+        {
+          id: 1,
+          firstname: "John",
+          lastname: "Doe",
+          email: "JohnDoe@domain.tld",
+          image: null,
+        },
+      ],
+    });
+  },
+  getUsersSearchApiMock: [
+    async ({ page, userSearchResponse }, use) => {
+      await use(
+        await mockApiRequest(page, "GET", "users/search*", () => ({
+          json: userSearchResponse,
+        })),
+      );
     },
     { auto: true },
   ],

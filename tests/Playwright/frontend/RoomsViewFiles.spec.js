@@ -1,3 +1,4 @@
+import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
 import { mergeTests } from "@playwright/test";
 import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
 import { test as roomControllerTest } from "../support/fixtures/roomController.js";
@@ -5,7 +6,6 @@ import { test as roomFileControllerTest } from "../support/fixtures/roomFileCont
 import { test as postMessageToAppTest } from "../support/fixtures/postMessageToApp.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import {
-  holdApiRequest,
   expectActivePage,
   getRequestQuery,
   readFixture,
@@ -15,7 +15,7 @@ import {
   serverError,
   modelNotFound,
 } from "../support/utils.js";
-import { interceptRoomIndexRequests } from "../support/mocks.js";
+
 import {
   setValidRememberedParticipantName,
   selectFilter,
@@ -27,6 +27,7 @@ const test = mergeTests(
   roomFileControllerTest,
   postMessageToAppTest,
   participantNameCheckTest,
+  roomTypeControllerTest,
 );
 
 test.use({ authenticated: true });
@@ -248,9 +249,11 @@ test.describe("Rooms view files", () => {
       test("disables the buttons and shows the overlay while reloading", async ({
         page,
         roomFilesResponse,
+        getRoomFilesApiMock,
       }) => {
-        await holdApiRequest(page, "rooms/abc-def-123/files*", {
+        getRoomFilesApiMock.respondWith({
           json: roomFilesResponse,
+          hold: true,
         });
 
         await page.getByTestId("room-files-reload-button").click();
@@ -320,17 +323,15 @@ test.describe("Rooms view files", () => {
       });
     });
 
-    test("loads the files with the room auth token", async ({ page }) => {
-      const authRequest = page.waitForRequest(
-        "**/api/v1/rooms/abc-def-123/auth",
-      );
-      const roomRequest = page.waitForRequest(
-        (request) =>
-          new URL(request.url()).pathname === "/api/v1/rooms/abc-def-123",
-      );
-      const filesRequest = page.waitForRequest(
-        "**/api/v1/rooms/abc-def-123/files*",
-      );
+    test("loads the files with the room auth token", async ({
+      page,
+      postRoomAuthApiMock,
+      getRoomApiMock,
+      getRoomFilesApiMock,
+    }) => {
+      const authRequest = postRoomAuthApiMock.waitForNextRequest();
+      const roomRequest = getRoomApiMock.waitForNextRequest();
+      const filesRequest = getRoomFilesApiMock.waitForNextRequest();
 
       await page.goto("/rooms/abc-def-123#accessCode=123456789");
 
@@ -404,27 +405,18 @@ test.describe("Rooms view files", () => {
     test("resets the room auth token and shows an error on an invalid token", async ({
       page,
       roomResponse,
+      getRoomApiMock,
       getRoomFilesApiMock,
     }) => {
       // The room is only authenticated with the token, it gets reloaded without it after the error
-      await page.route(
-        (url) => url.pathname === "/api/v1/rooms/abc-def-123",
-        (route) => {
-          roomResponse.data.authenticated =
-            getRequestQuery(route.request()).room_auth_token !== undefined;
-          return route.fulfill({ json: roomResponse });
-        },
-      );
+      getRoomApiMock.respondWith((request) => {
+        roomResponse.data.authenticated =
+          getRequestQuery(request).room_auth_token !== undefined;
+        return { json: roomResponse };
+      });
       getRoomFilesApiMock.respondWith(unauthorized("invalid_auth_token"));
 
-      const filesRequest = page.waitForRequest(
-        "**/api/v1/rooms/abc-def-123/files*",
-      );
-      const roomReloadRequest = page.waitForRequest(
-        (request) =>
-          new URL(request.url()).pathname === "/api/v1/rooms/abc-def-123" &&
-          getRequestQuery(request).room_auth_token === undefined,
-      );
+      const filesRequest = getRoomFilesApiMock.waitForNextRequest();
 
       await page.goto("/rooms/abc-def-123#accessCode=123456789");
 
@@ -433,7 +425,9 @@ test.describe("Rooms view files", () => {
         room_auth_token_type: "0",
       });
 
-      const reloadQuery = getRequestQuery(await roomReloadRequest);
+      const reloadQuery = getRequestQuery(
+        await getRoomApiMock.waitForRequest(2),
+      );
       expect(reloadQuery.room_auth_token).toBeUndefined();
       expect(reloadQuery.room_auth_token_type).toBeUndefined();
 
@@ -446,27 +440,18 @@ test.describe("Rooms view files", () => {
     test("resets the room auth token and shows an error if a code is required", async ({
       page,
       roomResponse,
+      getRoomApiMock,
       getRoomFilesApiMock,
     }) => {
       // First the room is authenticated, after the error the reloaded room is not
-      let roomRequests = 0;
-      await page.route(
-        (url) => url.pathname === "/api/v1/rooms/abc-def-123",
-        (route) => {
-          roomResponse.data.authenticated = roomRequests++ === 0;
-          return route.fulfill({ json: roomResponse });
-        },
-      );
+      getRoomApiMock.respondWith((request) => {
+        roomResponse.data.authenticated =
+          getRoomApiMock.requests.indexOf(request) === 0;
+        return { json: roomResponse };
+      });
       getRoomFilesApiMock.respondWith(forbidden("require_code"));
 
-      const filesRequest = page.waitForRequest(
-        "**/api/v1/rooms/abc-def-123/files*",
-      );
-      const roomReloadRequest = page.waitForRequest(
-        (request) =>
-          new URL(request.url()).pathname === "/api/v1/rooms/abc-def-123" &&
-          roomRequests >= 1,
-      );
+      const filesRequest = getRoomFilesApiMock.waitForNextRequest();
 
       await page.goto("/rooms/abc-def-123#tab=files");
 
@@ -474,7 +459,9 @@ test.describe("Rooms view files", () => {
       expect(filesQuery.room_auth_token).toBeUndefined();
       expect(filesQuery.room_auth_token_type).toBeUndefined();
 
-      const reloadQuery = getRequestQuery(await roomReloadRequest);
+      const reloadQuery = getRequestQuery(
+        await getRoomApiMock.waitForRequest(2),
+      );
       expect(reloadQuery.room_auth_token).toBeUndefined();
       expect(reloadQuery.room_auth_token_type).toBeUndefined();
 
@@ -505,17 +492,15 @@ test.describe("Rooms view files", () => {
         });
       });
 
-      test("loads the files with the room auth token", async ({ page }) => {
-        const authRequest = page.waitForRequest(
-          "**/api/v1/rooms/abc-def-123/auth",
-        );
-        const roomRequest = page.waitForRequest(
-          (request) =>
-            new URL(request.url()).pathname === "/api/v1/rooms/abc-def-123",
-        );
-        const filesRequest = page.waitForRequest(
-          "**/api/v1/rooms/abc-def-123/files*",
-        );
+      test("loads the files with the room auth token", async ({
+        page,
+        postRoomAuthApiMock,
+        getRoomApiMock,
+        getRoomFilesApiMock,
+      }) => {
+        const authRequest = postRoomAuthApiMock.waitForNextRequest();
+        const roomRequest = getRoomApiMock.waitForNextRequest();
+        const filesRequest = getRoomFilesApiMock.waitForNextRequest();
 
         await page.goto(
           "/rooms/abc-def-123#personalizedLink=xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR",
@@ -599,17 +584,13 @@ test.describe("Rooms view files", () => {
     test("shows an error and redirects if the personalized link is invalid", async ({
       page,
       getRoomFilesApiMock,
+      postRoomAuthApiMock,
     }) => {
       // The first authentication is valid, the authentication after the files error is not
-      let authRequests = 0;
-      await page.route("**/api/v1/rooms/abc-def-123/auth", (route) =>
-        authRequests++ === 0
-          ? route.fulfill({
-              status: 201,
-              json: { data: { id: "roomAuthToken", type: 1 } },
-            })
-          : route.fulfill(unauthorized("invalid_personalized_link")),
-      );
+      postRoomAuthApiMock.respondWithSequence([
+        { status: 201, json: { data: { id: "roomAuthToken", type: 1 } } },
+        unauthorized("invalid_personalized_link"),
+      ]);
       getRoomFilesApiMock.respondWith(unauthorized("invalid_auth_token"));
 
       await page.goto(
@@ -625,7 +606,7 @@ test.describe("Rooms view files", () => {
       );
 
       // The personalized link is removed
-      expect(authRequests).toBe(2);
+      await expect(postRoomAuthApiMock).toHaveReceivedRequests(2);
       expect(
         await page.evaluate(() =>
           window.sessionStorage.getItem("roomPersonalizedLink_abc-def-123"),
@@ -692,12 +673,9 @@ test.describe("Rooms view files", () => {
     test("reloads the files after a server error", async ({
       page,
       roomFilesResponse,
+      getRoomFilesApiMock,
     }) => {
-      await page.route(
-        "**/api/v1/rooms/abc-def-123/files*",
-        (route) => route.fulfill(serverError()),
-        { times: 1 },
-      );
+      getRoomFilesApiMock.respondWithOnce(serverError());
 
       await page.goto("/rooms/abc-def-123#tab=files");
       await expectToastAndClose(page, [
@@ -723,23 +701,21 @@ test.describe("Rooms view files", () => {
     });
 
     test.describe("on changing the page", () => {
-      test.beforeEach(async ({ page, roomFilesResponse }) => {
-        roomFilesResponse.meta.per_page = 1;
-        roomFilesResponse.meta.last_page = 3;
-        await page.goto("/rooms/abc-def-123#tab=files");
-        await expect(page.getByTestId("room-file-item")).toHaveCount(1);
+      test.beforeEach(
+        async ({ page, roomFilesResponse, getRoomFilesApiMock }) => {
+          roomFilesResponse.meta.per_page = 1;
+          roomFilesResponse.meta.last_page = 3;
+          await page.goto("/rooms/abc-def-123#tab=files");
+          await expect(page.getByTestId("room-file-item")).toHaveCount(1);
 
-        await page.route(
-          "**/api/v1/rooms/abc-def-123/files*",
-          (route) => route.fulfill(serverError()),
-          { times: 1 },
-        );
-        await page.getByTestId("paginator-next-button").nth(1).click();
-        await expectToastAndClose(page, [
-          'app.flash.server_error.message_{"message":"Test"}',
-          'app.flash.server_error.error_code_{"statusCode":500}',
-        ]);
-      });
+          getRoomFilesApiMock.respondWithOnce(serverError());
+          await page.getByTestId("paginator-next-button").nth(1).click();
+          await expectToastAndClose(page, [
+            'app.flash.server_error.message_{"message":"Test"}',
+            'app.flash.server_error.error_code_{"statusCode":500}',
+          ]);
+        },
+      );
 
       test("shows the overlay and the error on a server error", async ({
         page,
@@ -767,11 +743,9 @@ test.describe("Rooms view files", () => {
         ).toBeEnabled();
       });
 
-      test("reloads the first page", async ({ page }) => {
+      test("reloads the first page", async ({ page, getRoomFilesApiMock }) => {
         await expect(page.getByTestId("overlay")).toBeVisible();
-        const filesRequest = page.waitForRequest(
-          "**/api/v1/rooms/abc-def-123/files*",
-        );
+        const filesRequest = getRoomFilesApiMock.waitForNextRequest();
         await page.getByTestId("loading-retry-button").click();
         expect(getRequestQuery(await filesRequest)).toMatchObject({
           page: "1",
@@ -792,7 +766,6 @@ test.describe("Rooms view files", () => {
       page,
       getRoomFilesApiMock,
     }) => {
-      await interceptRoomIndexRequests(page);
       getRoomFilesApiMock.respondWith(modelNotFound("room", ["abc-def-123"]));
 
       await page.goto("/rooms/abc-def-123#tab=files");
@@ -829,6 +802,7 @@ test.describe("Rooms view files", () => {
   test("resets the page if the requested page is out of range", async ({
     page,
     roomFilesResponse,
+    getRoomFilesApiMock,
   }) => {
     roomFilesResponse.meta.per_page = 1;
     roomFilesResponse.meta.last_page = 2;
@@ -840,34 +814,37 @@ test.describe("Rooms view files", () => {
     await expect(page.getByTestId("room-file-item")).toHaveCount(1);
 
     // The second page is empty, the following request (first page) returns the files
-    const requests = [];
-    await page.route("**/api/v1/rooms/abc-def-123/files*", (route) => {
-      requests.push(getRequestQuery(route.request()));
-      const files = readFixture("roomFiles.json");
-      if (requests.length === 1) {
-        files.data = [];
-        files.meta.current_page = 2;
-        files.meta.from = null;
-        files.meta.per_page = 2;
-        files.meta.to = null;
-        files.meta.total = 2;
-        files.meta.total_no_filter = 2;
-      } else {
-        files.data = files.data.slice(0, 2);
-        files.meta.per_page = 2;
-        files.meta.to = 2;
-        files.meta.total = 2;
-        files.meta.total_no_filter = 2;
-      }
-      return route.fulfill({ json: files });
-    });
+    const emptyPage = readFixture("roomFiles.json");
+    emptyPage.data = [];
+    emptyPage.meta.current_page = 2;
+    emptyPage.meta.from = null;
+    emptyPage.meta.per_page = 2;
+    emptyPage.meta.to = null;
+    emptyPage.meta.total = 2;
+    emptyPage.meta.total_no_filter = 2;
+    const firstPage = readFixture("roomFiles.json");
+    firstPage.data = firstPage.data.slice(0, 2);
+    firstPage.meta.per_page = 2;
+    firstPage.meta.to = 2;
+    firstPage.meta.total = 2;
+    firstPage.meta.total_no_filter = 2;
+    const roomFilesRequestsAfterChange =
+      getRoomFilesApiMock.respondWithSequence([
+        { json: emptyPage },
+        { json: firstPage },
+      ]);
 
     await page.getByTestId("paginator-next-button").nth(1).click();
 
     // First request is for the second page, then the page is reset
-    await expect.poll(() => requests.length).toBe(2);
-    expect(requests[0]).toMatchObject({ page: "2" });
-    expect(requests[1]).toMatchObject({ page: "1" });
+    await expect(roomFilesRequestsAfterChange).toHaveReceivedRequest(
+      { query: { page: "2" } },
+      { nth: 1 },
+    );
+    await expect(roomFilesRequestsAfterChange).toHaveReceivedRequest(
+      { query: { page: "1" } },
+      { nth: 2 },
+    );
 
     await expect(page.getByTestId("room-file-item")).toHaveCount(2);
   });
@@ -1389,10 +1366,11 @@ test.describe("Rooms view files", () => {
       await expect(page.getByTestId("room-file-item")).toHaveCount(3);
     });
 
-    test("requests the first page without a search query", async ({ page }) => {
-      const filesRequest = page.waitForRequest(
-        "**/api/v1/rooms/abc-def-123/files*",
-      );
+    test("requests the first page without a search query", async ({
+      page,
+      getRoomFilesApiMock,
+    }) => {
+      const filesRequest = getRoomFilesApiMock.waitForNextRequest();
       await page.getByTestId("room-files-reload-button").click();
       const query = getRequestQuery(await filesRequest);
 
@@ -1403,15 +1381,14 @@ test.describe("Rooms view files", () => {
     test("shows a message if no files match the search query", async ({
       page,
       roomFilesResponse,
+      getRoomFilesApiMock,
     }) => {
       roomFilesResponse.data = [];
       roomFilesResponse.meta.from = null;
       roomFilesResponse.meta.to = null;
       roomFilesResponse.meta.total = 0;
 
-      const filesRequest = page.waitForRequest(
-        "**/api/v1/rooms/abc-def-123/files*",
-      );
+      const filesRequest = getRoomFilesApiMock.waitForNextRequest();
       const search = page.getByTestId("room-files-search");
       await search.locator("input").fill("Test");
       await search.locator("button").click();
@@ -1427,6 +1404,7 @@ test.describe("Rooms view files", () => {
     test("shows a message if there are no files in the room and searches with enter", async ({
       page,
       roomFilesResponse,
+      getRoomFilesApiMock,
     }) => {
       roomFilesResponse.data = [];
       roomFilesResponse.meta.from = null;
@@ -1434,9 +1412,7 @@ test.describe("Rooms view files", () => {
       roomFilesResponse.meta.total = 0;
       roomFilesResponse.meta.total_no_filter = 0;
 
-      const filesRequest = page.waitForRequest(
-        "**/api/v1/rooms/abc-def-123/files*",
-      );
+      const filesRequest = getRoomFilesApiMock.waitForNextRequest();
       await page
         .getByTestId("room-files-search")
         .locator("input")
@@ -1455,25 +1431,25 @@ test.describe("Rooms view files", () => {
     });
 
     test.describe("with files on two pages", () => {
-      test.beforeEach(async ({ page, roomFilesResponse }) => {
-        roomFilesResponse.meta.per_page = 1;
-        roomFilesResponse.meta.last_page = 2;
-        roomFilesResponse.meta.total = 2;
-        roomFilesResponse.meta.total_no_filter = 2;
+      test.beforeEach(
+        async ({ page, roomFilesResponse, getRoomFilesApiMock }) => {
+          roomFilesResponse.meta.per_page = 1;
+          roomFilesResponse.meta.last_page = 2;
+          roomFilesResponse.meta.total = 2;
+          roomFilesResponse.meta.total_no_filter = 2;
 
-        const filesRequest = page.waitForRequest(
-          "**/api/v1/rooms/abc-def-123/files*",
-        );
-        const search = page.getByTestId("room-files-search");
-        await search.locator("input").fill("File");
-        await search.locator("button").click();
-        expect(getRequestQuery(await filesRequest)).toMatchObject({
-          query: "File",
-          page: "1",
-        });
+          const filesRequest = getRoomFilesApiMock.waitForNextRequest();
+          const search = page.getByTestId("room-files-search");
+          await search.locator("input").fill("File");
+          await search.locator("button").click();
+          expect(getRequestQuery(await filesRequest)).toMatchObject({
+            query: "File",
+            page: "1",
+          });
 
-        await expect(page.getByTestId("room-file-item")).toHaveCount(1);
-      });
+          await expect(page.getByTestId("room-file-item")).toHaveCount(1);
+        },
+      );
 
       test("shows the first page", async ({ page }) => {
         await expect(page.getByTestId("room-file-item").first()).toContainText(
@@ -1485,10 +1461,9 @@ test.describe("Rooms view files", () => {
 
       test("keeps the search query when changing the page", async ({
         page,
+        getRoomFilesApiMock,
       }) => {
-        const filesRequest = page.waitForRequest(
-          "**/api/v1/rooms/abc-def-123/files*",
-        );
+        const filesRequest = getRoomFilesApiMock.waitForNextRequest();
         await page.getByTestId("paginator-next-button").nth(1).click();
         expect(getRequestQuery(await filesRequest)).toMatchObject({
           query: "File",
@@ -1507,13 +1482,12 @@ test.describe("Rooms view files", () => {
 
       test("resets the page when changing the search query", async ({
         page,
+        getRoomFilesApiMock,
       }) => {
         await page.getByTestId("paginator-next-button").nth(1).click();
         await expectActivePage(page, 1);
 
-        const filesRequest = page.waitForRequest(
-          "**/api/v1/rooms/abc-def-123/files*",
-        );
+        const filesRequest = getRoomFilesApiMock.waitForNextRequest();
         const search = page.getByTestId("room-files-search");
         await search.locator("input").fill("Fil");
         await search.locator("button").click();
@@ -1533,10 +1507,11 @@ test.describe("Rooms view files", () => {
       await expect(page.getByTestId("room-file-item")).toHaveCount(3);
     });
 
-    test("requests the first page without a filter", async ({ page }) => {
-      const filesRequest = page.waitForRequest(
-        "**/api/v1/rooms/abc-def-123/files*",
-      );
+    test("requests the first page without a filter", async ({
+      page,
+      getRoomFilesApiMock,
+    }) => {
+      const filesRequest = getRoomFilesApiMock.waitForNextRequest();
       await page.getByTestId("room-files-reload-button").click();
       const query = getRequestQuery(await filesRequest);
 
@@ -1570,15 +1545,14 @@ test.describe("Rooms view files", () => {
     test("shows a message if no files match the filter", async ({
       page,
       roomFilesResponse,
+      getRoomFilesApiMock,
     }) => {
       roomFilesResponse.data = [];
       roomFilesResponse.meta.from = null;
       roomFilesResponse.meta.to = null;
       roomFilesResponse.meta.total = 0;
 
-      const filesRequest = page.waitForRequest(
-        "**/api/v1/rooms/abc-def-123/files*",
-      );
+      const filesRequest = getRoomFilesApiMock.waitForNextRequest();
       await selectFilter(page, 1);
       expect(getRequestQuery(await filesRequest)).toMatchObject({
         filter: "downloadable",
@@ -1595,6 +1569,7 @@ test.describe("Rooms view files", () => {
     test("shows a message if there are no files in the room", async ({
       page,
       roomFilesResponse,
+      getRoomFilesApiMock,
     }) => {
       roomFilesResponse.data = [];
       roomFilesResponse.meta.from = null;
@@ -1602,9 +1577,7 @@ test.describe("Rooms view files", () => {
       roomFilesResponse.meta.total = 0;
       roomFilesResponse.meta.total_no_filter = 0;
 
-      const filesRequest = page.waitForRequest(
-        "**/api/v1/rooms/abc-def-123/files*",
-      );
+      const filesRequest = getRoomFilesApiMock.waitForNextRequest();
       await selectFilter(page, 2);
       expect(getRequestQuery(await filesRequest)).toMatchObject({
         filter: "use_in_meeting",
@@ -1619,23 +1592,23 @@ test.describe("Rooms view files", () => {
     });
 
     test.describe("with files on two pages", () => {
-      test.beforeEach(async ({ page, roomFilesResponse }) => {
-        roomFilesResponse.meta.per_page = 1;
-        roomFilesResponse.meta.last_page = 2;
-        roomFilesResponse.meta.total = 2;
-        roomFilesResponse.meta.total_no_filter = 2;
+      test.beforeEach(
+        async ({ page, roomFilesResponse, getRoomFilesApiMock }) => {
+          roomFilesResponse.meta.per_page = 1;
+          roomFilesResponse.meta.last_page = 2;
+          roomFilesResponse.meta.total = 2;
+          roomFilesResponse.meta.total_no_filter = 2;
 
-        const filesRequest = page.waitForRequest(
-          "**/api/v1/rooms/abc-def-123/files*",
-        );
-        await selectFilter(page, 1);
-        expect(getRequestQuery(await filesRequest)).toMatchObject({
-          filter: "downloadable",
-          page: "1",
-        });
+          const filesRequest = getRoomFilesApiMock.waitForNextRequest();
+          await selectFilter(page, 1);
+          expect(getRequestQuery(await filesRequest)).toMatchObject({
+            filter: "downloadable",
+            page: "1",
+          });
 
-        await expect(page.getByTestId("room-file-item")).toHaveCount(1);
-      });
+          await expect(page.getByTestId("room-file-item")).toHaveCount(1);
+        },
+      );
 
       test("shows the first page", async ({ page }) => {
         await expect(page.getByTestId("filter-dropdown")).toHaveText(
@@ -1648,10 +1621,11 @@ test.describe("Rooms view files", () => {
         await expectActivePage(page, 0);
       });
 
-      test("keeps the filter when changing the page", async ({ page }) => {
-        const filesRequest = page.waitForRequest(
-          "**/api/v1/rooms/abc-def-123/files*",
-        );
+      test("keeps the filter when changing the page", async ({
+        page,
+        getRoomFilesApiMock,
+      }) => {
+        const filesRequest = getRoomFilesApiMock.waitForNextRequest();
         await page.getByTestId("paginator-next-button").nth(1).click();
         expect(getRequestQuery(await filesRequest)).toMatchObject({
           filter: "downloadable",
@@ -1670,13 +1644,12 @@ test.describe("Rooms view files", () => {
 
       test("resets the filter and the page when selecting all files", async ({
         page,
+        getRoomFilesApiMock,
       }) => {
         await page.getByTestId("paginator-next-button").nth(1).click();
         await expectActivePage(page, 1);
 
-        const filesRequest = page.waitForRequest(
-          "**/api/v1/rooms/abc-def-123/files*",
-        );
+        const filesRequest = getRoomFilesApiMock.waitForNextRequest();
         await selectFilter(page, 0);
         const query = getRequestQuery(await filesRequest);
         expect(query.filter).toBeUndefined();
@@ -1698,10 +1671,9 @@ test.describe("Rooms view files", () => {
 
     test("requests the files sorted by upload date descending", async ({
       page,
+      getRoomFilesApiMock,
     }) => {
-      const filesRequest = page.waitForRequest(
-        "**/api/v1/rooms/abc-def-123/files*",
-      );
+      const filesRequest = getRoomFilesApiMock.waitForNextRequest();
       await page.getByTestId("room-files-reload-button").click();
 
       expect(getRequestQuery(await filesRequest)).toMatchObject({
@@ -1734,27 +1706,27 @@ test.describe("Rooms view files", () => {
     });
 
     test.describe("by filename", () => {
-      test.beforeEach(async ({ page, roomFilesResponse }) => {
-        roomFilesResponse.meta.per_page = 1;
-        roomFilesResponse.meta.last_page = 3;
+      test.beforeEach(
+        async ({ page, roomFilesResponse, getRoomFilesApiMock }) => {
+          roomFilesResponse.meta.per_page = 1;
+          roomFilesResponse.meta.last_page = 3;
 
-        await page.getByTestId("sorting-type-dropdown").click();
-        const filesRequest = page.waitForRequest(
-          "**/api/v1/rooms/abc-def-123/files*",
-        );
-        await page
-          .getByTestId("sorting-type-dropdown-items")
-          .getByTestId("sorting-type-dropdown-option")
-          .nth(0)
-          .click();
-        expect(getRequestQuery(await filesRequest)).toMatchObject({
-          sort_by: "filename",
-          sort_direction: "desc",
-          page: "1",
-        });
+          await page.getByTestId("sorting-type-dropdown").click();
+          const filesRequest = getRoomFilesApiMock.waitForNextRequest();
+          await page
+            .getByTestId("sorting-type-dropdown-items")
+            .getByTestId("sorting-type-dropdown-option")
+            .nth(0)
+            .click();
+          expect(getRequestQuery(await filesRequest)).toMatchObject({
+            sort_by: "filename",
+            sort_direction: "desc",
+            page: "1",
+          });
 
-        await expect(page.getByTestId("room-file-item")).toHaveCount(1);
-      });
+          await expect(page.getByTestId("room-file-item")).toHaveCount(1);
+        },
+      );
 
       test("shows the first page", async ({ page }) => {
         await expect(
@@ -1770,10 +1742,11 @@ test.describe("Rooms view files", () => {
         await expectActivePage(page, 0);
       });
 
-      test("keeps the sorting when changing the page", async ({ page }) => {
-        const filesRequest = page.waitForRequest(
-          "**/api/v1/rooms/abc-def-123/files*",
-        );
+      test("keeps the sorting when changing the page", async ({
+        page,
+        getRoomFilesApiMock,
+      }) => {
+        const filesRequest = getRoomFilesApiMock.waitForNextRequest();
         await page.getByTestId("paginator-next-button").nth(1).click();
         expect(getRequestQuery(await filesRequest)).toMatchObject({
           sort_by: "filename",
@@ -1793,13 +1766,12 @@ test.describe("Rooms view files", () => {
 
       test("resets the page when changing the sorting direction", async ({
         page,
+        getRoomFilesApiMock,
       }) => {
         await page.getByTestId("paginator-next-button").nth(1).click();
         await expectActivePage(page, 1);
 
-        const filesRequest = page.waitForRequest(
-          "**/api/v1/rooms/abc-def-123/files*",
-        );
+        const filesRequest = getRoomFilesApiMock.waitForNextRequest();
         await page
           .getByTestId("sorting-type-inputgroup")
           .locator("button")
@@ -1814,10 +1786,8 @@ test.describe("Rooms view files", () => {
       });
 
       test.describe("ascending", () => {
-        test.beforeEach(async ({ page }) => {
-          const filesRequest = page.waitForRequest(
-            "**/api/v1/rooms/abc-def-123/files*",
-          );
+        test.beforeEach(async ({ page, getRoomFilesApiMock }) => {
+          const filesRequest = getRoomFilesApiMock.waitForNextRequest();
           await page
             .getByTestId("sorting-type-inputgroup")
             .locator("button")
@@ -1830,10 +1800,9 @@ test.describe("Rooms view files", () => {
 
         test("keeps the sorting direction when changing the page", async ({
           page,
+          getRoomFilesApiMock,
         }) => {
-          const filesRequest = page.waitForRequest(
-            "**/api/v1/rooms/abc-def-123/files*",
-          );
+          const filesRequest = getRoomFilesApiMock.waitForNextRequest();
           await page.getByTestId("paginator-next-button").nth(1).click();
           expect(getRequestQuery(await filesRequest)).toMatchObject({
             sort_by: "filename",
@@ -1846,13 +1815,12 @@ test.describe("Rooms view files", () => {
 
         test("resets the page when changing the sorting type", async ({
           page,
+          getRoomFilesApiMock,
         }) => {
           await page.getByTestId("paginator-next-button").nth(1).click();
           await expectActivePage(page, 1);
 
-          const filesRequest = page.waitForRequest(
-            "**/api/v1/rooms/abc-def-123/files*",
-          );
+          const filesRequest = getRoomFilesApiMock.waitForNextRequest();
           await selectSortType(page, 1);
           expect(getRequestQuery(await filesRequest)).toMatchObject({
             sort_by: "uploaded",

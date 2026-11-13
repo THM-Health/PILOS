@@ -1,11 +1,19 @@
-import { test } from "../support/fixtures/meetingController.js";
+import { mergeTests } from "@playwright/test";
+import { test as meetingControllerTest } from "../support/fixtures/meetingController.js";
+import { test as roomControllerTest } from "../support/fixtures/roomController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
 } from "../support/general.js";
-import { interceptRoomViewRequests } from "../support/mocks.js";
-import { expectActivePage, getRequestQuery } from "../support/utils.js";
+
+import {
+  expectActivePage,
+  getRequestQuery,
+  readFixture,
+} from "../support/utils.js";
+
+const test = mergeTests(meetingControllerTest, roomControllerTest);
 
 test.use({ authenticated: true });
 
@@ -210,8 +218,6 @@ test.describe("Meetings index", () => {
     });
 
     test("view room of meeting", async ({ page }) => {
-      await interceptRoomViewRequests(page);
-
       const item = page.getByTestId("meeting-item").nth(0);
       await expect(item).toContainText("02/12/2021, 19:09");
       await expect(item).toContainText("Meeting One");
@@ -283,7 +289,7 @@ test.describe("Meetings index", () => {
         status: 500,
         json: { message: "Test" },
       });
-      const request = page.waitForRequest("**/api/v1/meetings*");
+      const request = getMeetingsApiMock.waitForNextRequest();
       await page.getByTestId("paginator-next-button").nth(1).click();
       expect(getRequestQuery(await request)).toMatchObject({ page: "2" });
 
@@ -307,7 +313,7 @@ test.describe("Meetings index", () => {
       });
       const retryButton = page.getByTestId("loading-retry-button");
       await expect(retryButton).toContainText("app.reload");
-      const reloadRequest = page.waitForRequest("**/api/v1/meetings*");
+      const reloadRequest = getMeetingsApiMock.waitForNextRequest();
       await retryButton.click();
       expect(getRequestQuery(await reloadRequest)).toMatchObject({ page: "1" });
 
@@ -361,44 +367,51 @@ test.describe("Meetings index", () => {
     await expect(page.getByTestId("meeting-item")).toHaveCount(1);
 
     // Switch to next page but respond with no meetings on second page, then with both meetings on the first page
-    const requests = [];
-    await page.route("**/api/v1/meetings*", (route) => {
-      requests.push(getRequestQuery(route.request()));
-      if (requests.length === 1) {
-        getMeetingsApiMock.respondWithSlice({
-          slice: [0, 0],
-          meta: {
-            current_page: 2,
-            from: null,
-            per_page: 2,
-            to: null,
-            total: 2,
-            total_no_filter: 2,
-          },
-        });
-      } else {
-        getMeetingsApiMock.respondWithSlice({
-          slice: [0, 2],
-          meta: { per_page: 2, to: 2, total: 2, total_no_filter: 2 },
-        });
-      }
-      return route.fallback();
+    const emptyPage = readFixture("meetings.json");
+    emptyPage.data = [];
+    Object.assign(emptyPage.meta, {
+      current_page: 2,
+      from: null,
+      per_page: 2,
+      to: null,
+      total: 2,
+      total_no_filter: 2,
     });
+    const firstPage = readFixture("meetings.json");
+    firstPage.data = firstPage.data.slice(0, 2);
+    Object.assign(firstPage.meta, {
+      per_page: 2,
+      to: 2,
+      total: 2,
+      total_no_filter: 2,
+    });
+    const meetingsRequestsAfterChange = getMeetingsApiMock.respondWithSequence([
+      { json: emptyPage },
+      { json: firstPage },
+    ]);
 
     await page.getByTestId("paginator-next-button").nth(1).click();
 
     // First request is for page 2, then the page is reset
-    await expect.poll(() => requests.length).toBe(2);
-    expect(requests[0]).toMatchObject({ page: "2" });
-    expect(requests[1]).toMatchObject({ page: "1" });
+    await expect(meetingsRequestsAfterChange).toHaveReceivedRequest(
+      { query: { page: "2" } },
+      { nth: 1 },
+    );
+    await expect(meetingsRequestsAfterChange).toHaveReceivedRequest(
+      { query: { page: "1" } },
+      { nth: 2 },
+    );
 
     await expect(page.getByTestId("paginator-page")).toHaveCount(1);
     await expectActivePage(page, 0);
   });
 
   test.describe("search", () => {
-    test("initial request has no query", async ({ page }) => {
-      const request = page.waitForRequest("**/api/v1/meetings*");
+    test("initial request has no query", async ({
+      page,
+      getMeetingsApiMock,
+    }) => {
+      const request = getMeetingsApiMock.waitForNextRequest();
       await page.goto("/meetings");
 
       const query = getRequestQuery(await request);
@@ -418,7 +431,7 @@ test.describe("Meetings index", () => {
 
       getMeetingsApiMock.respondWithNoSearchResults();
 
-      const request = page.waitForRequest("**/api/v1/meetings*");
+      const request = getMeetingsApiMock.waitForNextRequest();
       const search = page.getByTestId("meeting-search");
       await search.locator("input").fill("Test");
       await search.getByRole("button").click();
@@ -440,7 +453,7 @@ test.describe("Meetings index", () => {
 
       getMeetingsApiMock.respondWithNoItems();
 
-      const request = page.waitForRequest("**/api/v1/meetings*");
+      const request = getMeetingsApiMock.waitForNextRequest();
       const input = page.getByTestId("meeting-search").locator("input");
       await input.fill("Test2");
       await input.press("Enter");
@@ -466,7 +479,7 @@ test.describe("Meetings index", () => {
           meta: { total: 2 },
         });
 
-        const request = page.waitForRequest("**/api/v1/meetings*");
+        const request = getMeetingsApiMock.waitForNextRequest();
         const search = page.getByTestId("meeting-search");
         await search.locator("input").fill("Meeting");
         await search.getByRole("button").click();
@@ -496,7 +509,7 @@ test.describe("Meetings index", () => {
           meta: { total: 2 },
         });
 
-        const request = page.waitForRequest("**/api/v1/meetings*");
+        const request = getMeetingsApiMock.waitForNextRequest();
         // nth(1) needed because there are two paginator components (small and larger devices)
         await page.getByTestId("paginator-next-button").nth(1).click();
 
@@ -533,7 +546,7 @@ test.describe("Meetings index", () => {
           meta: { total: 2 },
         });
 
-        const request = page.waitForRequest("**/api/v1/meetings*");
+        const request = getMeetingsApiMock.waitForNextRequest();
         const search = page.getByTestId("meeting-search");
         await search.locator("input").fill("Meet");
         await search.getByRole("button").click();
@@ -548,8 +561,8 @@ test.describe("Meetings index", () => {
   });
 
   test.describe("sorting", () => {
-    test.beforeEach(async ({ page }) => {
-      const request = page.waitForRequest("**/api/v1/meetings*");
+    test.beforeEach(async ({ page, getMeetingsApiMock }) => {
+      const request = getMeetingsApiMock.waitForNextRequest();
       await page.goto("/meetings");
       expect(getRequestQuery(await request)).toMatchObject({
         page: "1",
@@ -602,7 +615,7 @@ test.describe("Meetings index", () => {
       });
 
       const headers = page.getByTestId("meeting-header-cell");
-      const request = page.waitForRequest("**/api/v1/meetings*");
+      const request = getMeetingsApiMock.waitForNextRequest();
       await headers.nth(4).click();
 
       expect(getRequestQuery(await request)).toMatchObject({
@@ -640,7 +653,7 @@ test.describe("Meetings index", () => {
         lastPage: 3,
       });
 
-      const request = page.waitForRequest("**/api/v1/meetings*");
+      const request = getMeetingsApiMock.waitForNextRequest();
       await page.getByTestId("paginator-next-button").nth(1).click();
 
       expect(getRequestQuery(await request)).toMatchObject({
@@ -682,7 +695,7 @@ test.describe("Meetings index", () => {
         currentPage: 1,
         lastPage: 3,
       });
-      const request = page.waitForRequest("**/api/v1/meetings*");
+      const request = getMeetingsApiMock.waitForNextRequest();
       await headers.nth(4).click();
 
       expect(getRequestQuery(await request)).toMatchObject({
@@ -714,7 +727,7 @@ test.describe("Meetings index", () => {
       await headers.nth(4).click();
       await expect(headers.nth(4)).toHaveAttribute("data-p-sorted", "true");
 
-      const sortRequest = page.waitForRequest("**/api/v1/meetings*");
+      const sortRequest = getMeetingsApiMock.waitForNextRequest();
       await headers.nth(5).click();
 
       expect(getRequestQuery(await sortRequest)).toMatchObject({
@@ -730,7 +743,7 @@ test.describe("Meetings index", () => {
         currentPage: 2,
         lastPage: 3,
       });
-      const pageRequest = page.waitForRequest("**/api/v1/meetings*");
+      const pageRequest = getMeetingsApiMock.waitForNextRequest();
       await page.getByTestId("paginator-next-button").nth(1).click();
 
       expect(getRequestQuery(await pageRequest)).toMatchObject({
@@ -772,7 +785,7 @@ test.describe("Meetings index", () => {
         currentPage: 1,
         lastPage: 3,
       });
-      const request = page.waitForRequest("**/api/v1/meetings*");
+      const request = getMeetingsApiMock.waitForNextRequest();
       await headers.nth(6).click();
 
       expect(getRequestQuery(await request)).toMatchObject({
@@ -787,12 +800,12 @@ test.describe("Meetings index", () => {
       await expect(headers.nth(6)).toHaveAttribute("aria-sort", "ascending");
     });
 
-    test("sort by video count", async ({ page }) => {
+    test("sort by video count", async ({ page, getMeetingsApiMock }) => {
       const headers = page.getByTestId("meeting-header-cell");
       await headers.nth(6).click();
       await expect(headers.nth(6)).toHaveAttribute("data-p-sorted", "true");
 
-      const request = page.waitForRequest("**/api/v1/meetings*");
+      const request = getMeetingsApiMock.waitForNextRequest();
       await headers.nth(7).click();
 
       expect(getRequestQuery(await request)).toMatchObject({
@@ -818,8 +831,8 @@ test.describe("Meetings index", () => {
       await expect(page.getByTestId("meeting-item")).toHaveCount(1);
     });
 
-    test("reload first page", async ({ page }) => {
-      const request = page.waitForRequest("**/api/v1/meetings*");
+    test("reload first page", async ({ page, getMeetingsApiMock }) => {
+      const request = getMeetingsApiMock.waitForNextRequest();
       await page.getByTestId("meetings-reload-button").click();
       expect(getRequestQuery(await request)).toMatchObject({ page: "1" });
 
@@ -843,7 +856,7 @@ test.describe("Meetings index", () => {
       await page.getByTestId("paginator-next-button").nth(1).click();
       await expectActivePage(page, 1);
 
-      const request = page.waitForRequest("**/api/v1/meetings*");
+      const request = getMeetingsApiMock.waitForNextRequest();
       await page.getByTestId("meetings-reload-button").click();
       expect(getRequestQuery(await request)).toMatchObject({ page: "2" });
 

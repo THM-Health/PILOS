@@ -1,4 +1,5 @@
 import { expect, expectToastAndClose } from "./test.js";
+import { mockApiRequest } from "./utils.js";
 
 /**
  * Check that a user who visits this page without being logged in is redirected to the login page
@@ -7,9 +8,7 @@ import { expect, expectToastAndClose } from "./test.js";
  */
 export async function testVisitWithoutCurrentUser(page, path) {
   // Overrides the mock of the logged in user, also for tests that use `authenticated: true`
-  await page.route("**/api/v1/currentUser", (route) =>
-    route.fulfill({ json: {} }),
-  );
+  await mockApiRequest(page, "GET", "currentUser", { json: {} });
 
   await page.goto(path);
   await expect(page).toHaveURL((url) =>

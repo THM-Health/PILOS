@@ -6,26 +6,31 @@ import {
   modelNotFound,
 } from "../support/utils.js";
 import { mergeTests } from "@playwright/test";
+import { test as roomFileControllerTest } from "../support/fixtures/roomFileController.js";
+import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
 import { test as roomControllerTest } from "../support/fixtures/roomController.js";
 import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import {
-  interceptRoomFilesRequest,
-  interceptRoomIndexRequests,
-} from "../support/mocks.js";
+
 import {
   setValidRememberedParticipantName,
   expectAuthToken,
   expectNoAuthToken,
 } from "../support/room.js";
 
-const test = mergeTests(roomControllerTest, participantNameCheckTest);
+const test = mergeTests(
+  roomControllerTest,
+  participantNameCheckTest,
+  roomFileControllerTest,
+  roomTypeControllerTest,
+);
+
+test.use({ roomFilesFixtureName: "roomFilesNoDetails.json" });
 
 test.describe("Rooms view meetings", () => {
   test.use({ authenticated: true });
 
   test.beforeEach(async ({ page }) => {
-    await interceptRoomFilesRequest(page);
     await setValidRememberedParticipantName(page, "Laura Rivera");
   });
 
@@ -652,7 +657,6 @@ test.describe("Rooms view meetings", () => {
           postRoomJoinOrStartApiMock.respondWith(
             modelNotFound("room", ["abc-def-123"]),
           );
-        await interceptRoomIndexRequests(page);
 
         await page.goto("/rooms/abc-def-123");
         await page.getByTestId(buttonId).click();

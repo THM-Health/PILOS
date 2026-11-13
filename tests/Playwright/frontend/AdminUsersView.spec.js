@@ -8,11 +8,7 @@ import {
   expectLoginRedirect,
   testVisitWithoutCurrentUser,
 } from "../support/general.js";
-import {
-  mockApiRequest,
-  serverError,
-  modelNotFound,
-} from "../support/utils.js";
+import { serverError, modelNotFound } from "../support/utils.js";
 
 const test = mergeTests(
   userControllerTest,
@@ -63,8 +59,9 @@ test.describe("Admin users view", () => {
     test("loading state hides buttons and tabs", async ({
       page,
       userResponse,
+      getUserApiMock,
     }) => {
-      const getUserApiMock = await mockApiRequest(page, "GET", "users/2", {
+      getUserApiMock.respondWith({
         hold: true,
         json: userResponse,
       });
@@ -526,8 +523,9 @@ test.describe("Admin users view", () => {
     test("server error shows overlay with retry that loads the user", async ({
       page,
       userResponse,
+      getUserApiMock,
     }) => {
-      await mockApiRequest(page, "GET", "users/2", serverError());
+      getUserApiMock.respondWith(serverError());
 
       await page.goto("/admin/users/2");
 
@@ -538,7 +536,7 @@ test.describe("Admin users view", () => {
       ]);
 
       // Reload with correct data
-      await mockApiRequest(page, "GET", "users/2", {
+      getUserApiMock.respondWith({
         json: userResponse,
       });
 
@@ -552,8 +550,11 @@ test.describe("Admin users view", () => {
       await expect(retryButton).toBeHidden();
     });
 
-    test("404 error redirects to users index", async ({ page }) => {
-      await mockApiRequest(page, "GET", "users/2", modelNotFound("user", [2]));
+    test("404 error redirects to users index", async ({
+      page,
+      getUserApiMock,
+    }) => {
+      getUserApiMock.respondWith(modelNotFound("user", [2]));
 
       await page.goto("/admin/users/2");
 
@@ -564,8 +565,8 @@ test.describe("Admin users view", () => {
       ]);
     });
 
-    test("401 error redirects to login", async ({ page }) => {
-      await mockApiRequest(page, "GET", "users/2", { status: 401 });
+    test("401 error redirects to login", async ({ page, getUserApiMock }) => {
+      getUserApiMock.respondWith({ status: 401 });
 
       await page.goto("/admin/users/2");
 
@@ -576,13 +577,10 @@ test.describe("Admin users view", () => {
       test("server error disables the dropdown and allows reload", async ({
         page,
         timezonesResponse,
+        getTimezonesApiMock,
       }) => {
-        const getTimezonesApiMock = await mockApiRequest(
-          page,
-          "GET",
-          "getTimezones",
-          serverError({ hold: true }),
-        );
+        const getTimezonesRequestsAfterChange1 =
+          getTimezonesApiMock.respondWith(serverError({ hold: true }));
 
         await page.goto("/admin/users/2");
 
@@ -594,7 +592,7 @@ test.describe("Admin users view", () => {
         );
 
         getTimezonesApiMock.release();
-        await getTimezonesApiMock.waitForRequest();
+        await getTimezonesRequestsAfterChange1.waitForRequest();
 
         await expectToastAndClose(page, [
           'app.flash.server_error.message_{"message":"Test"}',
@@ -608,16 +606,12 @@ test.describe("Admin users view", () => {
         );
 
         // Reload timezones without error
-        const getTimezonesApiMock2 = await mockApiRequest(
-          page,
-          "GET",
-          "getTimezones",
-          {
+        const getTimezonesRequestsAfterChange2 =
+          getTimezonesApiMock.respondWith({
             json: timezonesResponse,
-          },
-        );
+          });
         await page.getByTestId("timezone-reload-button").click();
-        await getTimezonesApiMock2.waitForRequest();
+        await getTimezonesRequestsAfterChange2.waitForRequest();
 
         await expect(dropdown).toHaveText("UTC");
         await expect(dropdown.locator(".p-select-label")).toHaveAttribute(
@@ -627,8 +621,11 @@ test.describe("Admin users view", () => {
         await expect(page.getByTestId("timezone-reload-button")).toHaveCount(0);
       });
 
-      test("401 error redirects to login", async ({ page }) => {
-        await mockApiRequest(page, "GET", "getTimezones", {
+      test("401 error redirects to login", async ({
+        page,
+        getTimezonesApiMock,
+      }) => {
+        getTimezonesApiMock.respondWith({
           status: 401,
         });
 
