@@ -1,11 +1,19 @@
 import { test as base } from "../test.js";
 
 /**
+ * @typedef {object} BrowserApisFixtures
+ * @property {() => Promise<{ types: string[], text: string|null, html: string|null, readText: string }>} readClipboard
+ * @property {(options?: { throwOnConstruct?: boolean }) => Promise<() => Promise<any>>} stubBrowserApis
+ */
+
+/**
  * - `readClipboard()`: reads the clipboard of the page (needs the permissions `clipboard-read` and `clipboard-write`)
  *   and returns `{ types, text, html, readText }`.
  * - `stubBrowserApis({ throwOnConstruct })`: call before `page.goto()`. Fakes `Notification` (granted, throws on
  *   construct if requested), `Audio` and `window.focus` and returns a getter for what the app did with them
  *   (`notifications`, `closed`, `listeners`, `handlers`, `audios`, `plays`, `focus`).
+ *
+ * @type {typeof base extends import("@playwright/test").TestType<infer Args extends {}, infer WorkerArgs extends {}> ? import("@playwright/test").TestType<Args & BrowserApisFixtures, WorkerArgs> : never}
  */
 export const test = base.extend({
   readClipboard: async ({ page }, use) => {

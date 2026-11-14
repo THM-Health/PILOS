@@ -14,14 +14,26 @@ export function readFixture(name) {
 }
 
 // ----------------------------------------------------------------------------
-// Mocking API requests (paths relative to `api/v1/`)
+// Types of the mock handles (`mockApiRequest`, `mockApiCollection` and `mockApiList` return them, the fixtures hand
+// them to the tests, see `.ai/rules/playwright.md`)
 
 /**
- * @typedef {object} RequestView The requests that were received after a point in time.
+ * @typedef {object} RequestView The requests that were received after a point in time (what `respondWith` returns).
  * @property {import("@playwright/test").Request[]} requests
- * @property {(count?: number) => Promise<import("@playwright/test").Request>} waitForRequest Like the one of the mock,
- *   but counts only the requests after that point in time.
+ * @property {(count?: number) => Promise<import("@playwright/test").Request>} waitForRequest Like the one of the
+ *   handle, but counts only the requests after that point in time.
  * @property {() => Promise<import("@playwright/test").Request>} waitForNextRequest A promise for the next request.
+ * @property {(response: ApiResponse) => RequestView} respondWith Like the one of the handle, a view is also a handle.
+ * @property {(response: ApiResponse) => RequestView} respondWithOnce Like the one of the handle.
+ * @property {(responses: object[]) => RequestView} respondWithSequence Like the one of the handle.
+ * @property {() => RequestView} respondWithDefault Like the one of the handle.
+ * @property {() => Promise<void>} release Like the one of the handle.
+ */
+
+/**
+ * @typedef {object|((request: import("@playwright/test").Request) => object)} ApiResponse Options for
+ *   `route.fulfill()` (e.g. `{ status, json, headers, path }`, plus `hold: true` to hold the requests until
+ *   `release()`) or a function that returns them for a request.
  */
 
 /**
@@ -35,9 +47,10 @@ export function readFixture(name) {
  *   it before the action that triggers the request.
  * @property {() => Promise<import("@playwright/test").Request>} waitForNextResponse A promise for the next request that
  *   the mock has answered (the response is sent to the page), call it before the action that triggers the request.
- * @property {(response: object|((request: import("@playwright/test").Request) => object)) => RequestView} respondWith
- *   Changes the answer of the mock, the recorded requests and `waitForRequest` keep counting. The response is the same
- *   as the one of `mockApiRequest`. Returns a view of the requests that are received after the change.
+ * @property {(response: ApiResponse) => RequestView} respondWith Changes the answer of the mock, the recorded requests
+ *   and `waitForRequest` keep counting. Returns a view of the requests that are received after the change.
+ * @property {(response: ApiResponse) => RequestView} respondWithOnce Answers only the next request with the response,
+ *   then the mock goes back to the previous answer.
  * @property {(responses: object[]) => RequestView} respondWithSequence Answers the first request after the call with the
  *   first response, the second with the second one and so on (the last response is repeated). The responses are
  *   options of `route.fulfill()` without `hold`.
@@ -47,6 +60,18 @@ export function readFixture(name) {
  * @property {() => Promise<void>} release Answers all requests that are held by a response with `hold: true`. The
  *   returned promise resolves when the held requests are answered.
  */
+
+/**
+ * @typedef {ApiMock & {
+ *   respondWithPage: (options: { currentPage?: number, lastPage: number, perPage?: number, meta?: object }) => RequestView,
+ *   respondWithSlice: (options?: { slice?: number[], meta?: object }) => RequestView,
+ *   respondWithNoSearchResults: () => RequestView,
+ *   respondWithNoItems: () => RequestView,
+ * }} ApiListMock Handle of a list endpoint, see `mockApiList`.
+ */
+
+// ----------------------------------------------------------------------------
+// Mocking API requests (paths relative to `api/v1/`)
 
 /**
  * Mocks the requests of a method to `api/v1/<path>`, other methods fall through to the next route (mocks registered
@@ -170,7 +195,7 @@ export async function mockApiRequest(
     },
     release() {
       gates.forEach((gate) => gate.open());
-      return Promise.all([...pending]);
+      return Promise.all([...pending]).then(() => {});
     },
   };
   return handle;
@@ -210,15 +235,6 @@ export async function mockApiCollection(page, path, collection) {
     };
   });
 }
-
-/**
- * @typedef {ApiMock & {
- *   respondWithPage: (options: { currentPage?: number, lastPage: number, perPage?: number, meta?: object }) => RequestView,
- *   respondWithSlice: (options?: { slice?: number[], meta?: object }) => RequestView,
- *   respondWithNoSearchResults: () => RequestView,
- *   respondWithNoItems: () => RequestView,
- * }} ApiListMock
- */
 
 /**
  * Mocks a list endpoint (GET `api/v1/<path>`) whose answer the test sets page by page. `body` is the live answer, the
@@ -350,15 +366,20 @@ export function validationErrors(errors, message, options = {}) {
 // Reading requests
 
 /**
- * Records requests and lets a test wait for them. `mockApiRequest` returns one, fixtures with their own mock handles
- * spread it into the handle (`{ ...createRequestRecorder(), ... }`).
- * - `requests`: all recorded requests
- * - `waitForNextRequest()`: a promise for the next request, call it before the action that triggers it
- * - `waitForNextResponse()`: a promise for the next request that was answered (the response is sent to the page)
- * - `waitForRequest(count = 1)`: waits until at least `count` requests were recorded and returns the `count`th one. As
- *   the mock records all requests, it can be called after the action that triggers the request (no promise has to be
- *   created before it, unlike `page.waitForRequest`).
- * @returns {{ requests: import("@playwright/test").Request[], waitForRequest: (count?: number) => Promise<import("@playwright/test").Request> }}
+ * Records requests and lets a test wait for them. `mockApiRequest` returns one (as part of the handle), fixtures with
+ * their own mock handles spread it into the handle (`{ ...createRequestRecorder(), ... }`).
+ * @returns {{
+ *   requests: import("@playwright/test").Request[],
+ *   waitForRequest: (count?: number) => Promise<import("@playwright/test").Request>,
+ *   waitForNextRequest: () => Promise<import("@playwright/test").Request>,
+ *   waitForNextResponse: () => Promise<import("@playwright/test").Request>,
+ *   markResponded: (request: import("@playwright/test").Request) => void,
+ *   startView: () => {
+ *     requests: import("@playwright/test").Request[],
+ *     waitForRequest: (count?: number) => Promise<import("@playwright/test").Request>,
+ *     waitForNextRequest: () => Promise<import("@playwright/test").Request>,
+ *   },
+ * }}
  */
 export function createRequestRecorder() {
   const requests = [];
@@ -372,11 +393,21 @@ export function createRequestRecorder() {
       return requests[start + count - 1];
     };
   return {
+    /** All recorded requests. */
     requests,
+    /**
+     * Waits until at least `count` requests were recorded and returns the `count`th one. As the mock records all
+     * requests, it can be called after the action that triggers the request (no promise has to be created before it,
+     * unlike `page.waitForRequest`).
+     */
     waitForRequest: waitForRequestAfter(0),
     /**
      * Returns a promise for the next request. Call it before the action that triggers the request.
      */
+    waitForNextRequest() {
+      const start = requests.length;
+      return waitForRequestAfter(start)(1);
+    },
     /**
      * Returns a promise for the next request that the mock has answered (the response is sent to the page). Call it
      * before the action that triggers the request.
@@ -386,16 +417,13 @@ export function createRequestRecorder() {
       await expect.poll(() => responded.length).toBeGreaterThan(start);
       return responded[start];
     },
+    /** Marks a request as answered, called by `mockApiRequest` after it fulfilled the request. */
     markResponded(request) {
       responded.push(request);
     },
-    waitForNextRequest() {
-      const start = requests.length;
-      return waitForRequestAfter(start)(1);
-    },
     /**
-     * A view of the requests that are recorded from now on, with its own `requests` and `waitForRequest`, e.g. to wait
-     * for the first request after a change of the answer.
+     * A view of the requests that are recorded from now on, with its own `requests`, `waitForRequest` and
+     * `waitForNextRequest`, e.g. to wait for the first request after a change of the answer.
      */
     startView() {
       const start = requests.length;

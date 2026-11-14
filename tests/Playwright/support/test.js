@@ -3,6 +3,21 @@ import { coverageFixture } from "./coverage.js";
 import { matchers } from "./matchers.js";
 import { mockApiRequest, readFixture } from "./utils.js";
 
+/**
+ * @typedef {object} TestFixtures
+ * @property {unknown} coverage
+ * @property {boolean} authenticated
+ * @property {boolean} mockLocale
+ * @property {any} configResponse
+ * @property {any} currentUserResponse
+ * @property {void} mockApp
+ * @property {import("./utils.js").ApiMock} getConfigApiMock
+ * @property {import("./utils.js").ApiMock} getCurrentUserApiMock
+ * @property {import("./utils.js").ApiMock|null} getLocaleEnApiMock
+ * @property {import("./utils.js").ApiMock} postLocaleApiMock
+ * @property {import("./utils.js").ApiMock} getLocaleDeApiMock
+ */
+
 /** `expect` of Playwright with the matchers for mock handles, see `matchers.js`. */
 export const expect = baseExpect.extend(matchers);
 
@@ -24,6 +39,8 @@ export const expect = baseExpect.extend(matchers);
  * - automatic final state check (replaces `cy.checkFinalState()`): no unexpected toasts, no uncaught page errors.
  *
  * Dark mode: use Playwright's own `test.use({ colorScheme: "dark" })`.
+ *
+ * @type {typeof base extends import("@playwright/test").TestType<infer Args extends {}, infer WorkerArgs extends {}> ? import("@playwright/test").TestType<Args & TestFixtures, WorkerArgs> : never}
  */
 export const test = base.extend({
   coverage: coverageFixture,

@@ -3,6 +3,18 @@ import { mockApiList, mockApiRequest, readFixture } from "../utils.js";
 import { AdminServerPoolsServerSelect } from "../pages/AdminServerPoolsServerSelect.js";
 
 /**
+ * @typedef {object} ServerPoolControllerFixtures
+ * @property {any} serverPoolResponse
+ * @property {import("../utils.js").ApiMock} getServerPoolApiMock
+ * @property {any} createdServerPoolResponse
+ * @property {import("../utils.js").ApiMock} getCreatedServerPoolApiMock
+ * @property {any} serverPoolsResponse
+ * @property {import("../utils.js").ApiListMock} getServerPoolsApiMock
+ * @property {any} serverPoolsFirstPageResponse
+ * @property {import("../pages/AdminServerPoolsServerSelect.js").AdminServerPoolsServerSelect} serverSelect
+ */
+
+/**
  * Mocks of the `ServerPoolController`.
  * Automatic fixtures served in every test (change the objects before `page.goto()` or before the action that triggers
  * the request, the routes serve the current state). Tests change the answer of a mock with `respondWith()`, and
@@ -14,6 +26,8 @@ import { AdminServerPoolsServerSelect } from "../pages/AdminServerPoolsServerSel
  *   (GET /api/v1/serverPools, see `mockApiList`)
  * - `serverPoolsFirstPageResponse`: first of two pages of the server pools, not served, to be mocked by the test
  * - `serverSelect`: page object of the server multiselect
+ *
+ * @type {typeof base extends import("@playwright/test").TestType<infer Args extends {}, infer WorkerArgs extends {}> ? import("@playwright/test").TestType<Args & ServerPoolControllerFixtures, WorkerArgs> : never}
  */
 export const test = base.extend({
   serverPoolResponse: async ({}, use) => {

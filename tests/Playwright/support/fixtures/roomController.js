@@ -7,6 +7,23 @@ import {
 } from "../utils.js";
 
 /**
+ * @typedef {object} RoomControllerFixtures
+ * @property {any} roomResponse
+ * @property {import("../utils.js").ApiMock} getRoomApiMock
+ * @property {import("../utils.js").ApiMock} postRoomAuthApiMock
+ * @property {string} roomJoinOrStartRedirectUrl
+ * @property {object} roomJoinOrStartRequestBodyWithoutConsent
+ * @property {import("../utils.js").ApiMock} postRoomJoinOrStartApiMock
+ * @property {import("../utils.js").ApiMock & { status: number, features: { recording: boolean, attendance_recording: boolean, streaming: boolean }, error: object|undefined }} optionsRoomJoinOrStartApiMock
+ * @property {any} roomMeetingsResponse
+ * @property {import("../utils.js").ApiListMock} getRoomMeetingsApiMock
+ * @property {any} roomSettingsResponse
+ * @property {import("../utils.js").ApiMock} getRoomSettingsApiMock
+ * @property {any} roomsResponse
+ * @property {import("../utils.js").ApiListMock} getRoomsApiMock
+ */
+
+/**
  * Mocks of the endpoints of the `RoomController`, all of them are automatic fixtures, served in every test. Change the
  * objects before the page requests them (before `page.goto()` or the action that reloads them). Tests that need
  * another response change the answer of the mock with `respondWith()`, `respondWithDefault()` goes back to the
@@ -28,6 +45,8 @@ import {
  *   (GET /api/v1/rooms/abc-def-123/meetings, see `mockApiList`).
  * - `roomSettingsResponse`: the settings of the room (GET /api/v1/rooms/abc-def-123/settings)
  * - `roomsResponse`: the room list, answered by the list mock `getRoomsApiMock` (GET /api/v1/rooms, see `mockApiList`).
+ *
+ * @type {typeof base extends import("@playwright/test").TestType<infer Args extends {}, infer WorkerArgs extends {}> ? import("@playwright/test").TestType<Args & RoomControllerFixtures, WorkerArgs> : never}
  */
 export const test = base.extend({
   roomResponse: async ({}, use) => {

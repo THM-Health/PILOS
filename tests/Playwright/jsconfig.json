@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "noEmit": true,
+    "strict": false,
+    "checkJs": false
+  },
+  "include": ["**/*.js"],
+  "exclude": ["node_modules", "test-results", "**/__screenshots__"]
+}

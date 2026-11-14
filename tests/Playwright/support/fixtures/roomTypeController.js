@@ -1,6 +1,17 @@
 import { test as base } from "../test.js";
 import { mockApiRequest, readFixture } from "../utils.js";
 
+/**
+ * @typedef {object} RoomTypeControllerFixtures
+ * @property {string} roomTypesFixtureName
+ * @property {import("../utils.js").ApiMock & { status: number, json: object, respondWithSettings: () => void }} getRoomTypesApiMock
+ * @property {any} roomTypeResponse
+ * @property {import("../utils.js").ApiMock} getRoomTypeApiMock
+ * @property {any} roomTypeFieldsAfterEditingEverySetting
+ * @property {any} roomTypeValidationErrorsResponse
+ * @property {[string, string[]][]} roomTypeErrorFieldMessages
+ */
+
 /** [test id of the field, keys of the validation errors that are shown inside of it] */
 const fieldErrorKeys = [
   ["room-type-name-field", ["name"]],
@@ -98,6 +109,8 @@ const requiredMessage = (key) =>
  * - `roomTypeFieldsAfterEditingEverySetting`: fields of the room type that are changed when every setting of the form is changed (edit page)
  * - `roomTypeValidationErrorsResponse`: response body of a 422 when every field of the room type form is invalid,
  *   `roomTypeErrorFieldMessages` are the test ids of the fields with the messages that are shown inside of them
+ *
+ * @type {typeof base extends import("@playwright/test").TestType<infer Args extends {}, infer WorkerArgs extends {}> ? import("@playwright/test").TestType<Args & RoomTypeControllerFixtures, WorkerArgs> : never}
  */
 export const test = base.extend({
   roomTypesFixtureName: ["roomTypes.json", { option: true }],

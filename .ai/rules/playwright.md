@@ -81,8 +81,12 @@ Use the builders of `utils.js` for errors instead of writing the JSON: `serverEr
 - Describe-level `let` variables that hold mocks, request counters or flags for a route callback. Use the handle (`requests`, `respondWithSequence`, a response function).
 - Helpers that mock requests outside of the fixtures (the former `intercept…` helpers). A helper gets the handle it needs as an argument or uses `mockApiRequest`.
 
+## Types for the editor
+
+JavaScript has no place for the type argument of `base.extend<…>()`, so every fixture file declares its fixtures in a JSDoc `@typedef` (`RoomControllerFixtures`) and annotates the exported `test` with it. That gives the code completion for fixtures and handles in the specs (`getRoomApiMock.` shows `respondWithSequence`, `waitForRequest`, …). `tests/Playwright/jsconfig.json` makes the editor treat the folder as one project (`checkJs` is off, there are no type errors in the editor).
+
 ## Add a new endpoint
 
 1. Add the `…Response` fixture and an automatic handle in the fixture file of the backend controller (for a list use `mockApiList`, for a paginated body `mockApiCollection`).
-2. Name the handle `<method><Resource>ApiMock`.
+2. Name the handle `<method><Resource>ApiMock` and add both fixtures to the `@typedef` of the file (`ApiMock`, `ApiListMock` for lists, `any` for a body).
 3. Compose the controller into the specs that need it with `mergeTests`.

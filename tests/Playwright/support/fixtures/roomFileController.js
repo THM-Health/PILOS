@@ -2,6 +2,13 @@ import { test as base } from "../test.js";
 import { mockApiCollection, readFixture } from "../utils.js";
 
 /**
+ * @typedef {object} RoomFileControllerFixtures
+ * @property {string} roomFilesFixtureName
+ * @property {any} roomFilesResponse
+ * @property {import("../utils.js").ApiMock} getRoomFilesApiMock
+ */
+
+/**
  * Mocks of the `RoomFileController`, automatic fixtures served in every test (change the objects before the page requests
  * them). Tests that need another response mock the request themselves with `mockApiRequest`, later mocks win.
  *
@@ -9,6 +16,8 @@ import { mockApiCollection, readFixture } from "../utils.js";
  *   if `meta.per_page` is small
  * - `roomFilesFixtureName` (option): fixture file of the files, `roomFilesNoDetails.json` for the view without the
  *   details of the files (users that are not allowed to manage the room get these files from the API)
+ *
+ * @type {typeof base extends import("@playwright/test").TestType<infer Args extends {}, infer WorkerArgs extends {}> ? import("@playwright/test").TestType<Args & RoomFileControllerFixtures, WorkerArgs> : never}
  */
 export const test = base.extend({
   roomFilesFixtureName: ["roomFiles.json", { option: true }],

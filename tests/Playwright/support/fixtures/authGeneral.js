@@ -2,6 +2,15 @@ import { test as base } from "../test.js";
 import { mockApiRequest } from "../utils.js";
 
 /**
+ * @typedef {object} AuthGeneralFixtures
+ * @property {import("../utils.js").ApiMock} getCsrfCookieApiMock
+ * @property {import("../utils.js").ApiMock} postPasswordEmailApiMock
+ * @property {import("../utils.js").ApiMock} postPasswordResetApiMock
+ * @property {import("../utils.js").ApiMock} postEmailVerifyApiMock
+ * @property {import("../utils.js").ApiMock} postLogoutApiMock
+ */
+
+/**
  * Fixtures of the login, forgot password and password reset pages.
  *
  * - `postPasswordEmailApiMock`, `postPasswordResetApiMock`, `postEmailVerifyApiMock`, `postLogoutApiMock`: the mocks of
@@ -9,6 +18,8 @@ import { mockApiRequest } from "../utils.js";
  *   `respondWith()`.
  * - `getCsrfCookieApiMock` (automatic): serves the Sanctum csrf cookie with the token `test-csrf`, so requests of the
  *   page carry the header `x-xsrf-token: test-csrf`.
+ *
+ * @type {typeof base extends import("@playwright/test").TestType<infer Args extends {}, infer WorkerArgs extends {}> ? import("@playwright/test").TestType<Args & AuthGeneralFixtures, WorkerArgs> : never}
  */
 export const test = base.extend({
   getCsrfCookieApiMock: [

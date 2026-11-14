@@ -22,6 +22,13 @@ const permissionNames = [
 ];
 
 /**
+ * @typedef {object} PermissionControllerFixtures
+ * @property {any} permissionsResponse
+ * @property {import("../utils.js").ApiMock} getPermissionsApiMock
+ * @property {(explicit: string[], options?: { restrictions?: string[] }) => Promise<void>} expectPermissions
+ */
+
+/**
  * Mocks of the `PermissionController`.
  * Automatic fixtures served in every test (change the objects before `page.goto()` or before the action that triggers
  * the request, the routes serve the current state). Tests change the answer of a mock with `respondWith()`, and
@@ -29,6 +36,8 @@ const permissionNames = [
  *
  * - `permissionsResponse`: all permissions (GET /api/v1/permissions)
  * - `expectPermissions(explicit, { restrictions })`: checks the permission list of the role pages
+ *
+ * @type {typeof base extends import("@playwright/test").TestType<infer Args extends {}, infer WorkerArgs extends {}> ? import("@playwright/test").TestType<Args & PermissionControllerFixtures, WorkerArgs> : never}
  */
 export const test = base.extend({
   permissionsResponse: async ({}, use) => {

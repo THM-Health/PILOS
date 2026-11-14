@@ -2,6 +2,18 @@ import { test as base } from "../test.js";
 import { mockApiList, mockApiRequest, readFixture } from "../utils.js";
 
 /**
+ * @typedef {object} UserControllerFixtures
+ * @property {any} usersResponse
+ * @property {import("../utils.js").ApiListMock} getUsersApiMock
+ * @property {any} userResponse
+ * @property {import("../utils.js").ApiMock} getUserApiMock
+ * @property {any} profileUserResponse
+ * @property {import("../utils.js").ApiMock} getProfileUserApiMock
+ * @property {any} userSearchResponse
+ * @property {import("../utils.js").ApiMock} getUsersSearchApiMock
+ */
+
+/**
  * Mocks of the `UserController`.
  * Automatic fixtures served in every test (change the objects before `page.goto()` or before the action that triggers
  * the request, the routes serve the current state). Tests change the answer of a mock with `respondWith()`, and
@@ -12,6 +24,8 @@ import { mockApiList, mockApiRequest, readFixture } from "../utils.js";
  * - `profileUserResponse`: the user shown on the profile page, John Doe (GET /api/v1/users/1)
  * - `userSearchResponse`: the result of the user search (GET /api/v1/users/search) that `getUsersSearchApiMock`
  *   answers, by default three users
+ *
+ * @type {typeof base extends import("@playwright/test").TestType<infer Args extends {}, infer WorkerArgs extends {}> ? import("@playwright/test").TestType<Args & UserControllerFixtures, WorkerArgs> : never}
  */
 export const test = base.extend({
   usersResponse: async ({}, use) => {
