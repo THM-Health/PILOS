@@ -415,10 +415,24 @@ test.describe("Rooms view files file actions", () => {
     });
 
     test.describe("auth errors", () => {
-      test("handles auth errors", async ({ page }) => {
-        await checkRoomAuthErrors(
-          page,
-          async (page) => {
+      test("handles auth errors", async ({
+        page,
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        postParticipantNameCheckApiMock,
+      }) => {
+        await checkRoomAuthErrors(page, {
+          getRoomApiMock,
+          getRoomFilesApiMock,
+          postParticipantNameCheckApiMock,
+          requestApiMock: await mockApiRequest(
+            page,
+            "POST",
+            "rooms/abc-def-123/files",
+            { status: 401 },
+          ),
+          roomTabName: "files",
+          triggerRequestActions: async (page) => {
             await page.getByTestId("room-files-upload-button").click();
             await expect(
               page.getByTestId("room-files-upload-dialog"),
@@ -427,10 +441,7 @@ test.describe("Rooms view files file actions", () => {
               .locator("#file")
               .setInputFiles("tests/Playwright/fixtures/files/testFile.txt");
           },
-          "POST",
-          "**/api/v1/rooms/abc-def-123/files",
-          "files",
-        );
+        });
       });
 
       test("redirects to the room index if the room is not found", async ({
@@ -630,10 +641,24 @@ test.describe("Rooms view files file actions", () => {
         await expect(dialog).toBeHidden();
       });
 
-      test("handles auth errors", async ({ page }) => {
-        await checkRoomAuthErrors(
-          page,
-          async (page) => {
+      test("handles auth errors", async ({
+        page,
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        postParticipantNameCheckApiMock,
+      }) => {
+        await checkRoomAuthErrors(page, {
+          getRoomApiMock,
+          getRoomFilesApiMock,
+          postParticipantNameCheckApiMock,
+          requestApiMock: await mockApiRequest(
+            page,
+            "DELETE",
+            "rooms/abc-def-123/files/1",
+            { status: 401 },
+          ),
+          roomTabName: "files",
+          triggerRequestActions: async (page) => {
             await page
               .getByTestId("room-file-item")
               .nth(0)
@@ -643,10 +668,7 @@ test.describe("Rooms view files file actions", () => {
             await expect(dialog).toBeVisible();
             await dialog.getByTestId("dialog-continue-button").click();
           },
-          "DELETE",
-          "**/api/v1/rooms/abc-def-123/files/1",
-          "files",
-        );
+        });
       });
 
       test("redirects to the room index if the room is not found", async ({
@@ -924,10 +946,24 @@ test.describe("Rooms view files file actions", () => {
         });
       });
 
-      test("handles auth errors", async ({ page }) => {
-        await checkRoomAuthErrors(
-          page,
-          async (page) => {
+      test("handles auth errors", async ({
+        page,
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        postParticipantNameCheckApiMock,
+      }) => {
+        await checkRoomAuthErrors(page, {
+          getRoomApiMock,
+          getRoomFilesApiMock,
+          postParticipantNameCheckApiMock,
+          requestApiMock: await mockApiRequest(
+            page,
+            "PATCH",
+            "rooms/abc-def-123/files/1",
+            { status: 401 },
+          ),
+          roomTabName: "files",
+          triggerRequestActions: async (page) => {
             await page
               .getByTestId("room-file-item")
               .nth(0)
@@ -937,10 +973,7 @@ test.describe("Rooms view files file actions", () => {
             await expect(dialog).toBeVisible();
             await dialog.getByTestId("dialog-save-button").click();
           },
-          "PATCH",
-          "**/api/v1/rooms/abc-def-123/files/1",
-          "files",
-        );
+        });
       });
 
       test("redirects to the room index if the room is not found", async ({
@@ -1122,20 +1155,31 @@ test.describe("Rooms view files file actions", () => {
         ]);
       });
 
-      test("handles auth errors", async ({ page }) => {
-        await checkRoomAuthErrors(
-          page,
-          async (page) => {
+      test("handles auth errors", async ({
+        page,
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        postParticipantNameCheckApiMock,
+      }) => {
+        await checkRoomAuthErrors(page, {
+          getRoomApiMock,
+          getRoomFilesApiMock,
+          postParticipantNameCheckApiMock,
+          requestApiMock: await mockApiRequest(
+            page,
+            "PATCH",
+            "rooms/abc-def-123/files/1",
+            { status: 401 },
+          ),
+          roomTabName: "files",
+          triggerRequestActions: async (page) => {
             await page
               .getByTestId("room-file-item")
               .nth(0)
               .getByTestId("room-files-start-file-button")
               .click();
           },
-          "PATCH",
-          "**/api/v1/rooms/abc-def-123/files/1",
-          "files",
-        );
+        });
       });
 
       test("redirects to the room index if the room is not found", async ({
@@ -1307,19 +1351,30 @@ test.describe("Rooms view files file actions", () => {
         ]);
       });
 
-      test("handles auth errors", async ({ page }) => {
-        await checkRoomAuthErrors(
-          page,
-          async (page) => {
+      test("handles auth errors", async ({
+        page,
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        postParticipantNameCheckApiMock,
+      }) => {
+        await checkRoomAuthErrors(page, {
+          getRoomApiMock,
+          getRoomFilesApiMock,
+          postParticipantNameCheckApiMock,
+          requestApiMock: await mockApiRequest(
+            page,
+            "PATCH",
+            "rooms/abc-def-123/files/system_default",
+            { status: 401 },
+          ),
+          roomTabName: "files",
+          triggerRequestActions: async (page) => {
             await page
               .getByTestId("room-file-system-default")
               .getByTestId("room-files-start-file-button")
               .click();
           },
-          "PATCH",
-          "**/api/v1/rooms/abc-def-123/files/system_default",
-          "files",
-        );
+        });
       });
 
       test("redirects to the room index if the room is not found", async ({

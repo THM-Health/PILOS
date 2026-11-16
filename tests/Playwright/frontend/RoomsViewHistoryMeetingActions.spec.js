@@ -1,4 +1,7 @@
-import { test } from "../support/fixtures/roomController.js";
+import { mergeTests } from "@playwright/test";
+import { test as roomControllerTest } from "../support/fixtures/roomController.js";
+import { test as roomFileControllerTest } from "../support/fixtures/roomFileController.js";
+import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import {
   mockApiRequest,
@@ -6,6 +9,12 @@ import {
   modelNotFound,
 } from "../support/utils.js";
 import { checkRoomAuthErrors } from "../support/room.js";
+
+const test = mergeTests(
+  roomControllerTest,
+  roomFileControllerTest,
+  participantNameCheckTest,
+);
 
 test.use({ authenticated: true });
 
@@ -146,19 +155,30 @@ test.describe("Rooms view history meeting actions", () => {
       await getRoomMeetingsApiMock.waitForRequest(historyCount + 1);
     });
 
-    test("auth errors", async ({ page }) => {
-      await checkRoomAuthErrors(
-        page,
-        (page) =>
+    test("auth errors", async ({
+      page,
+      getRoomApiMock,
+      getRoomFilesApiMock,
+      postParticipantNameCheckApiMock,
+    }) => {
+      await checkRoomAuthErrors(page, {
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        postParticipantNameCheckApiMock,
+        requestApiMock: await mockApiRequest(
+          page,
+          "GET",
+          "meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/stats",
+          { status: 401 },
+        ),
+        roomTabName: "history",
+        triggerRequestActions: (page) =>
           page
             .getByTestId("room-history-item")
             .nth(4)
             .getByTestId("room-history-statistic-button")
             .click(),
-        "GET",
-        "**/api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/stats",
-        "history",
-      );
+      });
     });
   });
 
@@ -450,19 +470,30 @@ test.describe("Rooms view history meeting actions", () => {
       await getRoomMeetingsApiMock.waitForRequest(historyCount + 1);
     });
 
-    test("auth errors", async ({ page }) => {
-      await checkRoomAuthErrors(
-        page,
-        (page) =>
+    test("auth errors", async ({
+      page,
+      getRoomApiMock,
+      getRoomFilesApiMock,
+      postParticipantNameCheckApiMock,
+    }) => {
+      await checkRoomAuthErrors(page, {
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        postParticipantNameCheckApiMock,
+        requestApiMock: await mockApiRequest(
+          page,
+          "GET",
+          "meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/attendance",
+          { status: 401 },
+        ),
+        roomTabName: "history",
+        triggerRequestActions: (page) =>
           page
             .getByTestId("room-history-item")
             .nth(4)
             .getByTestId("room-history-attendance-button")
             .click(),
-        "GET",
-        "**/api/v1/meetings/3a3e504a-d2c4-431c-8ca1-a62598e66761/attendance",
-        "history",
-      );
+      });
     });
   });
 });

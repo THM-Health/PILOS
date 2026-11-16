@@ -367,13 +367,20 @@ test.describe("Rooms view members", () => {
       await expect(page).toHaveURL(/\/rooms\/abc-def-123#tab=files/);
     });
 
-    test("handles auth errors when loading the tab", async ({ page }) => {
-      await checkRoomAuthErrorsLoadingTab(
-        page,
-        "GET",
-        "api/v1/rooms/abc-def-123/member*",
-        "members",
-      );
+    test("handles auth errors when loading the tab", async ({
+      page,
+      getRoomApiMock,
+      getRoomFilesApiMock,
+      postParticipantNameCheckApiMock,
+      getRoomMembersApiMock,
+    }) => {
+      await checkRoomAuthErrorsLoadingTab(page, {
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        postParticipantNameCheckApiMock,
+        requestApiMock: getRoomMembersApiMock,
+        roomTabName: "members",
+      });
     });
 
     test("redirects to the room index page if the room is not found", async ({

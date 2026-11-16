@@ -225,11 +225,7 @@ test.describe("Rooms index", () => {
 
     test("open room info dialog and continue to room view", async ({
       page,
-      getRoomApiMock,
     }) => {
-      getRoomApiMock.respondWith({
-        json: readFixture("room.json"),
-      });
       await page.goto("/rooms");
       await expect(page.getByTestId("room-card")).toHaveCount(3);
 
@@ -260,12 +256,10 @@ test.describe("Rooms index", () => {
 
     test("click on room card to open room view", async ({
       page,
+      roomResponse,
       getRoomApiMock,
     }) => {
-      getRoomApiMock.respondWith({
-        json: readFixture("room.json"),
-        hold: true,
-      });
+      getRoomApiMock.respondWith({ json: roomResponse, hold: true });
       await page.goto("/rooms");
 
       // Click on room card to open room view

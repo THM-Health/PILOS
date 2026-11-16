@@ -427,13 +427,20 @@ test.describe("Rooms view history", () => {
       );
     });
 
-    test("handles auth errors when loading the tab", async ({ page }) => {
-      await checkRoomAuthErrorsLoadingTab(
-        page,
-        "GET",
-        "api/v1/rooms/abc-def-123/meetings*",
-        "history",
-      );
+    test("handles auth errors when loading the tab", async ({
+      page,
+      getRoomApiMock,
+      getRoomFilesApiMock,
+      postParticipantNameCheckApiMock,
+      getRoomMeetingsApiMock,
+    }) => {
+      await checkRoomAuthErrorsLoadingTab(page, {
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        postParticipantNameCheckApiMock,
+        requestApiMock: getRoomMeetingsApiMock,
+        roomTabName: "history",
+      });
     });
 
     test("redirects to the room index page if the room is not found", async ({

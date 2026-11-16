@@ -1,5 +1,6 @@
 import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
 import { mergeTests } from "@playwright/test";
+import { test as roomFileControllerTest } from "../support/fixtures/roomFileController.js";
 import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
 import { test as roomControllerTest } from "../support/fixtures/roomController.js";
 import { test as recordingControllerTest } from "../support/fixtures/recordingController.js";
@@ -21,6 +22,7 @@ import {
 
 const test = mergeTests(
   roomControllerTest,
+  roomFileControllerTest,
   recordingControllerTest,
   postMessageToAppTest,
   participantNameCheckTest,
@@ -641,10 +643,26 @@ test.describe("Rooms view recordings recording actions", () => {
       await expect(dialog).toBeHidden();
     });
 
-    test("handles auth errors", async ({ page }) => {
-      await checkRoomAuthErrors(
-        page,
-        async (page) => {
+    test("handles auth errors", async ({
+      page,
+      getRoomApiMock,
+      getRoomFilesApiMock,
+      getRoomRecordingsApiMock,
+      postParticipantNameCheckApiMock,
+    }) => {
+      await checkRoomAuthErrors(page, {
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        getRoomRecordingsApiMock,
+        postParticipantNameCheckApiMock,
+        requestApiMock: await mockApiRequest(
+          page,
+          "DELETE",
+          "rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035",
+          { status: 401 },
+        ),
+        roomTabName: "recordings",
+        triggerRequestActions: async (page) => {
           await page
             .getByTestId("room-recording-item")
             .first()
@@ -654,10 +672,7 @@ test.describe("Rooms view recordings recording actions", () => {
           await expect(dialog).toBeVisible();
           await dialog.getByTestId("dialog-continue-button").click();
         },
-        "DELETE",
-        "api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035",
-        "recordings",
-      );
+      });
     });
 
     test("redirects to the room index page if the room was not found", async ({
@@ -968,10 +983,26 @@ test.describe("Rooms view recordings recording actions", () => {
       await expect(dialog).toBeHidden();
     });
 
-    test("handles auth errors", async ({ page }) => {
-      await checkRoomAuthErrors(
-        page,
-        async (page) => {
+    test("handles auth errors", async ({
+      page,
+      getRoomApiMock,
+      getRoomFilesApiMock,
+      getRoomRecordingsApiMock,
+      postParticipantNameCheckApiMock,
+    }) => {
+      await checkRoomAuthErrors(page, {
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        getRoomRecordingsApiMock,
+        postParticipantNameCheckApiMock,
+        requestApiMock: await mockApiRequest(
+          page,
+          "PUT",
+          "rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035",
+          { status: 401 },
+        ),
+        roomTabName: "recordings",
+        triggerRequestActions: async (page) => {
           await page
             .getByTestId("room-recording-item")
             .first()
@@ -981,10 +1012,7 @@ test.describe("Rooms view recordings recording actions", () => {
           await expect(dialog).toBeVisible();
           await dialog.getByTestId("dialog-save-button").click();
         },
-        "PUT",
-        "api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035",
-        "recordings",
-      );
+      });
     });
 
     test("redirects to the room index page if the room was not found", async ({

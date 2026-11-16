@@ -1,4 +1,5 @@
 import { mergeTests } from "@playwright/test";
+import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
 import { test as roomControllerTest } from "../support/fixtures/roomController.js";
 import { test as roomFileControllerTest } from "../support/fixtures/roomFileController.js";
 import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
@@ -20,6 +21,7 @@ import {
 
 const test = mergeTests(
   roomControllerTest,
+  participantNameCheckTest,
   roomFileControllerTest,
   roomTypeControllerTest,
   userControllerTest,
@@ -481,13 +483,20 @@ test.describe("Rooms view settings", () => {
       await expect(retryButton).toHaveText("app.reload");
     });
 
-    test("handle auth errors", async ({ page }) => {
-      await checkRoomAuthErrorsLoadingTab(
-        page,
-        "GET",
-        "api/v1/rooms/abc-def-123/settings",
-        "settings",
-      );
+    test("handle auth errors", async ({
+      page,
+      getRoomApiMock,
+      getRoomFilesApiMock,
+      postParticipantNameCheckApiMock,
+      getRoomSettingsApiMock,
+    }) => {
+      await checkRoomAuthErrorsLoadingTab(page, {
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        postParticipantNameCheckApiMock,
+        requestApiMock: getRoomSettingsApiMock,
+        roomTabName: "settings",
+      });
     });
 
     test("redirect to room index if the room is not found", async ({
@@ -1691,16 +1700,24 @@ test.describe("Rooms view settings", () => {
       }
     });
 
-    test("handle auth errors", async ({ page }) => {
-      await checkRoomAuthErrors(
-        page,
-        async (page) => {
+    test("handle auth errors", async ({
+      page,
+      getRoomApiMock,
+      getRoomFilesApiMock,
+      postParticipantNameCheckApiMock,
+    }) => {
+      await checkRoomAuthErrors(page, {
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        postParticipantNameCheckApiMock,
+        requestApiMock: await mockApiRequest(page, "PUT", "rooms/abc-def-123", {
+          status: 401,
+        }),
+        roomTabName: "settings",
+        triggerRequestActions: async (page) => {
           await page.getByTestId("room-settings-save-button").click();
         },
-        "PUT",
-        "api/v1/rooms/abc-def-123",
-        "settings",
-      );
+      });
     });
 
     test("redirect to room index if the room is not found", async ({
@@ -1812,12 +1829,26 @@ test.describe("Rooms view settings", () => {
       await expect(page.getByTestId("room-delete-dialog")).toBeVisible();
     });
 
-    test("handle auth errors", async ({ page }) => {
+    test("handle auth errors", async ({
+      page,
+      getRoomApiMock,
+      getRoomFilesApiMock,
+      postParticipantNameCheckApiMock,
+    }) => {
       await page.getByTestId("dialog-cancel-button").click();
 
-      await checkRoomAuthErrors(
-        page,
-        async (page) => {
+      await checkRoomAuthErrors(page, {
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        postParticipantNameCheckApiMock,
+        requestApiMock: await mockApiRequest(
+          page,
+          "DELETE",
+          "rooms/abc-def-123",
+          { status: 401 },
+        ),
+        roomTabName: "settings",
+        triggerRequestActions: async (page) => {
           await page.getByTestId("room-delete-button").click();
           await expect(page.getByTestId("room-delete-dialog")).toBeVisible();
           await page
@@ -1825,10 +1856,7 @@ test.describe("Rooms view settings", () => {
             .getByTestId("dialog-continue-button")
             .click();
         },
-        "DELETE",
-        "api/v1/rooms/abc-def-123",
-        "settings",
-      );
+      });
     });
   });
 
@@ -2132,10 +2160,20 @@ test.describe("Rooms view settings", () => {
         await expect(dialog).toBeVisible();
       });
 
-      test("handle auth errors on user search", async ({ page }) => {
-        await checkRoomAuthErrors(
-          page,
-          async (page) => {
+      test("handle auth errors on user search", async ({
+        page,
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        postParticipantNameCheckApiMock,
+        getUsersSearchApiMock,
+      }) => {
+        await checkRoomAuthErrors(page, {
+          getRoomApiMock,
+          getRoomFilesApiMock,
+          postParticipantNameCheckApiMock,
+          requestApiMock: getUsersSearchApiMock,
+          roomTabName: "settings",
+          triggerRequestActions: async (page) => {
             const dialog = page.getByTestId("room-transfer-ownership-dialog");
             const dropdown = page.getByTestId("new-owner-dropdown");
 
@@ -2144,10 +2182,7 @@ test.describe("Rooms view settings", () => {
             await dropdown.click();
             await dropdown.locator("input").pressSequentially("L");
           },
-          "GET",
-          "**/api/v1/users/search?query=*",
-          "settings",
-        );
+        });
       });
 
       test.describe("with selected new owner", () => {
@@ -2264,20 +2299,31 @@ test.describe("Rooms view settings", () => {
         });
       });
 
-      test("handle auth errors on transfer", async ({ page }) => {
-        await checkRoomAuthErrors(
-          page,
-          async (page) => {
+      test("handle auth errors on transfer", async ({
+        page,
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        postParticipantNameCheckApiMock,
+      }) => {
+        await checkRoomAuthErrors(page, {
+          getRoomApiMock,
+          getRoomFilesApiMock,
+          postParticipantNameCheckApiMock,
+          requestApiMock: await mockApiRequest(
+            page,
+            "POST",
+            "rooms/abc-def-123/transfer",
+            { status: 401 },
+          ),
+          roomTabName: "settings",
+          triggerRequestActions: async (page) => {
             const dialog = page.getByTestId("room-transfer-ownership-dialog");
 
             await page.getByTestId("room-transfer-ownership-button").click();
             await expect(dialog).toBeVisible();
             await dialog.getByTestId("dialog-continue-button").click();
           },
-          "POST",
-          "api/v1/rooms/abc-def-123/transfer",
-          "settings",
-        );
+        });
       });
 
       test("redirect to room index if the room is not found", async ({

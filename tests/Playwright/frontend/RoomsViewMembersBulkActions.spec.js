@@ -1,5 +1,6 @@
 import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
 import { mergeTests } from "@playwright/test";
+import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
 import { test as roomControllerTest } from "../support/fixtures/roomController.js";
 import { test as roomFileControllerTest } from "../support/fixtures/roomFileController.js";
 import { test as roomMemberControllerTest } from "../support/fixtures/roomMemberController.js";
@@ -16,6 +17,7 @@ import { checkRoomAuthErrors } from "../support/room.js";
 
 const test = mergeTests(
   roomControllerTest,
+  participantNameCheckTest,
   roomFileControllerTest,
   roomMemberControllerTest,
   roomPersonalizedLinkControllerTest,
@@ -340,10 +342,24 @@ test.describe("Rooms view members bulk actions", () => {
       });
     });
 
-    test("handles auth errors", async ({ page }) => {
-      await checkRoomAuthErrors(
-        page,
-        async (page) => {
+    test("handles auth errors", async ({
+      page,
+      getRoomApiMock,
+      getRoomFilesApiMock,
+      postParticipantNameCheckApiMock,
+    }) => {
+      await checkRoomAuthErrors(page, {
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        postParticipantNameCheckApiMock,
+        requestApiMock: await mockApiRequest(
+          page,
+          "PUT",
+          "rooms/abc-def-123/member/bulk",
+          { status: 401 },
+        ),
+        roomTabName: "members",
+        triggerRequestActions: async (page) => {
           await page
             .getByTestId("room-members-select-all-checkbox")
             .locator("input")
@@ -354,10 +370,7 @@ test.describe("Rooms view members bulk actions", () => {
           ).toBeVisible();
           await page.getByTestId("dialog-save-button").click();
         },
-        "PUT",
-        "api/v1/rooms/abc-def-123/member/bulk",
-        "members",
-      );
+      });
     });
 
     test("redirects to the room index page if the room is not found", async ({
@@ -608,10 +621,24 @@ test.describe("Rooms view members bulk actions", () => {
       });
     });
 
-    test("handles auth errors", async ({ page }) => {
-      await checkRoomAuthErrors(
-        page,
-        async (page) => {
+    test("handles auth errors", async ({
+      page,
+      getRoomApiMock,
+      getRoomFilesApiMock,
+      postParticipantNameCheckApiMock,
+    }) => {
+      await checkRoomAuthErrors(page, {
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        postParticipantNameCheckApiMock,
+        requestApiMock: await mockApiRequest(
+          page,
+          "DELETE",
+          "rooms/abc-def-123/member/bulk",
+          { status: 401 },
+        ),
+        roomTabName: "members",
+        triggerRequestActions: async (page) => {
           await page
             .getByTestId("room-members-select-all-checkbox")
             .locator("input")
@@ -622,10 +649,7 @@ test.describe("Rooms view members bulk actions", () => {
           ).toBeVisible();
           await page.getByTestId("dialog-continue-button").click();
         },
-        "DELETE",
-        "api/v1/rooms/abc-def-123/member/bulk",
-        "members",
-      );
+      });
     });
 
     test("redirects to the room index page if the room is not found", async ({
@@ -1298,10 +1322,24 @@ test.describe("Rooms view members bulk actions", () => {
       });
     });
 
-    test("handles auth errors", async ({ page }) => {
-      await checkRoomAuthErrors(
-        page,
-        async (page) => {
+    test("handles auth errors", async ({
+      page,
+      getRoomApiMock,
+      getRoomFilesApiMock,
+      postParticipantNameCheckApiMock,
+    }) => {
+      await checkRoomAuthErrors(page, {
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        postParticipantNameCheckApiMock,
+        requestApiMock: await mockApiRequest(
+          page,
+          "POST",
+          "rooms/abc-def-123/member/bulk",
+          { status: 401 },
+        ),
+        roomTabName: "members",
+        triggerRequestActions: async (page) => {
           await page.getByTestId("room-members-add-button").click();
           await expect(page.locator("#overlay_menu_1")).toHaveText(
             "rooms.members.bulk_import_users",
@@ -1313,10 +1351,7 @@ test.describe("Rooms view members bulk actions", () => {
           await page.locator("#user-emails").fill("\n");
           await page.getByTestId("dialog-continue-button").click();
         },
-        "POST",
-        "api/v1/rooms/abc-def-123/member/bulk",
-        "members",
-      );
+      });
     });
 
     test("redirects to the room index page if the room is not found", async ({

@@ -1,5 +1,6 @@
 import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
 import { mergeTests } from "@playwright/test";
+import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
 import { test as roomControllerTest } from "../support/fixtures/roomController.js";
 import { test as roomFileControllerTest } from "../support/fixtures/roomFileController.js";
 import { test as roomMemberControllerTest } from "../support/fixtures/roomMemberController.js";
@@ -17,6 +18,7 @@ import { checkRoomAuthErrors } from "../support/room.js";
 
 const test = mergeTests(
   roomControllerTest,
+  participantNameCheckTest,
   roomFileControllerTest,
   roomMemberControllerTest,
   roomPersonalizedLinkControllerTest,
@@ -465,10 +467,21 @@ test.describe("Rooms view members member actions", () => {
       ).toHaveCount(0);
     });
 
-    test("handles auth errors of the user search", async ({ page }) => {
-      await checkRoomAuthErrors(
-        page,
-        async (page) => {
+    test("handles auth errors of the user search", async ({
+      page,
+      getRoomApiMock,
+      getRoomFilesApiMock,
+      postParticipantNameCheckApiMock,
+    }) => {
+      await checkRoomAuthErrors(page, {
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        postParticipantNameCheckApiMock,
+        requestApiMock: await mockApiRequest(page, "GET", "users/search*", {
+          status: 401,
+        }),
+        roomTabName: "members",
+        triggerRequestActions: async (page) => {
           await page.getByTestId("room-members-add-button").click();
           await expect(page.locator("#overlay_menu_0")).toHaveText(
             "rooms.members.add_single_user",
@@ -483,16 +496,27 @@ test.describe("Rooms view members member actions", () => {
           await input.click();
           await input.pressSequentially("a");
         },
-        "GET",
-        "api/v1/users/search*",
-        "members",
-      );
+      });
     });
 
-    test("handles auth errors of the add request", async ({ page }) => {
-      await checkRoomAuthErrors(
-        page,
-        async (page) => {
+    test("handles auth errors of the add request", async ({
+      page,
+      getRoomApiMock,
+      getRoomFilesApiMock,
+      postParticipantNameCheckApiMock,
+    }) => {
+      await checkRoomAuthErrors(page, {
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        postParticipantNameCheckApiMock,
+        requestApiMock: await mockApiRequest(
+          page,
+          "POST",
+          "rooms/abc-def-123/member",
+          { status: 401 },
+        ),
+        roomTabName: "members",
+        triggerRequestActions: async (page) => {
           await page.getByTestId("room-members-add-button").click();
           await expect(page.locator("#overlay_menu_0")).toHaveText(
             "rooms.members.add_single_user",
@@ -503,10 +527,7 @@ test.describe("Rooms view members member actions", () => {
           ).toBeVisible();
           await page.getByTestId("dialog-save-button").click();
         },
-        "POST",
-        "api/v1/rooms/abc-def-123/member",
-        "members",
-      );
+      });
     });
 
     test("redirects to the room index page if the room is not found", async ({
@@ -713,10 +734,24 @@ test.describe("Rooms view members member actions", () => {
       await expect(dialog).toHaveCount(0);
     });
 
-    test("handles auth errors", async ({ page }) => {
-      await checkRoomAuthErrors(
-        page,
-        async (page) => {
+    test("handles auth errors", async ({
+      page,
+      getRoomApiMock,
+      getRoomFilesApiMock,
+      postParticipantNameCheckApiMock,
+    }) => {
+      await checkRoomAuthErrors(page, {
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        postParticipantNameCheckApiMock,
+        requestApiMock: await mockApiRequest(
+          page,
+          "PUT",
+          "rooms/abc-def-123/member/5",
+          { status: 401 },
+        ),
+        roomTabName: "members",
+        triggerRequestActions: async (page) => {
           await page
             .getByTestId("room-member-item")
             .first()
@@ -727,10 +762,7 @@ test.describe("Rooms view members member actions", () => {
           ).toBeVisible();
           await page.getByTestId("dialog-save-button").click();
         },
-        "PUT",
-        "api/v1/rooms/abc-def-123/member/5",
-        "members",
-      );
+      });
     });
 
     test("redirects to the room index page if the room is not found", async ({
@@ -890,10 +922,24 @@ test.describe("Rooms view members member actions", () => {
       );
     });
 
-    test("handles auth errors", async ({ page }) => {
-      await checkRoomAuthErrors(
-        page,
-        async (page) => {
+    test("handles auth errors", async ({
+      page,
+      getRoomApiMock,
+      getRoomFilesApiMock,
+      postParticipantNameCheckApiMock,
+    }) => {
+      await checkRoomAuthErrors(page, {
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        postParticipantNameCheckApiMock,
+        requestApiMock: await mockApiRequest(
+          page,
+          "DELETE",
+          "rooms/abc-def-123/member/5",
+          { status: 401 },
+        ),
+        roomTabName: "members",
+        triggerRequestActions: async (page) => {
           await page
             .getByTestId("room-member-item")
             .first()
@@ -904,10 +950,7 @@ test.describe("Rooms view members member actions", () => {
           ).toBeVisible();
           await page.getByTestId("dialog-continue-button").click();
         },
-        "DELETE",
-        "api/v1/rooms/abc-def-123/member/5",
-        "members",
-      );
+      });
     });
 
     test("redirects to the room index page if the room is not found", async ({

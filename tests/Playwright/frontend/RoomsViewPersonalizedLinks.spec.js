@@ -396,13 +396,20 @@ test.describe("Rooms view personalized links", () => {
       );
     });
 
-    test("handles auth errors when loading the tab", async ({ page }) => {
-      await checkRoomAuthErrorsLoadingTab(
-        page,
-        "GET",
-        "api/v1/rooms/abc-def-123/personalizedLinks*",
-        "tokens",
-      );
+    test("handles auth errors when loading the tab", async ({
+      page,
+      getRoomApiMock,
+      getRoomFilesApiMock,
+      postParticipantNameCheckApiMock,
+      getRoomPersonalizedLinksApiMock,
+    }) => {
+      await checkRoomAuthErrorsLoadingTab(page, {
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        postParticipantNameCheckApiMock,
+        requestApiMock: getRoomPersonalizedLinksApiMock,
+        roomTabName: "tokens",
+      });
     });
 
     test("redirects to the room index page if the room is not found", async ({

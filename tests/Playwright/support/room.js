@@ -1,15 +1,5 @@
 import { expect, expectToastAndClose } from "./test.js";
-import {
-  forbidden,
-  getRequestQuery,
-  mockApiRequest,
-  readFixture,
-} from "./utils.js";
-
-const ROOM_URL = "rooms/abc-def-123";
-const ROOM_FILES_URL = "rooms/abc-def-123/files*";
-const ROOM_RECORDINGS_URL = "rooms/abc-def-123/recordings*";
-const PARTICIPANT_NAME_CHECK_URL = "participantName/check";
+import { forbidden, getRequestQuery, readFixture } from "./utils.js";
 
 /**
  * Select a filter dropdown option by index.
@@ -81,95 +71,29 @@ export function expectNoAuthToken(request) {
 }
 
 /**
- * The helpers get the url of a request as glob with or without `**\/api/v1/`, `mockApiRequest` wants it relative to
- * `api/v1/`.
+ * Answer for `getRoomApiMock` with a fresh copy of the room fixture (`room.json`), changed by `mutate`.
+ * @param {(room: any) => void} [mutate]
  */
-function toApiPath(url) {
-  return typeof url === "string" ? url.replace(/^(\*\*\/)?api\/v1\//, "") : url;
-}
-
-/**
- * Mock all requests of the given method and url (`mockApiRequest`). The returned state counts the requests that reached
- * this mock.
- * @returns {{ count: number }}
- */
-async function mockRequest(page, method, url, response) {
-  const mock = await mockApiRequest(page, method, toApiPath(url), response);
-  return {
-    get count() {
-      return mock.requests.length;
-    },
-  };
-}
-
-/**
- * Mock the room request with the room fixture, optionally changed by `mutate`.
- */
-async function mockRoom(page, mutate = () => {}) {
+function roomFixtureResponse(mutate = () => {}) {
   const room = readFixture("room.json");
   mutate(room);
-  return mockRequest(page, "GET", ROOM_URL, { status: 200, json: room });
-}
-
-/**
- * Mock the room request with an error response.
- */
-function mockRoomError(page, status, body) {
-  return mockRequest(page, "GET", ROOM_URL, { status, json: body });
-}
-
-/**
- * Hold the requests until `sendResponse()` is called, which answers them.
- */
-async function holdRequest(page, method, url, response) {
-  const mock = await mockApiRequest(page, method, toApiPath(url), {
-    ...response,
-    hold: true,
-  });
-  return {
-    state: {
-      get count() {
-        return mock.requests.length;
-      },
-    },
-    // a held request that was aborted by a reload is never answered, `release` only waits for the live ones
-    sendResponse: () => mock.release(),
-  };
-}
-
-/**
- * Wait until the mock has received more requests than `countBefore`.
- */
-async function expectRequestsAfter(state, countBefore = 0) {
-  await expect.poll(() => state.count).toBeGreaterThan(countBefore);
-}
-
-async function expectUrlIncludes(page, text) {
-  await expect(page).toHaveURL((url) => url.href.includes(text));
-}
-
-async function expectUrlNotIncludes(page, text) {
-  await expect(page).toHaveURL((url) => !url.href.includes(text));
-}
-
-async function expectLoginLink(page) {
-  await expect(page.getByText("auth.login").first()).toBeVisible();
+  return { json: room };
 }
 
 /**
  * Enter the guest name in the room access overlay and login as guest
+ * @param {import("@playwright/test").Page} page
+ * @param {import("./utils.js").ApiMock} postParticipantNameCheckApiMock
  */
-async function loginAsGuest(page) {
+async function loginAsGuest(page, postParticipantNameCheckApiMock) {
   await expect(page.getByTestId("room-access-overlay")).toBeVisible();
   await page.locator("#participant-name").fill("Max Doe");
 
-  const check = await mockRequest(page, "POST", PARTICIPANT_NAME_CHECK_URL, {
-    status: 204,
-  });
+  const check = postParticipantNameCheckApiMock.respondWith({ status: 204 });
 
   await page.getByTestId("room-login-button").click();
 
-  await expectRequestsAfter(check);
+  await check.waitForRequest();
 
   await expect(page.getByTestId("room-access-overlay")).toBeHidden();
 }
@@ -289,138 +213,153 @@ export async function checkCompareRoomSettingField(
 }
 
 /**
+ * @typedef {object} RoomAuthErrorMocks The handles the room auth error checks change.
+ * @property {import("./utils.js").ApiMock} getRoomApiMock
+ * @property {import("./utils.js").ApiMock} getRoomFilesApiMock
+ * @property {import("./utils.js").ApiMock} postParticipantNameCheckApiMock
+ * @property {import("./utils.js").ApiMock} requestApiMock The request that is checked: a fixture handle, or a mock of
+ *   `mockApiRequest` for endpoints without a fixture.
+ */
+
+/**
  * Check that the auth errors are handled correctly when loading a room tab.
- * The request is a Playwright url glob, e.g. `**\/api/v1/rooms/abc-def-123/meetings*` (a leading `**\/` is optional).
  * @param {import("@playwright/test").Page} page
- * @param {string} requestMethod
- * @param {string} requestUrl
- * @param {string} roomTabName
+ * @param {RoomAuthErrorMocks & { roomTabName: string }} options
  */
 export async function checkRoomAuthErrorsLoadingTab(
   page,
-  requestMethod,
-  requestUrl,
-  roomTabName,
+  {
+    getRoomApiMock,
+    getRoomFilesApiMock,
+    postParticipantNameCheckApiMock,
+    requestApiMock,
+    roomTabName,
+  },
 ) {
-  const roomFiles = await mockRequest(page, "GET", ROOM_FILES_URL, {
+  const roomFiles = getRoomFilesApiMock.respondWith({
     path: "tests/Playwright/fixtures/roomFiles.json",
   });
-  await mockRoom(page);
+  getRoomApiMock.respondWith(roomFixtureResponse());
 
   // Check with 401 error and room that has no access code
-  let held = await holdRequest(page, requestMethod, requestUrl, {
-    status: 401,
-  });
+  let held = requestApiMock.respondWith({ status: 401, hold: true });
 
   await page.goto("/rooms/abc-def-123#tab=" + roomTabName);
-  await expectRequestsAfter(held.state);
+  await held.waitForRequest();
   await page.reload();
   // The tab is only requested after the room is loaded: wait for the request of the reloaded page, so the room of the
   // reloaded page is still answered with the logged in user
-  await expectRequestsAfter(held.state, 1);
+  await held.waitForRequest(2);
 
-  let room = await mockRoom(page, (data) => {
-    data.data.current_user = null;
-  });
-  await held.sendResponse();
+  let room = getRoomApiMock.respondWith(
+    roomFixtureResponse((data) => {
+      data.data.current_user = null;
+    }),
+  );
+  // a held request that was aborted by the reload is never answered, `release` only waits for the live ones
+  await held.release();
 
   // Check that room gets reloaded
-  await expectRequestsAfter(room);
+  await room.waitForRequest();
 
   // Enter guest name
-  await loginAsGuest(page);
+  await loginAsGuest(page, postParticipantNameCheckApiMock);
 
   // Check that file tab is shown
-  await expectRequestsAfter(roomFiles);
+  await roomFiles.waitForRequest();
 
-  await expectUrlNotIncludes(page, "#tab=" + roomTabName);
+  await expect(page).not.toHaveURL(new RegExp("#tab=" + roomTabName));
 
   // Check that toast message is shown and user is logged out
   await expectToastAndClose(page, "app.flash.unauthenticated");
-  await expectLoginLink(page);
+  await expect(page.getByText("auth.login").first()).toBeVisible();
 
   // Reload with logged in user
-  room = await mockRoom(page);
-  const filesCountBeforeReload = roomFiles.count;
+  room = getRoomApiMock.respondWith(roomFixtureResponse());
+  const filesCountBeforeReload = roomFiles.requests.length;
 
   await page.goto("/rooms/abc-def-123#tab=files");
   await page.reload();
 
-  await expectRequestsAfter(room);
-  await expectRequestsAfter(roomFiles, filesCountBeforeReload);
+  await room.waitForRequest();
+  await roomFiles.waitForRequest(filesCountBeforeReload + 1);
 
   // Check with 401 errors but room has an access code
-  room = await mockRoom(page, (data) => {
-    data.data.current_user = null;
-    data.data.authenticated = false;
-  });
+  room = getRoomApiMock.respondWith(
+    roomFixtureResponse((data) => {
+      data.data.current_user = null;
+      data.data.authenticated = false;
+    }),
+  );
 
-  const requestCountBefore = held.state.count;
+  const requestCountBefore = held.requests.length;
   await page.locator("#tab-" + roomTabName).click();
 
-  await expectRequestsAfter(held.state, requestCountBefore);
+  await held.waitForRequest(requestCountBefore + 1);
 
   // Check that room gets reloaded
-  await expectRequestsAfter(room);
+  await room.waitForRequest();
 
   // Check that access code overlay is shown
   await expect(page.getByTestId("room-access-overlay")).toBeVisible();
 
   // Check that error message is shown
   await expectToastAndClose(page, "app.flash.unauthenticated");
-  await expectLoginLink(page);
+  await expect(page.getByText("auth.login").first()).toBeVisible();
 
   // Check with 401 error but guests are forbidden
   // Reload with logged in user
-  room = await mockRoom(page);
+  room = getRoomApiMock.respondWith(roomFixtureResponse());
 
-  held = await holdRequest(page, requestMethod, requestUrl, { status: 401 });
+  held = requestApiMock.respondWith({ status: 401, hold: true });
 
   await page.reload();
-  await expectRequestsAfter(room);
+  await room.waitForRequest();
 
-  room = await mockRoomError(page, 403, { message: "guests_not_allowed" });
-  await held.sendResponse();
+  room = getRoomApiMock.respondWith({
+    status: 403,
+    json: { message: "guests_not_allowed" },
+  });
+  await held.release();
 
-  await expectRequestsAfter(room);
+  await room.waitForRequest();
 
   await expect(
     page.getByText("rooms.only_used_by_authenticated_users").first(),
   ).toBeVisible();
   await expectToastAndClose(page, "app.flash.unauthenticated");
-  await expectLoginLink(page);
+  await expect(page.getByText("auth.login").first()).toBeVisible();
 
   // Check with 403 error
   // Reload with logged in user
   await page.evaluate(() => window.sessionStorage.clear());
 
-  room = await mockRoom(page);
+  room = getRoomApiMock.respondWith(roomFixtureResponse());
 
-  held = await holdRequest(
-    page,
-    requestMethod,
-    requestUrl,
-    forbidden("This action is unauthorized."),
+  held = requestApiMock.respondWith(
+    forbidden("This action is unauthorized.", { hold: true }),
   );
 
   await page.reload();
-  await expectRequestsAfter(room);
+  await room.waitForRequest();
 
-  room = await mockRoom(page, (data) => {
-    data.data.owner = { id: 2, name: "Max Doe" };
-    data.data.is_member = true;
-  });
-  const filesBefore = roomFiles.count;
-  await held.sendResponse();
+  room = getRoomApiMock.respondWith(
+    roomFixtureResponse((data) => {
+      data.data.owner = { id: 2, name: "Max Doe" };
+      data.data.is_member = true;
+    }),
+  );
+  const filesBefore = roomFiles.requests.length;
+  await held.release();
 
   // Check that room gets reloaded
-  await expectRequestsAfter(room);
+  await room.waitForRequest();
 
   // Check that file tab is shown
-  await expectRequestsAfter(roomFiles, filesBefore);
+  await roomFiles.waitForRequest(filesBefore + 1);
 
-  await expectUrlNotIncludes(page, "#tab=" + roomTabName);
-  await expectUrlIncludes(page, "/rooms/abc-def-123#tab=files");
+  await expect(page).not.toHaveURL(new RegExp("#tab=" + roomTabName));
+  await expect(page).toHaveURL(/\/rooms\/abc-def-123#tab=files/);
 
   // Check that toast message is shown
   await expectToastAndClose(page, "app.flash.unauthorized");
@@ -428,27 +367,32 @@ export async function checkRoomAuthErrorsLoadingTab(
 
 /**
  * Check that the auth errors for room actions are handled correctly for the given request actions.
- * The request is a Playwright url glob, e.g. `**\/api/v1/rooms/abc-def-123/files` (a leading `**\/` is optional).
  * @param {import("@playwright/test").Page} page
- * @param {function(import("@playwright/test").Page): Promise<void>} triggerRequestActions
- * @param {string} requestMethod
- * @param {string} requestUrl
- * @param {string} roomTabName
+ * @param {RoomAuthErrorMocks & {
+ *   getRoomRecordingsApiMock?: import("./utils.js").ApiMock,
+ *   roomTabName: string,
+ *   triggerRequestActions: (page: import("@playwright/test").Page) => Promise<void>,
+ * }} options `getRoomRecordingsApiMock` is needed for the recordings tab
  */
 export async function checkRoomAuthErrors(
   page,
-  triggerRequestActions,
-  requestMethod,
-  requestUrl,
-  roomTabName,
+  {
+    getRoomApiMock,
+    getRoomFilesApiMock,
+    getRoomRecordingsApiMock,
+    postParticipantNameCheckApiMock,
+    requestApiMock,
+    roomTabName,
+    triggerRequestActions,
+  },
 ) {
-  const roomFiles = await mockRequest(page, "GET", ROOM_FILES_URL, {
+  const roomFiles = getRoomFilesApiMock.respondWith({
     path: "tests/Playwright/fixtures/roomFiles.json",
   });
 
   let roomRecordings;
   if (roomTabName === "recordings") {
-    roomRecordings = await mockRequest(page, "GET", ROOM_RECORDINGS_URL, {
+    roomRecordings = getRoomRecordingsApiMock.respondWith({
       path: "tests/Playwright/fixtures/roomRecordings.json",
     });
   }
@@ -460,72 +404,74 @@ export async function checkRoomAuthErrors(
   };
 
   const triggerAndWait = async (room, request) => {
-    const requestCountBefore = request.count;
+    const requestCountBefore = request.requests.length;
     await triggerRequestActions(page);
-    await expectRequestsAfter(request, requestCountBefore);
+    await request.waitForRequest(requestCountBefore + 1);
     // Check that room gets reloaded
-    await expectRequestsAfter(room);
+    await room.waitForRequest();
   };
 
   // Check with 401 errors and room that has no access code
-  let room = await mockRoom(page, (data) => {
-    data.data.current_user = null;
-    withDescription(data);
-  });
+  let room = getRoomApiMock.respondWith(
+    roomFixtureResponse((data) => {
+      data.data.current_user = null;
+      withDescription(data);
+    }),
+  );
 
-  let request = await mockRequest(page, requestMethod, requestUrl, {
-    status: 401,
-  });
+  let request = requestApiMock.respondWith({ status: 401 });
 
   await triggerAndWait(room, request);
 
   // Check that access overlay is shown and enter guest name
-  await loginAsGuest(page);
+  await loginAsGuest(page, postParticipantNameCheckApiMock);
 
   // Room gets reloaded after the login
-  await expect.poll(() => room.count).toBeGreaterThanOrEqual(2);
+  await room.waitForRequest(2);
 
   switch (roomTabName) {
     case "description":
       // Check that tab stayed the same
-      await expectUrlNotIncludes(page, "/rooms/abc-def-123#tab=files");
+      await expect(page).not.toHaveURL(/\/rooms\/abc-def-123#tab=files/);
       await expect(
         page.getByText("rooms.description.title").first(),
       ).toBeVisible();
       break;
     case "files":
       // Check reload of files and check that tab stayed the same
-      await expectRequestsAfter(roomFiles);
-      await expectUrlIncludes(page, "/rooms/abc-def-123#tab=files");
+      await roomFiles.waitForRequest();
+      await expect(page).toHaveURL(/\/rooms\/abc-def-123#tab=files/);
       break;
     case "recordings":
       // Check that tab stayed the same
-      await expectRequestsAfter(roomRecordings);
-      await expectUrlIncludes(page, "/rooms/abc-def-123#tab=recordings");
+      await roomRecordings.waitForRequest();
+      await expect(page).toHaveURL(/\/rooms\/abc-def-123#tab=recordings/);
       break;
     default:
       // Check that file tab is shown
-      await expectRequestsAfter(roomFiles);
-      await expectUrlNotIncludes(page, "#tab=" + roomTabName);
+      await roomFiles.waitForRequest();
+      await expect(page).not.toHaveURL(new RegExp("#tab=" + roomTabName));
   }
 
   // Check that toast message is shown and user is logged out
   await expectToastAndClose(page, "app.flash.unauthenticated");
-  await expectLoginLink(page);
+  await expect(page.getByText("auth.login").first()).toBeVisible();
 
   // Reload with logged in user
-  room = await mockRoom(page, withDescription);
+  room = getRoomApiMock.respondWith(roomFixtureResponse(withDescription));
 
   await page.goto("/rooms/abc-def-123#tab=" + roomTabName);
   await page.reload();
-  await expectRequestsAfter(room);
+  await room.waitForRequest();
 
   // Check with 401 errors but room has an access code
-  room = await mockRoom(page, (data) => {
-    data.data.current_user = null;
-    data.data.authenticated = false;
-    withDescription(data);
-  });
+  room = getRoomApiMock.respondWith(
+    roomFixtureResponse((data) => {
+      data.data.current_user = null;
+      data.data.authenticated = false;
+      withDescription(data);
+    }),
+  );
 
   await triggerAndWait(room, request);
 
@@ -534,16 +480,19 @@ export async function checkRoomAuthErrors(
 
   // Check that error message is shown and user is logged out
   await expectToastAndClose(page, "app.flash.unauthenticated");
-  await expectLoginLink(page);
+  await expect(page.getByText("auth.login").first()).toBeVisible();
 
   // Reload with logged in user
-  room = await mockRoom(page, withDescription);
+  room = getRoomApiMock.respondWith(roomFixtureResponse(withDescription));
 
   await page.reload();
-  await expectRequestsAfter(room);
+  await room.waitForRequest();
 
   // Check with 401 error but guests are forbidden
-  room = await mockRoomError(page, 403, { message: "guests_not_allowed" });
+  room = getRoomApiMock.respondWith({
+    status: 403,
+    json: { message: "guests_not_allowed" },
+  });
 
   await triggerAndWait(room, request);
 
@@ -552,37 +501,36 @@ export async function checkRoomAuthErrors(
     page.getByText("rooms.only_used_by_authenticated_users").first(),
   ).toBeVisible();
   await expectToastAndClose(page, "app.flash.unauthenticated");
-  await expectLoginLink(page);
+  await expect(page.getByText("auth.login").first()).toBeVisible();
 
   // Reload with logged in user
-  room = await mockRoom(page, withDescription);
+  room = getRoomApiMock.respondWith(roomFixtureResponse(withDescription));
 
   await page.reload();
-  await expectRequestsAfter(room);
+  await room.waitForRequest();
 
   // Check with 403 error
-  room = await mockRoom(page, (data) => {
-    data.data.owner = { id: 2, name: "Max Doe" };
-    data.data.is_member = true;
-    withDescription(data);
-  });
+  room = getRoomApiMock.respondWith(
+    roomFixtureResponse((data) => {
+      data.data.owner = { id: 2, name: "Max Doe" };
+      data.data.is_member = true;
+      withDescription(data);
+    }),
+  );
 
-  request = await mockRequest(
-    page,
-    requestMethod,
-    requestUrl,
+  request = requestApiMock.respondWith(
     forbidden("This action is unauthorized."),
   );
 
-  const filesBefore = roomFiles.count;
-  const recordingsBefore = roomRecordings?.count ?? 0;
+  const filesBefore = roomFiles.requests.length;
+  const recordingsBefore = roomRecordings?.requests.length ?? 0;
 
   await triggerAndWait(room, request);
 
   switch (roomTabName) {
     case "description":
       // Check that tab stayed the same
-      await expectUrlNotIncludes(page, "/rooms/abc-def-123#tab=files");
+      await expect(page).not.toHaveURL(/\/rooms\/abc-def-123#tab=files/);
       await expect(
         page.getByText("rooms.description.title").first(),
       ).toBeVisible();
@@ -594,19 +542,19 @@ export async function checkRoomAuthErrors(
       break;
     case "files":
       // Check reload of files and check that tab stayed the same
-      await expectRequestsAfter(roomFiles, filesBefore);
-      await expectUrlIncludes(page, "/rooms/abc-def-123#tab=files");
+      await roomFiles.waitForRequest(filesBefore + 1);
+      await expect(page).toHaveURL(/\/rooms\/abc-def-123#tab=files/);
       break;
     case "recordings":
       // Check that tab stayed the same
-      await expectRequestsAfter(roomRecordings, recordingsBefore);
-      await expectUrlIncludes(page, "/rooms/abc-def-123#tab=recordings");
+      await roomRecordings.waitForRequest(recordingsBefore + 1);
+      await expect(page).toHaveURL(/\/rooms\/abc-def-123#tab=recordings/);
       break;
     default:
       // Check that file tab is shown
-      await expectRequestsAfter(roomFiles, filesBefore);
-      await expectUrlNotIncludes(page, "#tab=" + roomTabName);
-      await expectUrlIncludes(page, "/rooms/abc-def-123#tab=files");
+      await roomFiles.waitForRequest(filesBefore + 1);
+      await expect(page).not.toHaveURL(new RegExp("#tab=" + roomTabName));
+      await expect(page).toHaveURL(/\/rooms\/abc-def-123#tab=files/);
   }
 
   // Check that toast message is shown

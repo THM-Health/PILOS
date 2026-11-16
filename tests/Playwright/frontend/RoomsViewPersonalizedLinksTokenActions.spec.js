@@ -1,5 +1,6 @@
 import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
 import { mergeTests } from "@playwright/test";
+import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
 import { test as roomControllerTest } from "../support/fixtures/roomController.js";
 import { test as roomFileControllerTest } from "../support/fixtures/roomFileController.js";
 import { test as roomMemberControllerTest } from "../support/fixtures/roomMemberController.js";
@@ -16,6 +17,7 @@ import { checkRoomAuthErrors } from "../support/room.js";
 
 const test = mergeTests(
   roomControllerTest,
+  participantNameCheckTest,
   roomFileControllerTest,
   roomMemberControllerTest,
   roomPersonalizedLinkControllerTest,
@@ -220,15 +222,29 @@ test.describe("Rooms view personalized links token actions", () => {
         await expect(dialog).toHaveCount(0);
       });
 
-      test("handles auth errors", async ({ page }) => {
+      test("handles auth errors", async ({
+        page,
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        postParticipantNameCheckApiMock,
+      }) => {
         await page.getByTestId("dialog-cancel-button").click();
         await expect(
           page.getByTestId("room-personalized-links-add-dialog"),
         ).toHaveCount(0);
 
-        await checkRoomAuthErrors(
-          page,
-          async (page) => {
+        await checkRoomAuthErrors(page, {
+          getRoomApiMock,
+          getRoomFilesApiMock,
+          postParticipantNameCheckApiMock,
+          requestApiMock: await mockApiRequest(
+            page,
+            "POST",
+            "rooms/abc-def-123/personalizedLinks",
+            { status: 401 },
+          ),
+          roomTabName: "tokens",
+          triggerRequestActions: async (page) => {
             await page
               .getByTestId("room-personalized-links-add-button")
               .click();
@@ -237,10 +253,7 @@ test.describe("Rooms view personalized links token actions", () => {
             ).toBeVisible();
             await page.getByTestId("dialog-save-button").click();
           },
-          "POST",
-          "api/v1/rooms/abc-def-123/personalizedLinks",
-          "tokens",
-        );
+        });
       });
 
       test("redirects to the room index page if the room is not found", async ({
@@ -514,15 +527,29 @@ test.describe("Rooms view personalized links token actions", () => {
         await expect(dialog).toHaveCount(0);
       });
 
-      test("handles auth errors", async ({ page }) => {
+      test("handles auth errors", async ({
+        page,
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        postParticipantNameCheckApiMock,
+      }) => {
         await page.getByTestId("dialog-cancel-button").click();
         await expect(
           page.getByTestId("room-personalized-links-edit-dialog"),
         ).toHaveCount(0);
 
-        await checkRoomAuthErrors(
-          page,
-          async (page) => {
+        await checkRoomAuthErrors(page, {
+          getRoomApiMock,
+          getRoomFilesApiMock,
+          postParticipantNameCheckApiMock,
+          requestApiMock: await mockApiRequest(
+            page,
+            "PUT",
+            "rooms/abc-def-123/personalizedLinks/1",
+            { status: 401 },
+          ),
+          roomTabName: "tokens",
+          triggerRequestActions: async (page) => {
             await page
               .getByTestId("room-personalized-link-item")
               .nth(0)
@@ -533,10 +560,7 @@ test.describe("Rooms view personalized links token actions", () => {
             ).toBeVisible();
             await page.getByTestId("dialog-save-button").click();
           },
-          "PUT",
-          "api/v1/rooms/abc-def-123/personalizedLinks/1",
-          "tokens",
-        );
+        });
       });
 
       test("redirects to the room index page if the room is not found", async ({
@@ -706,15 +730,29 @@ test.describe("Rooms view personalized links token actions", () => {
         ).toHaveCount(0);
       });
 
-      test("handles auth errors", async ({ page }) => {
+      test("handles auth errors", async ({
+        page,
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        postParticipantNameCheckApiMock,
+      }) => {
         await page.getByTestId("dialog-cancel-button").click();
         await expect(
           page.getByTestId("room-personalized-links-delete-dialog"),
         ).toHaveCount(0);
 
-        await checkRoomAuthErrors(
-          page,
-          async (page) => {
+        await checkRoomAuthErrors(page, {
+          getRoomApiMock,
+          getRoomFilesApiMock,
+          postParticipantNameCheckApiMock,
+          requestApiMock: await mockApiRequest(
+            page,
+            "DELETE",
+            "rooms/abc-def-123/personalizedLinks/1",
+            { status: 401 },
+          ),
+          roomTabName: "tokens",
+          triggerRequestActions: async (page) => {
             await page
               .getByTestId("room-personalized-link-item")
               .nth(0)
@@ -725,10 +763,7 @@ test.describe("Rooms view personalized links token actions", () => {
             ).toBeVisible();
             await page.getByTestId("dialog-continue-button").click();
           },
-          "DELETE",
-          "api/v1/rooms/abc-def-123/personalizedLinks/1",
-          "tokens",
-        );
+        });
       });
 
       test("redirects to the room index page if the room is not found", async ({

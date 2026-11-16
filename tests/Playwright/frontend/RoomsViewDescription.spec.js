@@ -1,5 +1,6 @@
 import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
 import { mergeTests } from "@playwright/test";
+import { test as roomFileControllerTest } from "../support/fixtures/roomFileController.js";
 import { test as roomControllerTest } from "../support/fixtures/roomController.js";
 import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
 import { expect, expectToastAndClose } from "../support/test.js";
@@ -19,6 +20,7 @@ import {
 
 const test = mergeTests(
   roomControllerTest,
+  roomFileControllerTest,
   participantNameCheckTest,
   roomTypeControllerTest,
 );
@@ -428,21 +430,32 @@ test.describe("Rooms view description", () => {
       await expect(page.getByTestId("tip-tap-editor")).toHaveCount(0);
     });
 
-    test("auth errors", async ({ page }) => {
+    test("auth errors", async ({
+      page,
+      getRoomApiMock,
+      getRoomFilesApiMock,
+      postParticipantNameCheckApiMock,
+    }) => {
       await page.getByTestId("room-description-cancel-edit-button").click();
       await expect(page.getByTestId("tip-tap-editor")).toHaveCount(0);
 
-      await checkRoomAuthErrors(
-        page,
-        async (page) => {
+      await checkRoomAuthErrors(page, {
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        postParticipantNameCheckApiMock,
+        requestApiMock: await mockApiRequest(
+          page,
+          "PUT",
+          "rooms/abc-def-123/description",
+          { status: 401 },
+        ),
+        roomTabName: "description",
+        triggerRequestActions: async (page) => {
           await page.getByTestId("room-description-edit-button").click();
           await expect(page.getByTestId("tip-tap-editor")).toBeVisible();
           await page.getByTestId("room-description-save-button").click();
         },
-        "PUT",
-        "api/v1/rooms/abc-def-123/description",
-        "description",
-      );
+      });
     });
 
     test("404 error redirects to room index", async ({ page }) => {

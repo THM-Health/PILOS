@@ -1,4 +1,5 @@
 import { mergeTests } from "@playwright/test";
+import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
 import { test as roomControllerTest } from "../support/fixtures/roomController.js";
 import { test as roomFileControllerTest } from "../support/fixtures/roomFileController.js";
 import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
@@ -14,6 +15,7 @@ import { serverError } from "../support/utils.js";
 
 const test = mergeTests(
   roomControllerTest,
+  participantNameCheckTest,
   roomFileControllerTest,
   roomTypeControllerTest,
   userControllerTest,
@@ -2040,21 +2042,26 @@ test.describe("Rooms view settings room type actions", () => {
 
     test("handles auth errors when loading the room types", async ({
       page,
+      getRoomApiMock,
+      getRoomFilesApiMock,
+      postParticipantNameCheckApiMock,
+      getRoomTypesApiMock,
     }) => {
       await page.goto("/rooms/abc-def-123#tab=settings");
       await expect(page.locator("#room-setting-room_type")).toHaveValue(
         "Meeting",
       );
 
-      await checkRoomAuthErrors(
-        page,
-        async (page) => {
+      await checkRoomAuthErrors(page, {
+        getRoomApiMock,
+        getRoomFilesApiMock,
+        postParticipantNameCheckApiMock,
+        requestApiMock: getRoomTypesApiMock,
+        roomTabName: "settings",
+        triggerRequestActions: async (page) => {
           await page.getByTestId("room-type-change-button").click();
         },
-        "GET",
-        "api/v1/roomTypes*",
-        "settings",
-      );
+      });
     });
   });
 });
