@@ -2,10 +2,7 @@ import { mergeTests } from "@playwright/test";
 import { test as roleControllerTest } from "../support/fixtures/roleController.js";
 import { test as permissionControllerTest } from "../support/fixtures/permissionController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import {
-  checkRoomLimitHelpDialog,
-  expectAdminBreadcrumbs,
-} from "../support/admin.js";
+import { expectAdminBreadcrumbs } from "../support/admin.js";
 import {
   testVisitWithoutCurrentUser,
   expectLoginRedirect,
@@ -110,16 +107,6 @@ test.describe("Admin roles new", () => {
       await expect(customField.locator("#custom")).toBeEnabled();
 
       await expect(page.locator("#room-limit")).toHaveCount(0);
-    });
-
-    test("room limit help dialog", async ({ page }) => {
-      await expect(
-        page.getByTestId("roles-room-limit-help-dialog"),
-      ).toBeHidden();
-
-      await page.getByTestId("roles-room-limit-help-button").click();
-
-      await checkRoomLimitHelpDialog(page);
     });
 
     test("custom room limit shows input with initial value 0", async ({

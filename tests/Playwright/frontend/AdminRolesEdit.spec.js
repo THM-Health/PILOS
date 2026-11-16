@@ -11,7 +11,6 @@ import {
 } from "../support/utils.js";
 import {
   checkPermissionGroup,
-  checkRoomLimitHelpDialog,
   expectAdminBreadcrumbs,
 } from "../support/admin.js";
 import {
@@ -74,6 +73,9 @@ test.describe("Admin roles edit", () => {
       await expect(page.getByTestId("roles-cancel-edit-button")).toHaveCount(0);
       await expect(page.getByTestId("roles-edit-button")).toHaveCount(0);
       await expect(page.getByTestId("roles-delete-button")).toHaveCount(0);
+      await expect(
+        page.getByTestId("roles-room-limit-help-button"),
+      ).toBeDisabled();
 
       getRoleApiMock.release();
 
@@ -205,23 +207,6 @@ test.describe("Admin roles edit", () => {
       await expect(page.locator("#default")).not.toBeChecked();
       await expect(page.locator("#custom")).not.toBeChecked();
       await expect(page.locator("#room-limit")).toHaveCount(0);
-    });
-
-    test("room limit help dialog", async ({ page }) => {
-      await page.goto("/admin/roles/2/edit");
-      await expect(page.locator("#name")).toHaveValue("Staff");
-
-      await expect(
-        page.getByTestId("roles-room-limit-help-dialog"),
-      ).toHaveCount(0);
-
-      await page.getByTestId("roles-room-limit-help-button").click();
-
-      await checkRoomLimitHelpDialog(page);
-
-      await expect(
-        page.getByTestId("roles-room-limit-help-dialog"),
-      ).toHaveCount(0);
     });
 
     test("loaded role with unlimited room limit", async ({
@@ -1345,6 +1330,9 @@ test.describe("Admin roles edit", () => {
       await expect(page.locator("#unlimited")).toBeDisabled();
       await expect(page.locator("#custom")).toBeDisabled();
       await expect(page.locator("#room-limit")).toHaveCount(0);
+      await expect(
+        page.getByTestId("roles-room-limit-help-button"),
+      ).toBeDisabled();
 
       // Permission list is not shown while saving
       await expect(page.getByTestId("permission-group")).toHaveCount(0);
@@ -1937,6 +1925,9 @@ test.describe("Admin roles edit", () => {
       await expect(page.getByTestId("roles-delete-button")).toHaveCount(0);
       await expect(page.getByTestId("roles-save-button")).toBeVisible();
       await expect(page.getByTestId("roles-save-button")).toBeDisabled();
+      await expect(
+        page.getByTestId("roles-room-limit-help-button"),
+      ).toBeDisabled();
 
       // Reload with correct data
       const getRoleRequestsAfterChange = getRoleApiMock.respondWith({
@@ -1991,6 +1982,9 @@ test.describe("Admin roles edit", () => {
         'app.flash.server_error.message_{"message":"Test"}',
         'app.flash.server_error.error_code_{"statusCode":500}',
       ]);
+      await expect(
+        page.getByTestId("roles-room-limit-help-button"),
+      ).toBeDisabled();
 
       // Reload with correct data
       const getRoleRequestsAfterChange = getRoleApiMock.respondWith({

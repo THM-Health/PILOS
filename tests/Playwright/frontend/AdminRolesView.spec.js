@@ -4,7 +4,6 @@ import { test as permissionControllerTest } from "../support/fixtures/permission
 import { expect, expectToastAndClose } from "../support/test.js";
 import {
   checkPermissionGroup,
-  checkRoomLimitHelpDialog,
   expectAdminBreadcrumbs,
 } from "../support/admin.js";
 import {
@@ -209,10 +208,53 @@ test.describe("Admin roles view", () => {
 
       await page.getByTestId("roles-room-limit-help-button").click();
 
-      await checkRoomLimitHelpDialog(page);
-      await expect(
-        page.getByTestId("roles-room-limit-help-dialog"),
-      ).toHaveCount(0);
+      const dialog = page.getByTestId("roles-room-limit-help-dialog");
+      await expect(dialog).toBeVisible();
+      await expect(dialog).toContainText("app.room_limit");
+      await expect(dialog).toContainText(
+        "admin.roles.room_limit.help_modal.info",
+      );
+      await expect(dialog).toContainText(
+        "admin.roles.room_limit.help_modal.examples",
+      );
+      await expect(dialog).toContainText(
+        "admin.roles.room_limit.help_modal.note",
+      );
+
+      const rows = dialog.locator("tr");
+      await expect(rows).toHaveCount(8);
+      await expect(rows.nth(0).locator("th")).toHaveText([
+        "admin.roles.room_limit.help_modal.system_default",
+        "admin.roles.room_limit.help_modal.role_a",
+        "admin.roles.room_limit.help_modal.role_b",
+        "app.room_limit",
+      ]);
+      const systemDefault = "admin.roles.room_limit.help_modal.system_default";
+      await expect(rows.nth(1).locator("td")).toHaveText(["5", "X", "X", "5"]);
+      await expect(rows.nth(2).locator("td")).toHaveText(["1", "5", "X", "5"]);
+      await expect(rows.nth(3).locator("td")).toHaveText(["5", "1", "X", "1"]);
+      await expect(rows.nth(4).locator("td")).toHaveText(["5", "1", "2", "2"]);
+      await expect(rows.nth(5).locator("td")).toHaveText([
+        "5",
+        systemDefault,
+        "2",
+        "5",
+      ]);
+      await expect(rows.nth(6).locator("td")).toHaveText([
+        "5",
+        systemDefault,
+        "10",
+        "10",
+      ]);
+      await expect(rows.nth(7).locator("td")).toHaveText([
+        "5",
+        "app.unlimited",
+        "2",
+        "app.unlimited",
+      ]);
+
+      await dialog.getByTestId("dialog-header-close-button").click();
+      await expect(dialog).toHaveCount(0);
     });
 
     test("permission list header", async ({ page }) => {

@@ -101,62 +101,6 @@ export async function checkPermissionGroup(
 }
 
 /**
- * Check if the room limit help dialog is shown correctly and close it.
- * @param {import('@playwright/test').Page} page
- * @returns {Promise<void>}
- */
-export async function checkRoomLimitHelpDialog(page) {
-  const dialog = page.getByTestId("roles-room-limit-help-dialog");
-  await expect(dialog).toBeVisible();
-  await expect(dialog).toContainText("app.room_limit");
-  await expect(dialog).toContainText("admin.roles.room_limit.help_modal.info");
-  await expect(dialog).toContainText(
-    "admin.roles.room_limit.help_modal.examples",
-  );
-  await expect(dialog).toContainText("admin.roles.room_limit.help_modal.note");
-
-  // Check that table is shown correctly
-  const rows = dialog.locator("tr");
-  await expect(rows).toHaveCount(8);
-
-  const headers = rows.nth(0).locator("th");
-  await expect(headers).toHaveCount(4);
-  await expect(headers.nth(0)).toContainText(
-    "admin.roles.room_limit.help_modal.system_default",
-  );
-  await expect(headers.nth(1)).toContainText(
-    "admin.roles.room_limit.help_modal.role_a",
-  );
-  await expect(headers.nth(2)).toContainText(
-    "admin.roles.room_limit.help_modal.role_b",
-  );
-  await expect(headers.nth(3)).toContainText("app.room_limit");
-
-  const systemDefault = "admin.roles.room_limit.help_modal.system_default";
-  const expectedRows = [
-    ["5", "X", "X", "5"],
-    ["1", "5", "X", "5"],
-    ["5", "1", "X", "1"],
-    ["5", "1", "2", "2"],
-    ["5", systemDefault, "2", "5"],
-    ["5", systemDefault, "10", "10"],
-    ["5", "app.unlimited", "2", "app.unlimited"],
-  ];
-
-  for (const [rowIndex, expectedCells] of expectedRows.entries()) {
-    const cells = rows.nth(rowIndex + 1).locator("td");
-    await expect(cells).toHaveCount(4);
-    for (const [cellIndex, expectedText] of expectedCells.entries()) {
-      await expect(cells.nth(cellIndex)).toContainText(expectedText);
-    }
-  }
-
-  // Close room limit help dialog
-  await dialog.getByTestId("dialog-header-close-button").click();
-  await expect(dialog).toBeHidden();
-}
-
-/**
  * Check if a field for the default room settings inside the room type form is displayed correctly.
  * @param {import('@playwright/test').Page} page
  * @param {string} field
