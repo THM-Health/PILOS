@@ -7,7 +7,7 @@ import { expect, expectToastAndClose } from "../support/test.js";
 
 import {
   expectLoginRedirect,
-  testVisitWithoutCurrentUser,
+  testVisitAsUnauthenticated,
 } from "../support/general.js";
 import { expectAdminBreadcrumbs } from "../support/admin.js";
 import { serverError, modelNotFound } from "../support/utils.js";
@@ -35,7 +35,7 @@ test.describe("Admin users edit", () => {
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
-    await testVisitWithoutCurrentUser(page, "/admin/users/2/edit");
+    await testVisitAsUnauthenticated(page, "/admin/users/2/edit");
   });
 
   test("visit with user without permission to edit users", async ({

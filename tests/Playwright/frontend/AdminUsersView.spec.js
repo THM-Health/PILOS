@@ -6,7 +6,7 @@ import { test as sessionControllerTest } from "../support/fixtures/sessionContro
 import { expect, expectToastAndClose } from "../support/test.js";
 import {
   expectLoginRedirect,
-  testVisitWithoutCurrentUser,
+  testVisitAsUnauthenticated,
 } from "../support/general.js";
 import { serverError, modelNotFound } from "../support/utils.js";
 
@@ -32,7 +32,7 @@ test.describe("Admin users view", () => {
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
-    await testVisitWithoutCurrentUser(page, "/admin/users/");
+    await testVisitAsUnauthenticated(page, "/admin/users/");
   });
 
   test("visit with user without permission to view users", async ({

@@ -1,7 +1,7 @@
 import { test } from "../support/fixtures/serverController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import {
-  testVisitWithoutCurrentUser,
+  testVisitAsUnauthenticated,
   expectLoginRedirect,
 } from "../support/general.js";
 import { expectAdminBreadcrumbs } from "../support/admin.js";
@@ -20,7 +20,7 @@ test.describe("Admin servers index", () => {
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
-    await testVisitWithoutCurrentUser(page, "/admin/servers");
+    await testVisitAsUnauthenticated(page, "/admin/servers");
   });
 
   test("visit with user without permission to view servers", async ({

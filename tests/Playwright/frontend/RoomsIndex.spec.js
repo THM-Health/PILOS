@@ -3,7 +3,7 @@ import { test as roomControllerTest } from "../support/fixtures/roomController.j
 import { test as roomTypeControllerTest } from "../support/fixtures/roomTypeController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import {
-  testVisitWithoutCurrentUser,
+  testVisitAsUnauthenticated,
   expectLoginRedirect,
 } from "../support/general.js";
 import {
@@ -21,7 +21,7 @@ test.use({ authenticated: true });
 
 test.describe("Rooms index", () => {
   test("visit with user that is not logged in", async ({ page }) => {
-    await testVisitWithoutCurrentUser(page, "/rooms");
+    await testVisitAsUnauthenticated(page, "/rooms");
   });
 
   test.describe("list of rooms", () => {

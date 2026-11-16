@@ -9,7 +9,7 @@ import { expect, expectToastAndClose } from "../support/test.js";
 
 import {
   expectLoginRedirect,
-  testVisitWithoutCurrentUser,
+  testVisitAsUnauthenticated,
 } from "../support/general.js";
 import { serverError } from "../support/utils.js";
 
@@ -26,7 +26,7 @@ test.use({ authenticated: true });
 
 test.describe("User profile", () => {
   test("visit with user that is not logged in", async ({ page }) => {
-    await testVisitWithoutCurrentUser(page, "/profile");
+    await testVisitAsUnauthenticated(page, "/profile");
   });
 
   test("open user profile from the navbar and show it after loading", async ({

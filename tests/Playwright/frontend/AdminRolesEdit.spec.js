@@ -14,7 +14,7 @@ import {
   expectAdminBreadcrumbs,
 } from "../support/admin.js";
 import {
-  testVisitWithoutCurrentUser,
+  testVisitAsUnauthenticated,
   expectLoginRedirect,
 } from "../support/general.js";
 
@@ -35,7 +35,7 @@ test.describe("Admin roles edit", () => {
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
-    await testVisitWithoutCurrentUser(page, "/admin/roles/2/edit");
+    await testVisitAsUnauthenticated(page, "/admin/roles/2/edit");
   });
 
   test("visit with user without permission to edit roles", async ({

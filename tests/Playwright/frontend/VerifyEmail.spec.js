@@ -1,7 +1,7 @@
 import { test } from "../support/fixtures/authGeneral.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import {
-  testVisitWithoutCurrentUser,
+  testVisitAsUnauthenticated,
   expectLoginRedirect,
 } from "../support/general.js";
 import {
@@ -29,7 +29,7 @@ test("redirect to 404 with local auth disabled", async ({
 });
 
 test("redirect to login if not logged in", async ({ page }) => {
-  await testVisitWithoutCurrentUser(page, "/verify_email");
+  await testVisitAsUnauthenticated(page, "/verify_email");
 });
 
 test.describe("verify email", () => {

@@ -7,7 +7,7 @@ import {
   expectAdminBreadcrumbs,
 } from "../support/admin.js";
 import {
-  testVisitWithoutCurrentUser,
+  testVisitAsUnauthenticated,
   expectLoginRedirect,
 } from "../support/general.js";
 import { serverError, modelNotFound } from "../support/utils.js";
@@ -26,7 +26,7 @@ test.describe("Admin roles view", () => {
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
-    await testVisitWithoutCurrentUser(page, "/admin/roles/2");
+    await testVisitAsUnauthenticated(page, "/admin/roles/2");
   });
 
   test("visit with user without permission to view roles", async ({

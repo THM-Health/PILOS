@@ -3,7 +3,7 @@ import { test as meetingControllerTest } from "../support/fixtures/meetingContro
 import { test as roomControllerTest } from "../support/fixtures/roomController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import {
-  testVisitWithoutCurrentUser,
+  testVisitAsUnauthenticated,
   expectLoginRedirect,
 } from "../support/general.js";
 
@@ -26,7 +26,7 @@ test.describe("Meetings index", () => {
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
-    await testVisitWithoutCurrentUser(page, "/meetings");
+    await testVisitAsUnauthenticated(page, "/meetings");
   });
 
   test("visit with user without permission to view meetings", async ({

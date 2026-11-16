@@ -8,7 +8,7 @@ import { test as serverControllerTest } from "../support/fixtures/serverControll
 import { test as serverPoolControllerTest } from "../support/fixtures/serverPoolController.js";
 import { test as streamingControllerTest } from "../support/fixtures/streamingController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { testVisitWithoutCurrentUser } from "../support/general.js";
+import { testVisitAsUnauthenticated } from "../support/general.js";
 
 const test = mergeTests(
   settingsControllerTest,
@@ -28,7 +28,7 @@ test.beforeEach(async ({ currentUserResponse }) => {
 });
 
 test("visit with user that is not logged in", async ({ page }) => {
-  await testVisitWithoutCurrentUser(page, "/admin");
+  await testVisitAsUnauthenticated(page, "/admin");
 });
 
 test("visit without permission to view admin pages", async ({

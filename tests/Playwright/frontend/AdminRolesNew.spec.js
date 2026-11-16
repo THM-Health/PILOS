@@ -4,7 +4,7 @@ import { test as permissionControllerTest } from "../support/fixtures/permission
 import { expect, expectToastAndClose } from "../support/test.js";
 import { expectAdminBreadcrumbs } from "../support/admin.js";
 import {
-  testVisitWithoutCurrentUser,
+  testVisitAsUnauthenticated,
   expectLoginRedirect,
 } from "../support/general.js";
 import {
@@ -31,7 +31,7 @@ test.describe("Admin roles new", () => {
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
-    await testVisitWithoutCurrentUser(page, "/admin/roles/new");
+    await testVisitAsUnauthenticated(page, "/admin/roles/new");
   });
 
   test("visit with user without permission to add new roles", async ({

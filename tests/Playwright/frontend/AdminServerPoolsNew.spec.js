@@ -3,7 +3,7 @@ import { test as serverPoolControllerTest } from "../support/fixtures/serverPool
 import { test as serverControllerTest } from "../support/fixtures/serverController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import {
-  testVisitWithoutCurrentUser,
+  testVisitAsUnauthenticated,
   expectLoginRedirect,
 } from "../support/general.js";
 import {
@@ -35,7 +35,7 @@ test.describe("Admin server pools new", () => {
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
-    await testVisitWithoutCurrentUser(page, "/admin/server_pools/new");
+    await testVisitAsUnauthenticated(page, "/admin/server_pools/new");
   });
 
   test("visit with user without permission to add new server pools", async ({

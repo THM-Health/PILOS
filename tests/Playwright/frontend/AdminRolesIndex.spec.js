@@ -3,7 +3,7 @@ import { test as roleControllerTest } from "../support/fixtures/roleController.j
 import { test as permissionControllerTest } from "../support/fixtures/permissionController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import {
-  testVisitWithoutCurrentUser,
+  testVisitAsUnauthenticated,
   expectLoginRedirect,
 } from "../support/general.js";
 import {
@@ -24,7 +24,7 @@ test.describe("Admin roles index", () => {
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
-    await testVisitWithoutCurrentUser(page, "/admin/roles");
+    await testVisitAsUnauthenticated(page, "/admin/roles");
   });
 
   test("visit with user without permission to view roles", async ({

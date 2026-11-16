@@ -9,7 +9,7 @@ import {
   expectMultiselectOptions,
 } from "../support/admin.js";
 import {
-  testVisitWithoutCurrentUser,
+  testVisitAsUnauthenticated,
   expectLoginRedirect,
 } from "../support/general.js";
 import {
@@ -42,7 +42,7 @@ test.describe("Admin users new", () => {
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
-    await testVisitWithoutCurrentUser(page, "/admin/users/new");
+    await testVisitAsUnauthenticated(page, "/admin/users/new");
   });
 
   test("visit with user without permission to add new users", async ({

@@ -4,7 +4,7 @@ import { test as serverPoolControllerTest } from "../support/fixtures/serverPool
 import { test as roleControllerTest } from "../support/fixtures/roleController.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import {
-  testVisitWithoutCurrentUser,
+  testVisitAsUnauthenticated,
   expectLoginRedirect,
 } from "../support/general.js";
 import {
@@ -37,7 +37,7 @@ test.describe("Admin room types new", () => {
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
-    await testVisitWithoutCurrentUser(page, "/admin/room_types/new");
+    await testVisitAsUnauthenticated(page, "/admin/room_types/new");
   });
 
   test("visit with user without permission to add new room types", async ({

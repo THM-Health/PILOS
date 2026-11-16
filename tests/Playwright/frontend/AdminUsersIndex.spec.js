@@ -6,7 +6,7 @@ import { test as sessionControllerTest } from "../support/fixtures/sessionContro
 import { expect, expectToastAndClose } from "../support/test.js";
 import { expectMultiselectOptions } from "../support/admin.js";
 import {
-  testVisitWithoutCurrentUser,
+  testVisitAsUnauthenticated,
   expectLoginRedirect,
 } from "../support/general.js";
 import {
@@ -35,7 +35,7 @@ test.describe("Admin users index", () => {
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
-    await testVisitWithoutCurrentUser(page, "/admin/users");
+    await testVisitAsUnauthenticated(page, "/admin/users");
   });
 
   test("visit with user without permission to view users", async ({

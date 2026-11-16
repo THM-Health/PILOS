@@ -3,7 +3,7 @@ import { test as settingsControllerTest } from "../support/fixtures/settingsCont
 import { test as timezonesTest } from "../support/fixtures/timezones.js";
 import { expect, expectToastAndClose } from "../support/test.js";
 import {
-  testVisitWithoutCurrentUser,
+  testVisitAsUnauthenticated,
   expectLoginRedirect,
 } from "../support/general.js";
 import { expectAdminBreadcrumbs } from "../support/admin.js";
@@ -23,7 +23,7 @@ test.describe("Admin settings general", () => {
   });
 
   test("visit with user that is not logged in", async ({ page }) => {
-    await testVisitWithoutCurrentUser(page, "/admin/settings");
+    await testVisitAsUnauthenticated(page, "/admin/settings");
   });
 
   test("visit with user without permission to view settings", async ({
