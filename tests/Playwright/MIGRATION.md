@@ -130,12 +130,13 @@ support layer (done in the PoC) and the Cypress-specific behaviours listed below
       mocked data of an area (e.g. `role`, `permissions`, `room`). A test changes the fixture object before `page.goto()`, the
       fixture serves it. Mocks used by several spec files are centralised in fixtures (copy-pasted mocks are an anti-pattern),
       per area in a `test.extend` file next to `support/test.js`. One small fixture per resource, no monolithic fixtures.
-    - **Page objects** for UI with 5+ interactions that is used in 3+ spec files (e.g. permission list, room files tab, settings
-      image selector, profile image cropper). One class per logical page/component, locators as `readonly` properties, methods named
+    - **Page objects** for UI with 5+ interactions that is used in 3+ spec files (e.g. the admin server form `AdminServersForm`,
+      the server multiselect of the server pool form `AdminServerPoolsServerSelect`). One class per logical page/component, locators as `readonly` properties, methods named
       after the user intent, provided as fixtures. They do not assert (tests assert on the exposed locators) and do not manage
       resources. No locator-only classes.
-    - **Helper functions** (`support/utils.js`, `support/general.js`, ...) for stateless utilities: `readFixture`, `mockMethod`,
-      `nthRequest`, `parseFormData`, `expectToastAndClose` and larger assertion helpers such as `checkPermissionGroup`. No module-level
+    - **Helper functions** (`support/utils.js`, `support/general.js`, ...) for stateless utilities: `readFixture`, `mockApiRequest`,
+      `getRequestFormData`, `expectToastAndClose` and larger assertion helpers such as `checkPermissionGroup` or
+      `checkSettingsImageSelector`. No module-level
       state. Start with a helper and promote it to a page object or fixture when it grows or needs a lifecycle.
     - **Do not abstract** one-liners (`page.getByTestId("x")`, `clickButton()`), anything used in fewer than 3 places, or
       anything that exists only for one spec. Repeating a few lines is better than a helper that readers have to look up.
@@ -150,7 +151,7 @@ support layer (done in the PoC) and the Cypress-specific behaviours listed below
 
 - Port the remaining 78 frontend specs, the 5 system specs and the remaining visual screenshots (the PoC covers 4 frontend specs, 1 visual spec).
 - Verify the coverage upload on the first CI run (the CI image is built with `VITE_COVERAGE=true`; locally the app is not instrumented).
-- **Cleanup pass after the port**: done. Every frontend spec starts with its first test right after the imports (no constants or spec-local helpers); repeated mocks are fixtures in `support/fixtures/*.js` (one file per area, `test.extend` on top of `support/test.js`), and there are two page objects in `support/pages/` (only UI with 5+ interactions in 3+ specs qualifies). The full frontend suite passes (2113 tests). Keep to rule 5 for new specs.
+- **Cleanup pass after the port**: done. Every frontend spec starts with its first test right after the imports (no constants or spec-local helpers); repeated mocks are fixtures in `support/fixtures/*.js` (one file per area, `test.extend` on top of `support/test.js`), and there are two page objects in `support/pages/`, `AdminServersForm` and `AdminServerPoolsServerSelect` (only UI with 5+ interactions in 3+ specs qualifies). The full frontend suite passes (2113 tests). Keep to rule 5 for new specs.
 - Replace `cy.clock/tick` (6 specs) with `page.clock`.
 - Cutover: remove Cypress packages/files (see Tooling), move docs (`07-testing.md`, `.ai/rules/js.md`) to Playwright, delete `tests/Frontend`.
 

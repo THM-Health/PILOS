@@ -1,6 +1,6 @@
 import { test } from "../support/fixtures/roomController.js";
 import { expect } from "../support/test.js";
-import { RoomDescription } from "../support/pages/RoomDescription.js";
+import { selectRoomDescriptionContent } from "../support/room.js";
 
 test.describe("Rooms view description TipTap Editor", () => {
   test.use({ authenticated: true });
@@ -190,7 +190,7 @@ test.describe("Rooms view description TipTap Editor", () => {
       await expect(page.locator(".tiptap p")).toHaveText("Room description");
       await expect(page.locator(".tiptap a")).toHaveCount(0);
 
-      await new RoomDescription(page).selectContent();
+      await selectRoomDescriptionContent(page);
     });
 
     test("cancel adding link", async ({ page }) => {
@@ -299,7 +299,7 @@ test.describe("Rooms view description TipTap Editor", () => {
         /p-button-primary/,
       );
 
-      await new RoomDescription(page).selectContent();
+      await selectRoomDescriptionContent(page);
       await expect(page.getByTestId("tip-tap-link-button")).toHaveClass(
         /p-button-primary/,
       );

@@ -3,10 +3,11 @@ import { mergeTests } from "@playwright/test";
 import { test as roomControllerTest } from "../support/fixtures/roomController.js";
 import { test as participantNameCheckTest } from "../support/fixtures/participantNameCheck.js";
 import { expect, expectToastAndClose } from "../support/test.js";
-import { RoomDescription } from "../support/pages/RoomDescription.js";
 
 import {
   checkRoomAuthErrors,
+  clearRoomDescriptionContent,
+  selectRoomDescriptionContent,
   setValidRememberedParticipantName,
 } from "../support/room.js";
 import {
@@ -140,7 +141,7 @@ test.describe("Rooms view description", () => {
     test("cancel editing discards changes", async ({ page }) => {
       await page.getByTestId("room-description-edit-button").click();
       await expect(page.locator(".tiptap")).toBeFocused();
-      await new RoomDescription(page).clearContent();
+      await clearRoomDescriptionContent(page);
 
       await expect(
         page.getByTestId("room-description-cancel-edit-button"),
@@ -165,7 +166,7 @@ test.describe("Rooms view description", () => {
     test("save description", async ({ page, roomResponse }) => {
       await page.getByTestId("room-description-edit-button").click();
       await expect(page.locator(".tiptap")).toBeFocused();
-      await new RoomDescription(page).clearContent();
+      await clearRoomDescriptionContent(page);
       await page.locator(".tiptap").pressSequentially("New test description");
 
       const putRoomDescriptionApiMock = await mockApiRequest(
@@ -219,7 +220,7 @@ test.describe("Rooms view description", () => {
         "New test description",
       );
 
-      await new RoomDescription(page).selectContent();
+      await selectRoomDescriptionContent(page);
     });
 
     test("text type dropdown", async ({ page }) => {

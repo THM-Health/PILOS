@@ -32,6 +32,34 @@ export async function selectSortType(page, index) {
 }
 
 /**
+ * Select the whole content of the room description editor (TipTap), retries until the browser selection equals the
+ * editor text.
+ * @param {import("@playwright/test").Page} page
+ */
+export async function selectRoomDescriptionContent(page) {
+  const content = page.locator(".tiptap");
+  await expect(async () => {
+    await content.press("ControlOrMeta+a");
+    const selectedText = await page.evaluate(() =>
+      window.getSelection().toString(),
+    );
+    expect(selectedText).toBe(await content.innerText());
+  }, "Selecting the text failed").toPass();
+}
+
+/**
+ * Clear the content of the room description editor (TipTap), retries until the editor is empty.
+ * @param {import("@playwright/test").Page} page
+ */
+export async function clearRoomDescriptionContent(page) {
+  const content = page.locator(".tiptap");
+  await expect(async () => {
+    await content.clear();
+    await expect(content).toHaveText("", { timeout: 500 });
+  }, "Clearing the text failed").toPass();
+}
+
+/**
  * Check that the request carries the room auth token of the given type (default guest token type "0").
  * @param {import("@playwright/test").Request} request
  * @param {string} [type="0"]
