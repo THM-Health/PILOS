@@ -6,6 +6,7 @@
     >
       <FileUpload
         v-if="!imageDeleted"
+        ref="fileUploadRef"
         mode="basic"
         accept=".jpg,.jpeg,.png"
         custom-upload
@@ -43,21 +44,23 @@
       />
       <Button
         v-if="!imageDeleted && !croppedImage && props.image"
+        ref="deleteImageButtonRef"
         :disabled="disabled"
         severity="danger"
         :label="$t('admin.users.image.delete')"
         icon="fa-solid fa-trash"
         data-test="delete-image-button"
-        @click="emit('deleteImage', true)"
+        @click="deleteImage"
       />
       <Button
         v-if="imageDeleted"
+        ref="undoDeleteImageButtonRef"
         :disabled="disabled"
         severity="secondary"
         :label="$t('app.undo_delete')"
         icon="fa-solid fa-undo"
         data-test="undo-delete-button"
-        @click="emit('deleteImage', false)"
+        @click="undoDeleteImage"
       />
     </div>
     <div
@@ -69,8 +72,6 @@
         :image="croppedImage ? croppedImage : image"
         :alt="$t('admin.users.image.title')"
         size="xlarge"
-        class="overflow-hidden rounded-border"
-        shape="square"
         data-test="profile-image-preview"
       />
       <UserAvatar
@@ -80,7 +81,6 @@
         :lastname="lastname"
         :alt="$t('admin.users.image.title')"
         size="xlarge"
-        shape="square"
       />
     </div>
   </div>
@@ -97,38 +97,134 @@
     :closable="false"
   >
     <template #footer>
-      <div class="flex justify-end gap-2">
+      <div class="mt-2 flex justify-end gap-2">
         <Button
+          ref="dialogCancelButtonRef"
           :label="$t('app.cancel')"
           severity="secondary"
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
-          @click="modalVisible = false"
+          @click="closeModal"
         />
         <Button
           :label="$t('admin.users.image.save')"
-          :loading="isLoadingAction"
+          :loading="isLoadingAction || isLoadingCropper"
+          :disabled="isLoadingAction || isLoadingCropper || errorLoadingCropper"
           data-test="dialog-save-button"
           @click="save"
         />
       </div>
     </template>
-    <VueCropper
-      v-show="selectedFile"
-      ref="cropperRef"
-      class="my-2"
-      :auto-crop-area="1"
-      :aspect-ratio="1"
-      :view-mode="1"
-      :src="selectedFile"
-      :alt="$t('admin.users.image.title')"
-    />
+    <OverlayComponent :show="isLoadingCropper">
+      <template #overlay>
+        <div class="flex flex-col items-center gap-2">
+          <i class="fa-solid fa-circle-notch fa-spin text-3xl" />
+          <span tabindex="-1" autofocus>{{ $t("app.loading") }}</span>
+        </div>
+      </template>
+
+      <div
+        v-if="!errorLoadingCropper"
+        class="flex flex-col gap-4 py-4"
+        :inert="isLoadingCropper"
+      >
+        <ProfileImageCropper
+          ref="cropperRef"
+          v-model:zoom="cropperZoom"
+          :min-zoom="MIN_ZOOM / 100"
+          :max-zoom="MAX_ZOOM / 100"
+          :zoom-step="ZOOM_STEP / 100"
+          :output-size="100"
+          :keyboard-step="8"
+          :disabled="isLoadingAction"
+          mime-type="image/jpeg"
+          :quality="1"
+          :image="selectedFile"
+          :aria-label="t('admin.users.image.aria_instructions')"
+          class="aspect-square max-h-[30vh] min-h-30 w-full rounded-border bg-surface-200 focus-within:outline-1! focus-within:outline-offset-2 focus-within:outline-primary! dark:bg-surface-900"
+          mask-class="rounded-full shadow-[0_0_0_9999px_rgb(0_0_0_/_0.4)]"
+          ring-class="rounded-full border-2 border-white"
+          @position="position = $event"
+          @loading="handleImageCropperLoading"
+          @error="handleImageCropperLoadingError"
+        />
+        <span
+          v-if="!isLoadingCropper"
+          aria-live="polite"
+          aria-atomic="true"
+          class="sr-only"
+          >{{ ariaPosition }}</span
+        >
+
+        <div class="flex items-center gap-2">
+          <label id="zoom-label"> {{ $t("admin.users.image.zoom") }}</label>
+          <Button
+            variant="text"
+            :disabled="zoom == MIN_ZOOM || isLoadingAction || isLoadingCropper"
+            severity="secondary"
+            rounded
+            class="shrink-0"
+            icon="fa-solid fa-minus"
+            :aria-label="$t('admin.users.image.zoom_decrease')"
+            @click="zoom -= ZOOM_STEP"
+          />
+          <Slider
+            v-model="zoom"
+            data-test="image-zoom"
+            :disabled="isLoadingAction || isLoadingCropper"
+            aria-labelledby="zoom-label"
+            :min="MIN_ZOOM"
+            :max="MAX_ZOOM"
+            :step="ZOOM_STEP"
+            class="w-full"
+            :pt="{
+              handle: {
+                tabindex: isLoadingAction ? '-1' : '0',
+              },
+            }"
+          />
+          <Button
+            variant="text"
+            severity="secondary"
+            :disabled="zoom == MAX_ZOOM || isLoadingAction || isLoadingCropper"
+            rounded
+            class="shrink-0"
+            icon="fa-solid fa-plus"
+            :aria-label="$t('admin.users.image.zoom_increase')"
+            @click="zoom += ZOOM_STEP"
+          />
+          <Badge
+            data-test="image-zoom-display"
+            severity="secondary"
+            class="shrink-0"
+            >{{ zoom }}<raw-text>%</raw-text></Badge
+          >
+        </div>
+        <Message
+          v-if="errorCroppingImage"
+          severity="error"
+          :closable="false"
+          icon="fa-solid fa-triangle-exclamation"
+        >
+          {{ $t("admin.users.image.crop_error") }}
+        </Message>
+      </div>
+      <Message
+        v-else
+        severity="error"
+        :closable="false"
+        icon="fa-solid fa-triangle-exclamation"
+      >
+        {{ $t("admin.users.image.cropper_error") }}
+      </Message>
+    </OverlayComponent>
   </Dialog>
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
-import VueCropper from "vue-cropperjs";
+import { nextTick, ref, watch, computed } from "vue";
+import { ProfileImageCropper } from "@thm-health/vue-profile-image-cropper";
+import { useI18n } from "vue-i18n";
 
 const props = defineProps({
   image: {
@@ -156,17 +252,62 @@ const props = defineProps({
 
 const emit = defineEmits(["newImage", "deleteImage"]);
 
+const { t } = useI18n();
+
 const modalVisible = ref(false);
 const isLoadingAction = ref(false);
+const isLoadingCropper = ref(false);
+const errorLoadingCropper = ref(false);
+const errorCroppingImage = ref(false);
 const selectedFile = ref(null);
 const croppedImage = ref(null);
-const cropperRef = ref();
+
+const fileUploadRef = ref(null);
+const deleteImageButtonRef = ref(null);
+const undoDeleteImageButtonRef = ref(null);
+const dialogCancelButtonRef = ref(null);
+const cropperRef = ref(null);
+
+const MIN_ZOOM = 100;
+const MAX_ZOOM = 300;
+const ZOOM_STEP = 10;
+const zoom = ref(MIN_ZOOM);
+const cropperZoom = computed({
+  get: () => zoom.value / 100,
+  set: (value) => {
+    zoom.value = Math.round(value * 100);
+  },
+});
+const position = ref({ x: 0, y: 0 });
+
+const ariaPosition = computed(function () {
+  const x =
+    position.value.x != null
+      ? t("admin.users.image.position_horizontal", {
+          x: Math.round(position.value.x),
+        })
+      : t("admin.users.image.position_horizontal_full");
+  const y =
+    position.value.y != null
+      ? t("admin.users.image.position_vertical", {
+          y: Math.round(position.value.y),
+        })
+      : t("admin.users.image.position_vertical_full");
+
+  return t("admin.users.image.crop_area", {
+    pos_string_x: x,
+    pos_string_y: y,
+    zoom: zoom.value,
+  });
+});
 
 watch(
   () => props.image,
   () => {
     croppedImage.value = null;
     selectedFile.value = null;
+    errorLoadingCropper.value = false;
+    errorCroppingImage.value = false;
   },
 );
 
@@ -176,40 +317,83 @@ watch(
  */
 async function save() {
   isLoadingAction.value = true;
-  const oc = cropperRef.value.getCroppedCanvas({
-    width: 100,
-    height: 100,
-    fillColor: "#ffff",
-  });
+  errorCroppingImage.value = false;
 
-  croppedImage.value = oc.toDataURL("image/jpeg");
-  oc.toBlob((blob) => {
-    emit("newImage", blob);
+  try {
+    const result = await cropperRef.value.cropImage();
+
+    croppedImage.value = URL.createObjectURL(result.blob);
+    emit("newImage", result.blob);
+
     isLoadingAction.value = false;
-    modalVisible.value = false;
-  }, "image/jpeg");
+    closeModal();
+  } catch {
+    errorCroppingImage.value = true;
+    isLoadingAction.value = false;
+  }
 }
 
 /**
  * Reset other previously uploaded images
  */
-function resetFileUpload() {
+async function resetFileUpload() {
   croppedImage.value = null;
   emit("newImage", null);
   selectedFile.value = null;
+
+  await nextTick();
+
+  fileUploadRef.value?.$el
+    ?.querySelector("[data-test='upload-file-button']")
+    ?.focus();
+}
+
+function closeModal() {
+  modalVisible.value = false;
+  selectedFile.value = null;
+  errorLoadingCropper.value = false;
+  errorCroppingImage.value = false;
 }
 
 async function onFileSelect(event) {
+  isLoadingCropper.value = true;
+  selectedFile.value = event.files[0];
+  zoom.value = MIN_ZOOM;
   modalVisible.value = true;
-  isLoadingAction.value = true;
-  const file = event.files[0];
+}
 
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    selectedFile.value = event.target.result;
-    cropperRef.value.replace(selectedFile.value);
-    isLoadingAction.value = false;
-  };
-  reader.readAsDataURL(file);
+async function deleteImage() {
+  emit("deleteImage", true);
+  await nextTick();
+  undoDeleteImageButtonRef.value?.$el?.focus();
+}
+
+async function undoDeleteImage() {
+  emit("deleteImage", false);
+  await nextTick();
+  deleteImageButtonRef.value?.$el?.focus();
+}
+
+async function handleImageCropperLoading(loading) {
+  isLoadingCropper.value = loading;
+
+  await nextTick();
+
+  // Focus cropper when it is loaded and modal is visible
+  if (!loading && modalVisible.value) {
+    cropperRef.value?.$el?.focus();
+  }
+}
+
+async function handleImageCropperLoadingError() {
+  errorLoadingCropper.value = true;
+  isLoadingCropper.value = false;
+
+  await nextTick();
+
+  // Focus error message
+  if (modalVisible.value) {
+    dialogCancelButtonRef.value?.$el?.focus();
+  }
 }
 </script>

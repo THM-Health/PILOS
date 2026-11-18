@@ -9,8 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Option in room file management to set system-wide default presentation as start presentation ([#2662], [#2746])
+- Keyboard and focus support for the user avatar cropper to improve accessibility ([#3386])
+- Option to enforce light or dark color mode ([#3557])
 - Environment variables `LDAP_VERIFY_CERT`, `LDAP_CA_CERT_FILE` and `LDAP_DEBUG_LEVEL` for LDAP TLS certificate verification, custom CA certificates and connection debugging ([#3609], [#3610])
 - Docs: LDAP TLS certificate verification and mounting a custom CA with Docker Compose ([#3609], [#3610])
+
+### Changed
+
+- Always include system-wide default presentation ([#2662], [#2746])
+- User avatar cropper and preview now displayed in circular shape ([#3386])
+
+### Fixed
+
+- Keyboard navigation between room tabs after a mouse click or after opening a room with a tab hash ([#3631], [#3632])
 
 ### Deprecated
 
@@ -20,9 +32,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bundled OpenLDAP client config (`/etc/openldap/ldap.conf` with `TLS_REQCERT never`) from the application container image ([#3609], [#3610])
 
+## [v4.20.0] - 2026-11-09
+
+### Changed
+
+- Replaced the room file "view" button with a download button ([#3588])
+- Remove invalid characters from room file filenames on upload; existing files are rewritten using a DB migration ([#3588])
+
 ### Fixed
 
 - Room authentication failing when the session is not yet persisted ([#3603], [#3604])
+- Downloading room files with special or non-Latin characters (including quotes) in the filename ([#3588])
+
+### Security
+
+- Force download and strict CSP for user-uploaded files to prevent stored XSS (GHSA-597h-vmjv-9494)
+- Store default presentation using content-based file extension instead of client Content-Type (GHSA-qr8q-4pjq-4r52)
+- Configure nginx so only `index.php` is executed; other `.php` files under `public/` return 404 (GHSA-qr8q-4pjq-4r52)
+- Only accept requests for the exact host of `APP_URL` to prevent host header injection (GHSA-m8w4-4h4c-mpp3)
+- Encrypt sensitive data in queued notifications; existing password reset links are invalidated during the upgrade (GHSA-74cm-rg6m-4g87)
+- **Breaking:** Changed the meeting end callback URL signature (callbacks for already running meetings fail, but the server poll detects that the meeting has ended within a minute) (GHSA-f7w5-8x3r-fmrf)
+- Pass the meeting end callback to BigBlueButton as `meetingEndedURL` instead of the `endCallbackUrl` meta parameter (GHSA-mg6m-xfw5-h98w)
+- Validate return URL of Shibboleth front-channel logout to prevent open redirects (GHSA-46f6-vjh7-jg8f)
+- Constrain Vue Router path parameters to valid identifier formats (GHSA-2rf6-6cmc-3767)
+- Prevent spreadsheet formula injection in attendance exports (GHSA-rx2m-63p9-vh9f)
 
 ## [v4.19.0] - 2026-10-28
 
@@ -877,12 +910,14 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#2613]: https://github.com/THM-Health/PILOS/pull/2613
 [#2616]: https://github.com/THM-Health/PILOS/pull/2616
 [#2660]: https://github.com/THM-Health/PILOS/issues/2660
+[#2662]: https://github.com/THM-Health/PILOS/issues/2662
 [#2664]: https://github.com/THM-Health/PILOS/issues/2664
 [#2665]: https://github.com/THM-Health/PILOS/pull/2665
 [#2686]: https://github.com/THM-Health/PILOS/pull/2686
 [#2726]: https://github.com/THM-Health/PILOS/pull/2726
 [#2728]: https://github.com/THM-Health/PILOS/pull/2728
 [#2742]: https://github.com/THM-Health/PILOS/pull/2742
+[#2746]: https://github.com/THM-Health/PILOS/pull/2746
 [#2751]: https://github.com/THM-Health/PILOS/issues/2751
 [#2752]: https://github.com/THM-Health/PILOS/pull/2752
 [#2765]: https://github.com/THM-Health/PILOS/issues/2765
@@ -959,6 +994,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3316]: https://github.com/THM-Health/PILOS/pull/3316
 [#3317]: https://github.com/THM-Health/PILOS/issues/3317
 [#3373]: https://github.com/THM-Health/PILOS/pull/3373
+[#3386]: https://github.com/THM-Health/PILOS/pull/3386
 [#3412]: https://github.com/THM-Health/PILOS/issues/3412
 [#3476]: https://github.com/THM-Health/PILOS/pull/3476
 [#3500]: https://github.com/THM-Health/PILOS/pull/3500
@@ -967,11 +1003,15 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3535]: https://github.com/THM-Health/PILOS/pull/3535
 [#3537]: https://github.com/THM-Health/PILOS/issues/3537
 [#3540]: https://github.com/THM-Health/PILOS/pull/3540
+[#3557]: https://github.com/THM-Health/PILOS/pull/3557
 [#3558]: https://github.com/THM-Health/PILOS/pull/3558
 [#3561]: https://github.com/THM-Health/PILOS/pull/3561
+[#3588]: https://github.com/THM-Health/PILOS/pull/3588
 [#3603]: https://github.com/THM-Health/PILOS/issues/3603
 [#3604]: https://github.com/THM-Health/PILOS/pull/3604
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.19.0...develop
+[#3631]: https://github.com/THM-Health/PILOS/issues/3631
+[#3632]: https://github.com/THM-Health/PILOS/pull/3632
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.20.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -1006,3 +1046,4 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.18.2]: https://github.com/THM-Health/PILOS/releases/tag/v4.18.2
 [v4.18.3]: https://github.com/THM-Health/PILOS/releases/tag/v4.18.3
 [v4.19.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.19.0
+[v4.20.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.20.0

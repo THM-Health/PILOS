@@ -439,12 +439,42 @@ describe("Admin settings with edit permission", function () {
         cy.get("#theme-rounded").should("be.checked").click();
       });
 
+    cy.get('[data-test="theme-enforced-color-mode-dropdown-items"]').should(
+      "not.exist",
+    );
+    cy.get('[data-test="theme-enforced-color-mode-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.settings.theme.enforced_color_mode.title")
+      .within(() => {
+        cy.get('[data-test="theme-enforced-color-mode-dropdown"]')
+          .should("have.text", "admin.settings.theme.enforced_color_mode.null")
+          .click();
+      });
+
+    cy.get('[data-test="theme-enforced-color-mode-dropdown-items"]')
+      .should("be.visible")
+      .within(() => {
+        cy.get(
+          '[data-test="theme-enforced-color-mode-dropdown-option"]',
+        ).should("have.length", 3);
+        cy.get('[data-test="theme-enforced-color-mode-dropdown-option"]')
+          .eq(2)
+          .should("have.text", "admin.settings.theme.enforced_color_mode.dark")
+          .click();
+      });
+
+    cy.get('[data-test="theme-enforced-color-mode-dropdown"]').should(
+      "have.text",
+      "admin.settings.theme.enforced_color_mode.dark",
+    );
+
     // Save changes
     cy.fixture("settings.json").then((settings) => {
       settings.data.theme_logo = "/images/logo2.svg";
       settings.data.theme_logo_dark = "/images/logo-dark2.svg";
       settings.data.theme_primary_color = "#14b8a6";
       settings.data.theme_rounded = false;
+      settings.data.theme_enforced_color_mode = "dark";
       // Respond with custom css set to check that it is handled correctly in the next request
       settings.data.theme_custom_css = "/storage/styles/theme_custom_css.css";
 
@@ -511,6 +541,7 @@ describe("Admin settings with edit permission", function () {
 
       expect(formData.get("theme_primary_color")).to.equal("#14b8a6");
       expect(formData.get("theme_rounded")).to.equal("0");
+      expect(formData.get("theme_enforced_color_mode")).to.equal("dark");
 
       expect(formData.get("theme_custom_css")).to.eql(null);
     });
@@ -542,6 +573,10 @@ describe("Admin settings with edit permission", function () {
       cy.get("#theme-primary-color").should("have.value", "#14b8a6");
     });
     cy.get("#theme-rounded").should("not.be.checked");
+    cy.get('[data-test="theme-enforced-color-mode-dropdown"]').should(
+      "have.text",
+      "admin.settings.theme.enforced_color_mode.dark",
+    );
 
     // Check that page was not reloaded (settingsReloadRequest was not called)
     cy.get("@settingsReloadRequest").should("be.null");
@@ -552,6 +587,7 @@ describe("Admin settings with edit permission", function () {
       settings.data.theme_logo_dark = "/images/logo-dark2.svg";
       settings.data.theme_primary_color = "#14b8a6";
       settings.data.theme_rounded = false;
+      settings.data.theme_enforced_color_mode = "dark";
 
       cy.intercept("POST", "api/v1/settings", {
         statusCode: 200,
@@ -585,6 +621,7 @@ describe("Admin settings with edit permission", function () {
 
       expect(formData.get("theme_primary_color")).to.equal("#14b8a6");
       expect(formData.get("theme_rounded")).to.equal("0");
+      expect(formData.get("theme_enforced_color_mode")).to.equal("dark");
 
       // Make sure that custom css is still null, even though it was set
       // after the previous request (was not changed by the user)
@@ -643,6 +680,7 @@ describe("Admin settings with edit permission", function () {
       settings.data.theme_logo_dark = "/images/logo-dark3.svg";
       settings.data.theme_primary_color = "#14b8a6";
       settings.data.theme_rounded = false;
+      settings.data.theme_enforced_color_mode = "dark";
 
       cy.intercept("POST", "api/v1/settings", {
         statusCode: 200,
@@ -676,6 +714,7 @@ describe("Admin settings with edit permission", function () {
 
       expect(formData.get("theme_primary_color")).to.equal("#14b8a6");
       expect(formData.get("theme_rounded")).to.equal("0");
+      expect(formData.get("theme_enforced_color_mode")).to.equal("dark");
 
       expect(formData.get("theme_custom_css")).to.eql(null);
     });

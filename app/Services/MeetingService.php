@@ -13,6 +13,7 @@ use App\Models\Meeting;
 use App\Models\MeetingAttendee;
 use App\Models\User;
 use App\Settings\BigBlueButtonSettings;
+use BigBlueButton\Core\UrlPresentation;
 use BigBlueButton\Enum\Feature;
 use BigBlueButton\Enum\Role;
 use BigBlueButton\Parameters\CreateMeetingParameters;
@@ -21,9 +22,9 @@ use BigBlueButton\Parameters\GetMeetingInfoParameters;
 use BigBlueButton\Parameters\JoinMeetingParameters;
 use BigBlueButton\Responses\CreateMeetingResponse;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Context;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
@@ -49,21 +50,19 @@ class MeetingService
     }
 
     /**
-     * Callback-salt for meeting and server
+     * Validate an end-meeting callback from BBB or a load balancer.
+     *
+     * Extra query params BBB/LBs may append (e.g. recordingmarks) are ignored.
+     * Missed callbacks are recovered within about a minute by PollServerCommand.
      */
-    protected function getCallbackSalt(): string
+    public function isValidEndCallbackRequest(Request $request): bool
     {
-        return $this->meeting->id.$this->meeting->server->secret;
-    }
-
-    public function validateCallbackSalt(string $salt): bool
-    {
-        return Hash::check($this->getCallbackSalt(), $salt);
+        return $request->hasValidSignatureWhileIgnoring(fn (string $parameter): bool => true);
     }
 
     public function getCallbackUrl(): string
     {
-        return url()->route('api.v1.meetings.endcallback', ['meeting' => $this->meeting, 'salt' => Hash::make($this->getCallbackSalt())]);
+        return URL::signedRoute('api.v1.meetings.endcallback', ['meeting' => $this->meeting]);
     }
 
     /**
@@ -90,7 +89,7 @@ class MeetingService
             ->setRecord($this->meeting->record)
             ->setAutoStartRecording($this->meeting->room->auto_start_recording)
             ->setLogoutURL(url('rooms/'.$this->meeting->room->id))
-            ->setEndCallbackUrl($this->getCallbackUrl())
+            ->setMeetingEndedURL($this->getCallbackUrl())
             ->setDuration($this->meeting->room->roomType->max_duration)
             ->setMaxParticipants($this->meeting->room->roomType->max_participants)
             ->setModeratorOnlyMessage($this->meeting->room->getModeratorOnlyMessage())
@@ -107,21 +106,44 @@ class MeetingService
         $meetingParams->addMeta('bbb-origin', 'PILOS');
         $meetingParams->addMeta('pilos-sub-spool-dir', config('recording.spool-sub-directory'));
 
-        // get files that should be used in this meeting and add links to the files
-        $files = $this->meeting->room->files()->where('use_in_meeting', true)->orderBy('default', 'desc')->get();
+        // Add system default presentation, if exists
+        $useSystemDefaultFileAsStart = false;
+        if (app(BigBlueButtonSettings::class)->default_presentation) {
+            if ($this->meeting->room->prefer_system_default_presentation_as_start) {
+                $useSystemDefaultFileAsStart = true;
+            }
+
+            $url = app(BigBlueButtonSettings::class)->default_presentation;
+            $extension = pathinfo($url, PATHINFO_EXTENSION);
+            $filename = '_System-Default.'.$extension;
+
+            $presentation = new UrlPresentation($url);
+            $presentation->setCurrent($useSystemDefaultFileAsStart);
+            $presentation->setDownloadable(false);
+            $presentation->setRemovable(false);
+            $presentation->setFilename($filename);
+            $meetingParams->addPresentation($presentation);
+        }
+
+        // Get files that should be used in this meeting and add links to the files
+        $files = $this->meeting->room->files()->where('use_in_meeting', true)->orderBy('is_start_file', 'desc')->get();
         foreach ($files as $file) {
             // Create file download url
             $fileUrl = URL::signedRoute('rooms.files.download.bbb', [
                 'roomFile' => $file->id,
-                'filename' => $file->filename,
             ]);
 
             // Add download url to meeting params
-            $meetingParams->addPresentation($fileUrl, null, preg_replace("/[^A-Za-z0-9.-_\(\)]/", '', $file->filename));
-        }
+            $presentation = new UrlPresentation($fileUrl);
+            $presentation->setFilename(preg_replace("/[^A-Za-z0-9.-_\(\)]/", '', $file->filename));
 
-        if (empty($meetingParams->getPresentations()) && app(BigBlueButtonSettings::class)->default_presentation) {
-            $meetingParams->addPresentation(app(BigBlueButtonSettings::class)->default_presentation);
+            // Make file only start presentation, if the system default presentation is not used for start and this file is selected as start file
+            $presentation->setCurrent(! $useSystemDefaultFileAsStart && $file->is_start_file);
+            // Apply download attribute (user can download file in PILOS)
+            $presentation->setDownloadable($file->download);
+            $presentation->setRemovable(true);
+
+            $meetingParams->addPresentation($presentation);
         }
 
         // Set default welcome message

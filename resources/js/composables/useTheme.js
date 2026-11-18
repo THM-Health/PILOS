@@ -1,6 +1,13 @@
 import { palette, updatePreset } from "@primevue/themes";
+import { useColorMode } from "@vueuse/core";
 
-export function updateTheme(color, rounded) {
+const colorMode = useColorMode();
+
+export function updateTheme(color, rounded, enforcedColorMode = null) {
+  if (enforcedColorMode !== null) {
+    colorMode.value = enforcedColorMode;
+  }
+
   const theme = {
     primitive: {
       borderRadius: {

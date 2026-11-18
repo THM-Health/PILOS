@@ -448,4 +448,93 @@ describe("General", function () {
       .find("svg")
       .should("have.attr", "data-test", "navbar-dark-mode-enabled-icon");
   });
+
+  it("rejects urls with invalid route params", function () {
+    cy.intercept(
+      "GET",
+      /api\/v1\/(rooms|users|roles|roomTypes|servers|serverPools)(\/|\?|$)/,
+    ).as("resourceGet");
+    cy.intercept(
+      "POST",
+      /api\/v1\/(rooms|users|roles|roomTypes|servers|serverPools)(\/|\?|$)/,
+    ).as("resourcePost");
+
+    const invalidPaths = [
+      "/rooms/..%2Fother",
+      "/rooms/abc%2Fdef",
+      "/rooms/abc%3Ffoo",
+      "/rooms/abc%26foo",
+      "/rooms/abc_def_123",
+      "/rooms/abc.def.123",
+      "/rooms/..%2Fother/join",
+      "/rooms/abc_def/invalid_personalized_link",
+      "/rooms/abc-def-123/..%2Fother",
+      "/rooms/abc-def-123/%3Ffoo",
+      "/rooms/abc-def-123/token-with-hyphen",
+      "/rooms/abc-def-123/token_with_underscore",
+    ];
+
+    const adminResources = [
+      "users",
+      "roles",
+      "room_types",
+      "servers",
+      "server_pools",
+    ];
+    const invalidAdminIds = ["abc", "..%2Fother", "2abc", "2.0"];
+
+    for (const resource of adminResources) {
+      for (const id of invalidAdminIds) {
+        invalidPaths.push(`/admin/${resource}/${id}`);
+        invalidPaths.push(`/admin/${resource}/${id}/edit`);
+      }
+    }
+
+    for (const path of invalidPaths) {
+      cy.visit(path);
+      cy.url().should("include", "/404");
+      cy.contains("app.not_found").should("be.visible");
+    }
+
+    cy.get("@resourceGet.all").should("have.length", 0);
+    cy.get("@resourcePost.all").should("have.length", 0);
+  });
+
+  it("enforced light mode hides dark mode button and forces light mode", function () {
+    cy.fixture("config.json").then((config) => {
+      config.data.theme.enforced_color_mode = "light";
+
+      cy.intercept("GET", "/api/v1/config", config).as("configRequest");
+    });
+
+    // Prefer dark mode so we can verify light mode is actually enforced
+    cy.visit("/", {
+      onBeforeLoad() {
+        Cypress.expose("darkMode", true);
+      },
+    });
+    cy.wait("@configRequest");
+
+    // Wait for navbar to render before asserting the toggle is hidden
+    cy.get('[data-test="navbar-locale"]').should("be.visible");
+    cy.get('[data-test="navbar-dark-mode"]').should("not.exist");
+    cy.get("html").should("not.have.class", "dark");
+  });
+
+  it("enforced dark mode hides dark mode button and forces dark mode", function () {
+    cy.fixture("config.json").then((config) => {
+      config.data.theme.enforced_color_mode = "dark";
+
+      cy.intercept("GET", "/api/v1/config", config).as("configRequest");
+    });
+
+    // Prefer light mode so we can verify dark mode is actually enforced
+    cy.visit("/");
+    cy.wait("@configRequest");
+
+    // Wait for navbar to render before asserting the toggle is hidden
+    cy.get('[data-test="navbar-locale"]').should("be.visible");
+    cy.get('[data-test="navbar-dark-mode"]').should("not.exist");
+    cy.get("html").should("have.class", "dark");
+  });
 });

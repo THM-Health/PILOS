@@ -28,6 +28,7 @@ export const useSettingsStore = defineStore("settings", {
       updateTheme(
         this.settings.theme.primary_color,
         this.settings.theme.rounded,
+        this.settings.theme.enforced_color_mode,
       );
     },
   },

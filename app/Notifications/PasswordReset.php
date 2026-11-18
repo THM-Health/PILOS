@@ -6,6 +6,7 @@ namespace App\Notifications;
 
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeEncrypted;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -14,7 +15,7 @@ use Illuminate\Support\Arr;
 /**
  * This class provides the notification for password reset emails.
  */
-class PasswordReset extends Notification implements ShouldQueue
+class PasswordReset extends Notification implements ShouldBeEncrypted, ShouldQueue
 {
     use Queueable;
 

@@ -6,12 +6,13 @@ namespace App\Notifications;
 
 use App\Services\EmailVerification\NewVerifyEmailToken;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeEncrypted;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Arr;
 
-class VerifyEmail extends Notification implements ShouldQueue
+class VerifyEmail extends Notification implements ShouldBeEncrypted, ShouldQueue
 {
     use Queueable;
 

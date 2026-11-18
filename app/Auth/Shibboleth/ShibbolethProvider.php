@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Uri;
 use SoapServer;
 
 class ShibbolethProvider
@@ -34,8 +35,21 @@ class ShibbolethProvider
             Auth::logout();
         }
 
-        // Send user to the return URL
-        return redirect($returnUrl);
+        $allowedReturnUrl = Uri::of(url(config('services.shibboleth.logout')));
+        $returnUrl = Uri::of($returnUrl);
+
+        // Check if the return url is allowed
+        if ($allowedReturnUrl->host() == $returnUrl->host()
+            && $allowedReturnUrl->port() == $returnUrl->port()
+            && $allowedReturnUrl->scheme() == $returnUrl->scheme()
+            && $allowedReturnUrl->path() == $returnUrl->path()
+        ) {
+            // Redirect to the requested return url
+            return redirect($returnUrl->toString());
+        }
+
+        // Redirect to safe return url
+        return redirect($allowedReturnUrl);
     }
 
     /**

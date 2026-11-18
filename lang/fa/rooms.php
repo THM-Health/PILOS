@@ -111,6 +111,8 @@ return [
         'confirm_delete' => 'آیا می‌خواهید این فایل :filename را حذف کنید؟',
         'default' => 'پیش‌فرض',
         'delete' => 'حذف فایل',
+        'download' => 'دانلود فایل',
+        'download_aria' => 'انلود فایل: :filename',
         'download_hidden' => 'دانلود مخفی',
         'download_visible' => 'دانلود قابل مشاهده',
         'downloadable' => 'قابل دانلود',
@@ -136,7 +138,6 @@ return [
         'uploaded' => 'فایل \':name\' آپلود شد',
         'use_in_next_meeting' => 'استفاده در جلسه بعدی',
         'use_in_next_meeting_disabled' => 'در کنفرانس ویدئویی موجود نیست',
-        'view' => 'مشاهده فایل',
     ],
     'first_and_lastname' => 'نام و نام خانوادگی',
     'flash' => [

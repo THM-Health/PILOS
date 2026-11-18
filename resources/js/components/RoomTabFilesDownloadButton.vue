@@ -1,26 +1,26 @@
 <template>
-  <!-- View file -->
+  <!-- Download file -->
 
   <Button
     v-if="requireTermsOfUseAcceptance"
-    v-tooltip="$t('rooms.files.view')"
-    :aria-label="$t('rooms.files.view_aria', { filename: filename })"
+    v-tooltip="$t('rooms.files.download')"
+    :aria-label="$t('rooms.files.download_aria', { filename: filename })"
     :disabled="disabled"
-    icon="fa-solid fa-eye"
-    data-test="room-files-view-button"
+    icon="fa-solid fa-download"
+    data-test="room-files-download-button"
     @click="toggleTermsOfUsePopover"
   />
 
   <Button
     v-else
-    v-tooltip="$t('rooms.files.view')"
-    :aria-label="$t('rooms.files.view_aria', { filename: filename })"
+    v-tooltip="$t('rooms.files.download')"
+    :aria-label="$t('rooms.files.download_aria', { filename: filename })"
     :disabled="disabled"
     target="_blank"
     rel="opener"
     :href="downloadUrl"
-    icon="fa-solid fa-eye"
-    data-test="room-files-view-button"
+    icon="fa-solid fa-download"
+    data-test="room-files-download-button"
     :as="disabled ? 'button' : 'a'"
   />
 

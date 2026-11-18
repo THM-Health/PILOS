@@ -7,6 +7,7 @@ namespace App\Exports;
 use App\Models\Meeting;
 use App\Services\MeetingService;
 use Illuminate\Support\Collection;
+use PhpOffice\PhpSpreadsheet\Cell\StringValueBinder;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
@@ -119,6 +120,7 @@ class AttendanceExport
     public function toSpreadsheet(): Spreadsheet
     {
         $spreadsheet = new Spreadsheet;
+        $spreadsheet->setValueBinder(new StringValueBinder);
 
         $spreadsheet->getProperties()
             ->setTitle(__('meetings.attendance.spreadsheet.title', ['room' => $this->meeting->room->name]))
