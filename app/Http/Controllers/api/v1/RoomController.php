@@ -240,7 +240,7 @@ class RoomController extends Controller
     public function getStartRequirements(Room $room)
     {
         $features = [
-            'recording' => $room->getRoomSetting('record'),
+            'recording' => config('recording.enabled') && $room->getRoomSetting('record'),
             'attendance_recording' => $room->getRoomSetting('record_attendance'),
             'streaming' => $room->streaming->enabled,
         ];

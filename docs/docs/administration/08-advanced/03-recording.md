@@ -230,6 +230,16 @@ You can check the log files and Horizon for more information. You can also retry
 
 ## Config options
 
+### Disable recordings
+
+If your setup does not provide recordings, you can disable them in the .env file. This hides the recordings tab in rooms and the recording settings of rooms and room types. Recordings are enabled by default.
+
+```shell
+RECORDING_ENABLED=false
+```
+
+While disabled, recordings can't be accessed. Existing recordings and the saved recording settings of rooms and room types are kept (the retention period still applies), so they are available again once recordings are enabled. Meetings are started without recording and the participants are not asked for recording consent.
+
 ### Customize recording download
 
 Room owners can download the raw recording files for archiving, uploading to other video platforms, etc. The BigBlueButton recording raw files include many files that typical users don't need. Therefore, you can customise which files are included in the download. You can filter the files using a regular expression in the .env file.

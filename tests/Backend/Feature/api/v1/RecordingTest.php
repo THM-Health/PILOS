@@ -116,6 +116,12 @@ class RecordingTest extends TestCase
             ->getJson(route('api.v1.rooms.recordings.index', ['room' => $room->id]))
             ->assertOk()
             ->assertJsonCount(18, 'data');
+
+        // Recordings disabled
+        config(['recording.enabled' => false]);
+        $this->actingAs($room->owner)
+            ->getJson(route('api.v1.rooms.recordings.index', ['room' => $room->id]))
+            ->assertNotFound();
     }
 
     public function test_index_with_access_code_guests_allowed()
@@ -1095,6 +1101,18 @@ class RecordingTest extends TestCase
         $this->actingAs($room->owner)
             ->get(route('recording.presentation', ['recording' => $recording->id, 'resource' => 'metadata.xml']))
             ->assertHeader('x-accel-redirect', '/private-storage/recordings/'.$recording->id.'/presentation/metadata.xml');
+
+        // Recordings disabled
+        config(['recording.enabled' => false]);
+        $this->actingAs($room->owner)
+            ->get(route('rooms.recordings.formats.show', ['room' => $recording->room->id, 'recording' => $recording->id, 'format' => $format->id]))
+            ->assertNotFound();
+        $this->actingAs($room->owner)
+            ->get(route('recording.resource', ['formatName' => $format->format, 'recording' => $recording->id, 'resource' => 'metadata.xml']))
+            ->assertNotFound();
+        $this->actingAs($room->owner)
+            ->get(route('recording.presentation', ['recording' => $recording->id, 'resource' => 'metadata.xml']))
+            ->assertNotFound();
     }
 
     public function test_update()
@@ -1129,6 +1147,13 @@ class RecordingTest extends TestCase
         $this->assertTrue($podcast->disabled);
         $this->assertFalse($presentation->disabled);
         $this->assertTrue($notes->disabled);
+
+        // Recordings disabled
+        config(['recording.enabled' => false]);
+        $this->actingAs($room->owner)
+            ->putJson(route('api.v1.rooms.recordings.update', ['room' => $room->id, 'recording' => $recording->id]), $payload)
+            ->assertNotFound();
+        config(['recording.enabled' => true]);
 
         // Test deleted recording
         $recording->delete();
@@ -1273,6 +1298,14 @@ class RecordingTest extends TestCase
         Storage::disk('recordings')->makeDirectory($recording->id.'/notes');
         UploadedFile::fake()->create('notes.pdf', 100, 'application/pdf')->storeAs($recording->id.'/notes', 'notes.pdf', 'recordings');
         UploadedFile::fake()->create('audio.ogg', 100, 'audio/ogg')->storeAs($recording->id.'/podcast', 'audio.ogg', 'recordings');
+
+        // Recordings disabled
+        config(['recording.enabled' => false]);
+        $this->actingAs($room->owner)
+            ->deleteJson(route('api.v1.rooms.recordings.destroy', ['room' => $room->id, 'recording' => $recording->id]))
+            ->assertNotFound();
+        $this->assertModelExists($recording);
+        config(['recording.enabled' => true]);
 
         $this->actingAs($room->owner)
             ->deleteJson(route('api.v1.rooms.recordings.destroy', ['room' => $room->id, 'recording' => $recording->id]))
@@ -1529,6 +1562,12 @@ class RecordingTest extends TestCase
 
         unlink($tempFile);
         FileHelper::deleteDirectory($tempDir);
+
+        // Recordings disabled
+        config(['recording.enabled' => false]);
+        $this->actingAs($room->owner)
+            ->get(route('recording.download', ['recording' => $recording]))
+            ->assertNotFound();
     }
 
     public function test_download_recording_with_whitelist()
