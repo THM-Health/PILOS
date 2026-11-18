@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Option in room file management to set system-wide default presentation as start presentation ([#2662], [#2746])
 - Keyboard and focus support for the user avatar cropper to improve accessibility ([#3386])
 - Option to enforce light or dark color mode ([#3557])
+- Option to disable recordings using the `RECORDING_ENABLED` environment variable ([#3633], [#3635])
 
 ### Changed
 
@@ -1001,6 +1002,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3604]: https://github.com/THM-Health/PILOS/pull/3604
 [#3631]: https://github.com/THM-Health/PILOS/issues/3631
 [#3632]: https://github.com/THM-Health/PILOS/pull/3632
+[#3633]: https://github.com/THM-Health/PILOS/issues/3633
+[#3635]: https://github.com/THM-Health/PILOS/pull/3635
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.20.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1

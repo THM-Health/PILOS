@@ -798,6 +798,24 @@ describe("Room View general", function () {
     cy.get('[data-test="dialog-close-button"]').click();
   });
 
+  it("room view recordings disabled", function () {
+    cy.fixture("config.json").then((config) => {
+      config.data.recording.enabled = false;
+
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+
+    cy.visit("/rooms/abc-def-123#tab=recordings");
+
+    // Check that recordings tab is hidden and fallback to first tab
+    cy.get("#tab-recordings").should("not.exist");
+    cy.contains("rooms.description.title").should("be.visible");
+    cy.url().should("not.include", "tab=recordings");
+  });
+
   it("membership button", function () {
     cy.fixture("room.json").then((room) => {
       room.data.owner = {
