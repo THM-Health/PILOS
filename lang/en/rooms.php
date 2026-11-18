@@ -112,6 +112,7 @@ return [
     'feature_disabled_roomtype' => 'This feature is disabled for this room type. Try selecting a different room type or contact the administrator.',
     'feature_disabled_system' => ':name is disabled. Please contact the administrator.',
     'files' => [
+        'available_in_next_meeting' => 'Available in next video conference',
         'configure' => 'Configure file',
         'configure_aria' => 'Configure file: :filename',
         'configure_dialog_title' => 'Configure ":name"',
@@ -119,8 +120,8 @@ return [
         'delete' => 'Delete file',
         'delete_aria' => 'Delete file: :filename',
         'download' => 'Download file',
-        'download_aria' => 'Download file: :filename',
         'download_allowed' => 'Download allowed',
+        'download_aria' => 'Download file: :filename',
         'download_not_allowed' => 'Download not allowed',
         'downloadable' => 'Downloadable',
         'filter' => [
@@ -130,6 +131,7 @@ return [
         ],
         'filter_aria' => 'Filter files',
         'nodata' => 'No files available',
+        'not_available_in_next_meeting' => 'Not available in next video conference',
         'reload_aria' => 'Reload files',
         'search_aria' => 'Search files',
         'select_or_drag' => 'Select a file or drag and drop it here...',
@@ -152,8 +154,6 @@ return [
         'title' => 'Files',
         'upload' => 'Upload files',
         'uploaded' => 'File \':name\' uploaded',
-        'available_in_next_meeting' => 'Available in next video conference',
-        'not_available_in_next_meeting' => 'Not available in next video conference',
     ],
     'first_and_lastname' => 'First- and last name',
     'flash' => [
