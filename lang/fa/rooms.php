@@ -109,14 +109,10 @@ return [
     'feature_disabled_system' => ':name غیر فعال شده.لطفا با مدیر سیستم تماس بگیرید.',
     'files' => [
         'confirm_delete' => 'آیا می‌خواهید این فایل :filename را حذف کنید؟',
-        'default' => 'پیش‌فرض',
         'delete' => 'حذف فایل',
         'download' => 'دانلود فایل',
         'download_aria' => 'انلود فایل: :filename',
-        'download_hidden' => 'دانلود مخفی',
-        'download_visible' => 'دانلود قابل مشاهده',
         'downloadable' => 'قابل دانلود',
-        'edit' => 'ویرایش فایل',
         'filter' => [
             'all' => 'تمام فایل‌ها',
             'downloadable' => 'فایل‌های قابل دانلود',
@@ -136,8 +132,6 @@ return [
         'title' => 'فایل‌ها',
         'upload' => 'آپلود فایل‌ها',
         'uploaded' => 'فایل \':name\' آپلود شد',
-        'use_in_next_meeting' => 'استفاده در جلسه بعدی',
-        'use_in_next_meeting_disabled' => 'در کنفرانس ویدئویی موجود نیست',
     ],
     'first_and_lastname' => 'نام و نام خانوادگی',
     'flash' => [
