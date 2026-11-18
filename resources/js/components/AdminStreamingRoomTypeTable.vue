@@ -65,10 +65,11 @@
         <Badge
           v-if="slotProps.data.streaming_settings.enabled"
           severity="success"
+          class="p-1!"
         >
           <i class="fa-solid fa-check" />
         </Badge>
-        <Badge v-else severity="danger">
+        <Badge v-else severity="danger" class="p-1!">
           <i class="fa-solid fa-times" />
         </Badge>
       </template>
@@ -84,10 +85,11 @@
         <Badge
           v-if="slotProps.data.streaming_settings.default_pause_image"
           severity="success"
+          class="p-1!"
         >
           <i class="fa-solid fa-check" />
         </Badge>
-        <Badge v-else severity="danger">
+        <Badge v-else severity="danger" class="p-1!">
           <i class="fa-solid fa-times" />
         </Badge>
       </template>

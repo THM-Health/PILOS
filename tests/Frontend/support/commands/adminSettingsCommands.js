@@ -190,12 +190,12 @@ Cypress.Commands.add(
     );
 
     if (originalHref !== "") {
-      cy.get('[data-test="settings-file-view-button"]')
+      cy.get('[data-test="settings-file-download-button"]')
         .should("be.visible")
-        .and("include.text", "app.view")
+        .and("include.text", "app.download")
         .and("have.attr", "href", originalHref);
     } else {
-      cy.get('[data-test="settings-file-view-button"]').should("not.exist");
+      cy.get('[data-test="settings-file-download-button"]').should("not.exist");
     }
 
     cy.get('[data-test="file-input-input"]').then((fileInput) => {
@@ -240,12 +240,12 @@ Cypress.Commands.add(
     );
 
     if (originalHref !== "") {
-      cy.get('[data-test="settings-file-view-button"]')
+      cy.get('[data-test="settings-file-download-button"]')
         .should("be.visible")
-        .and("include.text", "app.view")
+        .and("include.text", "app.download")
         .and("have.attr", "href", originalHref);
     } else {
-      cy.get('[data-test="settings-file-view-button"]').should("not.exist");
+      cy.get('[data-test="settings-file-download-button"]').should("not.exist");
     }
 
     cy.get('[data-test="file-input-button"]').should(
@@ -300,11 +300,11 @@ Cypress.Commands.add("checkSettingsFileSelectorOnlyView", (href) => {
   cy.get('[data-test="file-input-input"]').should("not.exist");
 
   if (href !== "") {
-    cy.get('[data-test="settings-file-view-button"]')
+    cy.get('[data-test="settings-file-download-button"]')
       .should("be.visible")
-      .and("include.text", "app.view")
+      .and("include.text", "app.download")
       .and("have.attr", "href", href);
   } else {
-    cy.get('[data-test="settings-file-view-button"]').should("not.exist");
+    cy.get('[data-test="settings-file-download-button"]').should("not.exist");
   }
 });

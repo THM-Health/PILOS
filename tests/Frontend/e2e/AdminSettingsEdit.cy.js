@@ -1065,9 +1065,9 @@ describe("Admin settings with edit permission", function () {
 
       cy.get('[data-test="settings-file-delete-button"]').should("be.visible");
 
-      cy.get('[data-test="settings-file-view-button"]')
+      cy.get('[data-test="settings-file-download-button"]')
         .should("be.visible")
-        .and("include.text", "app.view")
+        .and("include.text", "app.download")
         .and("have.attr", "href", "/storage/styles/theme_custom_css.css");
 
       // Remove file
@@ -1117,7 +1117,7 @@ describe("Admin settings with edit permission", function () {
 
       cy.get('[data-test="settings-file-delete-button"]').should("not.exist");
 
-      cy.get('[data-test="settings-file-view-button"]').should("not.exist");
+      cy.get('[data-test="settings-file-download-button"]').should("not.exist");
     });
   });
 
@@ -2948,9 +2948,9 @@ describe("Admin settings with edit permission", function () {
 
       cy.get('[data-test="settings-file-delete-button"]').should("be.visible");
 
-      cy.get('[data-test="settings-file-view-button"]')
+      cy.get('[data-test="settings-file-download-button"]')
         .should("be.visible")
-        .and("include.text", "app.view")
+        .and("include.text", "app.download")
         .and("have.attr", "href", "/files/bbb_style.css");
     });
 
@@ -2962,9 +2962,9 @@ describe("Admin settings with edit permission", function () {
 
       cy.get('[data-test="settings-file-delete-button"]').should("be.visible");
 
-      cy.get('[data-test="settings-file-view-button"]')
+      cy.get('[data-test="settings-file-download-button"]')
         .should("be.visible")
-        .and("include.text", "app.view")
+        .and("include.text", "app.download")
         .and("have.attr", "href", "/files/testFile.txt");
     });
 
@@ -3016,7 +3016,7 @@ describe("Admin settings with edit permission", function () {
 
       cy.get('[data-test="file-input-button"]').should("not.exist");
       cy.get('[data-test="settings-file-delete-button"]').should("not.exist");
-      cy.get('[data-test="settings-file-view-button"]').should("not.exist");
+      cy.get('[data-test="settings-file-download-button"]').should("not.exist");
       cy.get('[data-test="settings-file-undo-delete-button"]')
         .should("be.visible")
         .and("have.text", "app.undo_delete")
@@ -3027,9 +3027,9 @@ describe("Admin settings with edit permission", function () {
         "app.browse",
       );
 
-      cy.get('[data-test="settings-file-view-button"]')
+      cy.get('[data-test="settings-file-download-button"]')
         .should("be.visible")
-        .and("include.text", "app.view")
+        .and("include.text", "app.download")
         .and("have.attr", "href", "/files/bbb_style.css");
 
       cy.get('[data-test="settings-file-delete-button"]')
@@ -3042,7 +3042,7 @@ describe("Admin settings with edit permission", function () {
 
       cy.get('[data-test="file-input-button"]').should("not.exist");
       cy.get('[data-test="settings-file-delete-button"]').should("not.exist");
-      cy.get('[data-test="settings-file-view-button"]').should("not.exist");
+      cy.get('[data-test="settings-file-download-button"]').should("not.exist");
       cy.get('[data-test="settings-file-undo-delete-button"]')
         .should("be.visible")
         .and("have.text", "app.undo_delete")
@@ -3053,9 +3053,9 @@ describe("Admin settings with edit permission", function () {
         "app.browse",
       );
 
-      cy.get('[data-test="settings-file-view-button"]')
+      cy.get('[data-test="settings-file-download-button"]')
         .should("be.visible")
-        .and("include.text", "app.view")
+        .and("include.text", "app.download")
         .and("have.attr", "href", "/files/testFile.txt");
 
       cy.get('[data-test="settings-file-delete-button"]')
@@ -3139,7 +3139,7 @@ describe("Admin settings with edit permission", function () {
     cy.get('[data-test="bbb-style-field"]').within(() => {
       cy.get('[data-test="file-input-button"]').should("be.visible");
       cy.get('[data-test="settings-file-delete-button"]').should("not.exist");
-      cy.get('[data-test="settings-file-view-button"]').should("not.exist");
+      cy.get('[data-test="settings-file-download-button"]').should("not.exist");
       cy.get('[data-test="settings-file-undo-delete-button"]').should(
         "not.exist",
       );
@@ -3148,7 +3148,7 @@ describe("Admin settings with edit permission", function () {
     cy.get('[data-test="default-presentation-field"]').within(() => {
       cy.get('[data-test="file-input-button"]').should("be.visible");
       cy.get('[data-test="settings-file-delete-button"]').should("not.exist");
-      cy.get('[data-test="settings-file-view-button"]').should("not.exist");
+      cy.get('[data-test="settings-file-download-button"]').should("not.exist");
       cy.get('[data-test="settings-file-undo-delete-button"]').should(
         "not.exist",
       );

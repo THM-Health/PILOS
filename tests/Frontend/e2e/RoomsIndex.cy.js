@@ -1781,8 +1781,10 @@ describe("Room Index", function () {
           "aria-label",
           'rooms.favorites.add_for_{"room":"Meeting Two"}',
         );
-        cy.get('[data-test="dialog-cancel-button"]').click();
+        cy.get('[data-test="dialog-header-close-button"]').click();
       });
+
+    cy.get('[data-test="room-info-dialog"]').should("not.exist");
 
     // Test trigger favorites when only favorites are shown
 

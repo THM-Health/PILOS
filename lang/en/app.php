@@ -37,6 +37,7 @@ return [
     'description' => 'Description',
     'disable' => 'Disable',
     'disabled' => 'Disabled',
+    'download' => 'Download',
     'edit' => 'Edit',
     'email' => 'Email',
     'enable' => 'Enable',
@@ -179,7 +180,6 @@ return [
         'title' => 'Email verification',
     ],
     'version' => 'Version',
-    'view' => 'View',
     'wait' => 'Please wait...',
     'yes' => 'Yes',
 ];

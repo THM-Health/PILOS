@@ -98,8 +98,8 @@
             as="a"
             target="_blank"
             :href="downloadUrl"
-            icon="fa-solid fa-file-excel"
-            severity="secondary"
+            icon="fa-solid fa-download"
+            severity="primary"
             :aria-label="$t('meetings.attendance.download_aria')"
             data-test="room-history-attendance-download-button"
           />
