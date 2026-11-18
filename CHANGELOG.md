@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Option to enforce light or dark color mode ([#3557])
 - Environment variables `LDAP_VERIFY_CERT`, `LDAP_CA_CERT_FILE` and `LDAP_DEBUG_LEVEL` for LDAP TLS certificate verification, custom CA certificates and connection debugging ([#3609], [#3610])
 - Docs: LDAP TLS certificate verification and mounting a custom CA with Docker Compose ([#3609], [#3610])
+- Option to disable recordings using the `RECORDING_ENABLED` environment variable ([#3633], [#3635])
 
 ### Changed
 
@@ -1013,6 +1014,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3610]: https://github.com/THM-Health/PILOS/pull/3610
 [#3631]: https://github.com/THM-Health/PILOS/issues/3631
 [#3632]: https://github.com/THM-Health/PILOS/pull/3632
+[#3633]: https://github.com/THM-Health/PILOS/issues/3633
+[#3635]: https://github.com/THM-Health/PILOS/pull/3635
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.20.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1

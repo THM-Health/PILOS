@@ -26,13 +26,15 @@ use Spatie\Csp\AddCspHeaders;
 Route::get('download/file/{roomFile}/{filename?}', [RoomFileController::class, 'showPresentation'])->name('rooms.files.download.bbb')->middleware('signed');
 Route::get('room/{room}/file/{file}/{filename?}', [RoomFileController::class, 'show'])->name('rooms.files.download')->middleware(['signed:room_auth_token,room_auth_token_type', 'room.authenticate', 'throttle:room-enumeration'])->scopeBindings();
 Route::get('download/attendance/{meeting}', [MeetingController::class, 'attendance'])->name('download.attendance')->middleware('auth:users,ldap');
-Route::get('download/recording/{recording}', [RecordingController::class, 'download'])->middleware('auth:users,ldap')->name('recording.download');
+Route::middleware('enable_if_config:recording.enabled')->group(function () {
+    Route::get('download/recording/{recording}', [RecordingController::class, 'download'])->middleware('auth:users,ldap')->name('recording.download');
 
-Route::get('rooms/{room}/recordings/{recording}/formats/{format}', [RecordingFormatController::class, 'show'])->name('rooms.recordings.formats.show')->middleware('room.authenticate', 'throttle:room-enumeration')->scopeBindings();
+    Route::get('rooms/{room}/recordings/{recording}/formats/{format}', [RecordingFormatController::class, 'show'])->name('rooms.recordings.formats.show')->middleware('room.authenticate', 'throttle:room-enumeration')->scopeBindings();
 
-Route::get('recording/{formatName}/{recording}/{resource?}', [RecordingController::class, 'resource'])->where('resource', '.*')->name('recording.resource');
-// Do not change this url! Needs to be in this format to be compatible with the BBB recording player
-Route::get('presentation/{recording}/{resource}', [RecordingController::class, 'presentationResource'])->where('resource', '.*')->name('recording.presentation');
+    Route::get('recording/{formatName}/{recording}/{resource?}', [RecordingController::class, 'resource'])->where('resource', '.*')->name('recording.resource');
+    // Do not change this url! Needs to be in this format to be compatible with the BBB recording player
+    Route::get('presentation/{recording}/{resource}', [RecordingController::class, 'presentationResource'])->where('resource', '.*')->name('recording.presentation');
+});
 
 Route::middleware('enable_if_config:services.shibboleth.enabled')->group(function () {
     Route::get('auth/shibboleth/redirect', [ShibbolethController::class, 'redirect'])->name('auth.shibboleth.redirect');

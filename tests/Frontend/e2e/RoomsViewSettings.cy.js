@@ -366,6 +366,29 @@ describe("Rooms view settings", function () {
       });
   });
 
+  it("load settings with recordings disabled", function () {
+    cy.fixture("config.json").then((config) => {
+      config.data.recording.enabled = false;
+
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+
+    cy.visit("/rooms/abc-def-123#tab=settings");
+
+    cy.wait("@roomSettingsRequest");
+
+    // Check that only the recording settings for video conference recordings are hidden
+    cy.contains("rooms.settings.recordings.title").should("be.visible");
+    cy.get('[data-test="room-setting-record_attendance"]').should("be.visible");
+    cy.get('[data-test="room-setting-record"]').should("not.exist");
+    cy.get('[data-test="room-setting-auto_start_recording"]').should(
+      "not.exist",
+    );
+  });
+
   it("load settings errors", function () {
     cy.intercept("GET", "api/v1/rooms/abc-def-123/settings", {
       statusCode: 500,

@@ -2431,6 +2431,15 @@ class RoomTest extends TestCase
         // Testing access owner
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.settings', ['room' => $room]))
             ->assertSuccessful();
+
+        // Check if the stored record setting is returned when recordings are disabled
+        config(['recording.enabled' => false]);
+        $room->record = true;
+        $room->expert_mode = true;
+        $room->save();
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.settings', ['room' => $room]))
+            ->assertSuccessful()
+            ->assertJsonPath('data.record', true);
     }
 
     public function test_access_code_shown()
@@ -3325,6 +3334,30 @@ class RoomTest extends TestCase
             $room->refresh();
             $this->assertEquals($case[4], $room->latestMeeting->record, $label);
         }
+
+        // Recordings disabled, room and room type settings are ignored
+        config(['recording.enabled' => false]);
+
+        $room = Room::factory()->create(['record' => true, 'expert_mode' => true]);
+        $room->roomType->serverPool->servers()->attach($server);
+        $room->roomType->record_default = true;
+        $room->roomType->record_enforced = true;
+        $room->roomType->save();
+
+        $this->actingAs($room->owner)
+            ->optionsJson(route('api.v1.rooms.start-requirements', ['room' => $room]))
+            ->assertSuccessful()
+            ->assertJsonPath('data.features.recording', false);
+
+        // Try starting the room without agreement, should succeed
+        $bbbFaker->addCreateMeetingRequest();
+        $this->actingAs($room->owner)
+            ->postJson(route('api.v1.rooms.start', ['room' => $room]))
+            ->assertSuccessful();
+
+        // Check if the meeting is created without recording
+        $room->refresh();
+        $this->assertFalse($room->latestMeeting->record);
     }
 
     /**
@@ -5021,6 +5054,25 @@ class RoomTest extends TestCase
         $room->save();
 
         // Check if agreement is still not required, as the meeting is still running with recording disabled
+        $bbbFaker->addRequest($meetingInfoRequest);
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]))
+            ->assertSuccessful();
+
+        // Create new meeting with recording enabled, but recordings disabled globally
+        config(['recording.enabled' => false]);
+        $room = Room::factory()->create(['record' => true, 'expert_mode' => true]);
+        $room->roomType->serverPool->servers()->attach($server);
+        $bbbFaker->addCreateMeetingRequest();
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]))
+            ->assertSuccessful();
+
+        // Check if recording is disabled
+        $this->actingAs($room->owner)
+            ->optionsJson(route('api.v1.rooms.join-requirements', ['room' => $room]))
+            ->assertSuccessful()
+            ->assertJsonPath('data.features.recording', false);
+
+        // Join without agreement, should succeed
         $bbbFaker->addRequest($meetingInfoRequest);
         $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]))
             ->assertSuccessful();
