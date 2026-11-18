@@ -572,6 +572,67 @@ describe("Room View general", function () {
     cy.get('[data-test="room-share-button"]').should("exist");
   });
 
+  it("room tab keyboard navigation", function () {
+    cy.interceptRoomFilesRequest();
+
+    cy.visit("/rooms/abc-def-123");
+
+    cy.get("#tab-description").should("have.attr", "aria-selected", "true");
+    cy.get("#tab-description").focus();
+
+    // Wrap from the first tab to the last tab and back
+    cy.press(Cypress.Keyboard.Keys.LEFT);
+    cy.get("#tab-settings").should("have.focus");
+
+    cy.press(Cypress.Keyboard.Keys.RIGHT);
+    cy.get("#tab-description").should("have.focus");
+
+    // Move focus across multiple tabs without activating them
+    cy.press(Cypress.Keyboard.Keys.RIGHT);
+    cy.get("#tab-members").should("have.focus");
+
+    cy.press(Cypress.Keyboard.Keys.RIGHT);
+    cy.get("#tab-tokens").should("have.focus");
+
+    cy.press(Cypress.Keyboard.Keys.RIGHT);
+    cy.get("#tab-files")
+      .should("have.focus")
+      .and("have.attr", "aria-selected", "false");
+    cy.get("#tab-description").should("have.attr", "aria-selected", "true");
+
+    // Activate the focused tab with Enter
+    cy.get("#tab-files").type("{enter}");
+    cy.wait("@roomFilesRequest");
+    cy.get("#tab-files").should("have.attr", "aria-selected", "true");
+    cy.get("#panel-files").should("be.visible");
+    cy.url().should("include", "#tab=files");
+
+    cy.reload();
+    cy.wait("@roomFilesRequest");
+
+    // Navigate relative to the tab selected through the URL hash
+    cy.get("#tab-files").should("have.attr", "aria-selected", "true");
+    cy.get("#tab-files").focus();
+
+    cy.press(Cypress.Keyboard.Keys.LEFT);
+    cy.get("#tab-tokens").should("have.focus");
+
+    cy.press(Cypress.Keyboard.Keys.RIGHT);
+    cy.get("#tab-files").should("have.focus");
+
+    // Navigate relative to the tab selected with the mouse
+    cy.get("#tab-description").click();
+    cy.get("#tab-description")
+      .should("have.attr", "aria-selected", "true")
+      .and("have.focus");
+
+    cy.press(Cypress.Keyboard.Keys.RIGHT);
+    cy.get("#tab-members").should("have.focus");
+
+    cy.press(Cypress.Keyboard.Keys.LEFT);
+    cy.get("#tab-description").should("have.focus");
+  });
+
   it("room view with invalid tab hash", function () {
     cy.fixture("room.json").then((room) => {
       room.data.short_description = "Room short description";

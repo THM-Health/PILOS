@@ -185,3 +185,23 @@
 .room-card:has(button:focus) {
     @apply ring-0;
 }
+
+.room-tabs {
+    .p-button:focus {
+        box-shadow: var(--p-button-primary-focus-ring-shadow);
+        outline: var(--p-button-focus-ring-width)
+            var(--p-button-focus-ring-style)
+            var(--p-button-primary-focus-ring-color);
+        outline-offset: var(--p-button-focus-ring-offset);
+    }
+
+    .p-button-contrast:focus {
+        outline-color: var(--p-button-contrast-focus-ring-color);
+        box-shadow: var(--p-button-contrast-focus-ring-shadow);
+    }
+
+    .p-button-secondary:focus {
+        outline-color: var(--p-button-secondary-focus-ring-color);
+        box-shadow: var(--p-button-secondary-focus-ring-shadow);
+    }
+}

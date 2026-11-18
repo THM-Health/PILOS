@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\api\v1;
 
+use App\Enums\ColorMode;
 use App\Enums\LinkButtonStyle;
 use App\Enums\LinkTarget;
 use App\Enums\TimePeriod;
@@ -179,6 +180,7 @@ class SettingsController extends Controller
         $themeSettings->favicon_dark = $faviconDark;
         $themeSettings->primary_color = $request->input('theme_primary_color');
         $themeSettings->rounded = $request->boolean('theme_rounded');
+        $themeSettings->enforced_color_mode = $request->enum('theme_enforced_color_mode', ColorMode::class);
 
         $roomSettings->limit = $request->integer('room_limit');
         $roomSettings->personalized_link_expiration = $request->enum('room_personalized_link_expiration', TimePeriod::class);

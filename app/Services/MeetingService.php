@@ -106,8 +106,27 @@ class MeetingService
         $meetingParams->addMeta('bbb-origin', 'PILOS');
         $meetingParams->addMeta('pilos-sub-spool-dir', config('recording.spool-sub-directory'));
 
-        // get files that should be used in this meeting and add links to the files
-        $files = $this->meeting->room->files()->where('use_in_meeting', true)->orderBy('default', 'desc')->get();
+        // Add system default presentation, if exists
+        $useSystemDefaultFileAsStart = false;
+        if (app(BigBlueButtonSettings::class)->default_presentation) {
+            if ($this->meeting->room->prefer_system_default_presentation_as_start) {
+                $useSystemDefaultFileAsStart = true;
+            }
+
+            $url = app(BigBlueButtonSettings::class)->default_presentation;
+            $extension = pathinfo($url, PATHINFO_EXTENSION);
+            $filename = '_System-Default.'.$extension;
+
+            $presentation = new UrlPresentation($url);
+            $presentation->setCurrent($useSystemDefaultFileAsStart);
+            $presentation->setDownloadable(false);
+            $presentation->setRemovable(false);
+            $presentation->setFilename($filename);
+            $meetingParams->addPresentation($presentation);
+        }
+
+        // Get files that should be used in this meeting and add links to the files
+        $files = $this->meeting->room->files()->where('use_in_meeting', true)->orderBy('is_start_file', 'desc')->get();
         foreach ($files as $file) {
             // Create file download url
             $fileUrl = URL::signedRoute('rooms.files.download.bbb', [
@@ -115,15 +134,16 @@ class MeetingService
             ]);
 
             // Add download url to meeting params
-
             $presentation = new UrlPresentation($fileUrl);
             $presentation->setFilename(preg_replace("/[^A-Za-z0-9.-_\(\)]/", '', $file->filename));
 
-            $meetingParams->addPresentation($presentation);
-        }
+            // Make file only start presentation, if the system default presentation is not used for start and this file is selected as start file
+            $presentation->setCurrent(! $useSystemDefaultFileAsStart && $file->is_start_file);
+            // Apply download attribute (user can download file in PILOS)
+            $presentation->setDownloadable($file->download);
+            $presentation->setRemovable(true);
 
-        if (empty($meetingParams->getPresentations()) && app(BigBlueButtonSettings::class)->default_presentation) {
-            $meetingParams->addPresentation(new UrlPresentation(app(BigBlueButtonSettings::class)->default_presentation));
+            $meetingParams->addPresentation($presentation);
         }
 
         // Set default welcome message

@@ -51,6 +51,7 @@ class SettingsResource extends JsonResource
             'theme_favicon_dark' => $themeSettings->favicon_dark,
             'theme_primary_color' => $themeSettings->primary_color,
             'theme_rounded' => $themeSettings->rounded,
+            'theme_enforced_color_mode' => $themeSettings->enforced_color_mode,
             'theme_custom_css' => $themeSettings->custom_css,
             'banner_enabled' => $bannerSettings->enabled,
             'banner_message' => $bannerSettings->message,

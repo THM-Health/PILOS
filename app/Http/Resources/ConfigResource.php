@@ -60,6 +60,7 @@ class ConfigResource extends JsonResource
                 'favicon_dark' => $theme->favicon_dark,
                 'primary_color' => $theme->primary_color,
                 'rounded' => $theme->rounded,
+                'enforced_color_mode' => $theme->enforced_color_mode,
             ],
             'room' => [
                 'limit' => $roomSettings->limit,

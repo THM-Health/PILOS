@@ -55,6 +55,7 @@ class RoomFileService
             try {
                 Log::error('Room file {file} not found', ['file' => $this->file->getLogLabel()]);
                 $this->file->delete();
+                $this->file->room->updateStartFile();
             } catch (\Exception $exception) {
             }
 

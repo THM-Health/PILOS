@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Backend\Feature\api\v1;
 
+use App\Enums\ColorMode;
 use App\Enums\LinkButtonStyle;
 use App\Enums\LinkTarget;
 use App\Enums\TimePeriod;
@@ -48,6 +49,7 @@ class ApplicationTest extends TestCase
         $this->themeSettings->favicon_dark = 'testfavicon-dark.ico';
         $this->themeSettings->primary_color = '#4a5c66';
         $this->themeSettings->rounded = true;
+        $this->themeSettings->enforced_color_mode = null;
         $this->themeSettings->save();
 
         $this->bannerSettings->enabled = true;
@@ -114,6 +116,7 @@ class ApplicationTest extends TestCase
                         'favicon_dark' => 'testfavicon-dark.ico',
                         'primary_color' => '#4a5c66',
                         'rounded' => true,
+                        'enforced_color_mode' => null,
                     ],
                     'room' => [
                         'file_terms_of_use' => null,
@@ -171,6 +174,9 @@ class ApplicationTest extends TestCase
         $this->generalSettings->no_welcome_page = true;
         $this->generalSettings->save();
 
+        $this->themeSettings->enforced_color_mode = ColorMode::LIGHT;
+        $this->themeSettings->save();
+
         $this->bannerSettings->enabled = false;
         $this->bannerSettings->save();
 
@@ -215,6 +221,7 @@ class ApplicationTest extends TestCase
                         'favicon_dark' => 'testfavicon-dark.ico',
                         'primary_color' => '#4a5c66',
                         'rounded' => true,
+                        'enforced_color_mode' => 'light',
                     ],
                     'room' => [
                         'file_terms_of_use' => 'Test',

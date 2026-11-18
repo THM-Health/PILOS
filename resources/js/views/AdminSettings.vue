@@ -506,6 +506,43 @@
                 <FormError :errors="formErrors.fieldError('theme_rounded')" />
               </div>
             </fieldset>
+            <div
+              class="field grid grid-cols-12 gap-4"
+              data-test="theme-enforced-color-mode-field"
+            >
+              <label
+                id="theme-enforced-color-mode-label"
+                class="col-span-12 md:col-span-4 md:mb-0"
+                >{{
+                  $t("admin.settings.theme.enforced_color_mode.title")
+                }}</label
+              >
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
+                <Select
+                  v-model="settings.theme_enforced_color_mode"
+                  data-test="theme-enforced-color-mode-dropdown"
+                  aria-labelledby="theme-enforced-color-mode-label"
+                  :options="enforcedColorModeOptions"
+                  option-label="text"
+                  option-value="value"
+                  :invalid="
+                    formErrors.fieldInvalid('theme_enforced_color_mode')
+                  "
+                  :disabled="disabled"
+                  :pt="{
+                    listContainer: {
+                      'data-test': 'theme-enforced-color-mode-dropdown-items',
+                    },
+                    option: {
+                      'data-test': 'theme-enforced-color-mode-dropdown-option',
+                    },
+                  }"
+                />
+                <FormError
+                  :errors="formErrors.fieldError('theme_enforced_color_mode')"
+                />
+              </div>
+            </div>
             <fieldset
               class="field grid grid-cols-12 gap-4"
               data-test="theme-custom-css-field"
@@ -1972,17 +2009,51 @@ const roomDeleteDeadlineOptions = computed(() => {
   );
 });
 
+const enforcedColorModeOptions = computed(() => [
+  {
+    value: null,
+    text: t("admin.settings.theme.enforced_color_mode.null"),
+  },
+  {
+    value: "light",
+    text: t("admin.settings.theme.enforced_color_mode.light"),
+  },
+  {
+    value: "dark",
+    text: t("admin.settings.theme.enforced_color_mode.dark"),
+  },
+]);
+
 watch(
   () => settings.value.theme_rounded,
   (rounded) => {
-    updateTheme(settings.value.theme_primary_color, rounded);
+    updateTheme(
+      settings.value.theme_primary_color,
+      rounded,
+      settings.value.theme_enforced_color_mode,
+    );
   },
 );
 
 watch(
   () => settings.value.theme_primary_color,
   (color) => {
-    updateTheme(color, settings.value.theme_rounded);
+    updateTheme(
+      color,
+      settings.value.theme_rounded,
+      settings.value.theme_enforced_color_mode,
+    );
+  },
+);
+
+watch(
+  () => settings.value.theme_enforced_color_mode,
+  (enforcedColorMode) => {
+    updateTheme(
+      settings.value.theme_primary_color,
+      settings.value.theme_rounded,
+      enforcedColorMode,
+    );
   },
 );
 
