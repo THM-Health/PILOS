@@ -182,7 +182,7 @@
                     />
                   </div>
                   <div class="col-span-2 flex items-start">
-                    <Badge
+                    <Tag
                       v-if="includedPermissions.includes(permission.id)"
                       v-tooltip="
                         $t('admin.roles.has_included_permission', {
@@ -191,13 +191,19 @@
                           ),
                         })
                       "
+                      :aria-label="
+                        $t('admin.roles.has_included_permission', {
+                          name: $t(
+                            `admin.roles.permissions.${permission.name}`,
+                          ),
+                        })
+                      "
+                      class="p-1"
                       severity="success"
                       data-test="permission-included-icon"
-                      class="p-1!"
-                    >
-                      <i class="fa-solid fa-check" />
-                    </Badge>
-                    <Badge
+                      icon="fa-solid fa-check"
+                    />
+                    <Tag
                       v-else
                       v-tooltip="
                         $t('admin.roles.has_not_included_permission', {
@@ -206,12 +212,18 @@
                           ),
                         })
                       "
-                      class="p-1!"
+                      class="p-1"
                       severity="danger"
                       data-test="permission-not-included-icon"
-                    >
-                      <i class="fa-solid fa-times" />
-                    </Badge>
+                      :aria-label="
+                        $t('admin.roles.has_not_included_permission', {
+                          name: $t(
+                            `admin.roles.permissions.${permission.name}`,
+                          ),
+                        })
+                      "
+                      icon="fa-solid fa-times"
+                    />
                   </div>
                 </div>
               </div>

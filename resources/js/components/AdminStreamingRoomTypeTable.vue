@@ -62,16 +62,22 @@
       :sortable="true"
     >
       <template #body="slotProps">
-        <Badge
+        <Tag
           v-if="slotProps.data.streaming_settings.enabled"
+          v-tooltip="$t('admin.streaming.enabled')"
+          :aria-label="$t('admin.streaming.enabled')"
           severity="success"
-          class="p-1!"
-        >
-          <i class="fa-solid fa-check" />
-        </Badge>
-        <Badge v-else severity="danger" class="p-1!">
-          <i class="fa-solid fa-times" />
-        </Badge>
+          class="p-2"
+          icon="fa-solid fa-check"
+        />
+        <Tag
+          v-else
+          v-tooltip="$t('admin.streaming.disabled')"
+          :aria-label="$t('admin.streaming.disabled')"
+          severity="danger"
+          class="p-2"
+          icon="fa-solid fa-times"
+        />
       </template>
     </Column>
 
@@ -82,16 +88,22 @@
       :sortable="true"
     >
       <template #body="slotProps">
-        <Badge
+        <Tag
           v-if="slotProps.data.streaming_settings.default_pause_image"
+          v-tooltip="$t('admin.streaming.default_pause_image_set')"
+          :aria-label="$t('admin.streaming.default_pause_image_set')"
           severity="success"
-          class="p-1!"
-        >
-          <i class="fa-solid fa-check" />
-        </Badge>
-        <Badge v-else severity="danger" class="p-1!">
-          <i class="fa-solid fa-times" />
-        </Badge>
+          class="p-2"
+          icon="fa-solid fa-check"
+        />
+        <Tag
+          v-else
+          v-tooltip="$t('admin.streaming.default_pause_image_not_set')"
+          :aria-label="$t('admin.streaming.default_pause_image_not_set')"
+          severity="danger"
+          class="p-2"
+          icon="fa-solid fa-times"
+        />
       </template>
     </Column>
 
