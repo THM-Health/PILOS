@@ -1,4 +1,4 @@
-FROM php:8.5.12-fpm-alpine
+FROM php:8.5.13-fpm-alpine3.24
 
 LABEL maintainer="Samuel Weirich"
 LABEL description="Development and production container for PILOS, compatible with laravel sail; heavily inspired by offical image"
