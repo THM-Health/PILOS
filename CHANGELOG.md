@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.20.1] - 2026-11-19
+
+### Security
+
+- Updated PHP to 8.5.13 ([#3656])
+- Updated NGINX to 1.30.7-r0 ([#3656])
+- Default PHP ini values ([#3656])
+- Bumped PHP dependency jwt-framework ([#3656])
+
 ## [v4.20.0] - 2026-11-09
 
 ### Changed
@@ -980,7 +989,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3588]: https://github.com/THM-Health/PILOS/pull/3588
 [#3603]: https://github.com/THM-Health/PILOS/issues/3603
 [#3604]: https://github.com/THM-Health/PILOS/pull/3604
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.20.0...develop
+[#3656]: https://github.com/THM-Health/PILOS/pull/3656
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.20.1...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -1016,3 +1026,4 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.18.3]: https://github.com/THM-Health/PILOS/releases/tag/v4.18.3
 [v4.19.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.19.0
 [v4.20.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.20.0
+[v4.20.1]: https://github.com/THM-Health/PILOS/releases/tag/v4.20.1
