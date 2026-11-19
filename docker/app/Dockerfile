@@ -1,4 +1,4 @@
-FROM php:8.5.12-fpm-alpine
+FROM php:8.5.13-fpm-alpine3.24
 
 LABEL maintainer="Samuel Weirich"
 LABEL description="Development and production container for PILOS, compatible with laravel sail; heavily inspired by offical image"
@@ -83,6 +83,9 @@ COPY ./docker/app/nginx/snippets /etc/nginx/snippets
 COPY ./docker/app/nginx/snippets-available /etc/nginx/snippets-available
 RUN ls -la /etc/nginx/
 RUN mkdir -p /etc/nginx/snippets
+
+# Use the default production configuration as base
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
 # Copy php config files
 COPY ./docker/app/php/zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
