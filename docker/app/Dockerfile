@@ -84,6 +84,9 @@ COPY ./docker/app/nginx/snippets-available /etc/nginx/snippets-available
 RUN ls -la /etc/nginx/
 RUN mkdir -p /etc/nginx/snippets
 
+# Use the default production configuration as base
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+
 # Copy php config files
 COPY ./docker/app/php/zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
 COPY ./docker/app/php/php.ini /usr/local/etc/php/conf.d/99-app.ini
