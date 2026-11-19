@@ -153,8 +153,8 @@
               </div>
 
               <!-- Room join/start -->
-              <div class="flex items-start justify-between gap-2">
-                <div class="flex justify-start gap-2">
+              <div class="flex flex-wrap items-start justify-between gap-2">
+                <div class="flex flex-wrap justify-start gap-2">
                   <RoomJoinButton
                     :room-id="room.id"
                     :running="running"
