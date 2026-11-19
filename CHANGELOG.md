@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated PHP to 8.5.13 ([#3656])
 - Updated NGINX to 1.30.7-r0 ([#3656])
 - Default PHP ini values ([#3656])
+- Bumped PHP dependency jwt-framework ([#3656])
 
 ## [v4.20.0] - 2026-11-09
 
