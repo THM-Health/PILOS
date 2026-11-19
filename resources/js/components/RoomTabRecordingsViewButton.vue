@@ -36,18 +36,6 @@
       </div>
     </template>
 
-    <template #footer>
-      <div class="flex justify-end gap-2">
-        <Button
-          :label="$t('app.close')"
-          severity="secondary"
-          icon="fa-solid fa-times"
-          data-test="dialog-close-button"
-          @click="modalVisible = false"
-        />
-      </div>
-    </template>
-
     <div class="flex flex-col gap-2">
       <!-- Hide disabled formats if disabled formats should be hidden -->
       <Button
@@ -62,6 +50,8 @@
         rel="opener"
         :href="viewFormatUrl(format)"
         as="a"
+        severity="secondary"
+        class="justify-start"
       />
     </div>
   </Dialog>
