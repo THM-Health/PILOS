@@ -76,7 +76,7 @@ TLS is using the same port as the unsecured connection (389) and doing an upgrad
 
 By default, PILOS currently **does not verify** the TLS certificate of the LDAP server. Enable `LDAP_VERIFY_CERT=true` in production and provide a trusted CA with `LDAP_CA_CERT_FILE` when your LDAP server uses a private or institutional CA.
 
-To provide a CA certificate or a custom OpenLDAP client config, mount a host directory over `/etc/openldap` (adjust the `docker-compose.yml`):
+To provide a CA certificate, mount a host directory over `/etc/openldap` (adjust the `docker-compose.yml`):
 
 ```yaml
 x-docker-pilos-common: &pilos-common
@@ -84,11 +84,10 @@ x-docker-pilos-common: &pilos-common
         - "./ldap:/etc/openldap"
 ```
 
-Place your files on the host, for example:
+Place your CA file on the host, for example:
 
 ```text
 ./ldap/ca.pem
-./ldap/ldap.conf
 ```
 
 Then point PILOS at the CA path inside the container:
@@ -98,7 +97,7 @@ LDAP_VERIFY_CERT=true
 LDAP_CA_CERT_FILE=/etc/openldap/ca.pem
 ```
 
-For advanced setups you can also place a custom [`ldap.conf`](http://www.openldap.org/software/man.cgi?query=ldap.conf&manpath=OpenLDAP+2.6-Release) in that directory.
+For advanced setups you can also place a custom [`ldap.conf`](http://www.openldap.org/software/man.cgi?query=ldap.conf&manpath=OpenLDAP+2.6-Release) in the same volume mount directory.
 Options set via the environment variables above take **higher priority** and override matching settings from `ldap.conf`.
 
 For connection or certificate problems during setup, you can temporarily enable client debugging:
