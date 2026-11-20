@@ -109,14 +109,10 @@ return [
     'feature_disabled_system' => ':name معطّل. يرجى التواصل مع المسؤول.',
     'files' => [
         'confirm_delete' => 'هل تريد حذف الملف :filename؟',
-        'default' => 'افتراضي',
         'delete' => 'حذف الملف',
         'download' => 'تنزيل الملف',
         'download_aria' => 'تنزيل الملف: :filename',
-        'download_hidden' => 'التنزيل مخفي',
-        'download_visible' => 'التنزيل متاح',
         'downloadable' => 'قابل للتنزيل',
-        'edit' => 'تعديل الملف',
         'filter' => [
             'all' => 'جميع الملفات',
             'downloadable' => 'الملفات القابلة للتنزيل',
@@ -136,8 +132,6 @@ return [
         'title' => 'الملفات',
         'upload' => 'رفع ملفات',
         'uploaded' => 'تم رفع الملف \':name\'',
-        'use_in_next_meeting' => 'استخدام في الاجتماع القادم',
-        'use_in_next_meeting_disabled' => 'غير متاح في مؤتمر الفيديو',
     ],
     'first_and_lastname' => 'الاسم الأول واسم العائلة',
     'flash' => [

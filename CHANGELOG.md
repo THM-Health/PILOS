@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Option to enforce light or dark color mode ([#3557])
 - Environment variables `LDAP_VERIFY_CERT`, `LDAP_CA_CERT_FILE` and `LDAP_DEBUG_LEVEL` for LDAP TLS certificate verification, custom CA certificates and connection debugging ([#3609], [#3610])
 - Docs: LDAP TLS certificate verification and mounting a custom CA with Docker Compose ([#3609], [#3610])
+- Popover to show dial-in number and pin during a running meeting ([#1143], [#1810])
 - Option to disable recordings using the `RECORDING_ENABLED` environment variable ([#3633], [#3635])
 
 ### Changed
@@ -32,6 +33,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - Bundled OpenLDAP client config (`/etc/openldap/ldap.conf` with `TLS_REQCERT never`) from the application container image ([#3609], [#3610])
+
+## [v4.20.1] - 2026-11-19
+
+### Security
+
+- Updated PHP to 8.5.13 ([#3656])
+- Updated NGINX to 1.30.7-r0 ([#3656])
+- Default PHP ini values ([#3656])
+- Bumped PHP dependency jwt-framework ([#3656])
 
 ## [v4.20.0] - 2026-11-09
 
@@ -770,6 +780,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1120]: https://github.com/THM-Health/PILOS/pull/1120
 [#1126]: https://github.com/THM-Health/PILOS/pull/1126
 [#1133]: https://github.com/THM-Health/PILOS/pull/1133
+[#1143]: https://github.com/THM-Health/PILOS/issues/1143
 [#1150]: https://github.com/THM-Health/PILOS/issues/1150
 [#1159]: https://github.com/THM-Health/PILOS/pull/1159
 [#1166]: https://github.com/THM-Health/PILOS/pull/1166
@@ -840,6 +851,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1795]: https://github.com/THM-Health/PILOS/pull/1795
 [#1801]: https://github.com/THM-Health/PILOS/pull/1801
 [#1802]: https://github.com/THM-Health/PILOS/pull/1802
+[#1810]: https://github.com/THM-Health/PILOS/pull/1810
 [#1811]: https://github.com/THM-Health/PILOS/pull/1811
 [#1824]: https://github.com/THM-Health/PILOS/issues/1824
 [#1825]: https://github.com/THM-Health/PILOS/pull/1825
@@ -1016,7 +1028,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3632]: https://github.com/THM-Health/PILOS/pull/3632
 [#3633]: https://github.com/THM-Health/PILOS/issues/3633
 [#3635]: https://github.com/THM-Health/PILOS/pull/3635
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.20.0...develop
+[#3656]: https://github.com/THM-Health/PILOS/pull/3656
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.20.1...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
@@ -1052,3 +1065,4 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [v4.18.3]: https://github.com/THM-Health/PILOS/releases/tag/v4.18.3
 [v4.19.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.19.0
 [v4.20.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.20.0
+[v4.20.1]: https://github.com/THM-Health/PILOS/releases/tag/v4.20.1

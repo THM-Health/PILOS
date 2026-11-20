@@ -108,6 +108,7 @@ return [
         'blank' => 'Open in a new tab',
         'self' => 'Open in current tab',
     ],
+    'loading' => 'Loading',
     'locales' => [
         'ar' => 'Arabic',
         'de' => 'German',
@@ -115,7 +116,6 @@ return [
         'fa' => 'Persian',
         'fr' => 'French',
     ],
-    'loading' => 'Loading',
     'model' => [
         'meeting' => 'Meeting',
         'recording' => 'Recording',
