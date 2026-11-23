@@ -81,7 +81,7 @@
     "vue-axe": "^3.1.2",
     "vue-i18n": "^11.4",
     "vue-multiselect": "^3.5.0",
-    "vue-router": "^5.4.0"
+    "vue-router": "^5.5.1"
   },
   "engines": {
     "node": ">=24.0.0"
