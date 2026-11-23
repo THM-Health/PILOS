@@ -53,7 +53,7 @@
     "@tiptap/extension-text-style": "^3.32.0",
     "@tiptap/starter-kit": "^3.32.0",
     "@tiptap/vue-3": "^3.32.0",
-    "@vitejs/plugin-vue": "^6.0.10",
+    "@vitejs/plugin-vue": "^6.0.11",
     "@vueuse/components": "^15.0.0",
     "@vueuse/core": "^15.0.0",
     "axe-core": "^4.14.0",
