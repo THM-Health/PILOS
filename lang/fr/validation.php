@@ -150,6 +150,7 @@ return [
         'streaming_url' => 'URL RTMP(S)',
         'strength' => 'Puissance du serveur',
         'theme_custom_css' => 'Fichier de styles CSS personnalisé',
+        'theme_enforced_color_mode' => 'Mode couleur forcée',
         'theme_favicon' => 'Favicon',
         'theme_favicon_dark' => 'Mode sombre du favicon',
         'theme_favicon_dark_file' => 'Fichier du favicon en mode sombre',

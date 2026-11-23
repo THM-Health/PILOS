@@ -108,6 +108,7 @@ return [
         'blank' => 'Ouvrir dans un nouvel onglet',
         'self' => 'Ouvrir dans l\'onglet actuel',
     ],
+    'loading' => 'Chargement en cours',
     'locales' => [
         'ar' => 'Arabe',
         'de' => 'Allemand',

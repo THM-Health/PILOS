@@ -37,7 +37,7 @@ return [
     'title' => [
         'first_line' => [
             'after_flip_words' => ' en ligne',
-            'before_flip_words' => ' ',
+            'before_flip_words' => 'En ligne ',
             'flip_words' => 'Réunions|Lectures|Séminaires|Examens',
         ],
         'get_started' => 'Commencer',
