@@ -38,7 +38,7 @@ jobs:
           RELEASE_DATE: ${{ steps.release.outputs.date }}
 
       - name: Create PR with the update
-        uses: peter-evans/create-pull-request@15733dbdfeedb4f7fdb73d13c6f5ac83b710fab8 # v8.1.2
+        uses: peter-evans/create-pull-request@3ffccacd46053766916f087ce41d627c0b8cf2d1 # v8.1.3
         with:
           add-paths: "publiccode.yml"
           commit-message: "Update publiccode.yml to version ${{ steps.release.outputs.version }}"
