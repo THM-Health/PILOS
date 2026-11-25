@@ -1,24 +1,13 @@
 <template>
   <div>
     <div class="mb-6 flex flex-col justify-between gap-4 md:flex-row">
-      <search>
-        <InputGroup data-test="user-search">
-          <InputText
-            v-model="filter.search"
-            :disabled="isBusy"
-            type="search"
-            :placeholder="$t('app.search')"
-            @keyup.enter="loadData(1)"
-          />
-          <Button
-            v-tooltip="$t('app.search')"
-            :disabled="isBusy"
-            :aria-label="$t('admin.users.search_aria')"
-            icon="fa-solid fa-magnifying-glass"
-            @click="loadData(1)"
-          />
-        </InputGroup>
-      </search>
+      <SearchInput
+        v-model="filter.search"
+        :disabled="isBusy"
+        :aria-label="$t('admin.users.search_aria')"
+        data-test="user-search"
+        @triggered-search="loadData(1)"
+      />
 
       <div class="flex flex-col justify-end gap-2 md:flex-row">
         <InputGroup class="min-w-80 shrink-0 grow">

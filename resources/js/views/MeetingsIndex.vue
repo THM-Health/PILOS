@@ -7,24 +7,13 @@
 
       <template #content>
         <div class="flex justify-between">
-          <search>
-            <InputGroup data-test="meeting-search">
-              <InputText
-                v-model="search"
-                type="search"
-                :disabled="isBusy"
-                :placeholder="$t('app.search')"
-                @keyup.enter="loadData(1)"
-              />
-              <Button
-                v-tooltip="$t('app.search')"
-                :disabled="isBusy"
-                :aria-label="$t('meetings.search_aria')"
-                icon="fa-solid fa-magnifying-glass"
-                @click="loadData(1)"
-              />
-            </InputGroup>
-          </search>
+          <SearchInput
+            v-model="search"
+            :disabled="isBusy"
+            :aria-label="$t('meetings.search_aria')"
+            data-test="meeting-search"
+            @triggered-search="loadData(1)"
+          />
           <div>
             <Button
               v-tooltip="$t('app.reload')"

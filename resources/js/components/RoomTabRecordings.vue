@@ -2,24 +2,13 @@
   <div>
     <div class="flex flex-col-reverse justify-between gap-2 lg:flex-row">
       <div class="flex grow flex-col justify-between gap-2 lg:flex-row">
-        <search>
-          <InputGroup data-test="room-recordings-search">
-            <InputText
-              v-model="search"
-              type="search"
-              :disabled="isBusy"
-              :placeholder="$t('app.search')"
-              @keyup.enter="loadData(1)"
-            />
-            <Button
-              v-tooltip="$t('app.search')"
-              :disabled="isBusy"
-              :aria-label="$t('rooms.recordings.search_aria')"
-              icon="fa-solid fa-magnifying-glass"
-              @click="loadData(1)"
-            />
-          </InputGroup>
-        </search>
+        <SearchInput
+          v-model="search"
+          :disabled="isBusy"
+          :aria-label="$t('rooms.recordings.search_aria')"
+          data-test="room-recordings-search"
+          @triggered-search="loadData(1)"
+        />
         <div class="flex flex-col gap-2 lg:flex-row">
           <InputGroup v-if="userPermissions.can('manageSettings', props.room)">
             <InputGroupAddon aria-hidden="true">

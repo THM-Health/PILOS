@@ -54,6 +54,27 @@
       {{ $t("meetings.stats.no_breakout_support") }}
     </InlineNote>
 
+    <div class="mt-6 mb-2 flex flex-col justify-between gap-2 md:flex-row">
+      <SearchInput
+        v-model="search"
+        :autofocus="true"
+        data-test="room-history-attendance-search"
+        :aria-label="$t('meetings.attendance.search_aria')"
+        @triggered-search="filters['global'].value = search"
+      />
+
+      <Button
+        v-tooltip="$t('meetings.attendance.download')"
+        as="a"
+        target="_blank"
+        :href="downloadUrl"
+        icon="fa-solid fa-download"
+        severity="primary"
+        :aria-label="$t('meetings.attendance.download_aria')"
+        data-test="room-history-attendance-download-button"
+      />
+    </div>
+
     <!-- List of all meetings -->
     <DataTable
       v-model:filters="filters"
@@ -78,33 +99,6 @@
         },
       }"
     >
-      <template #header>
-        <div class="flex justify-between gap-2">
-          <search>
-            <IconField icon-position="left">
-              <InputIcon class="fa-solid fa-search"> </InputIcon>
-              <InputText
-                v-model="filters['global'].value"
-                autofocus
-                type="search"
-                :placeholder="$t('app.search')"
-                data-test="room-history-attendance-search"
-              />
-            </IconField>
-          </search>
-
-          <Button
-            v-tooltip:top="$t('meetings.attendance.download')"
-            as="a"
-            target="_blank"
-            :href="downloadUrl"
-            icon="fa-solid fa-download"
-            severity="primary"
-            :aria-label="$t('meetings.attendance.download_aria')"
-            data-test="room-history-attendance-download-button"
-          />
-        </div>
-      </template>
       <template #loading>
         <LoadingRetryButton :error="loadingError" @reload="loadData()" />
       </template>
@@ -208,6 +202,7 @@ const modalVisible = ref(false);
 const isLoadingAction = ref(false);
 const loadingError = ref(false);
 const attendance = ref([]);
+const search = ref("");
 const filters = ref({
   global: { value: null, matchMode: "contains" },
 });

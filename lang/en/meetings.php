@@ -15,6 +15,7 @@ return [
         'no_data_filtered' => 'For the filter query no logged attendance were found!',
         'retention_period' => 'The attendance is stored for :days days.',
         'retention_period_unlimited' => 'The attendance is stored indefinitely.',
+        'search_aria' => 'Search attendees',
         'sessions' => 'Sessions',
         'spreadsheet' => [
             'title' => 'Attendance for :room',

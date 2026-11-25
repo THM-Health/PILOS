@@ -1,25 +1,13 @@
 <template>
   <div>
     <div class="flex flex-col justify-between md:flex-row">
-      <search>
-        <InputGroup data-test="server-search">
-          <InputText
-            v-model="filter"
-            :disabled="isBusy"
-            type="search"
-            :placeholder="$t('app.search')"
-            @keyup.enter="loadData(1, false)"
-          />
-          <Button
-            v-tooltip="$t('app.search')"
-            :disabled="isBusy"
-            :aria-label="$t('admin.servers.search_aria')"
-            icon="fa-solid fa-magnifying-glass"
-            severity="primary"
-            @click="loadData(1, false)"
-          />
-        </InputGroup>
-      </search>
+      <SearchInput
+        v-model="filter"
+        :disabled="isBusy"
+        :aria-label="$t('admin.servers.search_aria')"
+        data-test="server-search"
+        @triggered-search="loadData(1, false)"
+      />
       <div class="mt-2 flex justify-between gap-2">
         <Button
           :disabled="isBusy"
