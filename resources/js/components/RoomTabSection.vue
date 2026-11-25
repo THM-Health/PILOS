@@ -261,12 +261,14 @@ const availableTabs = computed(() => {
     icon: "fa-solid fa-folder-open",
     component: RoomTabFiles,
   });
-  tabs.push({
-    key: "recordings",
-    label: t("rooms.recordings.title"),
-    icon: "fa-solid fa-play-circle",
-    component: RoomTabRecordings,
-  });
+  if (settingsStore.getSetting("recording.enabled")) {
+    tabs.push({
+      key: "recordings",
+      label: t("rooms.recordings.title"),
+      icon: "fa-solid fa-play-circle",
+      component: RoomTabRecordings,
+    });
+  }
 
   if (userPermissions.can("viewSettings", props.room)) {
     tabs.push({

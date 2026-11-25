@@ -5,8 +5,8 @@
 publiccodeYmlVersion: "0.2"
 name: PILOS
 url: "https://github.com/THM-Health/PILOS"
-softwareVersion: "4.20.0"
-releaseDate: "2026-11-09"
+softwareVersion: "4.20.1"
+releaseDate: "2026-11-19"
 logo: logo.svg
 platforms:
   - web

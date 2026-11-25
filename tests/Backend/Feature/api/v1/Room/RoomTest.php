@@ -1707,7 +1707,7 @@ class RoomTest extends TestCase
             ]);
 
         // Test with ended meeting
-        $meeting = Meeting::factory()->create(['room_id' => $room->id]);
+        $meeting = Meeting::factory()->create(['room_id' => $room->id, 'dial_number' => '613-555-1234', 'voice_bridge' => '01234']);
         $room->latestMeeting()->associate($meeting);
         $room->save();
 
@@ -1723,9 +1723,10 @@ class RoomTest extends TestCase
                     ],
                 ],
             ])
+            ->assertJsonMissingPath('data.last_meeting.dial_in')
             ->assertJsonMissingPath('data.last_meeting.usage');
 
-        // Test with running meeting and usage statistics
+        // Test with running meeting, usage statistics and dial-in
         $meeting->end = null;
         $meeting->save();
 
@@ -1741,10 +1742,55 @@ class RoomTest extends TestCase
                         'usage' => [
                             'participant_count' => 10,
                         ],
+                        'dial_in' => [
+                            'number' => '613-555-1234',
+                            'pin' => '01234',
+                        ],
                     ],
                 ],
             ])
             ->assertJsonCount(1, 'data.last_meeting.usage');
+
+        // Test without dial-in
+        $meeting->dial_number = null;
+        $meeting->voice_bridge = null;
+        $meeting->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'last_meeting' => [
+                        'start' => $meeting->start->toJson(),
+                        'end' => null,
+                        'detached' => null,
+                        'server_connection_issues' => false,
+                        'usage' => [
+                            'participant_count' => 10,
+                        ],
+                        'dial_in' => [
+                            'number' => null,
+                            'pin' => null,
+                        ],
+                    ],
+                ],
+            ]);
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'last_meeting' => [
+                        'start' => $meeting->start->toJson(),
+                        'end' => null,
+                        'detached' => null,
+                        'server_connection_issues' => false,
+                        'usage' => [
+                            'participant_count' => 10,
+                        ],
+                    ],
+                ],
+            ]);
 
         // Test with server with connection issues
         $meeting->server->error_count = 1;
@@ -2431,6 +2477,15 @@ class RoomTest extends TestCase
         // Testing access owner
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.settings', ['room' => $room]))
             ->assertSuccessful();
+
+        // Check if the stored record setting is returned when recordings are disabled
+        config(['recording.enabled' => false]);
+        $room->record = true;
+        $room->expert_mode = true;
+        $room->save();
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.settings', ['room' => $room]))
+            ->assertSuccessful()
+            ->assertJsonPath('data.record', true);
     }
 
     public function test_access_code_shown()
@@ -3325,6 +3380,30 @@ class RoomTest extends TestCase
             $room->refresh();
             $this->assertEquals($case[4], $room->latestMeeting->record, $label);
         }
+
+        // Recordings disabled, room and room type settings are ignored
+        config(['recording.enabled' => false]);
+
+        $room = Room::factory()->create(['record' => true, 'expert_mode' => true]);
+        $room->roomType->serverPool->servers()->attach($server);
+        $room->roomType->record_default = true;
+        $room->roomType->record_enforced = true;
+        $room->roomType->save();
+
+        $this->actingAs($room->owner)
+            ->optionsJson(route('api.v1.rooms.start-requirements', ['room' => $room]))
+            ->assertSuccessful()
+            ->assertJsonPath('data.features.recording', false);
+
+        // Try starting the room without agreement, should succeed
+        $bbbFaker->addCreateMeetingRequest();
+        $this->actingAs($room->owner)
+            ->postJson(route('api.v1.rooms.start', ['room' => $room]))
+            ->assertSuccessful();
+
+        // Check if the meeting is created without recording
+        $room->refresh();
+        $this->assertFalse($room->latestMeeting->record);
     }
 
     /**
@@ -3964,7 +4043,7 @@ class RoomTest extends TestCase
                     <internalMeetingID>5400b2af9176c1be733b9a4f1adbc7fb41a72123-1624606850899</internalMeetingID>
                     <createTime>1624606850899</createTime>
                     <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
-                    <voiceBridge>70663</voiceBridge>
+                    <voiceBridge>00663</voiceBridge>
                     <dialNumber>613-555-1234</dialNumber>
                     <running>true</running>
                     <duration>0</duration>
@@ -4045,7 +4124,7 @@ class RoomTest extends TestCase
                     <internalMeetingID>5400b2af9176c1be733b9a4f1adbc7fb41a72123-1624606850899</internalMeetingID>
                     <createTime>1624606850899</createTime>
                     <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
-                    <voiceBridge>70663</voiceBridge>
+                    <voiceBridge>00663</voiceBridge>
                     <dialNumber>613-555-1234</dialNumber>
                     <running>true</running>
                     <duration>0</duration>
@@ -4257,7 +4336,7 @@ class RoomTest extends TestCase
                     <internalMeetingID>5400b2af9176c1be733b9a4f1adbc7fb41a72123-1624606850899</internalMeetingID>
                     <createTime>1624606850899</createTime>
                     <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
-                    <voiceBridge>70663</voiceBridge>
+                    <voiceBridge>00663</voiceBridge>
                     <dialNumber>613-555-1234</dialNumber>
                     <running>true</running>
                     <duration>0</duration>
@@ -4666,7 +4745,7 @@ class RoomTest extends TestCase
                     <internalMeetingID>5400b2af9176c1be733b9a4f1adbc7fb41a72123-1624606850899</internalMeetingID>
                     <createTime>1624606850899</createTime>
                     <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
-                    <voiceBridge>70663</voiceBridge>
+                    <voiceBridge>00663</voiceBridge>
                     <dialNumber>613-555-1234</dialNumber>
                     <running>true</running>
                     <duration>0</duration>
@@ -4812,7 +4891,7 @@ class RoomTest extends TestCase
                     <internalMeetingID>5400b2af9176c1be733b9a4f1adbc7fb41a72123-1624606850899</internalMeetingID>
                     <createTime>1624606850899</createTime>
                     <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
-                    <voiceBridge>70663</voiceBridge>
+                    <voiceBridge>00663</voiceBridge>
                     <dialNumber>613-555-1234</dialNumber>
                     <running>true</running>
                     <duration>0</duration>
@@ -4915,7 +4994,7 @@ class RoomTest extends TestCase
                     <internalMeetingID>5400b2af9176c1be733b9a4f1adbc7fb41a72123-1624606850899</internalMeetingID>
                     <createTime>1624606850899</createTime>
                     <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
-                    <voiceBridge>70663</voiceBridge>
+                    <voiceBridge>00663</voiceBridge>
                     <dialNumber>613-555-1234</dialNumber>
                     <running>true</running>
                     <duration>0</duration>
@@ -5024,6 +5103,25 @@ class RoomTest extends TestCase
         $bbbFaker->addRequest($meetingInfoRequest);
         $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]))
             ->assertSuccessful();
+
+        // Create new meeting with recording enabled, but recordings disabled globally
+        config(['recording.enabled' => false]);
+        $room = Room::factory()->create(['record' => true, 'expert_mode' => true]);
+        $room->roomType->serverPool->servers()->attach($server);
+        $bbbFaker->addCreateMeetingRequest();
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]))
+            ->assertSuccessful();
+
+        // Check if recording is disabled
+        $this->actingAs($room->owner)
+            ->optionsJson(route('api.v1.rooms.join-requirements', ['room' => $room]))
+            ->assertSuccessful()
+            ->assertJsonPath('data.features.recording', false);
+
+        // Join without agreement, should succeed
+        $bbbFaker->addRequest($meetingInfoRequest);
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]))
+            ->assertSuccessful();
     }
 
     /**
@@ -5048,7 +5146,7 @@ class RoomTest extends TestCase
                     <internalMeetingID>5400b2af9176c1be733b9a4f1adbc7fb41a72123-1624606850899</internalMeetingID>
                     <createTime>1624606850899</createTime>
                     <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
-                    <voiceBridge>70663</voiceBridge>
+                    <voiceBridge>00663</voiceBridge>
                     <dialNumber>613-555-1234</dialNumber>
                     <running>true</running>
                     <duration>0</duration>
@@ -5170,7 +5268,7 @@ class RoomTest extends TestCase
                     <internalMeetingID>5400b2af9176c1be733b9a4f1adbc7fb41a72123-1624606850899</internalMeetingID>
                     <createTime>1624606850899</createTime>
                     <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
-                    <voiceBridge>70663</voiceBridge>
+                    <voiceBridge>00663</voiceBridge>
                     <dialNumber>613-555-1234</dialNumber>
                     <running>true</running>
                     <duration>0</duration>

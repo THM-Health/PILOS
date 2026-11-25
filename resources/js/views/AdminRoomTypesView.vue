@@ -694,7 +694,11 @@
           </div>
 
           <!-- Record video-conf -->
-          <div class="field grid grid-cols-12 gap-4" data-test="record-field">
+          <div
+            v-if="settingsStore.getSetting('recording.enabled')"
+            class="field grid grid-cols-12 gap-4"
+            data-test="record-field"
+          >
             <label
               for="record-default"
               class="col-span-12 items-center md:col-span-4 md:mb-0"
@@ -738,6 +742,7 @@
 
           <!-- Auto start recording video-conf -->
           <div
+            v-if="settingsStore.getSetting('recording.enabled')"
             class="field grid grid-cols-12 gap-4"
             data-test="auto-start-recording-field"
           >
@@ -1547,6 +1552,7 @@ import { useConfirm } from "primevue/useconfirm";
 import { useI18n } from "vue-i18n";
 import ConfirmDialog from "primevue/confirmdialog";
 import { useColors } from "../composables/useColors.js";
+import { useSettingsStore } from "../stores/settings.js";
 import {
   HTTP_STATUS_NOT_FOUND,
   HTTP_STATUS_STALE_MODEL,
@@ -1559,6 +1565,7 @@ const api = useApi();
 const router = useRouter();
 const confirm = useConfirm();
 const colors = useColors();
+const settingsStore = useSettingsStore();
 const breadcrumbLabelData = inject("breadcrumbLabelData");
 
 const { t } = useI18n();

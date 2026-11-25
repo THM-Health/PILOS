@@ -153,8 +153,8 @@
               </div>
 
               <!-- Room join/start -->
-              <div class="flex items-start justify-between gap-2">
-                <div class="flex justify-start gap-2">
+              <div class="flex flex-wrap items-start justify-between gap-2">
+                <div class="flex flex-wrap justify-start gap-2">
                   <RoomJoinButton
                     :room-id="room.id"
                     :running="running"
@@ -177,6 +177,11 @@
                     v-model:remember-participant-name="rememberGuestName"
                     :participant-name="guestName"
                     @participant-name-changed="updateGuestName"
+                  />
+                  <RoomJoinByPhoneButton
+                    v-if="running && room.last_meeting.dial_in?.number"
+                    :number="room.last_meeting.dial_in.number"
+                    :pin="room.last_meeting.dial_in.pin"
                   />
                   <RoomBrowserNotification
                     :room-name="room.name"
