@@ -19,10 +19,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Always include system-wide default presentation ([#2662], [#2746])
 - User avatar cropper and preview now displayed in circular shape ([#3386])
+- Searching the attendance list now requires pressing Enter or clicking the search button ([#3675])
 
 ### Fixed
 
 - Keyboard navigation between room tabs after a mouse click or after opening a room with a tab hash ([#3631], [#3632])
+- Several frontend inconsistencies (e.g. button colors, search inputs, cancel buttons, labels, icons) ([#3675])
+- File download buttons in admin settings incorrectly labeled “View” ([#3675])
+- Selected role not being reset when reopening the bulk member import dialog ([#3675])
 
 ## [v4.20.1] - 2026-11-19
 
@@ -1017,6 +1021,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#3633]: https://github.com/THM-Health/PILOS/issues/3633
 [#3635]: https://github.com/THM-Health/PILOS/pull/3635
 [#3656]: https://github.com/THM-Health/PILOS/pull/3656
+[#3675]: https://github.com/THM-Health/PILOS/pull/3675
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.20.1...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
