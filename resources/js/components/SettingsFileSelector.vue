@@ -48,9 +48,9 @@
         severity="secondary"
         :href="fileUrl"
         target="_blank"
-        :label="$t('app.view')"
-        data-test="settings-file-view-button"
-        icon="fa-solid fa-eye"
+        :label="$t('app.download')"
+        data-test="settings-file-download-button"
+        icon="fa-solid fa-download"
       />
     </div>
     <div>

@@ -1,25 +1,13 @@
 <template>
   <div>
     <div class="mb-6 flex flex-col justify-between gap-2 md:flex-row">
-      <search>
-        <InputGroup data-test="server-pool-search">
-          <InputText
-            v-model="filter"
-            type="search"
-            :disabled="isBusy"
-            :placeholder="$t('app.search')"
-            @keyup.enter="loadData(1)"
-          />
-          <Button
-            v-tooltip="$t('app.search')"
-            :disabled="isBusy"
-            :aria-label="$t('admin.server_pools.search_aria')"
-            severity="primary"
-            icon="fa-solid fa-magnifying-glass"
-            @click="loadData(1)"
-          />
-        </InputGroup>
-      </search>
+      <SearchInput
+        v-model="filter"
+        :disabled="isBusy"
+        :aria-label="$t('admin.server_pools.search_aria')"
+        data-test="server-pool-search"
+        @triggered-search="loadData(1)"
+      />
       <Button
         v-if="userPermissions.can('create', 'ServerPoolPolicy')"
         v-tooltip="$t('admin.server_pools.new')"

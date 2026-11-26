@@ -1,25 +1,13 @@
 <template>
   <div>
     <div class="mb-6 flex flex-col justify-between gap-2 md:flex-row">
-      <search>
-        <InputGroup data-test="room-type-search">
-          <InputText
-            v-model="nameSearch"
-            :disabled="isBusy"
-            type="search"
-            :placeholder="$t('app.search')"
-            @keyup.enter="filters['name'].value = nameSearch"
-          />
-          <Button
-            v-tooltip="$t('app.search')"
-            :disabled="isBusy"
-            :aria-label="$t('admin.room_types.search_aria')"
-            icon="fa-solid fa-magnifying-glass"
-            severity="primary"
-            @click="filters['name'].value = nameSearch"
-          />
-        </InputGroup>
-      </search>
+      <SearchInput
+        v-model="nameSearch"
+        :disabled="isBusy"
+        :aria-label="$t('admin.room_types.search_aria')"
+        data-test="room-type-search"
+        @triggered-search="filters['name'].value = nameSearch"
+      />
       <Button
         v-if="userPermissions.can('create', 'RoomTypePolicy')"
         v-tooltip="$t('admin.room_types.new')"

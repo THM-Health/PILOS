@@ -453,6 +453,9 @@ return [
         'css_file' => 'CSS style file',
         'css_file_description' => 'CSS file to customize the BBB UI for streaming',
         'default_pause_image' => 'Default pause image',
+        'default_pause_image_not_set' => 'Not set',
+        'default_pause_image_set' => 'Set',
+        'disabled' => 'Disabled',
         'enabled' => 'Enabled',
         'general' => [
             'title' => 'General settings',

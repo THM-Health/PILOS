@@ -178,9 +178,9 @@ return [
         'reset_filter' => 'Reset filter',
         'room_component' => [
             'details' => 'Details',
+            'go_to_room' => 'Go to room',
             'last_ran_till' => 'Last run until :date',
             'never_started' => 'Never started before',
-            'open' => 'Open',
             'owner' => 'Owner',
             'room_type' => 'Room type',
             'running_since' => 'Running since :date',

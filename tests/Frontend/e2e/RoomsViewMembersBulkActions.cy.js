@@ -801,6 +801,12 @@ describe("Rooms view members bulk actions", function () {
       .should("be.visible")
       .within(() => {
         cy.contains("rooms.members.bulk_import_users");
+        // Check cancel button
+        cy.get('[data-test="dialog-cancel-button"]').should(
+          "have.text",
+          "app.cancel",
+        );
+
         // Check continue button
         cy.get('[data-test="dialog-continue-button"]').should(
           "have.text",
@@ -881,6 +887,7 @@ describe("Rooms view members bulk actions", function () {
         cy.get("#moderator-role").should("be.disabled");
         cy.get("#co_owner-role").should("be.disabled");
 
+        cy.get('[data-test="dialog-cancel-button"]').should("be.disabled");
         cy.get('[data-test="dialog-continue-button"]').should("be.disabled");
         cy.get("#user-emails")
           .should("be.disabled")
@@ -941,8 +948,11 @@ describe("Rooms view members bulk actions", function () {
         cy.get("#user-emails").type(
           "\n\n\nJuanMWalter@domain.tld\ntammyglaw@do  main  .tld\n\nnotAn\tE  ma il\ninvalidemail@domain.tld\n\n\n",
         );
-        // Check that role stayed selected
-        cy.get("#moderator-role").should("be.checked");
+        // Check that role selection was cleared
+        cy.get("#participant-role").should("not.be.checked");
+        cy.get("#moderator-role").should("not.be.checked");
+        cy.get("#co_owner-role").should("not.be.checked");
+
         // Select co_owner role
         cy.get("#co_owner-role").click();
 
@@ -1199,8 +1209,11 @@ describe("Rooms view members bulk actions", function () {
         cy.get("#user-emails").should("have.value", "");
         cy.get("#user-emails").type("invalidEmail@domain.tld\nnotAnEmail");
 
-        // Check that role stayed selected
-        cy.get("#co_owner-role").should("be.checked");
+        // Check that role selection was cleared
+        cy.get("#participant-role").should("not.be.checked");
+        cy.get("#moderator-role").should("not.be.checked");
+        cy.get("#co_owner-role").should("not.be.checked");
+
         // Select participant role
         cy.get("#participant-role").click();
 

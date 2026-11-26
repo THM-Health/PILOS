@@ -78,7 +78,7 @@
           <Button
             :label="$t('rooms.create.ok')"
             data-test="dialog-save-button"
-            severity="success"
+            severity="primary"
             :disabled="
               roomTypeSelectLoadingError ||
               isLoadingAction ||

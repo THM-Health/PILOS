@@ -293,7 +293,10 @@ describe("Rooms view history meeting actions", function () {
           });
 
         // Check search
-        cy.get('[data-test="room-history-attendance-search"]').type("Max");
+        cy.get('[data-test="room-history-attendance-search"]').within(() => {
+          cy.get("input").type("Max");
+          cy.get("button").click();
+        });
 
         cy.get('[data-test="room-history-attendance-item"]').should(
           "have.length",
@@ -303,7 +306,10 @@ describe("Rooms view history meeting actions", function () {
           .eq(0)
           .should("include.text", "Max Doe");
 
-        cy.get('[data-test="room-history-attendance-search"]').type("x");
+        cy.get('[data-test="room-history-attendance-search"]').within(() => {
+          cy.get("input").type("x");
+          cy.get("input").type("{enter}");
+        });
         cy.get('[data-test="room-history-attendance-item"]').should(
           "have.length",
           0,
@@ -314,7 +320,10 @@ describe("Rooms view history meeting actions", function () {
         );
 
         // Clear search
-        cy.get('[data-test="room-history-attendance-search"]').clear();
+        cy.get('[data-test="room-history-attendance-search"]').within(() => {
+          cy.get("input").clear();
+          cy.get("button").click();
+        });
 
         cy.get('[data-test="room-history-attendance-item"]').should(
           "have.length",

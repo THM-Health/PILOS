@@ -61,6 +61,13 @@
       :breakpoints="{ '575px': '90vw' }"
       :draggable="false"
       data-test="room-info-dialog"
+      :pt="{
+        pcCloseButton: {
+          root: {
+            'data-test': 'dialog-header-close-button',
+          },
+        },
+      }"
     >
       <div class="flex flex-col">
         <h1
@@ -88,15 +95,9 @@
       <template #footer>
         <div class="flex justify-end gap-2">
           <Button
-            :label="$t('app.close')"
-            severity="secondary"
-            data-test="dialog-cancel-button"
-            @click="handleCancel"
-          />
-          <Button
             as="router-link"
             :to="link"
-            :label="$t('rooms.index.room_component.open')"
+            :label="$t('rooms.index.room_component.go_to_room')"
             data-test="dialog-continue-button"
           />
         </div>
@@ -142,8 +143,4 @@ const running = computed(() => {
  * Details modal
  */
 const modalVisible = ref(false);
-
-function handleCancel() {
-  modalVisible.value = false;
-}
 </script>

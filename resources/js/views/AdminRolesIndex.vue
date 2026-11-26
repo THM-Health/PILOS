@@ -1,26 +1,13 @@
 <template>
   <div>
     <div class="mb-6 flex flex-col justify-between gap-2 md:flex-row">
-      <search>
-        <InputGroup data-test="role-search">
-          <InputText
-            v-model="filter"
-            :disabled="isBusy"
-            type="search"
-            :placeholder="$t('app.search')"
-            @keyup.enter="loadData(1)"
-          />
-          <Button
-            v-tooltip="$t('app.search')"
-            :disabled="isBusy"
-            :aria-label="$t('admin.roles.search_aria')"
-            severity="primary"
-            icon="fa-solid fa-magnifying-glass"
-            @click="loadData(1)"
-          />
-        </InputGroup>
-      </search>
-
+      <SearchInput
+        v-model="filter"
+        :disabled="isBusy"
+        data-test="role-search"
+        :aria-label="$t('admin.roles.search_aria')"
+        @triggered-search="loadData(1)"
+      />
       <Button
         v-if="userPermissions.can('create', 'RolePolicy')"
         v-tooltip="$t('admin.roles.new')"

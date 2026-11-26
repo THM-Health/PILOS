@@ -29,28 +29,15 @@
       <template #content>
         <!--  search, sorting, favorite-->
         <div class="grid grid-cols-12 gap-4">
-          <search
-            class="col-span-12 md:col-span-6 lg:col-span-4 2xl:col-span-3"
-          >
-            <!--search-->
-            <InputGroup class="mb-2" data-test="room-search">
-              <InputText
-                ref="search"
-                v-model="rawSearchQuery"
-                type="search"
-                :disabled="loadingRooms"
-                :placeholder="$t('rooms.search')"
-                @keyup.enter="loadRooms(1)"
-              />
-              <Button
-                v-tooltip="$t('app.search')"
-                icon="fa-solid fa-magnifying-glass"
-                :disabled="loadingRooms"
-                :aria-label="$t('rooms.index.search_aria')"
-                @click="loadRooms(1)"
-              />
-            </InputGroup>
-          </search>
+          <SearchInput
+            v-model="rawSearchQuery"
+            :disabled="loadingRooms"
+            :placeholder="$t('rooms.search')"
+            :aria-label="$t('rooms.index.search_aria')"
+            class="col-span-12 mb-2 md:col-span-6 lg:col-span-4 2xl:col-span-3"
+            data-test="room-search"
+            @triggered-search="loadRooms(1)"
+          />
           <div
             class="col-span-12 flex flex-col-reverse items-start justify-end gap-2 md:col-span-6 md:flex-row lg:col-span-8 2xl:col-span-9"
           >

@@ -181,8 +181,8 @@
                       :invalid="formErrors.fieldInvalid('permissions', true)"
                     />
                   </div>
-                  <div class="col-span-2">
-                    <i
+                  <div class="col-span-2 flex items-start">
+                    <Tag
                       v-if="includedPermissions.includes(permission.id)"
                       v-tooltip="
                         $t('admin.roles.has_included_permission', {
@@ -191,10 +191,19 @@
                           ),
                         })
                       "
-                      class="fa-solid fa-check-circle text-green-500"
+                      :aria-label="
+                        $t('admin.roles.has_included_permission', {
+                          name: $t(
+                            `admin.roles.permissions.${permission.name}`,
+                          ),
+                        })
+                      "
+                      class="p-1"
+                      severity="success"
                       data-test="permission-included-icon"
+                      icon="fa-solid fa-check"
                     />
-                    <i
+                    <Tag
                       v-else
                       v-tooltip="
                         $t('admin.roles.has_not_included_permission', {
@@ -203,8 +212,17 @@
                           ),
                         })
                       "
-                      class="fa-solid fa-minus-circle text-red-500"
+                      class="p-1"
+                      severity="danger"
                       data-test="permission-not-included-icon"
+                      :aria-label="
+                        $t('admin.roles.has_not_included_permission', {
+                          name: $t(
+                            `admin.roles.permissions.${permission.name}`,
+                          ),
+                        })
+                      "
+                      icon="fa-solid fa-times"
                     />
                   </div>
                 </div>

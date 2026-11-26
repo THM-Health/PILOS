@@ -149,9 +149,9 @@ describe("Admin settings with edit permission", function () {
 
       cy.get('[data-test="settings-file-delete-button"]').should("be.visible");
 
-      cy.get('[data-test="settings-file-view-button"]')
+      cy.get('[data-test="settings-file-download-button"]')
         .should("be.visible")
-        .and("include.text", "app.view")
+        .and("include.text", "app.download")
         .and("have.attr", "href", "https://example.com/pause.jpg");
     });
 
@@ -163,9 +163,9 @@ describe("Admin settings with edit permission", function () {
 
       cy.get('[data-test="settings-file-delete-button"]').should("be.visible");
 
-      cy.get('[data-test="settings-file-view-button"]')
+      cy.get('[data-test="settings-file-download-button"]')
         .should("be.visible")
-        .and("include.text", "app.view")
+        .and("include.text", "app.download")
         .and("have.attr", "href", "https://example.com/streaming.css");
     });
 
